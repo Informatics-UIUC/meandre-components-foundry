@@ -8,7 +8,7 @@ import java.io.ByteArrayOutputStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.seasr.meandre.components.ComponentTesterBase;
+import org.meandre.components.test.framework.ComponentTesterBase;
 
 /** The base class for performing component testing.
  * 

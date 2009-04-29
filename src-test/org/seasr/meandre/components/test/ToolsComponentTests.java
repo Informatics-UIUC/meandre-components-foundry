@@ -16,7 +16,7 @@ import java.io.StringReader;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.seasr.meandre.components.ComponentTesterBase;
+import org.meandre.components.test.framework.ComponentTesterBase;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
