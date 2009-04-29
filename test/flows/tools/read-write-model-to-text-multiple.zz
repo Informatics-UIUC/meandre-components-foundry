@@ -1,0 +1,29 @@
+
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/ReadModel.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/RDFTextToModel.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/ModelToRDFText.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/WriteModel.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PushText.rdf>
+
+alias <meandre://seasr.org/components/tools/push-text> as PUSH
+alias <meandre://seasr.org/components/tools/read-semantic-model> as READ
+alias <meandre://seasr.org/components/tools/model-to-rdf-text> as M2T
+alias <meandre://seasr.org/components/tools/rdf-text-to-model> as T2M
+alias <meandre://seasr.org/components/tools/write-semantic-model> as WRITE
+
+push, read, m2t, t2m, m2tf, t2ml, write = PUSH(), READ(), M2T(), T2M(), M2T(), T2M(), WRITE()
+push_loc = PUSH()
+
+@msg, @loc  = push(), push_loc()
+@rd   = read(location:msg.text)
+@txt  = m2t(document:rd.document)
+@mod  = t2m(text:txt.text)
+@txtf = m2tf(document:mod.document)
+@modl  = t2ml(text:txtf.text)
+write(location:loc.text;document:modl.document)
+
+push.message = "./test/data/samples/rdf/sample-rdf.nt"
+push_loc.message = "./tmp/sample.nt"
+m2t.rdf_dialect = "TTL"
+m2tf.rdf_dialect = "RDF/XML"
+write.rdf_dialect = "N-TRIPLE"

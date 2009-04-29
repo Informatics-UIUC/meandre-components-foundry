@@ -1,0 +1,18 @@
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/opennlp/OpenNLPSentenceTokenizer.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/opennlp/OpenNLPSentenceDetector.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/opennlp/PrintToConsole.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/opennlp/PushText.rdf>
+
+alias <meandre://seasr.org/components/tools/push-text> as PUSH
+alias <meandre://seasr.org/components/tools/opennlp-sentence-detector> as SD
+alias <meandre://seasr.org/components/tools/opennlp-sentence-tokenizer> as ST
+alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+
+push, sd, st, print = PUSH(), SD(), ST(), PRINT()
+
+@msg = push()
+@sen = sd(text:msg.text)
+@stk = st(sentences:sen.sentences)
+print(object:stk.tokenized_sentences)
+
+push.message = "This isn't the greatest example sentence in the world because I've seen better. Neither is this one. This one's not bad, though."

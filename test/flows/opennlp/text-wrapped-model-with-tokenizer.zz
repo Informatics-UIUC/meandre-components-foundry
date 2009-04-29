@@ -1,0 +1,17 @@
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/opennlp/WrapTextIntoModel.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/opennlp/OpenNLPTokenizer.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/opennlp/ModelToRDFText.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/opennlp/PrintToConsole.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/opennlp/PushText.rdf>
+
+alias <meandre://seasr.org/components/tools/push-text> as PUSH
+alias <meandre://seasr.org/components/tools/opennlp-tokenizer> as TOKENIZER
+alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+
+push, tokenizer, print = PUSH(), TOKENIZER(), PRINT()
+
+@msg = push()
+@tok = tokenizer(text:msg.text)
+print(object:tok.tokens)
+
+push.message = "This isn't the greatest example sentence in the world because I've seen better. Neither is this one. This one's not bad, though."

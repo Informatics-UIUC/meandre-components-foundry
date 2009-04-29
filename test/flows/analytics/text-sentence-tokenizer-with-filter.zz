@@ -1,0 +1,31 @@
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/OpenNLPSentenceTokenizer.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/OpenNLPSentenceDetector.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/OpenNLPTokenizer.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/TokenFilter.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/PrintToConsole.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/PushText.rdf>
+
+alias <meandre://seasr.org/components/tools/push-text> as PUSH
+alias <meandre://seasr.org/components/tools/opennlp-sentence-detector> as SD
+alias <meandre://seasr.org/components/tools/opennlp-sentence-tokenizer> as ST
+alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+
+alias <meandre://seasr.org/components/tools/opennlp-tokenizer> as TOKENIZER
+alias <meandre://seasr.org/components/tools/token-filter> as FILTER
+
+push, sd, st, print = PUSH(), SD(), ST(), PRINT()
+blst, tokenize_bl, filter = PUSH(), TOKENIZER(), FILTER()
+
+@msg = push()
+@sen = sd(text:msg.text)
+@stk = st(sentences:sen.sentences)
+
+@blt = blst()
+@blk = tokenize_bl(text:blt.text)
+
+@fil = filter(tokens_blacklist:blk.tokens;tokenized_sentences:stk.tokenized_sentences)
+
+print(object:fil.tokenized_sentences)
+
+push.message = "This isn't the greatest example sentence in the world because I've seen better. Neither is this one. This one's not bad, though."
+blst.message = "This isn't the greatest example sentence in the world because I've seen better."

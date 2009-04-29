@@ -1,0 +1,134 @@
+option java_package = "org.seasr.datatypes";
+option java_outer_classname = "BasicDataTypes";
+
+option optimize_for = SPEED;
+
+// Basic collection types
+
+message Bytes {
+  repeated bytes value = 1 ; // The bytes
+  extensions 8 to max;
+}
+
+message Integers {
+  repeated int32 value = 1 ; // The integer
+  extensions 8 to max;
+}
+
+message Longs {
+  repeated int64 value = 1 ; // The longs
+  extensions 8 to max;
+}
+
+message Floats {
+  repeated float value = 1 ; // The floats
+  extensions 8 to max;
+}
+
+message Doubles {
+  repeated double value = 1 ; // The doubles
+  extensions 8 to max;
+}
+
+message Strings {
+  repeated string value = 1 ; // The strings
+  extensions 8 to max;
+}
+
+
+// Maps
+
+message ByteMap {
+	repeated string key = 1 ; // The keys
+	repeated Bytes  value = 2 ; // The values
+	extensions 8 to max;
+}
+
+message IntegerMap {
+	repeated string key = 1 ; // The keys
+	repeated Integers value = 2 ; // The values
+	extensions 8 to max;
+}
+
+message LongMap {
+	repeated string key = 1 ; // The keys
+	repeated Longs  value = 2 ; // The values
+	extensions 8 to max;
+}
+
+message FloatMap {
+	repeated string key = 1 ; // The keys
+	repeated Floats  value = 2 ; // The values
+	extensions 8 to max;
+}
+
+message DoubleMap {
+	repeated string key = 1 ; // The keys
+	repeated Doubles  value = 2 ; // The values
+	extensions 8 to max;
+}
+
+message StringsMap {
+	repeated string key = 1 ; // The keys
+	repeated Strings  value = 2 ; // The values
+	extensions 8 to max;
+}
+
+// Dense data frames
+
+message DenseByteDataFrame {
+	message LabeledBytes {
+		optional string name = 1 ; // The name of the variable/collumn
+		optional Bytes  data = 2 ; // The data contained in the frame
+	}
+	repeated LabeledBytes column = 1; // The named column
+	extensions 8 to max;
+}
+
+
+message DenseIntegerDataFrame {
+	message LabeledInteger {
+		optional string name = 1 ; // The name of the variable/collumn
+		optional Integers  data = 2 ; // The data contained in the frame
+	}
+	repeated LabeledInteger column = 1; // The named column
+	extensions 8 to max;
+}
+
+
+message DenseLongDataFrame {
+	message LabeledLongs {
+		optional string name = 1 ; // The name of the variable/collumn
+		optional Longs  data = 2 ; // The data contained in the frame
+	}
+	repeated LabeledLongs column = 1; // The named column
+	extensions 8 to max;
+}
+
+
+message DenseFloatDataFrame {
+	message LabeledFloats {
+		optional string name = 1 ; // The name of the variable/collumn
+		optional Floats data = 2 ; // The data contained in the frame
+	}
+	repeated LabeledFloats column = 1; // The named column
+	extensions 8 to max;
+}
+
+message DenseDoublesDataFrame {
+	message LabeledDoubles {
+		optional string name = 1 ; // The name of the variable/collumn
+		optional Doubles  data = 2 ; // The data contained in the frame
+	}
+	repeated LabeledDoubles column = 1; // The named column
+	extensions 8 to max;
+}
+
+message DenseStringsDataFrame {
+	message LabeledStrings {
+		optional string name = 1 ; // The name of the variable/collumn
+		optional Strings  data = 2 ; // The data contained in the frame
+	}
+	repeated LabeledStrings column = 1; // The named column
+	extensions 8 to max;
+}

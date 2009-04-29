@@ -1,0 +1,17 @@
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PushText.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PrintToConsole.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/ListDirectoryFiles.rdf>
+
+alias <meandre://seasr.org/components/tools/push-text> as PUSH
+alias <meandre://seasr.org/components/tools/list-directory-files> as LIST
+alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+
+push, list, print = PUSH(), LIST(), PRINT()
+
+@msg = push()
+@loc = list(location:msg.text)
+print(object:loc.location)
+
+push.message = "test"
+push.wrap_stream = "true"
+list.expression = ".*xml$"

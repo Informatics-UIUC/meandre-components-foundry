@@ -1,0 +1,18 @@
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/WrapTextIntoModel.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/ModelToRDFText.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PrintToConsole.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PushText.rdf>
+
+alias <meandre://seasr.org/components/tools/push-text> as PUSH
+alias <meandre://seasr.org/components/tools/wrap-text-into-model> as WRAP
+alias <meandre://seasr.org/components/tools/model-to-rdf-text> as M2T
+alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+
+push, wrap, m2t, print = PUSH(), WRAP(), M2T(), PRINT()
+
+@msg = push()
+@rd  = wrap(text:msg.text)
+@txt = m2t(document:rd.document)
+print(object:txt.text)
+
+m2t.rdf_dialect = "RDF/XML"

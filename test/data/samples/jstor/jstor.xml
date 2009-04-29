@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         article-type="research-article"
+         dtd-version="2.2">
+      <journal-meta>
+         <journal-id journal-id-type="jstor">journalid</journal-id>
+         <journal-id journal-id-type="doi">XX.YYYY/ZZZZZZZ</journal-id>
+         <journal-title>The best journal on earth</journal-title>
+         <issn pub-type="ppub">00000001</issn>
+         <publisher>
+            <publisher-name>The publisher</publisher-name>
+         </publisher>
+      </journal-meta>
+      <issue-meta>
+         <issueid>XX.YYYY/ZZZZZZZ</issueid>
+         <dataset>datasetID</dataset>
+         <issueorder>1234</issueorder>
+         <cil>false</cil>
+         <permissions>
+            <copyright-statement/>
+         </permissions>
+         <numerations>
+            <pub-date pub-type="ppub">
+               <day>1</day>
+               <month>1</month>
+               <year>1714</year>
+            </pub-date>
+            <voliss>
+               <volume>1</volume>
+               <issue>1</issue>
+            </voliss>
+            <string-volume>1</string-volume>
+            <string-issue>1</string-issue>
+            <string-date>Jan., 1714</string-date>
+         </numerations>
+         <issue-title/>
+         <pagerange>123-321</pagerange>
+      </issue-meta>
+      <front>
+         <article-meta>
+            <type>research-article</type>
+               <article-id pub-id-type="doi">XX.YYYY/ZZZZZZ</article-id>
+               <article-id pub-id-type="legacy-jstor">XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX</article-id>
+               <title-group>
+                  <article-title>A very cool article title</article-title>
+               </title-group>
+               <contrib-group>
+                  <contrib contrib-type="author">
+                     <name>
+                        <given-names>Joe</given-names>
+                        <surname>Doe</surname>
+                     </name>
+                  </contrib>
+               </contrib-group>
+               <fpage>123</fpage>
+               <lpage>321</lpage>
+               <page-range>123-321</page-range>
+               <custom-meta-wrap>
+                  <custom-meta>
+                     <meta-name>lang</meta-name>
+                     <meta-value>eng</meta-value>
+                  </custom-meta>
+               </custom-meta-wrap>
+            </article-meta>
+      </front>
+      <pages>
+         <page id="p-33" indexed="yes" label="123">The disgraced financier Bernard L. Madoff was immediately handcuffed and led off to jail on Thursday after a hearing in which he pleaded guilty to running a vast Ponzi scheme that bilked investors out of billions of dollars.</page>
+         <page id="p-34" indexed="yes" label="124">Rather than letting Mr. Madoff remain free on bail and return to his apartment on the Upper East Side of Manhattan, Judge Denny Chin of Federal District Court ordered Mr. Madoff remanded as he awaited sentencing.</page>
+         <page id="p-35" indexed="yes" label="125">"He has incentive to flee, he has the means to flee, and thus he presents the risk of flight," Judge Chin said. "Bail is revoked."</page>
+         <page id="p-36" indexed="yes" label="126">Some of the dozens of Mr. Madoff’s victims in the downtown Manhattan courtroom began to applaud the ruling but were cautioned by Judge Chin to remain silent. As Mr. Madoff’s hands were cuffed behind his back, some victims pointed and nodded with apparent satisfaction.</page>
+         <page id="p-37" indexed="yes" label="127">And as he was led out of the richly paneled courtroom into an antiseptic white-tiled hallway, at least two of his victims were in tears.</page>
+         <page id="p-38" indexed="yes" label="128">"They are tears of relief," explained Norma Hill of Armonk, N.Y., who sat in the first row of the packed courtroom. "It was a very courageous stand that the judge took. It has restored my faith in the justice system."</page>
+         <page id="p-39" indexed="yes" label="129">Behind her, Adriane Biondo of Los Angeles wept with anger. "I'm angry," she said, explaining that her family's devastating losses have left elderly relatives "sick with fear." She added, "It's emotional — 120 cumulative years of hard work is gone."</page>
+         <page id="p-40" indexed="yes" label="130">The 11 counts of fraud, money laundering, perjury and theft to which Mr. Madoff pleaded guilty carry maximum terms totaling 150 years. Sentencing was scheduled for June 16.</page>
+      </pages>
+   </article>

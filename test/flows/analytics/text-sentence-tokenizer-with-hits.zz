@@ -1,0 +1,23 @@
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/OpenNLPSentenceTokenizer.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/OpenNLPSentenceDetector.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/HITSSummarizer.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/TokenFilter.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/PrintToConsole.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/PushText.rdf>
+
+alias <meandre://seasr.org/components/tools/push-text> as PUSH
+alias <meandre://seasr.org/components/tools/opennlp-sentence-detector> as SD
+alias <meandre://seasr.org/components/tools/opennlp-sentence-tokenizer> as ST
+alias <meandre://seasr.org/components/tools/hits-summarizer> as HITS
+alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+
+push, sd, st, hits, print, print2 = PUSH(), SD(), ST(), HITS(), PRINT(), PRINT()
+
+@msg = push()
+@sen = sd(text:msg.text)
+@stk = st(sentences:sen.sentences)
+@sum = hits(tokenized_sentences:stk.tokenized_sentences)
+print(object:sum.sentences)
+print2(object:sum.tokens)
+
+push.message = "This isn't the greatest example sentence in the world because I've seen better. Neither is this one. This one's not bad, though."

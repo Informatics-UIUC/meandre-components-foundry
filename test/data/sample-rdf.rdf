@@ -1,0 +1,851 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.0="http://www.meandre.org/ontology/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/" > 
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/createnbmodel/15/property/wb_top_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_top_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">217</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/20">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/createbintree/14"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/createbintree/output/bintree"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/createnbmodel/15"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/createnbmodel/input/bintree"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/parse-file-to-table">
+    <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Boris Capitanu</dc:creator>
+    <j.0:firing_policy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">all</j.0:firing_policy>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.io.file.input.ParseFileToTable-parse-file-to-table.jar"/>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">io</j.0:tag>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/parse-file-to-table/output/table"/>
+    <j.0:mode rdf:resource="http://www.meandre.org/ontology/component/type/compute"/>
+    <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-01-10T18:20:38</dc:date>
+    <dc:rights rdf:datatype="http://www.w3.org/2001/XMLSchema#string">University of Illinois/NCSA Open Source License</dc:rights>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/executable_component"/>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">table</j.0:tag>
+    <j.0:resource_location rdf:resource="meandre://seasr.org/components/parse-file-to-table/implementation/org.meandre.components.io.file.input.ParseFileToTable"/>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Parse File To Table</j.0:name>
+    <j.0:runnable rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java</j.0:runnable>
+    <j.0:execution_context rdf:resource="meandre://seasr.org/components/parse-file-to-table/implementation/"/>
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/parse-file-to-table/input/parser"/>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Given a FlatFileParser, this module creates a Table initialized with the contents of a flat file from disk.</dc:description>
+    <dc:format rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java/class</dc:format>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/parse-file-to-table/property/use_blanks"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/webnaivebayesvis">
+    <j.0:firing_policy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">all</j.0:firing_policy>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">naive bayes</j.0:tag>
+    <j.0:runnable rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java</j.0:runnable>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">visualization</j.0:tag>
+    <j.0:resource_location rdf:resource="meandre://seasr.org/components/webnaivebayesvis/implementation/org.meandre.applet.prediction.naivebayes.WebNaiveBayesVis"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.applet.prediction.naivebayes.WebNaiveBayesVis-webnaivebayesvis.jar"/>
+    <j.0:execution_context rdf:resource="meandre://seasr.org/components/webnaivebayesvis/implementation/"/>
+    <j.0:mode rdf:resource="http://www.meandre.org/ontology/component/type/webui"/>
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/webnaivebayesvis/input/nbmodel"/>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/executable_component"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.applet.prediction.naivebayes.support.nbapplet.jar"/>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">WebNaiveBayesVis</j.0:name>
+    <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lily Dong</dc:creator>
+    <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-01-14T13:49:22</dc:date>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Overview: An evidence visualization for a NaiveBayesModel. Detailed Description: This evidence visualization shows pie charts that represent the different bins used.  The slices of the pie chart represent the ratios of the output classes for that particular bin. Selecting a chart in the evidence section will update the conclusion pie chart.  The conclusion shows the probability that each output has for classification given all the selected evidence charts.Data Type Restrictions: noneData Handling:  This module does not destroy or modify the input data.Scalability: This module keeps data structures to represent the evidence charts.  The amount of memory required is proportional to the number of bins used in the discretization process.</dc:description>
+    <dc:rights rdf:datatype="http://www.w3.org/2001/XMLSchema#string">University of Illinois/NCSA Open Source License</dc:rights>
+    <dc:format rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java/class</dc:format>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/icons.jar"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/autobin/property/method">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">method</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">0</j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This property is used to set the method for discretization. Select 1 to create binsby weight.  This will create bins with an equal number of items in each slot.  Select 0 to do uniform discretization by specifying the number of bins. This will result in equally spaced bins between the minimum and maximum for each scalar column. It must be 0 or 1.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/input-url-or-path/output/webdavclient">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/input-url-or-path/output/webdavclient</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">webdavClient</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">WebdavClient pointing to a resource.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/instance_configuration"/>
+    <j.0:instance_resource rdf:resource="meandre://seasr.org/components/parse-file-to-table"/>
+    <j.0:instance_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Parse File To Table</j.0:instance_name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Given a FlatFileParser, this module creates a Table initialized with the contents of a flat file from disk.</dc:description>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/wb_left_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/use_blanks"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/wb_top_pix_pos"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/17">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/fork-x5/18"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/fork-x5/output/object_2"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/createbintree/14"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/createbintree/input/exampletable"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/wb_left_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_left_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">37</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/wb_top_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_top_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">11</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/input-url-or-path/property/password">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">password</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">null</j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The password to access the object, if needed</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/parse-file-to-table/property/use_blanks">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">use_blanks</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">True</j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">When true, any blank entries in the file will be set as missing values in the table</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/replication_method_name">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">replication_method_name</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string"></j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/input-url-or-path/property/file_url">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">file_url</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string"> </j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The input file URL</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/wb_top_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_top_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">11</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/password">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">password</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">null</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/prepareforvis/16">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/instance_configuration"/>
+    <j.0:instance_resource rdf:resource="meandre://seasr.org/components/prepareforvis"/>
+    <j.0:instance_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PrepareForVis</j.0:instance_name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Overview: This module prepares a NaiveBayesModel for visualization.  Many calculations that are needed by the visualization are done here, before the model is visualized.Detailed Description: This module determines which of the input features of the training data are the best predictors of the output. This is done by performing predictions on the training data and leaving out one input feature each time.  Data structures to hold values for the pie charts in NaiveBayesVis are also created here.Data Type Restrictions: noneData Handling: The data structures used to display pie charts in NaiveBayesVis are created by this module.  These structures are stored in Naive Bayes Model.  The number of pie charts is proportional to the number of discrete values in the inputs of the training data set.Scalability: This module will perform NxM predictions, where N is the number of inputs and M is the number of training examples.</dc:description>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/prepareforvis/16/property/wb_left_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/prepareforvis/16/property/wb_top_pix_pos"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/autobin/property/nrOfBins">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nrOfBins</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2</j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This property is used to set the number of bins absolutely. This will give equally spaced bins between the minimum and maximum for each scalar column. It must be higher than 1.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/create-delimited-file-parser/property/labelsRowIndex">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">labelsRowIndex</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">0</j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This is the index of the labels row in the file, or -1 if there is no labels row</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/fork-x5/18">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/instance_configuration"/>
+    <j.0:instance_resource rdf:resource="meandre://seasr.org/components/fork-x5"/>
+    <j.0:instance_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Fork x5</j.0:instance_name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&lt;p&gt;Description: This component takes in any Java object and distributes it (or copies of it) across multiple outputs.  The user can choose from five object replication methods -- by reference, shallow copy by clone, deep copy via serialization, copy via constructor, or copy via custom method.&lt;/p&gt;</dc:description>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/replication_mode"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/wb_left_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/replication_method_name"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/wb_top_pix_pos"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/wb_top_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_top_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">11</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/create-delimited-file-parser/property/typesRowIndex">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">typesRowIndex</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This is the index of the types row in the file, or -1 if there is no types row</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/18">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/choose-attributes/1"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/choose-attributes/output/example_table"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/fork-x5/18"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/fork-x5/input/object"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/wb_top_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_top_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">11</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/fork-x5/property/replication_method_name">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">replication_method_name</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string"></j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Custom replication method name</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/createbintree/input/bintransform">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/createbintree/input/bintransform</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">binTransform</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Input binning transformation containing the bin definitions. It is of type ncsa.d2k.modules.core.datatype.table.transformations.BinTransform</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/fork-x5/input/object">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/fork-x5/input/object</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">object</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Object to replicate</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/0">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/input-url-or-path/output/url"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/create-delimited-file-parser/input/url"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/wb_left_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_left_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">295</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/autobin/property/weight">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">weight</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This property is used to set the number of items per bin When binning by weight, this is the number of items that will go in each bin. However, the bins may contain more or fewer values than weight values, depending on how many items equal the bin limits. Typically the last bin will contain less or equal to weight  values and the rest of the bins will contain a number that is  equal or greater to weight values.It must be a positive integer.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/22">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/createnbmodel/15"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/createnbmodel/output/nbmodel"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/prepareforvis/16"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/prepareforvis/input/nbmodel"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/createnbmodel/input/exampletable">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/createnbmodel/input/exampletable</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">exampleTable</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Read org.meandre.components.datatype.table.ExampleTable with the data in it.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/input-url-or-path/output/url">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/input-url-or-path/output/url</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">url</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">URL pointing to a resource location.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/autobin/output/bintransform">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/autobin/output/bintransform</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">binTransform</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Output ncsa.d2k.modules.core.datatype.table.transformations.BinTransform that contains all the information needed to discretize the Example Table</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/1">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/input-url-or-path/output/webdavclient"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/create-delimited-file-parser/input/webdavclient"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/autobin/13">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/instance_configuration"/>
+    <j.0:instance_resource rdf:resource="meandre://seasr.org/components/autobin"/>
+    <j.0:instance_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AutoBin</j.0:instance_name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Overview: Automatically discretize scalar data for the Naive Bayesian classification model.Detailed Description: Given a table of Examples, define the bins for each scalar input column.  When binning Uniformly, the number of bins is determined by Number of Bins property, and the boundaries of the bins are set so that they divide evenly over the range of the binned column.When binning by weight, Number of Items per Bin sets the size of each bin. The values are then binned so that in each bin there is the same number of items. For more details see description of property Number of Items per Bin'.Data Handling: This module does not modify the input data.Scalability: The module requires enough memory to make copies of each of the scalar input columns.</dc:description>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/autobin/13/property/wb_left_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/autobin/13/property/nrOfBins"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/autobin/13/property/wb_top_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/autobin/13/property/weight"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/autobin/13/property/method"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/fork-x5/output/object_1">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/fork-x5/output/object_1</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">object_1</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Replicated object</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/prepareforvis/16/property/wb_top_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_top_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">217</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/create-delimited-file-parser/input/webdavclient">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/create-delimited-file-parser/input/webdavclient</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">webdavClient</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">WebdavClient pointing to a resource</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/prepareforvis/input/nbmodel">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/prepareforvis/input/nbmodel</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nbModel</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Read org.meandre.components.prediction.naivebayes.NaiveBayesModel as input.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/createbintree/14">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/instance_configuration"/>
+    <j.0:instance_resource rdf:resource="meandre://seasr.org/components/createbintree"/>
+    <j.0:instance_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CreateBinTree</j.0:instance_name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Given a Binning Transformation containing the definition of the bins, and an Example Table that has the input/ output attribute labels and types, this module builds a Bin Tree that can be later used to classify data. A Bin Tree holds information about the number of examples that fall into each bin for each class. The Bin Tree can use only one output feature as a class. If more are selected in the Example Table, only the first one will be used.Scalability: a large enough number of features will result in an OutOfMemory error. Use feature selection to reduce the number of features.</dc:description>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/createbintree/14/property/wb_left_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/createbintree/14/property/wb_top_pix_pos"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/fork-x5/property/replication_mode">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">replication_mode</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">0</j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Replication mode (0 = by reference, 1 = clone shallow, 2 = serialize deep, 3 = constructor, 4 = custom)</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/username">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">username</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">null</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/input-url-or-path/property/username">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">username</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">null</j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The user login name to access the object. if needed, use null to indicate no authentication is to be performed.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/parse-file-to-table/output/table">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/parse-file-to-table/output/table</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">table</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Table with the data from the file reader</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/createnbmodel/output/nbmodel">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/createnbmodel/output/nbmodel</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nbModel</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Outuput a Naive Bayes model module. It is type of org.meandre.components.prediction.naivebayes.NaiveBayesModel</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/createnbmodel/15/property/wb_left_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_left_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">308</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/createnbmodel">
+    <j.0:mode rdf:resource="http://www.meandre.org/ontology/component/type/compute"/>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/createnbmodel/output/nbmodel"/>
+    <j.0:resource_location rdf:resource="meandre://seasr.org/components/createnbmodel/implementation/org.meandre.components.prediction.naivebayes.CreateNBModel"/>
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/createnbmodel/input/exampletable"/>
+    <dc:rights rdf:datatype="http://www.w3.org/2001/XMLSchema#string">University of Illinois/NCSA Open Source License</dc:rights>
+    <j.0:runnable rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java</j.0:runnable>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Overview: Generates a NaiveBayesModel from the given BinTree.  The Naive Bayes Model performs all necessary calculations.Detailed Description: Given a BinTree object that contains counts for each discrete item in the training data set, this module creates a Naive Bayesian learning model.  This method is based on Bayes's rule for conditional probability.  It "naively" assumes independence of the input features.Data Type Restrictions: This model can only use nominal data as the inputs and can only classify one nominal output.  The binning procedure will discretize any scalar inputs in the training data, but the output data is not binned and should be nominal. If the output data is binned, visualizations and prediction generated by the created model might be wrong and/or too corrupted to be displayed.Data Handling: The input data is neither modified nor destroyed.Missing Values Handling: Output data should be clean of missing values.Scalability: The module utilizes the counts in the BinTree, and as such does not perform any significant computations.</dc:description>
+    <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-01-10T18:22:40</dc:date>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">naive bayes</j.0:tag>
+    <dc:format rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java/class</dc:format>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.prediction.naivebayes.CreateNBModel-createnbmodel.jar"/>
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/createnbmodel/input/bintree"/>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/executable_component"/>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CreateNBModel</j.0:name>
+    <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lily Dong</dc:creator>
+    <j.0:firing_policy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">all</j.0:firing_policy>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">prediction</j.0:tag>
+    <j.0:execution_context rdf:resource="meandre://seasr.org/components/createnbmodel/implementation/"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/16">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/autobin/13"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/autobin/output/bintransform"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/createbintree/14"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/createbintree/input/bintransform"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/2">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/create-delimited-file-parser/output/parser"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/parse-file-to-table/input/parser"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/autobin/13/property/wb_left_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_left_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">130</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/autobin/13/property/weight">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">weight</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0/property/wb_top_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_top_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">217</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/file_url">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">file_url</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">http://repository.seasr.org/Datasets/UCI/csv/mushroom.csv</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/wb_left_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_left_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">10</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/fork-x5">
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/fork-x5/output/object_3"/>
+    <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-01-10T18:22:23</dc:date>
+    <j.0:execution_context rdf:resource="meandre://seasr.org/components/fork-x5/implementation/"/>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/fork-x5/property/replication_mode"/>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/fork-x5/output/object_4"/>
+    <j.0:mode rdf:resource="http://www.meandre.org/ontology/component/type/compute"/>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/fork-x5/output/object_1"/>
+    <j.0:firing_policy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">all</j.0:firing_policy>
+    <j.0:runnable rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java</j.0:runnable>
+    <dc:rights rdf:datatype="http://www.w3.org/2001/XMLSchema#string">University of Illinois/NCSA Open Source License</dc:rights>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">clone</j.0:tag>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/fork-x5/output/object_5"/>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/fork-x5/property/replication_method_name"/>
+    <j.0:resource_location rdf:resource="meandre://seasr.org/components/fork-x5/implementation/org.meandre.components.control.ForkX5"/>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Fork x5</j.0:name>
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/fork-x5/input/object"/>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">copy</j.0:tag>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.control.ForkX5-fork-x5.jar"/>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fork</j.0:tag>
+    <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Duane Searsmith</dc:creator>
+    <dc:format rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java/class</dc:format>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/executable_component"/>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/fork-x5/output/object_2"/>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&lt;p&gt;Description: This component takes in any Java object and distributes it (or copies of it) across multiple outputs.  The user can choose from five object replication methods -- by reference, shallow copy by clone, deep copy via serialization, copy via constructor, or copy via custom method.&lt;/p&gt;</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/choose-attributes/1">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/instance_configuration"/>
+    <j.0:instance_resource rdf:resource="meandre://seasr.org/components/choose-attributes"/>
+    <j.0:instance_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Choose Attributes</j.0:instance_name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&lt;p&gt;This module allows the user to choose which columns of a table are inputs and outputs.&lt;/p&gt;&lt;p&gt;Detailed Description: This module outputs an &lt;i&gt;Example Table&lt;/i&gt; with the input and output features assigned. Inputs and outputs do not have to be selected, nor do they have to be mutually exclusive. &lt;/p&gt;&lt;p&gt;Data Handling: This module does not modify the data in the table. It only sets the input and output features.</dc:description>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/wb_left_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/wb_top_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/require_output_selection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/14">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/fork-x5/18"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/fork-x5/output/object_1"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/autobin/13"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/autobin/input/exampletable"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/createbintree/output/bintree">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/createbintree/output/bintree</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">binTree</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Output bin tree structure holding counts. It is of type ncsa.d2k.modules.core.transform.binning.BinTree</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/use_blanks">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">use_blanks</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">True</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/fork-x5/output/object_3">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/fork-x5/output/object_3</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">object_3</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Replicated object</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/choose-attributes/input/table">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/choose-attributes/input/table</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">table</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The Table to choose inputs and outputs from</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/choose-attributes">
+    <dc:format rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java/class</dc:format>
+    <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Boris Capitanu</dc:creator>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.vis.transform.attribute.ChooseAttributes-choose-attributes.jar"/>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/choose-attributes/property/require_output_selection"/>
+    <j.0:runnable rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java</j.0:runnable>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">transform</j.0:tag>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/choose-attributes/output/example_table"/>
+    <dc:rights rdf:datatype="http://www.w3.org/2001/XMLSchema#string">University of Illinois/NCSA Open Source License</dc:rights>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/executable_component"/>
+    <j.0:mode rdf:resource="http://www.meandre.org/ontology/component/type/webui"/>
+    <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-01-10T18:23:44</dc:date>
+    <j.0:execution_context rdf:resource="meandre://seasr.org/components/choose-attributes/implementation/"/>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Choose Attributes</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&lt;p&gt;This module allows the user to choose which columns of a table are inputs and outputs.&lt;/p&gt;&lt;p&gt;Detailed Description: This module outputs an &lt;i&gt;Example Table&lt;/i&gt; with the input and output features assigned. Inputs and outputs do not have to be selected, nor do they have to be mutually exclusive. &lt;/p&gt;&lt;p&gt;Data Handling: This module does not modify the data in the table. It only sets the input and output features.</dc:description>
+    <j.0:firing_policy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">all</j.0:firing_policy>
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/choose-attributes/input/table"/>
+    <j.0:resource_location rdf:resource="meandre://seasr.org/components/choose-attributes/implementation/org.meandre.components.vis.transform.attribute.ChooseAttributes"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/3">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/parse-file-to-table/output/table"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/choose-attributes/1"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/choose-attributes/input/table"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/replication_mode">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">replication_mode</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">0</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/createbintree">
+    <dc:rights rdf:datatype="http://www.w3.org/2001/XMLSchema#string">University of Illinois/NCSA Open Source License</dc:rights>
+    <j.0:firing_policy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">all</j.0:firing_policy>
+    <j.0:execution_context rdf:resource="meandre://seasr.org/components/createbintree/implementation/"/>
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/createbintree/input/bintransform"/>
+    <j.0:runnable rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java</j.0:runnable>
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/createbintree/input/exampletable"/>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">bin tree</j.0:tag>
+    <dc:format rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java/class</dc:format>
+    <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-01-10T18:24:04</dc:date>
+    <j.0:mode rdf:resource="http://www.meandre.org/ontology/component/type/compute"/>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/executable_component"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.transform.binning.CreateBinTree-createbintree.jar"/>
+    <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lily Dong</dc:creator>
+    <j.0:resource_location rdf:resource="meandre://seasr.org/components/createbintree/implementation/org.meandre.components.transform.binning.CreateBinTree"/>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/createbintree/output/bintree"/>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Given a Binning Transformation containing the definition of the bins, and an Example Table that has the input/ output attribute labels and types, this module builds a Bin Tree that can be later used to classify data. A Bin Tree holds information about the number of examples that fall into each bin for each class. The Bin Tree can use only one output feature as a class. If more are selected in the Example Table, only the first one will be used.Scalability: a large enough number of features will result in an OutOfMemory error. Use feature selection to reduce the number of features.</dc:description>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CreateBinTree</j.0:name>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">binning</j.0:tag>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/delimiter">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">delimiter</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">default</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/instance_configuration"/>
+    <j.0:instance_resource rdf:resource="meandre://seasr.org/components/create-delimited-file-parser"/>
+    <j.0:instance_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Create Delimited File Parser</j.0:instance_name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This module creates a parser for the specified WevdavClient. The file is expected to have a consistent delimiter character.&lt;/p&gt;&lt;p&gt;Detailed Description: &lt;br/&gt;This module creates a parser that can be used to read data from a file that uses a single delimiter character to separate the data into fields. The delimiter can be found automatically, or it can be input in the properties editor.  If the delimiter is to be found automatically, the file must contain at least 2 rows. The file can contain a row of labels, and a row of data types.  These are also specified via the properties editor.Properties are used to specify the delimiter, the labels row number, and the types row number. The row numbers are indexed from zero.Typically the File Parser output port of this module is connected to the File Parser input port of a module whose name begins with 'Parse File', for example, Parse File To Table or  Parse File To Paging Table.Data Type Restrictions: The input to this module must be a delimited file. If the file is large a java OutOfMemory error might occur. &lt;p&gt;Data Handling: The module does not destroy or modify the input data.</dc:description>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/wb_left_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/delimiter"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/wb_top_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/typesRowIndex"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/labelsRowIndex"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/choose-attributes/property/require_output_selection">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">require_output_selection</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">true</j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Set to 'true' if selection of an output attribute is required</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/create-delimited-file-parser">
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Create Delimited File Parser</j.0:name>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">file</j.0:tag>
+    <dc:rights rdf:datatype="http://www.w3.org/2001/XMLSchema#string">University of Illinois/NCSA Open Source License</dc:rights>
+    <j.0:mode rdf:resource="http://www.meandre.org/ontology/component/type/compute"/>
+    <j.0:firing_policy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">all</j.0:firing_policy>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/create-delimited-file-parser/output/parser"/>
+    <j.0:execution_context rdf:resource="meandre://seasr.org/components/create-delimited-file-parser/implementation/"/>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/create-delimited-file-parser/property/delimiter"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.io.file.input.CreateDelimitedFileParser-create-delimited-file-parser.jar"/>
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/create-delimited-file-parser/input/url"/>
+    <j.0:runnable rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java</j.0:runnable>
+    <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Boris Capitanu and Lily Dong</dc:creator>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/jackrabbit-webdav-1.4.jar"/>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/create-delimited-file-parser/property/labelsRowIndex"/>
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/create-delimited-file-parser/input/webdavclient"/>
+    <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-01-10T18:24:40</dc:date>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/executable_component"/>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">parser</j.0:tag>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/seasr-webdav-1.4.0.jar"/>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This module creates a parser for the specified WevdavClient. The file is expected to have a consistent delimiter character.&lt;/p&gt;&lt;p&gt;Detailed Description: &lt;br/&gt;This module creates a parser that can be used to read data from a file that uses a single delimiter character to separate the data into fields. The delimiter can be found automatically, or it can be input in the properties editor.  If the delimiter is to be found automatically, the file must contain at least 2 rows. The file can contain a row of labels, and a row of data types.  These are also specified via the properties editor.Properties are used to specify the delimiter, the labels row number, and the types row number. The row numbers are indexed from zero.Typically the File Parser output port of this module is connected to the File Parser input port of a module whose name begins with 'Parse File', for example, Parse File To Table or  Parse File To Paging Table.Data Type Restrictions: The input to this module must be a delimited file. If the file is large a java OutOfMemory error might occur. &lt;p&gt;Data Handling: The module does not destroy or modify the input data.</dc:description>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/xercesImpl-2.9.1.jar"/>
+    <dc:format rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java/class</dc:format>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/create-delimited-file-parser/property/typesRowIndex"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/commons-httpclient-3.1.jar"/>
+    <j.0:resource_location rdf:resource="meandre://seasr.org/components/create-delimited-file-parser/implementation/org.meandre.components.io.file.input.CreateDelimitedFileParser"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/">
+    <j.0:components_instances rdf:resource="http://seasr.org/flows/naive-bayes/components/set"/>
+    <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-01-14T13:54:31</dc:date>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Naive Bayes</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This flow loads a delimited data set into a table. The first row has
+attribute labels and the second row has attribute types. Input csv file
+from webdav, build Naive Bayes model and show visualization.&lt;br&gt;&lt;pre id="ext-gen6814"&gt;&lt;br&gt;&lt;/pre&gt;</dc:description>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/flow_component"/>
+    <j.0:connectors rdf:resource="http://seasr.org/flows/naive-bayes/connector/set"/>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">prediction</j.0:tag>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">visualization</j.0:tag>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">modeling</j.0:tag>
+    <dc:rights rdf:datatype="http://www.w3.org/2001/XMLSchema#string">University of Illinois/NCSA Open Source License
+
+</dc:rights>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">naive bayes</j.0:tag>
+    <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">admin</dc:creator>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/create-delimited-file-parser/property/delimiter">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">delimiter</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">default</j.0:value>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The delimiter of this file if it is different than space, tab '|' or '='</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/autobin/13/property/method">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">method</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">0</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/fork-x5/output/object_2">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/fork-x5/output/object_2</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">object_2</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Replicated object</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/createbintree/14/property/wb_left_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_left_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">218</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/prepareforvis">
+    <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-01-10T18:20:55</dc:date>
+    <dc:format rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java/class</dc:format>
+    <j.0:resource_location rdf:resource="meandre://seasr.org/components/prepareforvis/implementation/org.meandre.components.prediction.naivebayes.PrepareForVis"/>
+    <j.0:mode rdf:resource="http://www.meandre.org/ontology/component/type/compute"/>
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/prepareforvis/input/nbmodel"/>
+    <j.0:firing_policy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">all</j.0:firing_policy>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">naive bayes</j.0:tag>
+    <j.0:runnable rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java</j.0:runnable>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PrepareForVis</j.0:name>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/executable_component"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.prediction.naivebayes.PrepareForVis-prepareforvis.jar"/>
+    <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lily Dong</dc:creator>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">visualization</j.0:tag>
+    <dc:rights rdf:datatype="http://www.w3.org/2001/XMLSchema#string">University of Illinois/NCSA Open Source License</dc:rights>
+    <j.0:execution_context rdf:resource="meandre://seasr.org/components/prepareforvis/implementation/"/>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/prepareforvis/output/nbmodel"/>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Overview: This module prepares a NaiveBayesModel for visualization.  Many calculations that are needed by the visualization are done here, before the model is visualized.Detailed Description: This module determines which of the input features of the training data are the best predictors of the output. This is done by performing predictions on the training data and leaving out one input feature each time.  Data structures to hold values for the pie charts in NaiveBayesVis are also created here.Data Type Restrictions: noneData Handling: The data structures used to display pie charts in NaiveBayesVis are created by this module.  These structures are stored in Naive Bayes Model.  The number of pie charts is proportional to the number of discrete values in the inputs of the training data set.Scalability: This module will perform NxM predictions, where N is the number of inputs and M is the number of training examples.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0/property/wb_left_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_left_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">515</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/4">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/prepareforvis/16"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/prepareforvis/output/nbmodel"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/webnaivebayesvis/input/nbmodel"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/wb_top_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_top_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">162</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/typesRowIndex">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">typesRowIndex</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/webnaivebayesvis/input/nbmodel">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/webnaivebayesvis/input/nbmodel</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nbModel</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Read org.meandre.components.prediction.naivebayes.NaiveBayesModel to visualize.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/autobin/13/property/nrOfBins">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nrOfBins</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/createnbmodel/input/bintree">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/createnbmodel/input/bintree</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">binTree</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Read org.meandre.components.transform.binning.BinTree which contains counts.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/autobin/input/exampletable">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/autobin/input/exampletable</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">exampleTable</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Read a table of examples. It is type of org.meandre.components.datatype.table.ExampleTable</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/labelsRowIndex">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">labelsRowIndex</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">0</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/instance_configuration"/>
+    <j.0:instance_resource rdf:resource="meandre://seasr.org/components/webnaivebayesvis"/>
+    <j.0:instance_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">WebNaiveBayesVis</j.0:instance_name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Overview: An evidence visualization for a NaiveBayesModel. Detailed Description: This evidence visualization shows pie charts that represent the different bins used.  The slices of the pie chart represent the ratios of the output classes for that particular bin. Selecting a chart in the evidence section will update the conclusion pie chart.  The conclusion shows the probability that each output has for classification given all the selected evidence charts.Data Type Restrictions: noneData Handling:  This module does not destroy or modify the input data.Scalability: This module keeps data structures to represent the evidence charts.  The amount of memory required is proportional to the number of bins used in the discretization process.</dc:description>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0/property/wb_left_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0/property/wb_top_pix_pos"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/fork-x5/output/object_5">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/fork-x5/output/object_5</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">object_5</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Replicated object</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/wb_left_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_left_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">122</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/input-url-or-path">
+    <j.0:resource_location rdf:resource="meandre://seasr.org/components/input-url-or-path/implementation/org.meandre.components.io.file.input.InputFileUrl"/>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/input-url-or-path/property/username"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/slf4j-api-1.5.2.jar"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/commons-logging-1.1.1.jar"/>
+    <dc:format rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java/class</dc:format>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This module is used to enter the url to a local or remote resource. Detailed Description: Collect a URL or local path, and create a WebdavClient to access it. The module provides a properties editor that can be used to enter a url to a local or remote resource.  If the url points to a local file, the user can enter the name directly into a text area.If the url points to a remote file, the user has to type in the host url, which include protocol, path and port in the text area for host url, and the relative path of the resource to the server in the text area for file name.This module does not perform any checks to verify that the url exists and is accessible with the username and password given by the user. A check is performed to make sure that a file name has been entered and an exception is thrown if the editor text area is blank. The WebdavClient is made available on the WebdavClient output port.  For local url, a path may or may not be included in the file name string.</dc:description>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/executable_component"/>
+    <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-01-10T18:26:56</dc:date>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/input-url-or-path/output/webdavclient"/>
+    <j.0:runnable rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java</j.0:runnable>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.io.file.input.InputFileUrl-input-url-or-path.jar"/>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/input-url-or-path/property/password"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/commons-codec-1.3.jar"/>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/input-url-or-path/property/file_url"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/slf4j-jcl-1.5.2.jar"/>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Input URL Or Path</j.0:name>
+    <j.0:execution_context rdf:resource="meandre://seasr.org/components/input-url-or-path/implementation/"/>
+    <j.0:firing_policy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">all</j.0:firing_policy>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/input-url-or-path/output/url"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/jackrabbit-webdav-1.4.jar"/>
+    <dc:rights rdf:datatype="http://www.w3.org/2001/XMLSchema#string">University of Illinois/NCSA Open Source License</dc:rights>
+    <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Boris Capitanu and Lily Dong</dc:creator>
+    <j.0:mode rdf:resource="http://www.meandre.org/ontology/component/type/compute"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/xercesImpl-2.9.1.jar"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/seasr-webdav-1.4.0.jar"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/commons-httpclient-3.1.jar"/>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">input</j.0:tag>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">io</j.0:tag>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/19">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_connector_configuration"/>
+    <j.0:connector_instance_source rdf:resource="http://seasr.org/flows/naive-bayes/instance/fork-x5/18"/>
+    <j.0:connector_instance_data_port_source rdf:resource="meandre://seasr.org/components/fork-x5/output/object_3"/>
+    <j.0:connector_instance_target rdf:resource="http://seasr.org/flows/naive-bayes/instance/createnbmodel/15"/>
+    <j.0:connector_instance_data_port_target rdf:resource="meandre://seasr.org/components/createnbmodel/input/exampletable"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/connector/set">
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/1"/>
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/3"/>
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/22"/>
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/2"/>
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/4"/>
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/17"/>
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/19"/>
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/18"/>
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/20"/>
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/0"/>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/connector_set"/>
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/14"/>
+    <j.0:data_connector rdf:resource="http://seasr.org/flows/naive-bayes/connector/16"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/choose-attributes/output/example_table">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/choose-attributes/output/example_table</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">example_table</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The Example Table with input and output features assigned</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/prepareforvis/16/property/wb_left_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_left_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">417</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/autobin">
+    <j.0:input_data_port rdf:resource="meandre://seasr.org/components/autobin/input/exampletable"/>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.transform.binning.AutoBin-autobin.jar"/>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/executable_component"/>
+    <j.0:runnable rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java</j.0:runnable>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Overview: Automatically discretize scalar data for the Naive Bayesian classification model.Detailed Description: Given a table of Examples, define the bins for each scalar input column.  When binning Uniformly, the number of bins is determined by Number of Bins property, and the boundaries of the bins are set so that they divide evenly over the range of the binned column.When binning by weight, Number of Items per Bin sets the size of each bin. The values are then binned so that in each bin there is the same number of items. For more details see description of property Number of Items per Bin'.Data Handling: This module does not modify the input data.Scalability: The module requires enough memory to make copies of each of the scalar input columns.</dc:description>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/autobin/property/nrOfBins"/>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">transform</j.0:tag>
+    <j.0:output_data_port rdf:resource="meandre://seasr.org/components/autobin/output/bintransform"/>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AutoBin</j.0:name>
+    <j.0:execution_context rdf:resource="http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/trove-2.0.3.jar"/>
+    <j.0:mode rdf:resource="http://www.meandre.org/ontology/component/type/compute"/>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/autobin/property/weight"/>
+    <dc:rights rdf:datatype="http://www.w3.org/2001/XMLSchema#string">University of Illinois/NCSA Open Source License</dc:rights>
+    <dc:format rdf:datatype="http://www.w3.org/2001/XMLSchema#string">java/class</dc:format>
+    <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lily Dong</dc:creator>
+    <j.0:tag rdf:datatype="http://www.w3.org/2001/XMLSchema#string">binning</j.0:tag>
+    <j.0:firing_policy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">all</j.0:firing_policy>
+    <j.0:resource_location rdf:resource="meandre://seasr.org/components/autobin/implementation/org.meandre.components.transform.binning.AutoBin"/>
+    <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-01-10T18:26:42</dc:date>
+    <j.0:property_set rdf:resource="meandre://seasr.org/components/autobin/property/method"/>
+    <j.0:execution_context rdf:resource="meandre://seasr.org/components/autobin/implementation/"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/create-delimited-file-parser/input/url">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/create-delimited-file-parser/input/url</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">url</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">URL pointing to a resource location.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/createnbmodel/15">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/instance_configuration"/>
+    <j.0:instance_resource rdf:resource="meandre://seasr.org/components/createnbmodel"/>
+    <j.0:instance_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CreateNBModel</j.0:instance_name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Overview: Generates a NaiveBayesModel from the given BinTree.  The Naive Bayes Model performs all necessary calculations.Detailed Description: Given a BinTree object that contains counts for each discrete item in the training data set, this module creates a Naive Bayesian learning model.  This method is based on Bayes's rule for conditional probability.  It "naively" assumes independence of the input features.Data Type Restrictions: This model can only use nominal data as the inputs and can only classify one nominal output.  The binning procedure will discretize any scalar inputs in the training data, but the output data is not binned and should be nominal. If the output data is binned, visualizations and prediction generated by the created model might be wrong and/or too corrupted to be displayed.Data Handling: The input data is neither modified nor destroyed.Missing Values Handling: Output data should be clean of missing values.Scalability: The module utilizes the counts in the BinTree, and as such does not perform any significant computations.</dc:description>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/createnbmodel/15/property/wb_left_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/createnbmodel/15/property/wb_top_pix_pos"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/parse-file-to-table/input/parser">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/parse-file-to-table/input/parser</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">parser</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A FlatFileParser to read data from</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/create-delimited-file-parser/output/parser">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/create-delimited-file-parser/output/parser</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">parser</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Delimited File Parser for the specified file</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/createbintree/14/property/wb_top_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_top_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">151</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/createbintree/input/exampletable">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/createbintree/input/exampletable</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">exampleTable</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Input example table containing the names of the input/output features.It is of ncsa.d2k.modules.core.datatype.table.ExampleTable.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/autobin/13/property/wb_top_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_top_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">96</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/wb_left_pix_pos">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wb_left_pix_pos</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">427</j.0:value>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/prepareforvis/output/nbmodel">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/prepareforvis/output/nbmodel</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nbModel</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ouptut org.meandre.components.prediction.naivebayes.NaiveBayesModel after calculation.</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/components/set">
+    <j.0:executable_component_instance rdf:resource="http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7"/>
+    <j.0:executable_component_instance rdf:resource="http://seasr.org/flows/naive-bayes/instance/createnbmodel/15"/>
+    <j.0:executable_component_instance rdf:resource="http://seasr.org/flows/naive-bayes/instance/prepareforvis/16"/>
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/instance_set"/>
+    <j.0:executable_component_instance rdf:resource="http://seasr.org/flows/naive-bayes/instance/createbintree/14"/>
+    <j.0:executable_component_instance rdf:resource="http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3"/>
+    <j.0:executable_component_instance rdf:resource="http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0"/>
+    <j.0:executable_component_instance rdf:resource="http://seasr.org/flows/naive-bayes/instance/fork-x5/18"/>
+    <j.0:executable_component_instance rdf:resource="http://seasr.org/flows/naive-bayes/instance/choose-attributes/1"/>
+    <j.0:executable_component_instance rdf:resource="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0"/>
+    <j.0:executable_component_instance rdf:resource="http://seasr.org/flows/naive-bayes/instance/autobin/13"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/instance_configuration"/>
+    <j.0:instance_resource rdf:resource="meandre://seasr.org/components/input-url-or-path"/>
+    <j.0:instance_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Input URL Or Path</j.0:instance_name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This module is used to enter the url to a local or remote resource. Detailed Description: Collect a URL or local path, and create a WebdavClient to access it. The module provides a properties editor that can be used to enter a url to a local or remote resource.  If the url points to a local file, the user can enter the name directly into a text area.If the url points to a remote file, the user has to type in the host url, which include protocol, path and port in the text area for host url, and the relative path of the resource to the server in the text area for file name.This module does not perform any checks to verify that the url exists and is accessible with the username and password given by the user. A check is performed to make sure that a file name has been entered and an exception is thrown if the editor text area is blank. The WebdavClient is made available on the WebdavClient output port.  For local url, a path may or may not be included in the file name string.</dc:description>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/wb_left_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/file_url"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/password"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/wb_top_pix_pos"/>
+    <j.0:property_set rdf:resource="http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/username"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="meandre://seasr.org/components/fork-x5/output/object_4">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/data_port"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">meandre://seasr.org/components/fork-x5/output/object_4</dc:identifier>
+    <j.0:name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">object_4</j.0:name>
+    <dc:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Replicated object</dc:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/require_output_selection">
+    <rdf:type rdf:resource="http://www.meandre.org/ontology/property"/>
+    <j.0:key rdf:datatype="http://www.w3.org/2001/XMLSchema#string">require_output_selection</j.0:key>
+    <j.0:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">true</j.0:value>
+  </rdf:Description>
+</rdf:RDF>

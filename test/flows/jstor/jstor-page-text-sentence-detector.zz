@@ -1,0 +1,22 @@
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/jstor/ReadXML.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/jstor/PushText.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/jstor/PageTextExtractor.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/jstor/OpenNLPSentenceDetector.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/jstor/PrintToConsole.rdf>
+
+alias <meandre://seasr.org/components/tools/push-text> as PUSH
+alias <meandre://seasr.org/components/tools/read-xml> as READ
+alias <meandre://seasr.org/components/tools/opennlp-sentence-detector> as SD
+alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+alias <meandre://jstor.org/components/xml/extractor/page-text-extractor> as PTE
+
+push, read, pte, sd, print = PUSH(), READ(), PTE(), SD(), PRINT()
+
+@loc = push()
+@jsx = read(location:loc.text)
+@pex = pte(xml:jsx.xml)
+@tok = sd(text:pex.text)
+print(object:tok.sentences)
+
+push.message = "./test/data/samples/jstor/jstor.xml"
+

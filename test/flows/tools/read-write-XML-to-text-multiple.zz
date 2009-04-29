@@ -1,0 +1,24 @@
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/ReadXML.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/TextToXML.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/XMLToText.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/WriteXML.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PushText.rdf>
+
+alias <meandre://seasr.org/components/tools/push-text> as PUSH
+alias <meandre://seasr.org/components/tools/read-xml> as READ
+alias <meandre://seasr.org/components/tools/xml-to-text> as X2T
+alias <meandre://seasr.org/components/tools/text-to-xml> as T2X
+alias <meandre://seasr.org/components/tools/write-xml> as WRITE
+
+push, read, x2t, t2x, write = PUSH(), READ(), X2T(), T2X(), WRITE()
+push_loc = PUSH()
+
+@msg, @loc  = push(), push_loc()
+@rd   = read(location:msg.text)
+@txt  = x2t(xml:rd.xml)
+@mod  = t2x(text:txt.text)
+write(location:loc.text;xml:mod.xml)
+
+push.message = "./test/data/samples/xml/cd_catalog.xml"
+push_loc.message = "./tmp/sample.xml"
+

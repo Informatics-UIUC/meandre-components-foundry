@@ -1,0 +1,30 @@
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/OpenNLPTokenizer.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/TokenFilter.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/TokenCounter.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/TokenCountsToText.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/PushText.rdf>
+#import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/PrintToConsole.rdf>
+
+alias <meandre://seasr.org/components/tools/push-text> as PUSH
+alias <meandre://seasr.org/components/tools/token-counts-to-text> as T2T
+alias <meandre://seasr.org/components/tools/opennlp-tokenizer> as TOKENIZER
+alias <meandre://seasr.org/components/tools/token-counter> as COUNTER
+alias <meandre://seasr.org/components/tools/token-filter> as FILTER
+alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+
+push, tokenizer, counter, t2t, print = PUSH(), TOKENIZER(), COUNTER(), T2T(), PRINT()
+blst, tokenize_bl, filter = PUSH(), TOKENIZER(), FILTER()
+
+@msg = push()
+@blt = blst()
+@blk = tokenize_bl(text:blt.text)
+@tok = tokenizer(text:msg.text)
+@cnt = counter(tokens:tok.tokens)
+@fil = filter(tokens_blacklist:blk.tokens;token_counts:cnt.token_counts)
+@txt = t2t(token_counts:fil.token_counts)
+print(object:txt.text)
+
+push.message = "This isn't the greatest example sentence in the world because I've seen better. Neither is this one. This one's not bad, though."
+blst.message = "This isn't the greatest example sentence in the world because I've seen better."
+counter.ordered = "true"
+t2t.message = "Available token counts in the model (ordered by count)"

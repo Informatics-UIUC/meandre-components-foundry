@@ -1,0 +1,1277 @@
+<http://seasr.org/flows/naive-bayes/instance/createnbmodel/15/property/wb_top_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_top_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "217"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/connector/20>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/createbintree/output/bintree> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/createnbmodel/input/bintree> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/createbintree/14> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/createnbmodel/15> .
+
+<meandre://seasr.org/components/parse-file-to-table>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/executable_component> ;
+      <http://purl.org/dc/elements/1.1/creator>
+              "Boris Capitanu"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/date>
+              "2009-01-10T18:20:38"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Given a FlatFileParser, this module creates a Table initialized with the contents of a flat file from disk."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/format>
+              "java/class"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/rights>
+              "University of Illinois/NCSA Open Source License"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/execution_context>
+              <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.io.file.input.ParseFileToTable-parse-file-to-table.jar> , <meandre://seasr.org/components/parse-file-to-table/implementation/> ;
+      <http://www.meandre.org/ontology/firing_policy>
+              "all"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/input_data_port>
+              <meandre://seasr.org/components/parse-file-to-table/input/parser> ;
+      <http://www.meandre.org/ontology/mode>
+              <http://www.meandre.org/ontology/component/type/compute> ;
+      <http://www.meandre.org/ontology/name>
+              "Parse File To Table"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/output_data_port>
+              <meandre://seasr.org/components/parse-file-to-table/output/table> ;
+      <http://www.meandre.org/ontology/property_set>
+              <meandre://seasr.org/components/parse-file-to-table/property/use_blanks> ;
+      <http://www.meandre.org/ontology/resource_location>
+              <meandre://seasr.org/components/parse-file-to-table/implementation/org.meandre.components.io.file.input.ParseFileToTable> ;
+      <http://www.meandre.org/ontology/runnable>
+              "java"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/tag>
+              "io"^^<http://www.w3.org/2001/XMLSchema#string> , "table"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/webnaivebayesvis>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/executable_component> ;
+      <http://purl.org/dc/elements/1.1/creator>
+              "Lily Dong"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/date>
+              "2009-01-14T13:49:22"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Overview: An evidence visualization for a NaiveBayesModel. Detailed Description: This evidence visualization shows pie charts that represent the different bins used.  The slices of the pie chart represent the ratios of the output classes for that particular bin. Selecting a chart in the evidence section will update the conclusion pie chart.  The conclusion shows the probability that each output has for classification given all the selected evidence charts.Data Type Restrictions: noneData Handling:  This module does not destroy or modify the input data.Scalability: This module keeps data structures to represent the evidence charts.  The amount of memory required is proportional to the number of bins used in the discretization process."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/format>
+              "java/class"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/rights>
+              "University of Illinois/NCSA Open Source License"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/execution_context>
+              <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.applet.prediction.naivebayes.support.nbapplet.jar> , <meandre://seasr.org/components/webnaivebayesvis/implementation/> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.applet.prediction.naivebayes.WebNaiveBayesVis-webnaivebayesvis.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/icons.jar> ;
+      <http://www.meandre.org/ontology/firing_policy>
+              "all"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/input_data_port>
+              <meandre://seasr.org/components/webnaivebayesvis/input/nbmodel> ;
+      <http://www.meandre.org/ontology/mode>
+              <http://www.meandre.org/ontology/component/type/webui> ;
+      <http://www.meandre.org/ontology/name>
+              "WebNaiveBayesVis"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/resource_location>
+              <meandre://seasr.org/components/webnaivebayesvis/implementation/org.meandre.applet.prediction.naivebayes.WebNaiveBayesVis> ;
+      <http://www.meandre.org/ontology/runnable>
+              "java"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/tag>
+              "visualization"^^<http://www.w3.org/2001/XMLSchema#string> , "naive bayes"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/autobin/property/method>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "This property is used to set the method for discretization. Select 1 to create binsby weight.  This will create bins with an equal number of items in each slot.  Select 0 to do uniform discretization by specifying the number of bins. This will result in equally spaced bins between the minimum and maximum for each scalar column. It must be 0 or 1."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "method"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "0"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/input-url-or-path/output/webdavclient>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "WebdavClient pointing to a resource."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/input-url-or-path/output/webdavclient"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "webdavClient"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/instance_configuration> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Given a FlatFileParser, this module creates a Table initialized with the contents of a flat file from disk."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_name>
+              "Parse File To Table"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_resource>
+              <meandre://seasr.org/components/parse-file-to-table> ;
+      <http://www.meandre.org/ontology/property_set>
+              <http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/wb_top_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/use_blanks> , <http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/wb_left_pix_pos> .
+
+<http://seasr.org/flows/naive-bayes/connector/17>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/fork-x5/output/object_2> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/createbintree/input/exampletable> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/fork-x5/18> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/createbintree/14> .
+
+<http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/wb_left_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_left_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "37"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/wb_top_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_top_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "11"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/input-url-or-path/property/password>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "The password to access the object, if needed"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "password"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "null"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/parse-file-to-table/property/use_blanks>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "When true, any blank entries in the file will be set as missing values in the table"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "use_blanks"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "True"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/replication_method_name>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "replication_method_name"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              ""^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/input-url-or-path/property/file_url>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "The input file URL"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "file_url"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              " "^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/wb_top_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_top_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "11"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/password>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "password"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "null"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/prepareforvis/16>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/instance_configuration> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Overview: This module prepares a NaiveBayesModel for visualization.  Many calculations that are needed by the visualization are done here, before the model is visualized.Detailed Description: This module determines which of the input features of the training data are the best predictors of the output. This is done by performing predictions on the training data and leaving out one input feature each time.  Data structures to hold values for the pie charts in NaiveBayesVis are also created here.Data Type Restrictions: noneData Handling: The data structures used to display pie charts in NaiveBayesVis are created by this module.  These structures are stored in Naive Bayes Model.  The number of pie charts is proportional to the number of discrete values in the inputs of the training data set.Scalability: This module will perform NxM predictions, where N is the number of inputs and M is the number of training examples."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_name>
+              "PrepareForVis"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_resource>
+              <meandre://seasr.org/components/prepareforvis> ;
+      <http://www.meandre.org/ontology/property_set>
+              <http://seasr.org/flows/naive-bayes/instance/prepareforvis/16/property/wb_left_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/prepareforvis/16/property/wb_top_pix_pos> .
+
+<meandre://seasr.org/components/autobin/property/nrOfBins>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "This property is used to set the number of bins absolutely. This will give equally spaced bins between the minimum and maximum for each scalar column. It must be higher than 1."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "nrOfBins"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "2"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/create-delimited-file-parser/property/labelsRowIndex>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "This is the index of the labels row in the file, or -1 if there is no labels row"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "labelsRowIndex"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "0"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/fork-x5/18>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/instance_configuration> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "<p>Description: This component takes in any Java object and distributes it (or copies of it) across multiple outputs.  The user can choose from five object replication methods -- by reference, shallow copy by clone, deep copy via serialization, copy via constructor, or copy via custom method.</p>"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_name>
+              "Fork x5"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_resource>
+              <meandre://seasr.org/components/fork-x5> ;
+      <http://www.meandre.org/ontology/property_set>
+              <http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/wb_left_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/replication_mode> , <http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/wb_top_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/replication_method_name> .
+
+<http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/wb_top_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_top_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "11"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/create-delimited-file-parser/property/typesRowIndex>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "This is the index of the types row in the file, or -1 if there is no types row"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "typesRowIndex"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "1"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/connector/18>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/choose-attributes/output/example_table> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/fork-x5/input/object> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/choose-attributes/1> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/fork-x5/18> .
+
+<http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/wb_top_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_top_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "11"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/fork-x5/property/replication_method_name>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Custom replication method name"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "replication_method_name"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              ""^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/createbintree/input/bintransform>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Input binning transformation containing the bin definitions. It is of type ncsa.d2k.modules.core.datatype.table.transformations.BinTransform"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/createbintree/input/bintransform"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "binTransform"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/fork-x5/input/object>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Object to replicate"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/fork-x5/input/object"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "object"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/connector/0>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/input-url-or-path/output/url> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/create-delimited-file-parser/input/url> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3> .
+
+<http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/wb_left_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_left_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "295"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/autobin/property/weight>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "This property is used to set the number of items per bin When binning by weight, this is the number of items that will go in each bin. However, the bins may contain more or fewer values than weight values, depending on how many items equal the bin limits. Typically the last bin will contain less or equal to weight  values and the rest of the bins will contain a number that is  equal or greater to weight values.It must be a positive integer."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "weight"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "1"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/connector/22>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/createnbmodel/output/nbmodel> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/prepareforvis/input/nbmodel> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/createnbmodel/15> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/prepareforvis/16> .
+
+<meandre://seasr.org/components/createnbmodel/input/exampletable>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Read org.meandre.components.datatype.table.ExampleTable with the data in it."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/createnbmodel/input/exampletable"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "exampleTable"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/input-url-or-path/output/url>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "URL pointing to a resource location."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/input-url-or-path/output/url"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "url"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/autobin/output/bintransform>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Output ncsa.d2k.modules.core.datatype.table.transformations.BinTransform that contains all the information needed to discretize the Example Table"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/autobin/output/bintransform"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "binTransform"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/connector/1>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/input-url-or-path/output/webdavclient> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/create-delimited-file-parser/input/webdavclient> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3> .
+
+<http://seasr.org/flows/naive-bayes/instance/autobin/13>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/instance_configuration> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Overview: Automatically discretize scalar data for the Naive Bayesian classification model.Detailed Description: Given a table of Examples, define the bins for each scalar input column.  When binning Uniformly, the number of bins is determined by Number of Bins property, and the boundaries of the bins are set so that they divide evenly over the range of the binned column.When binning by weight, Number of Items per Bin sets the size of each bin. The values are then binned so that in each bin there is the same number of items. For more details see description of property Number of Items per Bin'.Data Handling: This module does not modify the input data.Scalability: The module requires enough memory to make copies of each of the scalar input columns."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_name>
+              "AutoBin"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_resource>
+              <meandre://seasr.org/components/autobin> ;
+      <http://www.meandre.org/ontology/property_set>
+              <http://seasr.org/flows/naive-bayes/instance/autobin/13/property/wb_top_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/autobin/13/property/nrOfBins> , <http://seasr.org/flows/naive-bayes/instance/autobin/13/property/wb_left_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/autobin/13/property/weight> , <http://seasr.org/flows/naive-bayes/instance/autobin/13/property/method> .
+
+<meandre://seasr.org/components/fork-x5/output/object_1>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Replicated object"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/fork-x5/output/object_1"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "object_1"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/prepareforvis/16/property/wb_top_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_top_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "217"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/create-delimited-file-parser/input/webdavclient>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "WebdavClient pointing to a resource"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/create-delimited-file-parser/input/webdavclient"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "webdavClient"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/prepareforvis/input/nbmodel>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Read org.meandre.components.prediction.naivebayes.NaiveBayesModel as input."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/prepareforvis/input/nbmodel"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "nbModel"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/createbintree/14>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/instance_configuration> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Given a Binning Transformation containing the definition of the bins, and an Example Table that has the input/ output attribute labels and types, this module builds a Bin Tree that can be later used to classify data. A Bin Tree holds information about the number of examples that fall into each bin for each class. The Bin Tree can use only one output feature as a class. If more are selected in the Example Table, only the first one will be used.Scalability: a large enough number of features will result in an OutOfMemory error. Use feature selection to reduce the number of features."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_name>
+              "CreateBinTree"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_resource>
+              <meandre://seasr.org/components/createbintree> ;
+      <http://www.meandre.org/ontology/property_set>
+              <http://seasr.org/flows/naive-bayes/instance/createbintree/14/property/wb_top_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/createbintree/14/property/wb_left_pix_pos> .
+
+<meandre://seasr.org/components/fork-x5/property/replication_mode>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Replication mode (0 = by reference, 1 = clone shallow, 2 = serialize deep, 3 = constructor, 4 = custom)"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "replication_mode"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "0"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/username>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "username"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "null"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/input-url-or-path/property/username>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "The user login name to access the object. if needed, use null to indicate no authentication is to be performed."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "username"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "null"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/parse-file-to-table/output/table>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "A Table with the data from the file reader"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/parse-file-to-table/output/table"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "table"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/createnbmodel/output/nbmodel>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Outuput a Naive Bayes model module. It is type of org.meandre.components.prediction.naivebayes.NaiveBayesModel"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/createnbmodel/output/nbmodel"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "nbModel"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/createnbmodel/15/property/wb_left_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_left_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "308"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/createnbmodel>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/executable_component> ;
+      <http://purl.org/dc/elements/1.1/creator>
+              "Lily Dong"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/date>
+              "2009-01-10T18:22:40"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Overview: Generates a NaiveBayesModel from the given BinTree.  The Naive Bayes Model performs all necessary calculations.Detailed Description: Given a BinTree object that contains counts for each discrete item in the training data set, this module creates a Naive Bayesian learning model.  This method is based on Bayes's rule for conditional probability.  It \"naively\" assumes independence of the input features.Data Type Restrictions: This model can only use nominal data as the inputs and can only classify one nominal output.  The binning procedure will discretize any scalar inputs in the training data, but the output data is not binned and should be nominal. If the output data is binned, visualizations and prediction generated by the created model might be wrong and/or too corrupted to be displayed.Data Handling: The input data is neither modified nor destroyed.Missing Values Handling: Output data should be clean of missing values.Scalability: The module utilizes the counts in the BinTree, and as such does not perform any significant computations."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/format>
+              "java/class"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/rights>
+              "University of Illinois/NCSA Open Source License"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/execution_context>
+              <meandre://seasr.org/components/createnbmodel/implementation/> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.prediction.naivebayes.CreateNBModel-createnbmodel.jar> ;
+      <http://www.meandre.org/ontology/firing_policy>
+              "all"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/input_data_port>
+              <meandre://seasr.org/components/createnbmodel/input/exampletable> , <meandre://seasr.org/components/createnbmodel/input/bintree> ;
+      <http://www.meandre.org/ontology/mode>
+              <http://www.meandre.org/ontology/component/type/compute> ;
+      <http://www.meandre.org/ontology/name>
+              "CreateNBModel"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/output_data_port>
+              <meandre://seasr.org/components/createnbmodel/output/nbmodel> ;
+      <http://www.meandre.org/ontology/resource_location>
+              <meandre://seasr.org/components/createnbmodel/implementation/org.meandre.components.prediction.naivebayes.CreateNBModel> ;
+      <http://www.meandre.org/ontology/runnable>
+              "java"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/tag>
+              "prediction"^^<http://www.w3.org/2001/XMLSchema#string> , "naive bayes"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/connector/16>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/autobin/output/bintransform> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/createbintree/input/bintransform> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/autobin/13> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/createbintree/14> .
+
+<http://seasr.org/flows/naive-bayes/connector/2>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/create-delimited-file-parser/output/parser> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/parse-file-to-table/input/parser> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7> .
+
+<http://seasr.org/flows/naive-bayes/instance/autobin/13/property/wb_left_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_left_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "130"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/autobin/13/property/weight>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "weight"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "1"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0/property/wb_top_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_top_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "217"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/file_url>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "file_url"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "http://repository.seasr.org/Datasets/UCI/csv/mushroom.csv"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/wb_left_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_left_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "10"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/fork-x5>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/executable_component> ;
+      <http://purl.org/dc/elements/1.1/creator>
+              "Duane Searsmith"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/date>
+              "2009-01-10T18:22:23"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "<p>Description: This component takes in any Java object and distributes it (or copies of it) across multiple outputs.  The user can choose from five object replication methods -- by reference, shallow copy by clone, deep copy via serialization, copy via constructor, or copy via custom method.</p>"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/format>
+              "java/class"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/rights>
+              "University of Illinois/NCSA Open Source License"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/execution_context>
+              <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.control.ForkX5-fork-x5.jar> , <meandre://seasr.org/components/fork-x5/implementation/> ;
+      <http://www.meandre.org/ontology/firing_policy>
+              "all"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/input_data_port>
+              <meandre://seasr.org/components/fork-x5/input/object> ;
+      <http://www.meandre.org/ontology/mode>
+              <http://www.meandre.org/ontology/component/type/compute> ;
+      <http://www.meandre.org/ontology/name>
+              "Fork x5"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/output_data_port>
+              <meandre://seasr.org/components/fork-x5/output/object_2> , <meandre://seasr.org/components/fork-x5/output/object_5> , <meandre://seasr.org/components/fork-x5/output/object_4> , <meandre://seasr.org/components/fork-x5/output/object_3> , <meandre://seasr.org/components/fork-x5/output/object_1> ;
+      <http://www.meandre.org/ontology/property_set>
+              <meandre://seasr.org/components/fork-x5/property/replication_mode> , <meandre://seasr.org/components/fork-x5/property/replication_method_name> ;
+      <http://www.meandre.org/ontology/resource_location>
+              <meandre://seasr.org/components/fork-x5/implementation/org.meandre.components.control.ForkX5> ;
+      <http://www.meandre.org/ontology/runnable>
+              "java"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/tag>
+              "fork"^^<http://www.w3.org/2001/XMLSchema#string> , "copy"^^<http://www.w3.org/2001/XMLSchema#string> , "clone"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/choose-attributes/1>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/instance_configuration> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "<p>This module allows the user to choose which columns of a table are inputs and outputs.</p><p>Detailed Description: This module outputs an <i>Example Table</i> with the input and output features assigned. Inputs and outputs do not have to be selected, nor do they have to be mutually exclusive. </p><p>Data Handling: This module does not modify the data in the table. It only sets the input and output features."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_name>
+              "Choose Attributes"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_resource>
+              <meandre://seasr.org/components/choose-attributes> ;
+      <http://www.meandre.org/ontology/property_set>
+              <http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/wb_top_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/wb_left_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/require_output_selection> .
+
+<http://seasr.org/flows/naive-bayes/connector/14>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/fork-x5/output/object_1> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/autobin/input/exampletable> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/fork-x5/18> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/autobin/13> .
+
+<meandre://seasr.org/components/createbintree/output/bintree>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Output bin tree structure holding counts. It is of type ncsa.d2k.modules.core.transform.binning.BinTree"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/createbintree/output/bintree"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "binTree"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7/property/use_blanks>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "use_blanks"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "True"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/fork-x5/output/object_3>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Replicated object"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/fork-x5/output/object_3"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "object_3"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/choose-attributes/input/table>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "The Table to choose inputs and outputs from"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/choose-attributes/input/table"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "table"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/choose-attributes>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/executable_component> ;
+      <http://purl.org/dc/elements/1.1/creator>
+              "Boris Capitanu"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/date>
+              "2009-01-10T18:23:44"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "<p>This module allows the user to choose which columns of a table are inputs and outputs.</p><p>Detailed Description: This module outputs an <i>Example Table</i> with the input and output features assigned. Inputs and outputs do not have to be selected, nor do they have to be mutually exclusive. </p><p>Data Handling: This module does not modify the data in the table. It only sets the input and output features."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/format>
+              "java/class"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/rights>
+              "University of Illinois/NCSA Open Source License"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/execution_context>
+              <meandre://seasr.org/components/choose-attributes/implementation/> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.vis.transform.attribute.ChooseAttributes-choose-attributes.jar> ;
+      <http://www.meandre.org/ontology/firing_policy>
+              "all"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/input_data_port>
+              <meandre://seasr.org/components/choose-attributes/input/table> ;
+      <http://www.meandre.org/ontology/mode>
+              <http://www.meandre.org/ontology/component/type/webui> ;
+      <http://www.meandre.org/ontology/name>
+              "Choose Attributes"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/output_data_port>
+              <meandre://seasr.org/components/choose-attributes/output/example_table> ;
+      <http://www.meandre.org/ontology/property_set>
+              <meandre://seasr.org/components/choose-attributes/property/require_output_selection> ;
+      <http://www.meandre.org/ontology/resource_location>
+              <meandre://seasr.org/components/choose-attributes/implementation/org.meandre.components.vis.transform.attribute.ChooseAttributes> ;
+      <http://www.meandre.org/ontology/runnable>
+              "java"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/tag>
+              "transform"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/connector/3>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/parse-file-to-table/output/table> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/choose-attributes/input/table> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/choose-attributes/1> .
+
+<http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/replication_mode>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "replication_mode"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "0"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/createbintree>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/executable_component> ;
+      <http://purl.org/dc/elements/1.1/creator>
+              "Lily Dong"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/date>
+              "2009-01-10T18:24:04"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Given a Binning Transformation containing the definition of the bins, and an Example Table that has the input/ output attribute labels and types, this module builds a Bin Tree that can be later used to classify data. A Bin Tree holds information about the number of examples that fall into each bin for each class. The Bin Tree can use only one output feature as a class. If more are selected in the Example Table, only the first one will be used.Scalability: a large enough number of features will result in an OutOfMemory error. Use feature selection to reduce the number of features."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/format>
+              "java/class"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/rights>
+              "University of Illinois/NCSA Open Source License"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/execution_context>
+              <meandre://seasr.org/components/createbintree/implementation/> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.transform.binning.CreateBinTree-createbintree.jar> ;
+      <http://www.meandre.org/ontology/firing_policy>
+              "all"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/input_data_port>
+              <meandre://seasr.org/components/createbintree/input/exampletable> , <meandre://seasr.org/components/createbintree/input/bintransform> ;
+      <http://www.meandre.org/ontology/mode>
+              <http://www.meandre.org/ontology/component/type/compute> ;
+      <http://www.meandre.org/ontology/name>
+              "CreateBinTree"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/output_data_port>
+              <meandre://seasr.org/components/createbintree/output/bintree> ;
+      <http://www.meandre.org/ontology/resource_location>
+              <meandre://seasr.org/components/createbintree/implementation/org.meandre.components.transform.binning.CreateBinTree> ;
+      <http://www.meandre.org/ontology/runnable>
+              "java"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/tag>
+              "bin tree"^^<http://www.w3.org/2001/XMLSchema#string> , "binning"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/delimiter>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "delimiter"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "default"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/instance_configuration> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "This module creates a parser for the specified WevdavClient. The file is expected to have a consistent delimiter character.</p><p>Detailed Description: <br/>This module creates a parser that can be used to read data from a file that uses a single delimiter character to separate the data into fields. The delimiter can be found automatically, or it can be input in the properties editor.  If the delimiter is to be found automatically, the file must contain at least 2 rows. The file can contain a row of labels, and a row of data types.  These are also specified via the properties editor.Properties are used to specify the delimiter, the labels row number, and the types row number. The row numbers are indexed from zero.Typically the File Parser output port of this module is connected to the File Parser input port of a module whose name begins with 'Parse File', for example, Parse File To Table or  Parse File To Paging Table.Data Type Restrictions: The input to this module must be a delimited file. If the file is large a java OutOfMemory error might occur. <p>Data Handling: The module does not destroy or modify the input data."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_name>
+              "Create Delimited File Parser"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_resource>
+              <meandre://seasr.org/components/create-delimited-file-parser> ;
+      <http://www.meandre.org/ontology/property_set>
+              <http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/labelsRowIndex> , <http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/wb_left_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/delimiter> , <http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/typesRowIndex> , <http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/wb_top_pix_pos> .
+
+<meandre://seasr.org/components/choose-attributes/property/require_output_selection>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Set to 'true' if selection of an output attribute is required"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "require_output_selection"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "true"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/create-delimited-file-parser>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/executable_component> ;
+      <http://purl.org/dc/elements/1.1/creator>
+              "Boris Capitanu and Lily Dong"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/date>
+              "2009-01-10T18:24:40"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "This module creates a parser for the specified WevdavClient. The file is expected to have a consistent delimiter character.</p><p>Detailed Description: <br/>This module creates a parser that can be used to read data from a file that uses a single delimiter character to separate the data into fields. The delimiter can be found automatically, or it can be input in the properties editor.  If the delimiter is to be found automatically, the file must contain at least 2 rows. The file can contain a row of labels, and a row of data types.  These are also specified via the properties editor.Properties are used to specify the delimiter, the labels row number, and the types row number. The row numbers are indexed from zero.Typically the File Parser output port of this module is connected to the File Parser input port of a module whose name begins with 'Parse File', for example, Parse File To Table or  Parse File To Paging Table.Data Type Restrictions: The input to this module must be a delimited file. If the file is large a java OutOfMemory error might occur. <p>Data Handling: The module does not destroy or modify the input data."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/format>
+              "java/class"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/rights>
+              "University of Illinois/NCSA Open Source License"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/execution_context>
+              <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/seasr-webdav-1.4.0.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.io.file.input.CreateDelimitedFileParser-create-delimited-file-parser.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/xercesImpl-2.9.1.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/commons-httpclient-3.1.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/jackrabbit-webdav-1.4.jar> , <meandre://seasr.org/components/create-delimited-file-parser/implementation/> ;
+      <http://www.meandre.org/ontology/firing_policy>
+              "all"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/input_data_port>
+              <meandre://seasr.org/components/create-delimited-file-parser/input/url> , <meandre://seasr.org/components/create-delimited-file-parser/input/webdavclient> ;
+      <http://www.meandre.org/ontology/mode>
+              <http://www.meandre.org/ontology/component/type/compute> ;
+      <http://www.meandre.org/ontology/name>
+              "Create Delimited File Parser"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/output_data_port>
+              <meandre://seasr.org/components/create-delimited-file-parser/output/parser> ;
+      <http://www.meandre.org/ontology/property_set>
+              <meandre://seasr.org/components/create-delimited-file-parser/property/typesRowIndex> , <meandre://seasr.org/components/create-delimited-file-parser/property/labelsRowIndex> , <meandre://seasr.org/components/create-delimited-file-parser/property/delimiter> ;
+      <http://www.meandre.org/ontology/resource_location>
+              <meandre://seasr.org/components/create-delimited-file-parser/implementation/org.meandre.components.io.file.input.CreateDelimitedFileParser> ;
+      <http://www.meandre.org/ontology/runnable>
+              "java"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/tag>
+              "file"^^<http://www.w3.org/2001/XMLSchema#string> , "parser"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/flow_component> ;
+      <http://purl.org/dc/elements/1.1/creator>
+              "admin"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/date>
+              "2009-01-14T13:54:31"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "This flow loads a delimited data set into a table. The first row has\nattribute labels and the second row has attribute types. Input csv file\nfrom webdav, build Naive Bayes model and show visualization.<br><pre id=\"ext-gen6814\"><br></pre>"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/rights>
+              "University of Illinois/NCSA Open Source License\n\n"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/components_instances>
+              <http://seasr.org/flows/naive-bayes/components/set> ;
+      <http://www.meandre.org/ontology/connectors>
+              <http://seasr.org/flows/naive-bayes/connector/set> ;
+      <http://www.meandre.org/ontology/name>
+              "Naive Bayes"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/tag>
+              "modeling"^^<http://www.w3.org/2001/XMLSchema#string> , "visualization"^^<http://www.w3.org/2001/XMLSchema#string> , "prediction"^^<http://www.w3.org/2001/XMLSchema#string> , "naive bayes"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/create-delimited-file-parser/property/delimiter>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "The delimiter of this file if it is different than space, tab '|' or '='"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/key>
+              "delimiter"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "default"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/autobin/13/property/method>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "method"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "0"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/fork-x5/output/object_2>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Replicated object"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/fork-x5/output/object_2"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "object_2"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/createbintree/14/property/wb_left_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_left_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "218"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/prepareforvis>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/executable_component> ;
+      <http://purl.org/dc/elements/1.1/creator>
+              "Lily Dong"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/date>
+              "2009-01-10T18:20:55"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Overview: This module prepares a NaiveBayesModel for visualization.  Many calculations that are needed by the visualization are done here, before the model is visualized.Detailed Description: This module determines which of the input features of the training data are the best predictors of the output. This is done by performing predictions on the training data and leaving out one input feature each time.  Data structures to hold values for the pie charts in NaiveBayesVis are also created here.Data Type Restrictions: noneData Handling: The data structures used to display pie charts in NaiveBayesVis are created by this module.  These structures are stored in Naive Bayes Model.  The number of pie charts is proportional to the number of discrete values in the inputs of the training data set.Scalability: This module will perform NxM predictions, where N is the number of inputs and M is the number of training examples."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/format>
+              "java/class"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/rights>
+              "University of Illinois/NCSA Open Source License"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/execution_context>
+              <meandre://seasr.org/components/prepareforvis/implementation/> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.prediction.naivebayes.PrepareForVis-prepareforvis.jar> ;
+      <http://www.meandre.org/ontology/firing_policy>
+              "all"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/input_data_port>
+              <meandre://seasr.org/components/prepareforvis/input/nbmodel> ;
+      <http://www.meandre.org/ontology/mode>
+              <http://www.meandre.org/ontology/component/type/compute> ;
+      <http://www.meandre.org/ontology/name>
+              "PrepareForVis"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/output_data_port>
+              <meandre://seasr.org/components/prepareforvis/output/nbmodel> ;
+      <http://www.meandre.org/ontology/resource_location>
+              <meandre://seasr.org/components/prepareforvis/implementation/org.meandre.components.prediction.naivebayes.PrepareForVis> ;
+      <http://www.meandre.org/ontology/runnable>
+              "java"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/tag>
+              "visualization"^^<http://www.w3.org/2001/XMLSchema#string> , "naive bayes"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0/property/wb_left_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_left_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "515"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/connector/4>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/prepareforvis/output/nbmodel> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/webnaivebayesvis/input/nbmodel> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/prepareforvis/16> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0> .
+
+<http://seasr.org/flows/naive-bayes/instance/fork-x5/18/property/wb_top_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_top_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "162"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/typesRowIndex>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "typesRowIndex"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "1"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/webnaivebayesvis/input/nbmodel>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Read org.meandre.components.prediction.naivebayes.NaiveBayesModel to visualize."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/webnaivebayesvis/input/nbmodel"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "nbModel"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/autobin/13/property/nrOfBins>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "nrOfBins"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "2"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/createnbmodel/input/bintree>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Read org.meandre.components.transform.binning.BinTree which contains counts."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/createnbmodel/input/bintree"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "binTree"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/autobin/input/exampletable>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Read a table of examples. It is type of org.meandre.components.datatype.table.ExampleTable"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/autobin/input/exampletable"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "exampleTable"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/labelsRowIndex>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "labelsRowIndex"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "0"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/instance_configuration> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Overview: An evidence visualization for a NaiveBayesModel. Detailed Description: This evidence visualization shows pie charts that represent the different bins used.  The slices of the pie chart represent the ratios of the output classes for that particular bin. Selecting a chart in the evidence section will update the conclusion pie chart.  The conclusion shows the probability that each output has for classification given all the selected evidence charts.Data Type Restrictions: noneData Handling:  This module does not destroy or modify the input data.Scalability: This module keeps data structures to represent the evidence charts.  The amount of memory required is proportional to the number of bins used in the discretization process."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_name>
+              "WebNaiveBayesVis"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_resource>
+              <meandre://seasr.org/components/webnaivebayesvis> ;
+      <http://www.meandre.org/ontology/property_set>
+              <http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0/property/wb_left_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0/property/wb_top_pix_pos> .
+
+<meandre://seasr.org/components/fork-x5/output/object_5>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Replicated object"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/fork-x5/output/object_5"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "object_5"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3/property/wb_left_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_left_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "122"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/input-url-or-path>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/executable_component> ;
+      <http://purl.org/dc/elements/1.1/creator>
+              "Boris Capitanu and Lily Dong"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/date>
+              "2009-01-10T18:26:56"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "This module is used to enter the url to a local or remote resource. Detailed Description: Collect a URL or local path, and create a WebdavClient to access it. The module provides a properties editor that can be used to enter a url to a local or remote resource.  If the url points to a local file, the user can enter the name directly into a text area.If the url points to a remote file, the user has to type in the host url, which include protocol, path and port in the text area for host url, and the relative path of the resource to the server in the text area for file name.This module does not perform any checks to verify that the url exists and is accessible with the username and password given by the user. A check is performed to make sure that a file name has been entered and an exception is thrown if the editor text area is blank. The WebdavClient is made available on the WebdavClient output port.  For local url, a path may or may not be included in the file name string."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/format>
+              "java/class"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/rights>
+              "University of Illinois/NCSA Open Source License"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/execution_context>
+              <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.io.file.input.InputFileUrl-input-url-or-path.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/slf4j-api-1.5.2.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/seasr-webdav-1.4.0.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/commons-codec-1.3.jar> , <meandre://seasr.org/components/input-url-or-path/implementation/> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/commons-logging-1.1.1.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/xercesImpl-2.9.1.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/commons-httpclient-3.1.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/jackrabbit-webdav-1.4.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/slf4j-jcl-1.5.2.jar> ;
+      <http://www.meandre.org/ontology/firing_policy>
+              "all"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/mode>
+              <http://www.meandre.org/ontology/component/type/compute> ;
+      <http://www.meandre.org/ontology/name>
+              "Input URL Or Path"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/output_data_port>
+              <meandre://seasr.org/components/input-url-or-path/output/webdavclient> , <meandre://seasr.org/components/input-url-or-path/output/url> ;
+      <http://www.meandre.org/ontology/property_set>
+              <meandre://seasr.org/components/input-url-or-path/property/username> , <meandre://seasr.org/components/input-url-or-path/property/password> , <meandre://seasr.org/components/input-url-or-path/property/file_url> ;
+      <http://www.meandre.org/ontology/resource_location>
+              <meandre://seasr.org/components/input-url-or-path/implementation/org.meandre.components.io.file.input.InputFileUrl> ;
+      <http://www.meandre.org/ontology/runnable>
+              "java"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/tag>
+              "input"^^<http://www.w3.org/2001/XMLSchema#string> , "io"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/connector/19>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_connector_configuration> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_source>
+              <meandre://seasr.org/components/fork-x5/output/object_3> ;
+      <http://www.meandre.org/ontology/connector_instance_data_port_target>
+              <meandre://seasr.org/components/createnbmodel/input/exampletable> ;
+      <http://www.meandre.org/ontology/connector_instance_source>
+              <http://seasr.org/flows/naive-bayes/instance/fork-x5/18> ;
+      <http://www.meandre.org/ontology/connector_instance_target>
+              <http://seasr.org/flows/naive-bayes/instance/createnbmodel/15> .
+
+<http://seasr.org/flows/naive-bayes/connector/set>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/connector_set> ;
+      <http://www.meandre.org/ontology/data_connector>
+              <http://seasr.org/flows/naive-bayes/connector/20> , <http://seasr.org/flows/naive-bayes/connector/17> , <http://seasr.org/flows/naive-bayes/connector/18> , <http://seasr.org/flows/naive-bayes/connector/22> , <http://seasr.org/flows/naive-bayes/connector/16> , <http://seasr.org/flows/naive-bayes/connector/1> , <http://seasr.org/flows/naive-bayes/connector/2> , <http://seasr.org/flows/naive-bayes/connector/14> , <http://seasr.org/flows/naive-bayes/connector/4> , <http://seasr.org/flows/naive-bayes/connector/3> , <http://seasr.org/flows/naive-bayes/connector/0> , <http://seasr.org/flows/naive-bayes/connector/19> .
+
+<meandre://seasr.org/components/choose-attributes/output/example_table>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "The Example Table with input and output features assigned"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/choose-attributes/output/example_table"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "example_table"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/prepareforvis/16/property/wb_left_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_left_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "417"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/autobin>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/executable_component> ;
+      <http://purl.org/dc/elements/1.1/creator>
+              "Lily Dong"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/date>
+              "2009-01-10T18:26:42"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Overview: Automatically discretize scalar data for the Naive Bayesian classification model.Detailed Description: Given a table of Examples, define the bins for each scalar input column.  When binning Uniformly, the number of bins is determined by Number of Bins property, and the boundaries of the bins are set so that they divide evenly over the range of the binned column.When binning by weight, Number of Items per Bin sets the size of each bin. The values are then binned so that in each bin there is the same number of items. For more details see description of property Number of Items per Bin'.Data Handling: This module does not modify the input data.Scalability: The module requires enough memory to make copies of each of the scalar input columns."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/format>
+              "java/class"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/rights>
+              "University of Illinois/NCSA Open Source License"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/execution_context>
+              <meandre://seasr.org/components/autobin/implementation/> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/org.meandre.components.transform.binning.AutoBin-autobin.jar> , <http://repository.seasr.org/Meandre/Locations/1.4/Flows/NaiveBayes/resources/trove-2.0.3.jar> ;
+      <http://www.meandre.org/ontology/firing_policy>
+              "all"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/input_data_port>
+              <meandre://seasr.org/components/autobin/input/exampletable> ;
+      <http://www.meandre.org/ontology/mode>
+              <http://www.meandre.org/ontology/component/type/compute> ;
+      <http://www.meandre.org/ontology/name>
+              "AutoBin"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/output_data_port>
+              <meandre://seasr.org/components/autobin/output/bintransform> ;
+      <http://www.meandre.org/ontology/property_set>
+              <meandre://seasr.org/components/autobin/property/method> , <meandre://seasr.org/components/autobin/property/nrOfBins> , <meandre://seasr.org/components/autobin/property/weight> ;
+      <http://www.meandre.org/ontology/resource_location>
+              <meandre://seasr.org/components/autobin/implementation/org.meandre.components.transform.binning.AutoBin> ;
+      <http://www.meandre.org/ontology/runnable>
+              "java"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/tag>
+              "transform"^^<http://www.w3.org/2001/XMLSchema#string> , "binning"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/create-delimited-file-parser/input/url>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "URL pointing to a resource location."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/create-delimited-file-parser/input/url"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "url"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/createnbmodel/15>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/instance_configuration> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Overview: Generates a NaiveBayesModel from the given BinTree.  The Naive Bayes Model performs all necessary calculations.Detailed Description: Given a BinTree object that contains counts for each discrete item in the training data set, this module creates a Naive Bayesian learning model.  This method is based on Bayes's rule for conditional probability.  It \"naively\" assumes independence of the input features.Data Type Restrictions: This model can only use nominal data as the inputs and can only classify one nominal output.  The binning procedure will discretize any scalar inputs in the training data, but the output data is not binned and should be nominal. If the output data is binned, visualizations and prediction generated by the created model might be wrong and/or too corrupted to be displayed.Data Handling: The input data is neither modified nor destroyed.Missing Values Handling: Output data should be clean of missing values.Scalability: The module utilizes the counts in the BinTree, and as such does not perform any significant computations."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_name>
+              "CreateNBModel"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_resource>
+              <meandre://seasr.org/components/createnbmodel> ;
+      <http://www.meandre.org/ontology/property_set>
+              <http://seasr.org/flows/naive-bayes/instance/createnbmodel/15/property/wb_top_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/createnbmodel/15/property/wb_left_pix_pos> .
+
+<meandre://seasr.org/components/parse-file-to-table/input/parser>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "A FlatFileParser to read data from"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/parse-file-to-table/input/parser"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "parser"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/create-delimited-file-parser/output/parser>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "A Delimited File Parser for the specified file"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/create-delimited-file-parser/output/parser"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "parser"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/createbintree/14/property/wb_top_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_top_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "151"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/createbintree/input/exampletable>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Input example table containing the names of the input/output features.It is of ncsa.d2k.modules.core.datatype.table.ExampleTable."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/createbintree/input/exampletable"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "exampleTable"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/autobin/13/property/wb_top_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_top_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "96"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/wb_left_pix_pos>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "wb_left_pix_pos"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "427"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<meandre://seasr.org/components/prepareforvis/output/nbmodel>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Ouptut org.meandre.components.prediction.naivebayes.NaiveBayesModel after calculation."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/prepareforvis/output/nbmodel"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "nbModel"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/components/set>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/instance_set> ;
+      <http://www.meandre.org/ontology/executable_component_instance>
+              <http://seasr.org/flows/naive-bayes/instance/parse-file-to-table/7> , <http://seasr.org/flows/naive-bayes/instance/webnaivebayesvis/0> , <http://seasr.org/flows/naive-bayes/instance/autobin/13> , <http://seasr.org/flows/naive-bayes/instance/prepareforvis/16> , <http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0> , <http://seasr.org/flows/naive-bayes/instance/createnbmodel/15> , <http://seasr.org/flows/naive-bayes/instance/choose-attributes/1> , <http://seasr.org/flows/naive-bayes/instance/create-delimited-file-parser/3> , <http://seasr.org/flows/naive-bayes/instance/fork-x5/18> , <http://seasr.org/flows/naive-bayes/instance/createbintree/14> .
+
+<http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/instance_configuration> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "This module is used to enter the url to a local or remote resource. Detailed Description: Collect a URL or local path, and create a WebdavClient to access it. The module provides a properties editor that can be used to enter a url to a local or remote resource.  If the url points to a local file, the user can enter the name directly into a text area.If the url points to a remote file, the user has to type in the host url, which include protocol, path and port in the text area for host url, and the relative path of the resource to the server in the text area for file name.This module does not perform any checks to verify that the url exists and is accessible with the username and password given by the user. A check is performed to make sure that a file name has been entered and an exception is thrown if the editor text area is blank. The WebdavClient is made available on the WebdavClient output port.  For local url, a path may or may not be included in the file name string."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_name>
+              "Input URL Or Path"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/instance_resource>
+              <meandre://seasr.org/components/input-url-or-path> ;
+      <http://www.meandre.org/ontology/property_set>
+              <http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/wb_left_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/username> , <http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/password> , <http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/wb_top_pix_pos> , <http://seasr.org/flows/naive-bayes/instance/input-url-or-path/0/property/file_url> .
+
+<meandre://seasr.org/components/fork-x5/output/object_4>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/data_port> ;
+      <http://purl.org/dc/elements/1.1/description>
+              "Replicated object"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://purl.org/dc/elements/1.1/identifier>
+              "meandre://seasr.org/components/fork-x5/output/object_4"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/name>
+              "object_4"^^<http://www.w3.org/2001/XMLSchema#string> .
+
+<http://seasr.org/flows/naive-bayes/instance/choose-attributes/1/property/require_output_selection>
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+              <http://www.meandre.org/ontology/property> ;
+      <http://www.meandre.org/ontology/key>
+              "require_output_selection"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://www.meandre.org/ontology/value>
+              "true"^^<http://www.w3.org/2001/XMLSchema#string> .
