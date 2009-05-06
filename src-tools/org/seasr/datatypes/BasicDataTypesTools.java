@@ -5,6 +5,7 @@ package org.seasr.datatypes;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -106,6 +107,20 @@ public abstract class BasicDataTypesTools {
 			res.addValue(BasicDataTypes.Integers.newBuilder().addValue(entry.getValue()));
 		}
 		return res.build();
+	}
+	
+	/** Converts a protocol buffer string integer map to the equivalent java map
+	 * 
+	 * @param im The integer map to convert
+	 * @return The converted map
+	 */
+	public static Map<String,Integer> IntegerMapToMap ( IntegersMap im ) {
+		Hashtable<String,Integer> ht = new Hashtable<String,Integer>(im.getValueCount());
+		
+		for ( int i=0,iMax=im.getValueCount() ; i<iMax ; i++ )
+			ht.put(im.getKey(i), im.getValue(i).getValue(0));
+		
+		return ht;
 	}
 	
 }
