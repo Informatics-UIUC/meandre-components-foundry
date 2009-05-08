@@ -37,4 +37,5 @@ public abstract class Names {
 	public final static String PORT_OBJECT = "object";
 	public final static String PORT_XML = "xml";
 	public static final String PORT_TOKEN_MAP = "token_map";
+	public static final String PORT_JAVA_STRING = "java_string";
 }
