@@ -11,7 +11,9 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
+import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
+import org.meandre.core.ExecutableComponent;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
@@ -33,7 +35,7 @@ import org.seasr.meandre.components.tools.Names;
 		tags = "tools, tokenizer, counting, transformations",
 		description = "Converts a Java string into an equivalent string protocol buffer wrapper."
 )
-public class JavaStringToStrings {
+public class JavaStringToStrings implements ExecutableComponent  {
 	
 	//--------------------------------------------------------------------------------------------
 	
@@ -74,6 +76,18 @@ public class JavaStringToStrings {
 				throw new ComponentExecutionException(e);
 			}
 		}
+	}
+
+	public void dispose(ComponentContextProperties arg0)
+			throws ComponentExecutionException, ComponentContextException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void initialize(ComponentContextProperties arg0)
+			throws ComponentExecutionException, ComponentContextException {
+		// TODO Auto-generated method stub
+		
 	}
 
 	//--------------------------------------------------------------------------------------------
