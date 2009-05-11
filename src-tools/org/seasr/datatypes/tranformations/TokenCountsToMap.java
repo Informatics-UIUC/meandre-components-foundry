@@ -13,7 +13,9 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
+import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
+import org.meandre.core.ExecutableComponent;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
@@ -37,7 +39,7 @@ import org.seasr.meandre.components.tools.Names;
 		description = "Given a collection of token counts, this component converts them " +
 				      "to a Java map."
 )
-public class TokenCountsToMap {
+public class TokenCountsToMap implements ExecutableComponent {
 	
 	//--------------------------------------------------------------------------------------------
 	
@@ -79,6 +81,18 @@ public class TokenCountsToMap {
 				throw new ComponentExecutionException(e);
 			}
 		}
+	}
+
+	public void dispose(ComponentContextProperties arg0)
+			throws ComponentExecutionException, ComponentContextException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void initialize(ComponentContextProperties arg0)
+			throws ComponentExecutionException, ComponentContextException {
+		// TODO Auto-generated method stub
+		
 	}
 
 	//--------------------------------------------------------------------------------------------
