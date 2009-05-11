@@ -158,7 +158,7 @@ implements ExecutableComponent {
 		if ( bHeaderAdded )
 			ps.println(sHeader);
 		if ( offset<0 ) offset = 0;
-		if ( count<0 ) count = str.getValueCount()-offset;
+		if ( count<0 ) count = str.getValueCount()-offset-1;
 		for ( ; count>=0 ; offset++, count-- )
 			ps.println(str.getValue(offset));
 		ps.println();		
