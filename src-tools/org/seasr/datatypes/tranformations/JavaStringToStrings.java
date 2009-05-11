@@ -23,7 +23,7 @@ import org.seasr.meandre.components.tools.Names;
  *
  */
 @Component(
-		name = "Converts a Java string into an equivalent string protocol buffer wrapper",
+		name = "Java String To Strings",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -31,8 +31,7 @@ import org.seasr.meandre.components.tools.Names;
 		rights = Licenses.UofINCSA,
 		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "tools, tokenizer, counting, transformations",
-		description = "Given a collection of token counts, this component converts them " +
-				      "to a Java map."
+		description = "Converts a Java string into an equivalent string protocol buffer wrapper."
 )
 public class JavaStringToStrings {
 	
@@ -42,13 +41,13 @@ public class JavaStringToStrings {
 		
 	@ComponentInput(
 			name = Names.PORT_JAVA_STRING,
-			description = "The java string to compar"
+			description = "The java string to convert"
 		)
 	private final static String INPUT_JAVA_STRING = Names.PORT_JAVA_STRING;
 	
 	@ComponentOutput(
-			name = Names.PORT_TOKEN_MAP,
-			description = "The converted token map"
+			name = Names.PORT_TEXT,
+			description = "The converted text"
 		)
 	private final static String OUPUT_TEXT = Names.PORT_TEXT;
 		
