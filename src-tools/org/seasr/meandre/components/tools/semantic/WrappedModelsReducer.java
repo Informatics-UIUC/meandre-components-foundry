@@ -1,6 +1,45 @@
 /**
- * 
- */
+*
+* University of Illinois/NCSA
+* Open Source License
+*
+* Copyright (c) 2008, NCSA.  All rights reserved.
+*
+* Developed by:
+* The Automated Learning Group
+* University of Illinois at Urbana-Champaign
+* http://www.seasr.org
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal with the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject
+* to the following conditions:
+*
+* Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimers.
+*
+* Redistributions in binary form must reproduce the above copyright
+* notice, this list of conditions and the following disclaimers in
+* the documentation and/or other materials provided with the distribution.
+*
+* Neither the names of The Automated Learning Group, University of
+* Illinois at Urbana-Champaign, nor the names of its contributors may
+* be used to endorse or promote products derived from this Software
+* without specific prior written permission.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+*
+*/
+
 package org.seasr.meandre.components.tools.semantic;
 
 import org.meandre.annotations.Component;
@@ -23,7 +62,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 /** Converts a model to text
- * 
+ *
  * @author Xavier Llor&agrave
  *
  */
@@ -49,10 +88,10 @@ public class WrappedModelsReducer implements ExecutableComponent {
 			name = Names.PROP_ERROR_HANDLING,
 			description = "If set to true errors will be handled and they will be reported to the screen ." +
 					      "Otherwise, the component will throw an exception an force the flow to abort. ",
-		    defaultValue = "true" 
+		    defaultValue = "true"
 		)
 	protected final static String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
-		
+
 	//--------------------------------------------------------------------------------------------
 
 	@ComponentInput(
@@ -60,28 +99,28 @@ public class WrappedModelsReducer implements ExecutableComponent {
 			description = "The model containing the semantic document to accumulate"
 		)
 	protected final static String INPUT_DOCUMENT = Names.PORT_DOCUMENT;
-	
+
 	@ComponentOutput(
 			name = Names.PORT_DOCUMENT,
 			description = "The semantic document accumulated"
 		)
 	protected final static String OUTPUT_DOCUMENT = Names.PORT_DOCUMENT;
-	
+
 	//--------------------------------------------------------------------------------------------
-	
+
 	/** The error handling flag */
 	protected boolean bErrorHandling;
-	
+
 	/** The accumulating model */
 	protected Model modelAcc;
-	
+
 	/** Number of models accumulated */
 	protected int iCnt;
 
 
 	//--------------------------------------------------------------------------------------------
-	
-	
+
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
 	 */
@@ -91,7 +130,7 @@ public class WrappedModelsReducer implements ExecutableComponent {
 		this.modelAcc = null;
 		this.iCnt = 0;
 	}
-	
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
 	 */
@@ -109,7 +148,7 @@ public class WrappedModelsReducer implements ExecutableComponent {
 			throws ComponentExecutionException, ComponentContextException {
 
 		Object obj = cc.getDataComponentFromInput(INPUT_DOCUMENT);
-		
+
 		if ( obj instanceof StreamInitiator ) {
 			// Try to revalance a stream
 			if ( this.modelAcc!=null ) {
@@ -118,7 +157,7 @@ public class WrappedModelsReducer implements ExecutableComponent {
 				cc.getOutputConsole().println("WARNING: "+sMessage);
 				if ( this.bErrorHandling )
 					pushReduction(cc);
-				else 
+				else
 					throw new ComponentExecutionException(sMessage);
 			}
 			// Initialize the accumulation model
@@ -147,20 +186,20 @@ public class WrappedModelsReducer implements ExecutableComponent {
 					String sMessage = "Input data is not a semantic model";
 					cc.getLogger().warning(sMessage);
 					cc.getOutputConsole().println("WARNING: "+sMessage);
-					if ( !bErrorHandling ) 
+					if ( !bErrorHandling )
 						throw new ComponentExecutionException(e);
 				}
-				
+
 			}
 		}
 	}
 
 
 	//-----------------------------------------------------------------------------------
-	
+
 
 	/** Initializes the basic information about the reduction
-	 * 
+	 *
 	 */
 	protected void initializeReduction() {
 		this.modelAcc = ModelFactory.createDefaultModel();
@@ -168,7 +207,7 @@ public class WrappedModelsReducer implements ExecutableComponent {
 	}
 
 	/** Pushes the accumulated model.
-	 * 
+	 *
 	 * @param cc The component context
 	 * @throws ComponentContextException Failed to push the accumulated model
 	 */
@@ -178,17 +217,17 @@ public class WrappedModelsReducer implements ExecutableComponent {
 		StreamTerminator st = new StreamTerminator();
 		si.put("count", this.iCnt); si.put("accumulated", 1);
 		st.put("count", this.iCnt); st.put("accumulated", 1);
-		
+
 		// Push
 		cc.pushDataComponentToOutput(OUTPUT_DOCUMENT, si);
 		cc.pushDataComponentToOutput(OUTPUT_DOCUMENT, this.modelAcc);
 		cc.pushDataComponentToOutput(OUTPUT_DOCUMENT, st);
-		
+
 	}
 
 
 	/** Accumulates the model.
-	 * 
+	 *
 	 * @param model The model to accumulate
 	 */
 	protected void reduceModel(Model model) {
@@ -196,6 +235,6 @@ public class WrappedModelsReducer implements ExecutableComponent {
 		this.iCnt++;
 	}
 
-	
+
 
 }

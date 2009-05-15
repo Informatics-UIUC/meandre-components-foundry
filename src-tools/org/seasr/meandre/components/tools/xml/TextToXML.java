@@ -1,6 +1,45 @@
 /**
- * 
- */
+*
+* University of Illinois/NCSA
+* Open Source License
+*
+* Copyright (c) 2008, NCSA.  All rights reserved.
+*
+* Developed by:
+* The Automated Learning Group
+* University of Illinois at Urbana-Champaign
+* http://www.seasr.org
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal with the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject
+* to the following conditions:
+*
+* Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimers.
+*
+* Redistributions in binary form must reproduce the above copyright
+* notice, this list of conditions and the following disclaimers in
+* the documentation and/or other materials provided with the distribution.
+*
+* Neither the names of The Automated Learning Group, University of
+* Illinois at Urbana-Champaign, nor the names of its contributors may
+* be used to endorse or promote products derived from this Software
+* without specific prior written permission.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+*
+*/
+
 package org.seasr.meandre.components.tools.xml;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -25,7 +64,7 @@ import org.seasr.meandre.components.tools.Names;
 import org.w3c.dom.Document;
 
 /** Converts text into a XML document
- * 
+ *
  * @author Xavier Llor&agrave
  *
  */
@@ -52,10 +91,10 @@ public class TextToXML implements ExecutableComponent {
 			name=Names.PROP_ERROR_HANDLING,
 			description = "If set to true errors will be handled and empty models will be pushed. " +
 					      "Otherwise, the component will throw an exception an force the flow to abort.",
-		    defaultValue = "true" 
+		    defaultValue = "true"
 		)
 	private final static String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
-	
+
 	//--------------------------------------------------------------------------------------------
 
 	@ComponentInput(
@@ -63,15 +102,15 @@ public class TextToXML implements ExecutableComponent {
 			description = "The text containing the XML to read"
 		)
 	private final static String INPUT_TEXT = Names.PORT_TEXT;
-	
+
 	@ComponentOutput(
 			name = Names.PORT_XML,
 			description = "The XML containing the XML document read"
 		)
 	private final static String OUTPUT_DOCUMENT = Names.PORT_XML;
-	
+
 	//--------------------------------------------------------------------------------------------
-	
+
 	/** The error handling flag */
 	private boolean bErrorHandling;
 
@@ -82,13 +121,13 @@ public class TextToXML implements ExecutableComponent {
 	private DocumentBuilder parser;
 
 	//--------------------------------------------------------------------------------------------
-	
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
 	 */
 	public void initialize(ComponentContextProperties ccp)
 			throws ComponentExecutionException, ComponentContextException {
-		
+
 		this.bErrorHandling = Boolean.parseBoolean(ccp.getProperty(PROP_ERROR_HANDLING));
 		try {
 			this.factory = DocumentBuilderFactory.newInstance();
@@ -99,9 +138,9 @@ public class TextToXML implements ExecutableComponent {
 			ccp.getLogger().warning(sMessage);
 			ccp.getOutputConsole().println("WARNING: "+sMessage);
 			throw new ComponentExecutionException(sMessage+" "+t.toString());
-		}		
+		}
 	}
-	
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
 	 */
@@ -121,28 +160,28 @@ public class TextToXML implements ExecutableComponent {
 		Object obj = cc.getDataComponentFromInput(INPUT_TEXT);
 		if ( obj instanceof StreamDelimiter )
 			cc.pushDataComponentToOutput(OUTPUT_DOCUMENT, obj);
-		else {	
+		else {
 			String sText  = (obj instanceof Strings)?((Strings)obj).getValue(0):obj.toString();
 			Document doc = null;
 			try {
-				doc = parser.parse(new StringInputStream(sText)); 
+				doc = parser.parse(new StringInputStream(sText));
 			} catch (Throwable t) {
 				String sMessage = "Could not read XML from text "+((sText.length()>100)?sText.substring(0, 100):sText);
 				cc.getLogger().warning(sMessage);
 				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( !bErrorHandling ) 
+				if ( !bErrorHandling )
 					throw new ComponentExecutionException(t);
 				else {
 					doc = parser.newDocument();
 				}
 			}
-			cc.pushDataComponentToOutput(OUTPUT_DOCUMENT, doc);	
+			cc.pushDataComponentToOutput(OUTPUT_DOCUMENT, doc);
 		}
 	}
 
 
 	//-----------------------------------------------------------------------------------
 
-	
+
 
 }

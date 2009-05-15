@@ -1,6 +1,45 @@
 /**
- * 
- */
+*
+* University of Illinois/NCSA
+* Open Source License
+*
+* Copyright (c) 2008, NCSA.  All rights reserved.
+*
+* Developed by:
+* The Automated Learning Group
+* University of Illinois at Urbana-Champaign
+* http://www.seasr.org
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal with the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject
+* to the following conditions:
+*
+* Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimers.
+*
+* Redistributions in binary form must reproduce the above copyright
+* notice, this list of conditions and the following disclaimers in
+* the documentation and/or other materials provided with the distribution.
+*
+* Neither the names of The Automated Learning Group, University of
+* Illinois at Urbana-Champaign, nor the names of its contributors may
+* be used to endorse or promote products derived from this Software
+* without specific prior written permission.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+*
+*/
+
 package org.seasr.meandre.components.analytics.text.summarization;
 
 import java.util.Arrays;
@@ -35,8 +74,8 @@ import cern.colt.matrix.linalg.Algebra;
 import cern.jet.math.Functions;
 
 /** This component ranks and sorts tokenized sentences. Useful for summarization
- * 
- * @author Xavier Llorˆ
+ *
+ * @author Xavier Llorï¿½
  *
  */
 @Component(
@@ -51,43 +90,43 @@ import cern.jet.math.Functions;
 		description = "This component ranks and sorts the tokenized input sentences " +
 				      "providing a simple summarization by sentence seletion."
 )
-public class HITSSummarizer 
+public class HITSSummarizer
 implements ExecutableComponent {
-	
+
 	//--------------------------------------------------------------------------------------------
 
 	@ComponentProperty(
 			name = Names.PROP_ERROR_HANDLING,
 			description = "If set to true errors will be handled and they will be reported to the screen ." +
 					      "Otherwise, the component will throw an exception an force the flow to abort. ",
-		    defaultValue = "true" 
+		    defaultValue = "true"
 		)
 	protected final static String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
 
 	@ComponentProperty(
 			name = Names.PROP_N_TOP_TOKENS,
 			description = "Number of top tokens to output. -1 outputs all the tokens",
-		    defaultValue = "20" 
+		    defaultValue = "20"
 		)
 	protected final static String PROP_N_TOP_TOKENS = Names.PROP_N_TOP_TOKENS;
-	
+
 	@ComponentProperty(
 			name = Names.PROP_N_TOP_SENTENCES,
 			description = "Number of top sentences to output. -1 outputs all the sentences ",
-		    defaultValue = "6" 
+		    defaultValue = "6"
 		)
 	protected final static String PROP_N_TOP_SENTENCES = Names.PROP_N_TOP_SENTENCES;
 
 	@ComponentProperty(
 			name = Names.PROP_ITERATIONS,
 			description = "Number of iterations to run. ",
-		    defaultValue = "10" 
+		    defaultValue = "10"
 		)
 	protected final static String PROP_ITERATIONS = Names.PROP_ITERATIONS;
 
 
 	//--------------------------------------------------------------------------------------------
-	
+
 	@ComponentInput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
 			description = "The tokenized sentences"
@@ -99,13 +138,13 @@ implements ExecutableComponent {
 			description = "Sorted sentences"
 		)
 	private final static String OUTPUT_SENTENCES = Names.PORT_SENTENCES;
-	
+
 	@ComponentOutput(
 			name = Names.PORT_TOKENS,
 			description = "Sorted tokens"
 		)
 	private final static String OUTPUT_TOKENS = Names.PORT_TOKENS;
-	
+
 	//--------------------------------------------------------------------------------------------
 
 	/** The error handling flag */
@@ -116,15 +155,15 @@ implements ExecutableComponent {
 
 	/** Number of iterations */
 	private int iIterations;
-	
+
 	/** Number of sentences to output */
 	private int iNTopSentences;
-	
+
 	/** The algebra object */
 	private Algebra alg;
-	
+
 	//--------------------------------------------------------------------------------------------
-	
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
 	 */
@@ -156,7 +195,7 @@ implements ExecutableComponent {
 			cc.pushDataComponentToOutput(OUTPUT_SENTENCES, obj);
 			cc.pushDataComponentToOutput(OUTPUT_TOKENS, obj);
 		}
-		else {	
+		else {
 			try {
 				StringsMap sm = (StringsMap) obj;
 				Map<String,Integer> mapTokenToPos = new Hashtable<String,Integer>();
@@ -169,107 +208,107 @@ implements ExecutableComponent {
 				String sMessage = "Input data is not from the basic type Strings";
 				cc.getLogger().warning(sMessage);
 				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( !bErrorHandling ) 
+				if ( !bErrorHandling )
 					throw new ComponentExecutionException(e);
 			}
 		}
 	}
 
 	//--------------------------------------------------------------------------------------------
-	
+
 	/** Internal class for sorting purposes */
 	class Entry {
 		public String sText;
 		public Double dScore;
-		
+
 		public Entry ( String s, Double d ) {
 			sText = s;
 			dScore = d;
 		}
-		
+
 		public String toString () {
 			return "<"+sText+", "+dScore+">";
 		}
 	}
-	
-	
+
+
 	/** Push the ranked sentences.
-	 * 
+	 *
 	 * @param score The score
 	 * @param sm The sentences
 	 * @param cc The component context
 	 * @throws ComponentContextException Something went wrong while pusshing
 	 */
-	private void pushSentence(DoubleMatrix1D score, StringsMap sm, ComponentContext cc) 
+	private void pushSentence(DoubleMatrix1D score, StringsMap sm, ComponentContext cc)
 	throws ComponentContextException {
 		// Prepare the list of sentence
 		int iSent = sm.getKeyCount();
 		Entry [] ea = new Entry[iSent];
 		for ( int i=0 ; i<iSent ; i++ )
 			ea[i] = new Entry(sm.getKey(i),score.getQuick(i));
-		
+
 		// Sort them based on the score
 		Arrays.sort(ea, new Comparator<Entry>(){
             public int compare(Entry o1,Entry o2) {
                return (o2.dScore>o1.dScore)?1:(o2.dScore==o1.dScore)?0:-1;
             }} );
-		
+
 		// Push them out
 		org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 		int iMax = (this.iNTopSentences<0)?ea.length:(this.iNTopSentences>ea.length)?ea.length:this.iNTopSentences;
 		for ( int i=0 ; i<iMax ; i++ )
 			res.addValue(ea[i].sText);
-		
+
 		cc.pushDataComponentToOutput(OUTPUT_SENTENCES, res.build());
 	}
-	
+
 	/** Push the ranked tokens.
-	 * 
+	 *
 	 * @param score The score
 	 * @param sm The sentences
 	 * @param cc The component context
 	 * @throws ComponentContextException Something went wrong while pusshing
 	 */
 	private void pushTokens(DoubleMatrix1D doubleMatrix1D,
-			Map<String, Integer> mapTokenToPos, ComponentContext cc) 
+			Map<String, Integer> mapTokenToPos, ComponentContext cc)
 	throws ComponentContextException {
-		
+
 		// Create the proper list of tokens
 		Set<String> set = mapTokenToPos.keySet();
 		int setSize = set.size();
 		String [] saIndex = new String[setSize];
 		for ( String sKey:set )
 			saIndex[mapTokenToPos.get(sKey)] = sKey;
-		
+
 		// Prepare the list of tokens to sort
 		Entry [] ea = new Entry[setSize];
 		for ( int i=0 ; i<setSize ; i++ )
 			ea[i] = new Entry(saIndex[i],doubleMatrix1D.getQuick(i));
-		
+
 		// Sort
 		Arrays.sort(ea, new Comparator<Entry>(){
             public int compare(Entry o1,Entry o2) {
                return (o2.dScore>o1.dScore)?1:(o2.dScore==o1.dScore)?0:-1;
             }} );
-		
+
 		// Push it out
 		org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 		int iMax = (this.iNTopTokens<0)?ea.length:(this.iNTopTokens>ea.length)?ea.length:this.iNTopTokens;
 		for ( int i=0 ; i<iMax ; i++ )
 			res.addValue(ea[i].sText);
-		
+
 		cc.pushDataComponentToOutput(OUTPUT_TOKENS, res.build());
 	}
 
 
 	/** Computes the HITS score for the given matrix returning the scores for hubs and authorities.
-	 * 
+	 *
 	 * @return The first one is the sentence ranking whereas the second is the token score
 	 */
 	@SuppressWarnings("static-access")
 	private DoubleMatrix1D[] hits(SparseDoubleMatrix2D w) {
 		/* My veryfied implementation of hits in python using numpy
-		 
+
 		   def hits ( W, K=10 ) :
 		     '''Computes the hits score for a weight matrix'''
 		     cont_size, term_size = W.shape
@@ -285,15 +324,15 @@ implements ExecutableComponent {
 		          res.append((cs,ts))
 		     return res
 		*/
-		
+
 		Functions F = cern.jet.math.Functions.functions;
 		DoubleMatrix2D wt = alg.transpose(w);
-		
+
 		int cont_size = w.rows();
 		int term_size = w.columns();
 		DoubleMatrix1D cs  = new DenseDoubleMatrix1D(cont_size); cs.assign(1.0);
 		DoubleMatrix1D ncs = new DenseDoubleMatrix1D(cont_size);
-		DoubleMatrix1D ts  = new DenseDoubleMatrix1D(term_size); ts.assign(1.0); 
+		DoubleMatrix1D ts  = new DenseDoubleMatrix1D(term_size); ts.assign(1.0);
 		DoubleMatrix1D nts = new DenseDoubleMatrix1D(term_size);
 		double tmp;
 		for ( int i=0, iMax=this.iIterations ; i<iMax ; i++ ) {
@@ -304,11 +343,11 @@ implements ExecutableComponent {
 			nts.assign(F.mult(1/tmp));
 			ts.assign(nts);
 		}
-		
+
 		return new DoubleMatrix1D [] {cs,ts};
 	}
 
-		
+
 	private SparseDoubleMatrix2D convertTokenizedSentencesToSparseMatrix(
 			StringsMap sm, Map<String, Integer> mapTokenToPos) {
 		// Populate the map
@@ -323,13 +362,13 @@ implements ExecutableComponent {
 			}
 			iSentence++;
 		}
-				
+
 		// Return the matrix
 		return sdm;
 	}
 
 	/** Populates the given map with a token position translator.
-	 * 
+	 *
 	 * @param sm The string map
 	 * @param mapTokenToPos The mapt to filled
 	 * @return The same map passed
@@ -351,7 +390,7 @@ implements ExecutableComponent {
 		  w = array([[1, 0, 0, 0, 1, 0, 0, 1, 0],
                [0, 1, 0, 0, 0, 0, 0, 0, 0],
                [1, 1, 0, 1, 1, 0, 0, 0, 0]])
- 
+
 		   def hits ( W, K=10 ) :
 		     '''Computes the hits score for a weight matrix'''
 		     cont_size, term_size = W.shape
@@ -373,18 +412,18 @@ implements ExecutableComponent {
 		w.setQuick(0,0,1); w.setQuick(0,4,1); w.setQuick(0,7,1);
 		w.setQuick(1,1,1);
 		w.setQuick(2,0,1); w.setQuick(2,1,1); w.setQuick(2,3,1); w.setQuick(2,4,1);
-		
+
 		Functions F = cern.jet.math.Functions.functions;
 		Algebra alg = new Algebra();
 		DoubleMatrix2D wt = alg.transpose(w);
-		
+
 		System.out.println(w);
-		
+
 		int cont_size = w.rows();
 		int term_size = w.columns();
 		DoubleMatrix1D cs  = new DenseDoubleMatrix1D(cont_size); cs.assign(1.0);
 		DoubleMatrix1D ncs = new DenseDoubleMatrix1D(cont_size);
-		DoubleMatrix1D ts  = new DenseDoubleMatrix1D(term_size); ts.assign(1.0); 
+		DoubleMatrix1D ts  = new DenseDoubleMatrix1D(term_size); ts.assign(1.0);
 		DoubleMatrix1D nts = new DenseDoubleMatrix1D(term_size);
 		double tmp;
 		for ( int i=0, iMax=10 ; i<iMax ; i++ ) {
@@ -396,7 +435,7 @@ implements ExecutableComponent {
 			nts.assign(F.mult(1/tmp));
 			ts.assign(nts);
 			System.out.println(ts);
-			
+
 		}
 	}
 }

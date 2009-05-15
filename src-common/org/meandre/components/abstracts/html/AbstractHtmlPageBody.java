@@ -1,6 +1,45 @@
 /**
- * 
- */
+*
+* University of Illinois/NCSA
+* Open Source License
+*
+* Copyright (c) 2008, NCSA.  All rights reserved.
+*
+* Developed by:
+* The Automated Learning Group
+* University of Illinois at Urbana-Champaign
+* http://www.seasr.org
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal with the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject
+* to the following conditions:
+*
+* Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimers.
+*
+* Redistributions in binary form must reproduce the above copyright
+* notice, this list of conditions and the following disclaimers in
+* the documentation and/or other materials provided with the distribution.
+*
+* Neither the names of The Automated Learning Group, University of
+* Illinois at Urbana-Champaign, nor the names of its contributors may
+* be used to endorse or promote products derived from this Software
+* without specific prior written permission.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+*
+*/
+
 package org.meandre.components.abstracts.html;
 
 import java.util.Hashtable;
@@ -12,33 +51,33 @@ import java.util.Map;
  *
  */
 public abstract class AbstractHtmlPageBody {
-	
+
 	private static String sBodyInstanceId = null;
 	private static StringBuffer defaultHtmlOpenBodyTag = null;
-	private static StringBuffer defaultBodyHtmlScriptsFragment = null;	
+	private static StringBuffer defaultBodyHtmlScriptsFragment = null;
 	private static StringBuffer defaultBodyHtmlCssTagsFragment = null;
-	
+
 	private static Hashtable<String,String> selectiveBodyHtmlFragments = new Hashtable<String,String>();
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public void initializeBody(){
 		( defaultHtmlOpenBodyTag = new StringBuffer() ).append("<Body>\n" );
 		( defaultBodyHtmlScriptsFragment = new StringBuffer() ).append("");
-		( defaultBodyHtmlCssTagsFragment = new StringBuffer() ).append("");		
+		( defaultBodyHtmlCssTagsFragment = new StringBuffer() ).append("");
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param instanceUrlId
 	 */
 	public void setBodyInstanceId(String instanceUrlId){
 		sBodyInstanceId= instanceUrlId ;
 	}
-		
+
 	/**
-	 * 
+	 *
 	 * @param fragment
 	 */
 	public void setDefaultHtmlOpenBodyTag(String fragment){
@@ -47,7 +86,7 @@ public abstract class AbstractHtmlPageBody {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param fragment
 	 */
 	public void setBodyDefaultHtmlScriptsFragment(String fragment){
@@ -55,15 +94,15 @@ public abstract class AbstractHtmlPageBody {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param fragment
 	 */
 	public void setBodyDefaultHtmlCssTagsFragment(String fragment){
 		defaultBodyHtmlCssTagsFragment.append(fragment);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param key
 	 * @param fragment
 	 */
@@ -73,23 +112,23 @@ public abstract class AbstractHtmlPageBody {
 
 	/**
 	 * getHtml will return HtmlHead built in two
-	 * segment concatenated together. The first 
+	 * segment concatenated together. The first
 	 * part is made-up of the following;
-	 * 
+	 *
 	 *   <Body> or customize tag defined using set
 	 *   defaultHtmlCssTagsFagment
 	 *   defaultHtmlScriptsFragment
-	 *   
+	 *
 	 * The second part is made up of the following;
-	 * 
-	 *   
+	 *
+	 *
 	 *   </Body>
-	 *  
+	 *
 	 * Selective fragment(s) can be called for and
 	 * would be insert between the two parts described
-	 *  
+	 *
 	 * @return
-	 * 
+	 *
 	 */
 	public String getBodyHtml(){
 		StringBuffer s = new StringBuffer();
@@ -102,17 +141,17 @@ public abstract class AbstractHtmlPageBody {
 	 * getHtml includes fragment previously stored
 	 * using setSelectiveHtmlFragments(); Includes
 	 * the fragment between HtmlOpen and HtmlClose
-	 * as described in getHtml(). 
-	 *  
+	 * as described in getHtml().
+	 *
 	 * @param keys
 	 * @return
-	 * 
+	 *
 	 */
 	public String getBodyHtml(String key){
 		StringBuffer s = new StringBuffer();
 		s.append( getBodyHtmlOpen() );
 		if( (selectiveBodyHtmlFragments != null)
-		  &&(selectiveBodyHtmlFragments.containsKey(key)) 
+		  &&(selectiveBodyHtmlFragments.containsKey(key))
 		){
 			s.append( selectiveBodyHtmlFragments.get(key));
 		}
@@ -125,21 +164,21 @@ public abstract class AbstractHtmlPageBody {
 	 * using setSelectiveHtmlFragements(); The argument will
 	 * be processed using for(key : keys) which will determine
 	 * the order that fragments will be inserted. The inserts
-	 * are the same as described in getHtml(String). 
-	 *  
+	 * are the same as described in getHtml(String).
+	 *
 	 * @param keys
 	 * @return
-	 * 
+	 *
 	 */
 	public String getBodyHtml(Set<String> keys){
 		StringBuffer s = new StringBuffer();
 		s.append( getBodyHtmlOpen() );
 		if( (selectiveBodyHtmlFragments != null)
-		  && (keys.size() > 0 ) 
+		  && (keys.size() > 0 )
 		){
 			for(String key: keys){
 				if( (selectiveBodyHtmlFragments != null)
-					&&(selectiveBodyHtmlFragments.containsKey(key)) 
+					&&(selectiveBodyHtmlFragments.containsKey(key))
 				){
 					String frag = selectiveBodyHtmlFragments.get(key);
 					if( frag != null )
@@ -155,10 +194,10 @@ public abstract class AbstractHtmlPageBody {
 	 * This method provides a means of sending non-persistent collection
 	 * keyed Html Fragements that will be used to populate selectiveHtmlFragements
 	 * and then using getHtml(Set<String>) to retrieve the resulting Html Page Body
-	 * using the new content. The order of Output is the order that item exists 
+	 * using the new content. The order of Output is the order that item exists
 	 * in the input Map.keySet().  When the Html Page Body is retrieved the original
 	 * content of selectiveHtmlFragements is restored.
-	 * 
+	 *
 	 * @param keys
 	 * @return
 	 */
@@ -181,27 +220,27 @@ public abstract class AbstractHtmlPageBody {
 	 * This method provides a means of sending non-persistent collection
 	 * Html Fragements that will be used to populate selectiveHtmlFragements
 	 * and then using getHtml(Set<String>) to retrieve the resulting Html Page Body
-	 * using the new content. The order of Output is maintained using the index of  
+	 * using the new content. The order of Output is maintained using the index of
 	 * the input String[].  When the Html Page Body is retrieved the original
 	 * content of selectiveHtmlFragements is restored.
-	 * 
+	 *
 	 * @param fragments[]
 	 * @return
 	 */
 	public String getBodyHtml( String[] fragments ){
 		StringBuffer s = new StringBuffer();
 		s.append( this.getBodyHtmlOpen() );
-		
+
 		for( String f : fragments){
 			s.append( f );
 		}
-		
+
 		s.append(this.getBodyHtmlClose());
 		return s.toString();
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	private String getBodyHtmlOpen(){
@@ -212,9 +251,9 @@ public abstract class AbstractHtmlPageBody {
 
 		return s.toString();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	private String getBodyHtmlClose(){
@@ -225,7 +264,7 @@ public abstract class AbstractHtmlPageBody {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public String makeHtmlDismissLink(
@@ -241,7 +280,7 @@ public abstract class AbstractHtmlPageBody {
 		//
 	}
 	/**
-	 * 
+	 *
 	 * @param parameterName
 	 * @param parameterValue
 	 * @param linkTitle
@@ -263,7 +302,7 @@ public abstract class AbstractHtmlPageBody {
 		String lTitle= "Done with WebUI fragment";
 		String ttHint= "Done with WebUI fragment";
 		String ldText= "Dismiss WebUI fragment";
-		
+
 		//
 		StringBuffer s = new StringBuffer();
 		actionUrl = (sBodyInstanceId==null)? "/" : sBodyInstanceId ;
@@ -272,19 +311,19 @@ public abstract class AbstractHtmlPageBody {
 		lTitle    = (linkTitle==null)? lTitle : linkTitle ;
 		ttHint    = (toolTipHint==null)? ttHint : toolTipHint ;
 		ldText    = (linkDisplayText == null)?    ldText : linkDisplayText ;
-		
+
 		//
 		s.append("<BR>\n");
 		s.append("<a href="+ actionUrl );
 		s.append("?" + pName );
-		s.append("=" + pValue ); 
+		s.append("=" + pValue );
 		s.append("&");
 		s.append("title=\"" + lTitle +"\"&");
 		s.append("tooltip=\""+ ttHint +"\" >");
 		s.append( ldText + "</a>\n<BR>\n");
-		
+
 		//
-		return s.toString();		
+		return s.toString();
 	}
-	
+
 }

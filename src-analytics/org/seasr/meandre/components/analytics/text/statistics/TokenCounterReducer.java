@@ -1,6 +1,45 @@
 /**
- * 
- */
+*
+* University of Illinois/NCSA
+* Open Source License
+*
+* Copyright (c) 2008, NCSA.  All rights reserved.
+*
+* Developed by:
+* The Automated Learning Group
+* University of Illinois at Urbana-Champaign
+* http://www.seasr.org
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal with the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject
+* to the following conditions:
+*
+* Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimers.
+*
+* Redistributions in binary form must reproduce the above copyright
+* notice, this list of conditions and the following disclaimers in
+* the documentation and/or other materials provided with the distribution.
+*
+* Neither the names of The Automated Learning Group, University of
+* Illinois at Urbana-Champaign, nor the names of its contributors may
+* be used to endorse or promote products derived from this Software
+* without specific prior written permission.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+*
+*/
+
 package org.seasr.meandre.components.analytics.text.statistics;
 
 import java.util.Hashtable;
@@ -24,7 +63,7 @@ import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.meandre.components.tools.Names;
 
 /** This class reads all the token counts inputed and accumulates the counts
- * 
+ *
  * @author Xavier Llor&agrave;
  *
  */
@@ -43,27 +82,27 @@ import org.seasr.meandre.components.tools.Names;
 				      "If no wrapped model is provided it will act as a simple pass through. This " +
 				      "component is based on Wrapped models reducer."
 )
-public class TokenCounterReducer 
+public class TokenCounterReducer
 implements ExecutableComponent {
-	
+
 	//--------------------------------------------------------------------------------------------
 
 	@ComponentProperty(
 			name = Names.PROP_ERROR_HANDLING,
 			description = "If set to true errors will be handled and they will be reported to the screen ." +
 					      "Otherwise, the component will throw an exception an force the flow to abort. ",
-		    defaultValue = "true" 
+		    defaultValue = "true"
 		)
 	protected final static String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
-		
-	
+
+
 	@ComponentProperty(
 			name = Names.PROP_ORDERED,
 			description = "Should the token counts be ordered?",
 			defaultValue = "true"
 		)
 	private final static String PROP_ORDERED = Names.PROP_ORDERED;
-	
+
 	//--------------------------------------------------------------------------------------------
 
 	@ComponentInput(
@@ -71,30 +110,30 @@ implements ExecutableComponent {
 			description = "The token counts to accumulate"
 		)
 	protected final static String INPUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
-	
+
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_COUNTS,
 			description = "The accumulated token counts"
 		)
 	protected final static String OUTPUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
-	
+
 	//--------------------------------------------------------------------------------------------
-	
+
 	/** The error handling flag */
 	protected boolean bErrorHandling;
-	
+
 	/** The accumulated counts */
 	protected Hashtable<String,Integer> htAcc;
-		
+
 	/** Number of models accumulated */
 	protected int iCnt;
 
 	/** Should the tokens be ordered */
 	private boolean bOrdered;
-	
+
 	//--------------------------------------------------------------------------------------------
-	
-	
+
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
 	 */
@@ -105,7 +144,7 @@ implements ExecutableComponent {
 		this.iCnt = 0;
 		this.bOrdered = Boolean.parseBoolean(ccp.getProperty(PROP_ORDERED));
 	}
-	
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
 	 */
@@ -124,7 +163,7 @@ implements ExecutableComponent {
 			throws ComponentExecutionException, ComponentContextException {
 
 		Object obj = cc.getDataComponentFromInput(INPUT_TOKEN_COUNTS);
-		
+
 		if ( obj instanceof StreamInitiator ) {
 			// Try to revalance a stream
 			if ( this.htAcc!=null ) {
@@ -133,7 +172,7 @@ implements ExecutableComponent {
 				cc.getOutputConsole().println("WARNING: "+sMessage);
 				if ( this.bErrorHandling )
 					pushReduction(cc);
-				else 
+				else
 					throw new ComponentExecutionException(sMessage);
 			}
 			// Initialize the accumulation model
@@ -162,20 +201,20 @@ implements ExecutableComponent {
 					String sMessage = "Input data is not an integer map";
 					cc.getLogger().warning(sMessage);
 					cc.getOutputConsole().println("WARNING: "+sMessage);
-					if ( !bErrorHandling ) 
+					if ( !bErrorHandling )
 						throw new ComponentExecutionException(e);
 				}
-				
+
 			}
 		}
 	}
 
 
 	//-----------------------------------------------------------------------------------
-	
+
 
 	/** Initializes the basic information about the reduction
-	 * 
+	 *
 	 */
 	protected void initializeReduction() {
 		this.htAcc = new Hashtable<String, Integer>(1000);
@@ -183,7 +222,7 @@ implements ExecutableComponent {
 	}
 
 	/** Pushes the accumulated model.
-	 * 
+	 *
 	 * @param cc The component context
 	 * @throws ComponentContextException Failed to push the accumulated model
 	 */
@@ -193,24 +232,24 @@ implements ExecutableComponent {
 		StreamTerminator st = new StreamTerminator();
 		si.put("count", this.iCnt); si.put("accumulated", 1);
 		st.put("count", this.iCnt); st.put("accumulated", 1);
-		
+
 		// Push
 		cc.pushDataComponentToOutput(OUTPUT_TOKEN_COUNTS, si);
 		cc.pushDataComponentToOutput(OUTPUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htAcc,bOrdered));
 		cc.pushDataComponentToOutput(OUTPUT_TOKEN_COUNTS, st);
-		
+
 	}
 
 
 	/** Accumulates the model.
-	 * 
+	 *
 	 * @param im The model to accumulate
 	 */
 	protected void reduceModel(IntegersMap im) {
 		for ( int i=0, iMax=im.getKeyCount() ; i<iMax ; i++ ) {
 			String sToken = im.getKey(i);
 			int  iCounts = im.getValue(i).getValue(0);
-			if ( htAcc.containsKey(sToken) ) 
+			if ( htAcc.containsKey(sToken) )
 				htAcc.put(sToken, htAcc.get(sToken)+iCounts);
 			else
 				htAcc.put(sToken, iCounts);

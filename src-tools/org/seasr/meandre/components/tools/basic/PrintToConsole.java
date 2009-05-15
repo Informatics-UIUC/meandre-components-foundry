@@ -1,6 +1,45 @@
 /**
- * 
- */
+*
+* University of Illinois/NCSA
+* Open Source License
+*
+* Copyright (c) 2008, NCSA.  All rights reserved.
+*
+* Developed by:
+* The Automated Learning Group
+* University of Illinois at Urbana-Champaign
+* http://www.seasr.org
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal with the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject
+* to the following conditions:
+*
+* Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimers.
+*
+* Redistributions in binary form must reproduce the above copyright
+* notice, this list of conditions and the following disclaimers in
+* the documentation and/or other materials provided with the distribution.
+*
+* Neither the names of The Automated Learning Group, University of
+* Illinois at Urbana-Champaign, nor the names of its contributors may
+* be used to endorse or promote products derived from this Software
+* without specific prior written permission.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+*
+*/
+
 package org.seasr.meandre.components.tools.basic;
 
 import java.io.PrintStream;
@@ -22,7 +61,7 @@ import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
 
 /** Prints a Jena Model to the console
- * 
+ *
  * @author Xavier Llor&agrave
  *
  */
@@ -39,12 +78,12 @@ import org.seasr.meandre.components.tools.Names;
 )
 public class PrintToConsole implements ExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------	
-	
+	//--------------------------------------------------------------------------------------------
+
 	@ComponentProperty(
 			name = Names.PROP_WRAP_STREAM,
 			description = "Should the printed object be wrapped as a stream? ",
-		    defaultValue = "false" 
+		    defaultValue = "false"
 		)
 	private final static String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
@@ -55,20 +94,20 @@ public class PrintToConsole implements ExecutableComponent {
 			description = "The object to print"
 		)
 	private final static String INPUT_OBJECT = Names.PORT_OBJECT;
-	
+
 	@ComponentOutput(
 			name = Names.PORT_OBJECT,
 			description = "The objet being printed"
 		)
 	private final static String OUTPUT_OBJECT = Names.PORT_OBJECT;
-	
+
 	//--------------------------------------------------------------------------------------------
 
 	/** Should be wrapped */
 	private boolean bWrapped;
-	
+
 	//--------------------------------------------------------------------------------------------
-	
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
 	 */
@@ -76,7 +115,7 @@ public class PrintToConsole implements ExecutableComponent {
 			throws ComponentExecutionException, ComponentContextException {
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
-	
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
 	 */
@@ -103,11 +142,11 @@ public class PrintToConsole implements ExecutableComponent {
 			else
 				con.println(obj.toString());
 		}
-		cc.pushDataComponentToOutput(OUTPUT_OBJECT, obj);		
+		cc.pushDataComponentToOutput(OUTPUT_OBJECT, obj);
 	}
 
 	/** Prints a stream delimiter
-	 * 
+	 *
 	 * @param cc The component context
 	 * @param obj The delimiter to print
 	 */
@@ -118,11 +157,11 @@ public class PrintToConsole implements ExecutableComponent {
 		StreamDelimiter sd = (StreamDelimiter) obj;
 		for ( String sKey:sd.keySet())
 			sb.append("("+sKey+"="+sd.get(sKey)+") ");
-		sb.append("]");				
+		sb.append("]");
 		cc.getOutputConsole().println(sb);
 	}
 
 	//-----------------------------------------------------------------------------------
-	
+
 
 }

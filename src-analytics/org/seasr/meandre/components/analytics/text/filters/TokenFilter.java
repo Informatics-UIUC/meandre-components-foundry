@@ -1,6 +1,45 @@
 /**
- * 
- */
+*
+* University of Illinois/NCSA
+* Open Source License
+*
+* Copyright (c) 2008, NCSA.  All rights reserved.
+*
+* Developed by:
+* The Automated Learning Group
+* University of Illinois at Urbana-Champaign
+* http://www.seasr.org
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal with the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject
+* to the following conditions:
+*
+* Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimers.
+*
+* Redistributions in binary form must reproduce the above copyright
+* notice, this list of conditions and the following disclaimers in
+* the documentation and/or other materials provided with the distribution.
+*
+* Neither the names of The Automated Learning Group, University of
+* Illinois at Urbana-Champaign, nor the names of its contributors may
+* be used to endorse or promote products derived from this Software
+* without specific prior written permission.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+*
+*/
+
 package org.seasr.meandre.components.analytics.text.filters;
 
 import java.util.HashSet;
@@ -31,8 +70,8 @@ import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 
 /** This component tokenizes the text contained in the input model using OpenNLP.
- * 
- * @author Xavier Llorˆ
+ *
+ * @author Xavier Llorï¿½
  *
  */
 @SuppressWarnings("unchecked")
@@ -51,16 +90,16 @@ import org.seasr.meandre.components.tools.Names;
 				      "or add them to the black list. The component outputs the " +
 				      "filtered tokens."
 )
-public class TokenFilter 
+public class TokenFilter
 implements ExecutableComponent {
-	
+
 	//--------------------------------------------------------------------------------------------
 
 	@ComponentProperty(
 			name = Names.PROP_ERROR_HANDLING,
 			description = "If set to true errors will be handled and they will be reported to the screen ." +
 					      "Otherwise, the component will throw an exception an force the flow to abort. ",
-		    defaultValue = "true" 
+		    defaultValue = "true"
 		)
 	protected final static String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
 
@@ -68,13 +107,13 @@ implements ExecutableComponent {
 			name = Names.PROP_REPLACE,
 			description = "If set to true errors blacklisted tokens get replaced when a new set is provided. " +
 					      "When set to false, tokens keep being appended to the blacklist. ",
-		    defaultValue = "true" 
+		    defaultValue = "true"
 		)
 	protected final static String PROP_REPLACE = Names.PROP_REPLACE;
 
-	
+
 	//--------------------------------------------------------------------------------------------
-	
+
 	@ComponentInput(
 			name = Names.PORT_TOKEN_BLACKLIST,
 			description = "The list of tokens defining the blacklist."
@@ -119,27 +158,27 @@ implements ExecutableComponent {
 
 
 	//--------------------------------------------------------------------------------------------
-	
+
 	/** The error handling flag */
 	protected boolean bErrorHandling;
 
 	/** Should the token black list be replaced */
 	protected boolean bReplace;
-	
+
 	/** The temporary initial queue */
 	protected Queue<Object>[] queues  = new Queue[3];
 	protected final int PORT_TOKENS = 0;
 	protected final int PORT_TOKEN_COUNTS = 1;
 	protected final int PORT_TOKENIZE_SENTENCES = 2;
-	
+
 	/** The list of available inputs */
 	protected String [] saInputName = null;
-	
+
 	/** The set of blacklisted tokens */
 	protected Set<String> setBlacklist = null;
-	
+
 	//--------------------------------------------------------------------------------------------
-	
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
 	 */
@@ -172,7 +211,7 @@ implements ExecutableComponent {
 	 */
 	public void execute(ComponentContext cc)
 			throws ComponentExecutionException, ComponentContextException {
-		
+
 		if ( this.setBlacklist==null && !cc.isInputAvailable(INPUT_TOKEN_BLACKLIST) ) {
 			// No blacklist received yet, so queue the objects
 			queueObjects(cc);
@@ -188,35 +227,35 @@ implements ExecutableComponent {
 	}
 
 	//--------------------------------------------------------------------------------------------
-	
+
 	/** No blacklist currently available, just queue the objects in the inputs.
-	 * 
+	 *
 	 * @param cc The component context object
 	 * @throws ComponentContextException Invalid access to the component context
 	 */
 	private void queueObjects(ComponentContext cc) throws ComponentContextException {
-		if ( cc.isInputAvailable(INPUT_TOKENS) ) 
+		if ( cc.isInputAvailable(INPUT_TOKENS) )
 			this.queues[PORT_TOKENS].offer(cc.getDataComponentFromInput(INPUT_TOKENS));
-		if ( cc.isInputAvailable(INPUT_TOKEN_COUNTS) ) 
+		if ( cc.isInputAvailable(INPUT_TOKEN_COUNTS) )
 			this.queues[PORT_TOKEN_COUNTS].offer(cc.getDataComponentFromInput(INPUT_TOKEN_COUNTS));
-		if ( cc.isInputAvailable(INPUT_TOKENIZED_SENTENCES) ) 
+		if ( cc.isInputAvailable(INPUT_TOKENIZED_SENTENCES) )
 			this.queues[PORT_TOKENIZE_SENTENCES].offer(cc.getDataComponentFromInput(INPUT_TOKENIZED_SENTENCES));
 	}
 
 
 	/** Process the black list and catches up with the pending objects.
-	 * 
+	 *
 	 * @param cc The component context object
 	 * @throws ComponentContextException Invalid access to the component context
 	 * @throws ComponentExecutionException Black list cast exception
 	 */
 	private void processBlacklistAndQueued(ComponentContext cc) throws ComponentContextException, ComponentExecutionException {
 		processBlacklist(cc.getDataComponentFromInput(INPUT_TOKEN_BLACKLIST),cc);
-		processQueuedObjects(cc);	
+		processQueuedObjects(cc);
 	}
 
 	/** Process the blacklist.
-	 *  
+	 *
 	 * @param objBlackList The black list to process
 	 * @param cc The component context
 	 * @throws ComponentExecutionException The blacklist was not of type Strings
@@ -227,25 +266,25 @@ implements ExecutableComponent {
 				return;
 			else {
 				Strings strBlacklist = (Strings)objBlackList;
-				if ( this.setBlacklist==null ) 
+				if ( this.setBlacklist==null )
 					this.setBlacklist = new HashSet<String>(100);
-				if ( this.bReplace ) 
+				if ( this.bReplace )
 					this.setBlacklist.clear();
 				for ( String s:strBlacklist.getValueList() )
-					this.setBlacklist.add(s);	
+					this.setBlacklist.add(s);
 			}
 		}
 		catch ( ClassCastException e ) {
 			String sMessage = "Input data is not from the basic type Strings required for blacklists";
 			cc.getLogger().warning(sMessage);
 			cc.getOutputConsole().println("WARNING: "+sMessage);
-			if ( !bErrorHandling ) 
+			if ( !bErrorHandling )
 				throw new ComponentExecutionException(e);
-		}	
+		}
 	}
-	
+
 	/** Process the queued object.
-	 * 
+	 *
 	 * @param cc The component context
 	 * @throws ComponentContextException Something went wrong while executing
 	 * @throws ComponentExecutionException Invalid casts
@@ -253,21 +292,21 @@ implements ExecutableComponent {
 	private void processQueuedObjects(ComponentContext cc) throws ComponentContextException, ComponentExecutionException {
 		Iterator<Object> iterTok = this.queues[PORT_TOKENS].iterator();
 		while ( iterTok.hasNext() ) processTokens(iterTok.next(),cc);
-		
+
 		Iterator<Object> iterTokCnts = this.queues[PORT_TOKEN_COUNTS].iterator();
 		while ( iterTokCnts.hasNext() ) processTokenCounts(iterTokCnts.next(),cc);
-		
+
 		Iterator<Object> iterTS = this.queues[PORT_TOKENIZE_SENTENCES].iterator();
 		while ( iterTS.hasNext() ) processTokenizedSentences(iterTS.next(),cc);
 	}
 
 
 	/** Process the inputs normally.
-	 * 
+	 *
 	 * @param cc The component context
 	 * @throws ComponentExecutionException Problem while executing
 	 * @throws ComponentContextException  The component context was improperly exception
-	 * 
+	 *
 	 */
 	private void processNormally(ComponentContext cc) throws ComponentContextException, ComponentExecutionException {
 		if ( cc.isInputAvailable(INPUT_TOKEN_BLACKLIST)) {
@@ -287,9 +326,9 @@ implements ExecutableComponent {
 	}
 
 	/** Process tokenized sentences.
-	 * 
+	 *
 	 * @param next The object to process
-	 * @param cc The component context 
+	 * @param cc The component context
 	 * @throws ComponentContextException Invalid access to the component context
 	 * @throws ComponentExecutionException Invalid cast
 	 */
@@ -304,7 +343,7 @@ implements ExecutableComponent {
 				Strings sVals = im.getValue(i);
 				org.seasr.datatypes.BasicDataTypes.Strings.Builder resFiltered = BasicDataTypes.Strings.newBuilder();
 				for ( String s:sVals.getValueList())
-					if ( !this.setBlacklist.contains(s) ) 
+					if ( !this.setBlacklist.contains(s) )
 						resFiltered.addValue(s);
 				res.addKey(sKey);
 				res.addValue(resFiltered.build());
@@ -314,9 +353,9 @@ implements ExecutableComponent {
 	}
 
 	/** Process token counts sentences.
-	 * 
+	 *
 	 * @param next The object to process
-	 * @param cc The component context 
+	 * @param cc The component context
 	 * @throws ComponentContextException Invalid access to the component context
 	 * @throws ComponentExecutionException Class cast exception
 	 */
@@ -339,9 +378,9 @@ implements ExecutableComponent {
 	}
 
 	/** Process tokens sentences.
-	 * 
+	 *
 	 * @param next The object to process
-	 * @param cc The component context 
+	 * @param cc The component context
 	 * @throws ComponentContextException Invalid access to the component context
 	 * @throws ComponentExecutionException Invalid cast
 	 */
@@ -359,13 +398,13 @@ implements ExecutableComponent {
 	}
 
 	/** Safe cast of strings.
-	 * 
+	 *
 	 * @param next The object to cast into strings
 	 * @param cc The component context
 	 * @return The strings
 	 * @throws ComponentExecutionException
 	 */
-	private Strings safeStringsCast(Object next, ComponentContext cc) 
+	private Strings safeStringsCast(Object next, ComponentContext cc)
 	throws ComponentExecutionException {
 		try {
 			return (Strings)next;
@@ -374,20 +413,20 @@ implements ExecutableComponent {
 			String sMessage = "Input data is not from the basic type Strings required for blacklists";
 			cc.getLogger().warning(sMessage);
 			cc.getOutputConsole().println("WARNING: "+sMessage);
-			if ( !bErrorHandling ) 
+			if ( !bErrorHandling )
 				throw new ComponentExecutionException(e);
 			return BasicDataTypesTools.buildEmptyStrings();
-		}	
+		}
 	}
 
 	/** Safe cast of integers map.
-	 * 
+	 *
 	 * @param next The object to cast into strings
 	 * @param cc The component context
 	 * @return The strings
 	 * @throws ComponentExecutionException
 	 */
-	private IntegersMap safeIntegerMapCast(Object next, ComponentContext cc) 
+	private IntegersMap safeIntegerMapCast(Object next, ComponentContext cc)
 	throws ComponentExecutionException {
 		try {
 			return (IntegersMap)next;
@@ -396,20 +435,20 @@ implements ExecutableComponent {
 			String sMessage = "Input data is not from the basic type Strings required for blacklists";
 			cc.getLogger().warning(sMessage);
 			cc.getOutputConsole().println("WARNING: "+sMessage);
-			if ( !bErrorHandling ) 
+			if ( !bErrorHandling )
 				throw new ComponentExecutionException(e);
 			return BasicDataTypesTools.buildEmptyIntegersMap();
-		}	
+		}
 	}
 
 	/** Safe cast of strings map.
-	 * 
+	 *
 	 * @param next The object to cast into strings
 	 * @param cc The component context
 	 * @return The strings
 	 * @throws ComponentExecutionException
 	 */
-	private StringsMap safeStringsMapCast(Object next, ComponentContext cc) 
+	private StringsMap safeStringsMapCast(Object next, ComponentContext cc)
 	throws ComponentExecutionException {
 		try {
 			return (StringsMap)next;
@@ -418,10 +457,10 @@ implements ExecutableComponent {
 			String sMessage = "Input data is not from the basic type Strings required for blacklists";
 			cc.getLogger().warning(sMessage);
 			cc.getOutputConsole().println("WARNING: "+sMessage);
-			if ( !bErrorHandling ) 
+			if ( !bErrorHandling )
 				throw new ComponentExecutionException(e);
 			return BasicDataTypesTools.buildEmptyStringsMap();
-		}	
+		}
 	}
 
 

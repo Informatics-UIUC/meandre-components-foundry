@@ -1,6 +1,45 @@
 /**
- * 
- */
+*
+* University of Illinois/NCSA
+* Open Source License
+*
+* Copyright (c) 2008, NCSA.  All rights reserved.
+*
+* Developed by:
+* The Automated Learning Group
+* University of Illinois at Urbana-Champaign
+* http://www.seasr.org
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal with the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject
+* to the following conditions:
+*
+* Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimers.
+*
+* Redistributions in binary form must reproduce the above copyright
+* notice, this list of conditions and the following disclaimers in
+* the documentation and/or other materials provided with the distribution.
+*
+* Neither the names of The Automated Learning Group, University of
+* Illinois at Urbana-Champaign, nor the names of its contributors may
+* be used to endorse or promote products derived from this Software
+* without specific prior written permission.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+*
+*/
+
 package org.seasr.meandre.components.tools.text.io;
 
 import java.io.ByteArrayOutputStream;
@@ -31,7 +70,7 @@ import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
 
 /** Reads a Jena Model from disk
- * 
+ *
  * @author Xavier Llor&agrave
  *
  */
@@ -59,10 +98,10 @@ public class ReadText implements ExecutableComponent {
 			name=Names.PROP_ERROR_HANDLING,
 			description = "If set to true errors will be handled and empty models will be pushed. " +
 					      "Otherwise, the component will throw an exception an force the flow to abort.",
-		    defaultValue = "true" 
+		    defaultValue = "true"
 		)
 	private final static String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
-	
+
 	//--------------------------------------------------------------------------------------------
 
 	@ComponentInput(
@@ -70,27 +109,27 @@ public class ReadText implements ExecutableComponent {
 			description = "The URL or file name containing the model to read"
 		)
 	private final static String INPUT_LOCATION = Names.PORT_LOCATION;
-	
+
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
 			description = "The URL or file name containing the model read"
 		)
 	private final static String OUTPUT_LOCATION = Names.PORT_LOCATION;
-	
+
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
 			description = "The text read"
 		)
 	private final static String OUTPUT_TEXT = Names.PORT_TEXT;
-	
+
 	//--------------------------------------------------------------------------------------------
-	
+
 	/** The error handling flag */
 	private boolean bErrorHandling;
 
 	//--------------------------------------------------------------------------------------------
-	
-	
+
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
 	 */
@@ -98,7 +137,7 @@ public class ReadText implements ExecutableComponent {
 			throws ComponentExecutionException, ComponentContextException {
 		this.bErrorHandling = Boolean.parseBoolean(ccp.getProperty(PROP_ERROR_HANDLING));
 	}
-	
+
 	/**
 	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
 	 */
@@ -115,7 +154,7 @@ public class ReadText implements ExecutableComponent {
 
 		Object obj = cc.getDataComponentFromInput(INPUT_LOCATION);
 		if ( obj instanceof StreamDelimiter ) {
-			pushDelimiters(cc, (StreamDelimiter)obj);	
+			pushDelimiters(cc, (StreamDelimiter)obj);
 		}
 		else {
 			String sLocation = (obj instanceof Strings)?((Strings)obj).getValue(0):obj.toString();
@@ -124,7 +163,7 @@ public class ReadText implements ExecutableComponent {
 			try {
 				PrintStream ps = new PrintStream(baos);
 				InputStreamReader isr = openLocation(sLocation);
-				LineNumberReader lnr = new LineNumberReader(isr); 
+				LineNumberReader lnr = new LineNumberReader(isr);
 				String sTmp;
 				while ( (sTmp=lnr.readLine())!=null ) ps.println(sTmp);
 				isr.close();
@@ -133,16 +172,16 @@ public class ReadText implements ExecutableComponent {
 				String sMessage = "Could not read XML from location "+sLocation.substring(0, 100);
 				cc.getLogger().warning(sMessage);
 				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( !bErrorHandling ) 
+				if ( !bErrorHandling )
 					throw new ComponentExecutionException(t);
 			}
 			cc.pushDataComponentToOutput(OUTPUT_LOCATION, BasicDataTypesTools.stringToStrings(sLocation));
-			cc.pushDataComponentToOutput(OUTPUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));		
+			cc.pushDataComponentToOutput(OUTPUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
 		}
 	}
 
-	/** Push the delimiters 
-	 * 
+	/** Push the delimiters
+	 *
 	 * @param cc The component context
 	 * @param sdLoc The delimiter object
 	 * @throws ComponentContextException
@@ -166,12 +205,12 @@ public class ReadText implements ExecutableComponent {
 
 	//-----------------------------------------------------------------------------------
 
-	
+
 	/** Opens the location from where to read.
-	 * 
+	 *
 	 * @param sLocation The location to read from
 	 * @return The reader for this location
-	 * @throws IOException The location could not be read 
+	 * @throws IOException The location could not be read
 	 */
 	public static InputStreamReader openLocation(String sLocation) throws IOException {
 		try {
@@ -190,6 +229,6 @@ public class ReadText implements ExecutableComponent {
 		}
 	}
 
-	
+
 
 }
