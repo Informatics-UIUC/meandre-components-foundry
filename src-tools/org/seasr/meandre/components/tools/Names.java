@@ -28,6 +28,12 @@ public abstract class Names {
 	public static final String PROP_ID = "id";
 	public static final String PROP_CSS = "css";
 	public static final String PROP_TEMPLATE = "template";
+	public static final String PROP_WIDTH = "width";
+	public static final String PROP_HEIGHT = "height";
+	public static final String PROP_FONT_NAME = "font_name";
+	public static final String PROP_MAX_SIZE = "max_size";
+	public static final String PROP_MIN_SIZE = "min_size";
+	public static final String PROP_SHOW_COUNT = "show_count";
 
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";

@@ -40,9 +40,8 @@
 *
 */
 
-package org.meandre.components.vis.html;
+package org.seasr.meandre.components.vis.html;
 
-import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -80,56 +79,56 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
 	@ComponentInput(description = "The HTML data" +
                                   "<br>TYPE: String, Text, byte[]",
                     name = Names.PORT_HTML)
-    private static final String IN_HTML = Names.PORT_HTML;
+    protected static final String IN_HTML = Names.PORT_HTML;
 
 	@ComponentProperty(defaultValue = "org/meandre/components/vis/html/HTMLViewer.vm",
 	                   description = "The template to use for wrapping the HTML input",
 	                   name = Names.PROP_TEMPLATE)
-    private static final String PROP_TEMPLATE = Names.PROP_TEMPLATE;
+    protected static final String PROP_TEMPLATE = Names.PROP_TEMPLATE;
 
 
-	/** The blocking semaphore */
-    private Semaphore sem = new Semaphore(1, true);
-    private Logger console;
-    private VelocityContext context;
-    private String templateName;
-    private String html;
+    private Logger _console;
+    private VelocityContext _context;
+    private String _templateName;
+    private String _html;
+    private boolean _done;
 
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        console = getConsoleLogger();
-        templateName = ccp.getProperty(PROP_TEMPLATE);
+        _console = getConsoleLogger();
+        _templateName = ccp.getProperty(PROP_TEMPLATE);
 
         // sanity check
-        if (templateName.trim().length() == 0) {
-            templateName = null;
-            console.fine("No template specified - Velocity will not be invoked");
+        if (_templateName.trim().length() == 0) {
+            _templateName = null;
+            _console.fine("No template specified - Velocity will not be invoked");
         }
         else {
-            context = VelocityTemplateService.getInstance().getNewContext();
-            context.put("ccp", ccp);
+            _context = VelocityTemplateService.getInstance().getNewContext();
+            _context.put("ccp", ccp);
         }
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object data = cc.getDataComponentFromInput(IN_HTML);
-        console.fine("Received input of type: " + data.getClass().toString());
+        _console.fine("Received input of type: " + data.getClass().toString());
 
-        html = DataTypeParser.parseAsString(data);
+        _html = DataTypeParser.parseAsString(data);
 
         // Check whether Velocity should be used
-        if (templateName != null) {
+        if (_templateName != null) {
             VelocityTemplateService velocity = VelocityTemplateService.getInstance();
-            context.put("rawHtml", html);
+            _context.put("rawHtml", _html);
 
-            console.finest("Applying the Velocity template");
-            html = velocity.generateOutput(context, templateName);
+            _console.finest("Applying the Velocity template");
+            _html = velocity.generateOutput(_context, _templateName);
         }
 
-        sem.acquire();
+        _done = false;
+
         cc.startWebUIFragment(this);
 
-        while (!cc.isFlowAborting() && !sem.tryAcquire())
+        while (!cc.isFlowAborting() && !_done)
             Thread.sleep(1000);
 
         cc.stopWebUIFragment(this);
@@ -145,15 +144,15 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
      * @throws WebUIException Thrown if a problem occurs when generating the response
      */
     public void emptyRequest(HttpServletResponse response) throws WebUIException {
-        console.entering(getClass().getName(), "emptyRequest", response);
+        _console.entering(getClass().getName(), "emptyRequest", response);
 
         try {
-            response.getWriter().println(html);
+            response.getWriter().println(_html);
         } catch (Exception e) {
             throw new WebUIException(e);
         }
 
-        console.exiting(getClass().getName(), "emptyRequest");
+        _console.exiting(getClass().getName(), "emptyRequest");
     }
 
     /** This method gets called when a call with parameters is done to a given component
@@ -165,14 +164,14 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
      * @throws WebUIException A problem occurred during the call back
      */
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
-        console.entering(getClass().getName(), "handle", response);
+        _console.entering(getClass().getName(), "handle", response);
 
-        if (request.getParameter("done") != null )
-            sem.release();
+        if (request.getParameter("done") != null)
+            _done = true;
         else
             emptyRequest(response);
 
-        console.exiting(getClass().getName(), "handle");
+        _console.exiting(getClass().getName(), "handle");
     }
 
 }

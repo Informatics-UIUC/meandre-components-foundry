@@ -40,7 +40,7 @@
 *
 */
 
-package org.meandre.components.vis.html;
+package org.seasr.meandre.components.vis.html;
 
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Logger;
@@ -75,53 +75,53 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
     @ComponentInput(description = "Raw data encoded in one of the supported encoding types." +
                                   "<br>TYPE: String, Text, byte[] - text/plain<br>byte[] - image/<ext>",
                     name = Names.PORT_RAW_DATA)
-    private static final String IN_RAW_DATA = Names.PORT_RAW_DATA;
+    protected static final String IN_RAW_DATA = Names.PORT_RAW_DATA;
 
     @ComponentOutput(description = "The HTML fragment wrapping the input data." +
                                    "<br>TYPE: Text",
                      name = Names.PORT_HTML)
-    private static final String OUT_HTML = Names.PORT_HTML;
+    protected static final String OUT_HTML = Names.PORT_HTML;
 
     @ComponentProperty(defaultValue = "text/plain",
                        description = "Specifies the MIME encoding of the input data.",
                        name = Names.PROP_ENCODING)
-    private static final String PROP_ENCODING = Names.PROP_ENCODING;
+    protected static final String PROP_ENCODING = Names.PROP_ENCODING;
 
     @ComponentProperty(defaultValue = "",
                        description = "Specifies the ID attached to the HTML fragment.",
                        name = Names.PROP_ID)
-    private static final String PROP_ID = Names.PROP_ID;
+    protected static final String PROP_ID = Names.PROP_ID;
 
     @ComponentProperty(defaultValue = "",
                        description = "Specifies a style attribute for the HTML fragment.",
                        name = Names.PROP_CSS)
-    private static final String PROP_CSS = Names.PROP_CSS;
+    protected static final String PROP_CSS = Names.PROP_CSS;
 
 
-    private Logger console;
-    private String mimeType;
-    private String id;
-    private String css;
+    private Logger _console;
+    private String _mimeType;
+    private String _id;
+    private String _css;
 
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        console = getConsoleLogger();
-        mimeType = ccp.getProperty(PROP_ENCODING).toLowerCase();
+        _console = getConsoleLogger();
+        _mimeType = ccp.getProperty(PROP_ENCODING).toLowerCase();
 
-        id = ccp.getProperty(PROP_ID);
-        if (id.trim().length() == 0) id = null;
+        _id = ccp.getProperty(PROP_ID);
+        if (_id.trim().length() == 0) _id = null;
 
-        css = ccp.getProperty(PROP_CSS);
-        if (css.trim().length() == 0) css = null;
+        _css = ccp.getProperty(PROP_CSS);
+        if (_css.trim().length() == 0) _css = null;
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object rawData = cc.getDataComponentFromInput(IN_RAW_DATA);
-        console.fine("Got input of type: " + rawData.getClass().toString());
+        _console.fine("Got input of type: " + rawData.getClass().toString());
 
-        String htmlFragment = makeHtmlFragment(rawData, mimeType, id, css);
+        String htmlFragment = makeHtmlFragment(rawData, _mimeType, _id, _css);
 
-        console.fine("Pushing out: " + htmlFragment);
+        _console.fine("Pushing out: " + htmlFragment);
         cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlFragment));
     }
 
@@ -139,7 +139,7 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
      * @throws UnsupportedDataTypeException Thrown if the input data is not in one of the supported formats
      * @throws UnsupportedEncodingException Thrown if an unsupported MIME type is specified
      */
-    private String makeHtmlFragment(Object rawData, String mimeType, String id, String css)
+    protected String makeHtmlFragment(Object rawData, String mimeType, String id, String css)
         throws UnsupportedDataTypeException, UnsupportedEncodingException {
 
         if (mimeType.startsWith("text")) {

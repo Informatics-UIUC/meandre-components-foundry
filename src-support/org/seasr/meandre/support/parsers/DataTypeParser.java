@@ -45,8 +45,10 @@ package org.seasr.meandre.support.parsers;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Map;
 
 import org.seasr.datatypes.BasicDataTypesTools;
+import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.support.exceptions.UnsupportedDataTypeException;
 
@@ -126,5 +128,35 @@ public class DataTypeParser {
             throw new UnsupportedDataTypeException(data.getClass().toString());
 
         return uri;
+    }
+
+    /**
+     * Attempts to convert the given data to a Map<String, Integer>
+     *
+     * @param data The data
+     * @return The Map<String, Integer>
+     * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, Integer> parseAsStringIntegerMap(Object data) throws UnsupportedDataTypeException {
+        Map<String, Integer> map;
+
+        if (data == null)
+            map = null;
+
+        else
+
+        if (data instanceof IntegersMap)
+            map = BasicDataTypesTools.IntegerMapToMap((IntegersMap)data);
+
+        else
+
+        if (data instanceof Map)
+            map = (Map<String, Integer>)data;
+
+        else
+            throw new UnsupportedDataTypeException(data.getClass().toString());
+
+        return map;
     }
 }

@@ -115,6 +115,14 @@ public abstract class AbstractExecutableComponent implements
             initializeCallBack(ccp);
             _consoleLogger.exiting(getClass().getName(), "initializeCallBack");
         }
+        catch (ComponentContextException e) {
+            _consoleLogger.throwing(getClass().getName(), "initializeCallBack", e);
+            throw e;
+        }
+        catch (ComponentExecutionException e) {
+            _consoleLogger.throwing(getClass().getName(), "initializeCallBack", e);
+            throw e;
+        }
         catch (Exception e) {
             _consoleLogger.throwing(getClass().getName(), "initializeCallBack", e);
             throw new ComponentContextException(e);
@@ -140,9 +148,17 @@ public abstract class AbstractExecutableComponent implements
             executeCallBack(cc);
             _consoleLogger.exiting(getClass().getName(), "executeCallBack");
         }
+        catch (ComponentContextException e) {
+            _consoleLogger.throwing(getClass().getName(), "executeCallBack", e);
+            throw e;
+        }
+        catch (ComponentExecutionException e) {
+            _consoleLogger.throwing(getClass().getName(), "executeCallBack", e);
+            throw e;
+        }
         catch (Exception e) {
             _consoleLogger.throwing(getClass().getName(), "executeCallBack", e);
-            throw new ComponentContextException(e);
+            throw new ComponentExecutionException(e);
         }
     }
 
@@ -158,6 +174,14 @@ public abstract class AbstractExecutableComponent implements
             _consoleLogger.entering(getClass().getName(), "disposeCallBack", ccp);
             disposeCallBack(ccp);
             _consoleLogger.exiting(getClass().getName(), "disposeCallBack");
+        }
+        catch (ComponentContextException e) {
+            _consoleLogger.throwing(getClass().getName(), "disposeCallBack", e);
+            throw e;
+        }
+        catch (ComponentExecutionException e) {
+            _consoleLogger.throwing(getClass().getName(), "disposeCallBack", e);
+            throw e;
         }
         catch (Exception e) {
             _consoleLogger.throwing(getClass().getName(), "disposeCallBack", e);
