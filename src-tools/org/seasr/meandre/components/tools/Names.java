@@ -27,6 +27,7 @@ public abstract class Names {
 	public static final String PROP_ITERATIONS = "iterations";
 	public static final String PROP_ID = "id";
 	public static final String PROP_CSS = "css";
+	public static final String PROP_TEMPLATE = "template";
 
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";
