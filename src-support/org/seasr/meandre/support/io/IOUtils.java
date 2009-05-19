@@ -42,60 +42,35 @@
 
 package org.seasr.meandre.support.io;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.PrintStream;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.net.URI;
 
 /**
  * @author Boris Capitanu
  */
-public class StreamUtils {
+public class IOUtils {
 
     /**
-     * Reads the content of an InputStream into a byte array
-     *
-     * @param dataStream The data stream
-     * @return A byte array containing the data from the data stream
-     * @throws IOException Thrown if a problem occurred while reading from the stream
+     * @param uri The resource location (can be a URL or a local path)
+     * @return The text contained in the resource
+     * @throws IOException Thrown if a problem occurs when pulling data from the resource
      */
-    public static byte[] getBytesFromStream(InputStream dataStream) throws IOException {
-        BufferedInputStream bufStream = new BufferedInputStream(dataStream);
+    public static String retrieveTextFromResource(URI uri) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        Reader isr = StreamUtils.getReaderForResource(uri);
+        LineNumberReader lnr = new LineNumberReader(isr);
 
-        byte[] buffer = new byte[4096];
-        int nRead;
+        String sTmp;
+        while ( (sTmp=lnr.readLine())!=null )
+            ps.println(sTmp);
 
-        do {
-            nRead = bufStream.read(buffer, 0, buffer.length);
-            if (nRead > 0)
-                baos.write(buffer, 0, nRead);
-        } while (nRead > 0);
-
-        return baos.toByteArray();
-    }
-
-    /**
-     * Opens the location from where to read.
-     *
-     * @param uri The location to read from (can be a url or a local file)
-     * @return The reader for this location
-     * @throws IOException Thrown if a problem occurred when creating the reader
-     * @throws MalformedURLException Thrown if a malformed URL was specified
-     * @throws IOException Thrown if there is a problem reading from this location
-     */
-    public static Reader getReaderForResource(URI uri) throws MalformedURLException, IOException  {
-    	try {
-    		return new InputStreamReader(uri.toURL().openStream());
-    	} catch (IllegalArgumentException e) {
-    	    // URI not absolute - trying as local file
-    	    return new FileReader(uri.toString());
-    	}
+        isr.close();
+        return baos.toString();
     }
 
 }
