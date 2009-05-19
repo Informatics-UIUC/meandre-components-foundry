@@ -65,12 +65,12 @@ public class ToLowercase extends AbstractExecutableComponent
     @ComponentInput(description = "The text to be converted." +
                                   "<br>String, Text, byte[]",
                     name = Names.PORT_TEXT)
-    public final static String IN_TEXT = Names.PORT_TEXT;
+    protected final static String IN_TEXT = Names.PORT_TEXT;
 
     @ComponentOutput(description = "The lowercase text." +
                                    "<br>TYPE: Text",
                      name = Names.PORT_TEXT)
-    public final static String OUT_LOWERCASE_TEXT = Names.PORT_TEXT;
+    protected final static String OUT_LOWERCASE_TEXT = Names.PORT_TEXT;
 
 
     private Logger _console;

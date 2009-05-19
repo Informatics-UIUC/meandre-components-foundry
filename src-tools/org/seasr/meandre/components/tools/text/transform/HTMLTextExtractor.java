@@ -68,12 +68,12 @@ public class HTMLTextExtractor extends AbstractExecutableComponent
     @ComponentInput(description = "The HTML document." +
     		                      "<br>TYPE: String, Text, byte[]",
                     name = Names.PORT_HTML)
-    public final static String IN_HTML = Names.PORT_HTML;
+    protected final static String IN_HTML = Names.PORT_HTML;
 
     @ComponentOutput(description = "The text extracted from the HTML document."+
                                    "<br>TYPE: Text",
                      name = Names.PORT_TEXT)
-    public final static String OUT_TEXT = Names.PORT_TEXT;
+    protected final static String OUT_TEXT = Names.PORT_TEXT;
 
 
     private Logger _console;

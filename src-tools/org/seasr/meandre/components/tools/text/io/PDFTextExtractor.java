@@ -35,12 +35,12 @@ public class PDFTextExtractor extends AbstractExecutableComponent {
     @ComponentInput(description = "The URL of the PDF file." +
                                   "<br>TYPE: String, URL",
                     name = Names.PORT_LOCATION)
-    public final static String IN_PDF_URL = Names.PORT_LOCATION;
+    protected final static String IN_PDF_URL = Names.PORT_LOCATION;
 
     @ComponentOutput(description = "The text extracted from the PDF file." +
                                    "<br>TYPE: Text",
                      name = Names.PORT_TEXT)
-    public final static String OUT_TEXT = Names.PORT_TEXT;
+    protected final static String OUT_TEXT = Names.PORT_TEXT;
 
 
     private Logger _console;
