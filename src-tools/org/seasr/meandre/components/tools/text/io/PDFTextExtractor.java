@@ -9,6 +9,7 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 import org.seasr.meandre.support.text.PDFUtils;
@@ -32,12 +33,12 @@ import org.seasr.meandre.support.text.PDFUtils;
 public class PDFTextExtractor extends AbstractExecutableComponent {
 
     @ComponentInput(description = "The URL of the PDF file." +
-                                  "<br>TYPE: java.io.String",
+                                  "<br>TYPE: String, URL",
                     name = Names.PORT_LOCATION)
     public final static String IN_PDF_URL = Names.PORT_LOCATION;
 
     @ComponentOutput(description = "The text extracted from the PDF file." +
-                                   "<br>TYPE: java.io.String",
+                                   "<br>TYPE: Text",
                      name = Names.PORT_TEXT)
     public final static String OUT_TEXT = Names.PORT_TEXT;
 
@@ -56,7 +57,9 @@ public class PDFTextExtractor extends AbstractExecutableComponent {
         URI uri = DataTypeParser.parseAsURI(data);
         _console.fine("Processing PDF document: " + uri);
 
-        cc.pushDataComponentToOutput(OUT_TEXT, PDFUtils.extractText(uri.toURL()));
+        String text = PDFUtils.extractText(uri.toURL());
+
+        cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
