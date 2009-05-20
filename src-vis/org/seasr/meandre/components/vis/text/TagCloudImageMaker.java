@@ -52,6 +52,7 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
@@ -59,15 +60,21 @@ import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 import org.seasr.meandre.support.text.TagCloudImage;
 
-@Component(creator="Lily Dong",
-           description="Creates a tag cloud image from a word count table. " +
-           "If there are many tags to be displayed, " +
-           "reduce the maximum size of the font or increase the size of the canvas " +
-           "to accommodate all of tags.",
-           name="Tag Cloud Image Maker",
-           tags="tag cloud, visualization",
+@Component(creator = "Lily Dong",
+           description = "Creates a tag cloud image from a word count table. " +
+                         "If there are many tags to be displayed, " +
+                         "reduce the maximum size of the font or increase the size of the canvas " +
+                         "to accommodate all of tags.",
+           name = "Tag Cloud Image Maker",
+           rights = Licenses.UofINCSA,
+           tags = "tag cloud, visualization",
+           dependency = {"protobuf-java-2.0.3.jar"},
            baseURL="meandre://seasr.org/components/")
 
+/**
+ * @author Lily Dong
+ * @author Boris Capitanu
+ */
 public class TagCloudImageMaker extends AbstractExecutableComponent
 {
     @ComponentInput(description = "Tags to be analyzed." +
@@ -137,7 +144,6 @@ public class TagCloudImageMaker extends AbstractExecutableComponent
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-
         Object data = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
         _console.fine("Got input of type: " + data.getClass().toString());
 

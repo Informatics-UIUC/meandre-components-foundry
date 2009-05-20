@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
@@ -27,7 +28,9 @@ import org.seasr.meandre.support.text.PDFUtils;
                          "The input is a String or URL specifiying the url of the pdf document. "+
                          "The output is the extracted text.",
            name = "PDF Text Extractor",
+           rights = Licenses.UofINCSA,
            tags = "URL, text, pdf",
+           dependency = {"protobuf-java-2.0.3.jar", "jPod.jar", "iscwt.jar", "isrt.jar", "jbig2.jar"},
            baseURL = "meandre://seasr.org/components/")
 
 public class PDFTextExtractor extends AbstractExecutableComponent {

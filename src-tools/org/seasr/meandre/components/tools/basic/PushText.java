@@ -42,17 +42,18 @@
 
 package org.seasr.meandre.components.tools.basic;
 
+import java.util.logging.Logger;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
@@ -61,10 +62,11 @@ import org.seasr.meandre.components.tools.Names;
 /** Pushes a property value to the output
  *
  * @author Xavier Llor&agrave
+ * @author Boris Capitanu
  *
  */
 @Component(
-		name = "Push text",
+		name = "Push Text",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -76,7 +78,7 @@ import org.seasr.meandre.components.tools.Names;
 				      "a couple of properties to control how many times it needs to be pushed, " +
 				      "and if it needs to be wrapped with terminators "
 )
-public class PushText implements ExecutableComponent{
+public class PushText extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
@@ -85,21 +87,21 @@ public class PushText implements ExecutableComponent{
 			description = "The text message to push. ",
 		    defaultValue = "Hello World!"
 		)
-	private final static String PROP_MESSAGE = Names.PROP_MESSAGE;
+	protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
 
 	@ComponentProperty(
 			name = Names.PROP_TIMES,
 			description = "The number of times to push the message. ",
 		    defaultValue = "1"
 		)
-	private final static String PROP_TIMES = Names.PROP_TIMES;
+	protected static final String PROP_TIMES = Names.PROP_TIMES;
 
 	@ComponentProperty(
 			name = Names.PROP_WRAP_STREAM,
 			description = "Should the pushed message be wrapped as a stream. ",
 		    defaultValue = "false"
 		)
-	private final static String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+	protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
 	//--------------------------------------------------------------------------------------------
 
@@ -107,7 +109,7 @@ public class PushText implements ExecutableComponent{
 			name = Names.PORT_TEXT,
 			description = "The text message being pushed"
 		)
-	private final static String OUTPUT_TEXT = Names.PORT_TEXT;
+	private final static String OUT_TEXT = Names.PORT_TEXT;
 
 	//--------------------------------------------------------------------------------------------
 
@@ -120,41 +122,38 @@ public class PushText implements ExecutableComponent{
 	/** Should be wrapped */
 	private boolean bWrapped;
 
+	private Logger _console;
+
 	//--------------------------------------------------------------------------------------------
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
-	 */
-	public void initialize(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    _console = getConsoleLogger();
+
 		sMessage = ccp.getProperty(PROP_MESSAGE);
 		lTimes = Long.parseLong(ccp.getProperty(PROP_TIMES));
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
-	 */
-	public void dispose(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		sMessage = null;
-		lTimes = 0;
-		bWrapped = false;
-	}
-
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
-
-		if ( bWrapped )
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		if ( bWrapped ) {
+		    _console.fine("Pushing stream initiator");
 			pushInitiator(cc);
+		}
+
 		for ( long l=0 ; l<lTimes ; l++ )
-			cc.pushDataComponentToOutput(OUTPUT_TEXT, BasicDataTypesTools.stringToStrings(sMessage));
-		if ( bWrapped )
+			cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sMessage));
+
+		if ( bWrapped ) {
+		    _console.fine("Pushing stream terminator");
 			pushTerminator(cc);
+		}
 	}
+
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        sMessage = null;
+        lTimes = 0;
+        bWrapped = false;
+    }
 
 
 	//-----------------------------------------------------------------------------------
@@ -167,7 +166,7 @@ public class PushText implements ExecutableComponent{
 	private void pushInitiator(ComponentContext cc) throws ComponentContextException {
 		StreamInitiator si = new StreamInitiator();
 		si.put(PROP_TIMES, lTimes);
-		cc.pushDataComponentToOutput(OUTPUT_TEXT,si);
+		cc.pushDataComponentToOutput(OUT_TEXT,si);
 	}
 
 	/** Pushes a terminator.
@@ -178,7 +177,7 @@ public class PushText implements ExecutableComponent{
 	private void pushTerminator(ComponentContext cc) throws ComponentContextException {
 		StreamTerminator st = new StreamTerminator();
 		st.put(PROP_TIMES, lTimes);
-		cc.pushDataComponentToOutput(OUTPUT_TEXT,st);
+		cc.pushDataComponentToOutput(OUT_TEXT,st);
 	}
 
 }

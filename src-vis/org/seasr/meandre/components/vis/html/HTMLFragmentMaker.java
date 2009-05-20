@@ -49,6 +49,7 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
@@ -59,11 +60,13 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 
 @Component(creator = "Boris Capitanu",
            description = "Generates an HTML fragment based on the input data." +
-           		"The encoding of the data is specified via the " + Names.PROP_ENCODING + " property. " +
-           		"Supported MIME types: 'text/plain', 'image/<EXT>' (where <EXT> is one of the standard " +
-           		"image types; ex: jpg, png...)",
+           		         "The encoding of the data is specified via the " + Names.PROP_ENCODING + " property. " +
+           		         "Supported MIME types: 'text/plain', 'image/<EXT>' (where <EXT> is one of the standard " +
+           		         "image types; ex: jpg, png...)",
            name = "HTML Fragment Maker",
+           rights = Licenses.UofINCSA,
            tags = "multipurpose, internet, mail, extensions, visualization",
+           dependency = {"protobuf-java-2.0.3.jar"},
            baseURL = "meandre://seasr.org/components/")
 
 /**

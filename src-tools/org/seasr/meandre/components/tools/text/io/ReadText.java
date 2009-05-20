@@ -42,14 +42,13 @@
 
 package org.seasr.meandre.components.tools.text.io;
 
-
 import java.net.URI;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
@@ -57,8 +56,9 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.io.IOUtils;
@@ -89,38 +89,25 @@ public class ReadText extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	@ComponentProperty(
-			name = Names.PROP_ERROR_HANDLING,
-			description = "If set to true, errors will be ignored. " +
-					      "Otherwise, the component will throw an exception an force the flow to abort.",
-		    defaultValue = "true"
-		)
-	protected static final String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
-
-	//--------------------------------------------------------------------------------------------
-
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
 			description = "The URL or file name containing the text to read"
 		)
-	private final static String INPUT_LOCATION = Names.PORT_LOCATION;
+	protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
 			description = "The location that the text was read from"
 		)
-	protected static final String OUTPUT_LOCATION = Names.PORT_LOCATION;
+	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
 			description = "The text read"
 		)
-	protected static final String OUTPUT_TEXT = Names.PORT_TEXT;
+	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 	//--------------------------------------------------------------------------------------------
-
-	/** The error handling flag */
-	private boolean bErrorHandling;
 
 	private Logger _console;
 
@@ -133,7 +120,6 @@ public class ReadText extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _console = getConsoleLogger();
-        this.bErrorHandling = Boolean.parseBoolean(ccp.getProperty(PROP_ERROR_HANDLING));
     }
 
     /* (non-Javadoc)
@@ -141,28 +127,14 @@ public class ReadText extends AbstractExecutableComponent {
      */
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Object data = cc.getDataComponentFromInput(INPUT_LOCATION);
+        Object data = cc.getDataComponentFromInput(IN_LOCATION);
         _console.fine("Got input of type: " + data.getClass().toString());
 
-        if ( data instanceof StreamDelimiter ) {
-            pushDelimiters(cc, (StreamDelimiter)data);
-        }
-        else {
-            URI uri = DataTypeParser.parseAsURI(data);
+        URI uri = DataTypeParser.parseAsURI(data);
+        String sRes =  IOUtils.retrieveTextFromResource(uri);
 
-            String sRes = "";
-            try {
-                sRes = IOUtils.retrieveTextFromResource(uri);
-            } catch (Throwable t) {
-                String sMessage = "Could not read from location "+uri.toString().substring(0, 100);
-                cc.getLogger().warning(sMessage);
-                cc.getOutputConsole().println("WARNING: "+sMessage);
-                if ( !bErrorHandling )
-                    throw new ComponentExecutionException(t);
-            }
-            cc.pushDataComponentToOutput(OUTPUT_LOCATION, BasicDataTypesTools.stringToStrings(uri.toString()));
-            cc.pushDataComponentToOutput(OUTPUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
-        }
+        cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(uri.toString()));
+        cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
     }
 
     /* (non-Javadoc)
@@ -170,7 +142,24 @@ public class ReadText extends AbstractExecutableComponent {
      */
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.bErrorHandling = false;
+    }
+
+    /* (non-Javadoc)
+     * @see org.meandre.components.abstracts.AbstractExecutableComponent#handleStreamInitiators(org.meandre.core.ComponentContext, java.util.Set)
+     */
+    @Override
+    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
+            throws ComponentContextException {
+        pushDelimiters(cc, (StreamInitiator)cc.getDataComponentFromInput(IN_LOCATION));
+    }
+
+    /* (non-Javadoc)
+     * @see org.meandre.components.abstracts.AbstractExecutableComponent#handleStreamTerminators(org.meandre.core.ComponentContext, java.util.Set)
+     */
+    @Override
+    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
+            throws ComponentContextException {
+        pushDelimiters(cc, (StreamTerminator)cc.getDataComponentFromInput(IN_LOCATION));
     }
 
     /** Push the delimiters
@@ -181,18 +170,15 @@ public class ReadText extends AbstractExecutableComponent {
      */
     private void pushDelimiters(ComponentContext cc, StreamDelimiter sdLoc)
             throws ComponentContextException {
-        cc.pushDataComponentToOutput(OUTPUT_LOCATION, sdLoc);
+        cc.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
         try {
             StreamDelimiter sd = (StreamDelimiter) sdLoc.getClass().newInstance();
             for ( String sKey:sd.keySet() )
                 sd.put(sKey, sdLoc.get(sKey));
-            cc.pushDataComponentToOutput(OUTPUT_TEXT, sd);
+            cc.pushDataComponentToOutput(OUT_TEXT, sd);
         } catch (Exception e) {
-            String sMsg = "[WARNING] Failed to create a new delimiter reusing current one";
-            cc.getOutputConsole().println(sMsg);
-            cc.getLogger().warning(sMsg);
-            cc.pushDataComponentToOutput(OUTPUT_TEXT, sdLoc);
+            _console.warning("Failed to create a new delimiter - reusing current one");
+            cc.pushDataComponentToOutput(OUT_TEXT, sdLoc);
         }
     }
-
 }

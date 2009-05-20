@@ -44,6 +44,8 @@ package org.meandre.components.abstracts;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.Vector;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,27 +59,33 @@ import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.ExecutableComponent;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
+import org.seasr.meandre.components.tools.Names;
 
 /**
- *
- *
- * @author bernie acs
+ * @author Bernie Acs
  * @author Boris Capitanu
- *
  */
-public abstract class AbstractExecutableComponent implements
-        ExecutableComponent {
+public abstract class AbstractExecutableComponent implements ExecutableComponent {
 
-    @ComponentProperty(description = "Controls ConsoleOutput during runtime; values may be:\n"
-            + "(off, severe, warning, info, config, fine, finer, finest, all)", name = "ConsoleOutput", defaultValue = "info")
-    public static final String ConsoleOutput = "ConsoleOutput";
+    @ComponentProperty(description = "Controls the verbosity of debug messages printed by the component during execution.<br/>" +
+                                     "Possible values are: off, severe, warning, info, config, fine, finer, finest, all<br>" +
+                                     "Append ',mirror' to any of the values above to mirror that output to the server logs.",
+                       defaultValue = "info",
+                       name = Names.PROP_DEBUG_LEVEL)
+    protected static final String PROP_DEBUG_LEVEL = Names.PROP_DEBUG_LEVEL;
 
-    @ComponentProperty(description = "Controls ConsoleOutput should be mirrored Logger() facility on server; values may be:\n"
-            + "(true = {do mirror output} | any other value = {do not mirror output} )", name = "ConsoleOutputMirrorToLogs", defaultValue = "off")
-    public static final String ConsoleOutputMirrorToLogs = "ConsoleOutputMirrorToLogs";
+    @ComponentProperty(description = "Set to 'true' to ignore all unhandled exceptions and prevent the flow from being terminated. " +
+                                     "Setting this property to 'false' will result in the flow being terminated in the event " +
+                                     "an unhandled exception is thrown during the execution of this component",
+                       defaultValue = "false",
+                       name = Names.PROP_ERROR_HANDLING)
+    protected static final String PROP_IGNORE_ERRORS = Names.PROP_ERROR_HANDLING;
 
     private ComponentContext _componentContext = null;
     private Logger _consoleLogger;
+    private boolean _ignoreErrors;
 
     private Set<String> _connectedInputs = new HashSet<String>();
     private Set<String> _connectedOutputs = new HashSet<String>();
@@ -128,8 +136,25 @@ public abstract class AbstractExecutableComponent implements
         _consoleLogger.setParent(ccp.getLogger());
         _consoleLogger.setLevel(Level.ALL);
 
+        String debugLevel = ccp.getProperty(PROP_DEBUG_LEVEL).trim();
+        StringTokenizer st = new StringTokenizer(debugLevel, " ,;/+&");
+        if (st.countTokens() > 2)
+            throw new ComponentContextException("Invalid value for property '" + PROP_DEBUG_LEVEL + "' specified: " + debugLevel);
+
+        Vector<String> tokens = new Vector<String>();
+        while (st.hasMoreTokens())
+            tokens.add(st.nextToken().trim().toUpperCase());
+
+        boolean mirrorConsoleOutput = false;
+        if (tokens.contains("MIRROR")) {
+            mirrorConsoleOutput = true;
+            tokens.remove("MIRROR");
+        }
+
+        _consoleLogger.setUseParentHandlers(mirrorConsoleOutput);
+
         try {
-            Level consoleOutputLevel = Level.parse(ccp.getProperty(ConsoleOutput).toUpperCase());
+            Level consoleOutputLevel = Level.parse(tokens.get(0));
             _consoleLogger.setLevel(consoleOutputLevel);
         }
         catch (IllegalArgumentException e) {
@@ -137,8 +162,9 @@ public abstract class AbstractExecutableComponent implements
             throw new ComponentContextException(e);
         }
 
-        boolean mirrorConsoleOutput = Boolean.parseBoolean(ccp.getProperty(ConsoleOutputMirrorToLogs));
-        _consoleLogger.setUseParentHandlers(mirrorConsoleOutput);
+        _ignoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
+        if (_ignoreErrors)
+            _consoleLogger.info("Exceptions are being ignored per user's request.");
 
         for (String componentInput : ccp.getInputNames())
             _connectedInputs.add(componentInput);
@@ -159,11 +185,13 @@ public abstract class AbstractExecutableComponent implements
         }
         catch (ComponentExecutionException e) {
             _consoleLogger.throwing(getClass().getName(), "initializeCallBack", e);
-            throw e;
+            if (!_ignoreErrors)
+                throw e;
         }
         catch (Exception e) {
             _consoleLogger.throwing(getClass().getName(), "initializeCallBack", e);
-            throw new ComponentContextException(e);
+            if (!_ignoreErrors)
+                throw new ComponentContextException(e);
         }
     }
 
@@ -182,9 +210,37 @@ public abstract class AbstractExecutableComponent implements
         packedDataComponentsOutput = new PackedDataComponents();
 
         try {
-            _consoleLogger.entering(getClass().getName(), "executeCallBack", cc);
-            executeCallBack(cc);
-            _consoleLogger.exiting(getClass().getName(), "executeCallBack");
+            boolean callExecute = true;
+
+            Set<String> inputPortsWithInitiators = new HashSet<String>();
+            Set<String> inputPortsWithTerminators = new HashSet<String>();
+
+            for (String inputPort : _connectedInputs) {
+                Object data = cc.getDataComponentFromInput(inputPort);
+                if (data instanceof StreamInitiator)
+                    inputPortsWithInitiators.add(inputPort);
+
+                else
+
+                if (data instanceof StreamTerminator)
+                    inputPortsWithTerminators.add(inputPort);
+            }
+
+            if (inputPortsWithInitiators.size() > 0) {
+                callExecute = false;
+                handleStreamInitiators(cc, inputPortsWithInitiators);
+            }
+
+            if (inputPortsWithTerminators.size() > 0) {
+                callExecute = false;
+                handleStreamTerminators(cc, inputPortsWithTerminators);
+            }
+
+            if (callExecute) {
+                _consoleLogger.entering(getClass().getName(), "executeCallBack", cc);
+                executeCallBack(cc);
+                _consoleLogger.exiting(getClass().getName(), "executeCallBack");
+            }
         }
         catch (ComponentContextException e) {
             _consoleLogger.throwing(getClass().getName(), "executeCallBack", e);
@@ -192,11 +248,13 @@ public abstract class AbstractExecutableComponent implements
         }
         catch (ComponentExecutionException e) {
             _consoleLogger.throwing(getClass().getName(), "executeCallBack", e);
-            throw e;
+            if (!_ignoreErrors)
+                throw e;
         }
         catch (Exception e) {
             _consoleLogger.throwing(getClass().getName(), "executeCallBack", e);
-            throw new ComponentExecutionException(e);
+            if (!_ignoreErrors)
+                throw new ComponentExecutionException(e);
         }
     }
 
@@ -219,22 +277,24 @@ public abstract class AbstractExecutableComponent implements
         }
         catch (ComponentExecutionException e) {
             _consoleLogger.throwing(getClass().getName(), "disposeCallBack", e);
-            throw e;
+            if (!_ignoreErrors)
+                throw e;
         }
         catch (Exception e) {
             _consoleLogger.throwing(getClass().getName(), "disposeCallBack", e);
-            throw new ComponentContextException(e);
+            if (!_ignoreErrors)
+                throw new ComponentContextException(e);
         }
     }
 
-    public abstract void disposeCallBack(ComponentContextProperties ccp)
-            throws Exception;
+    public abstract void initializeCallBack(ComponentContextProperties ccp)
+        throws Exception;
 
     public abstract void executeCallBack(ComponentContext cc)
-            throws Exception;
+        throws Exception;
 
-    public abstract void initializeCallBack(ComponentContextProperties ccp)
-            throws Exception;
+    public abstract void disposeCallBack(ComponentContextProperties ccp)
+        throws Exception;
 
     public ComponentContext getComponentContext() {
         return _componentContext;
@@ -242,5 +302,45 @@ public abstract class AbstractExecutableComponent implements
 
     public Logger getConsoleLogger() {
         return _consoleLogger;
+    }
+
+    /**
+     * Forwards or ignores the delimiter depending on the number of inputs/outputs the component has;
+     * Override if needing to handle the delimiters differently.
+     *
+     * @param cc The component context
+     * @param inputPortsWithInitiators The set of ports where stream initiators arrived
+     * @throws ComponentContextException Thrown in the event of an error
+     */
+    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators) throws ComponentContextException {
+        _consoleLogger.entering(getClass().getName(), "handleStreamInitiators", inputPortsWithInitiators);
+
+        if (_connectedInputs.size() == 1 && _connectedOutputs.size() == 1) {
+            _consoleLogger.fine("Forwarding " + StreamInitiator.class.getSimpleName() + " to the next component...");
+            cc.pushDataComponentToOutput(cc.getOutputNames()[0], cc.getDataComponentFromInput(cc.getInputNames()[0]));
+        } else
+            _consoleLogger.fine("Ignoring " + StreamInitiator.class.getSimpleName() + " received on ports " + inputPortsWithInitiators);
+
+        _consoleLogger.exiting(getClass().getName(), "handleStreamInitiators");
+    }
+
+    /**
+     * Forwards or ignores the delimiter depending on the number of inputs/outputs the component has;
+     * Override if needing to handle the delimiters differently.
+     *
+     * @param cc The component context
+     * @param inputPortsWithTerminators The set of ports where stream terminators arrived
+     * @throws ComponentContextException Thrown in the event of an error
+     */
+    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators) throws ComponentContextException {
+        _consoleLogger.entering(getClass().getName(), "handleStreamTerminators", inputPortsWithTerminators);
+
+        if (_connectedInputs.size() == 1 && _connectedOutputs.size() == 1) {
+            _consoleLogger.fine("Forwarding " + StreamTerminator.class.getSimpleName() + " to the next component...");
+            cc.pushDataComponentToOutput(cc.getOutputNames()[0], cc.getDataComponentFromInput(cc.getInputNames()[0]));
+        } else
+            _consoleLogger.fine("Ignoring " + StreamTerminator.class.getSimpleName() + " received on ports " + inputPortsWithTerminators);
+
+        _consoleLogger.exiting(getClass().getName(), "handleStreamTerminators");
     }
 }

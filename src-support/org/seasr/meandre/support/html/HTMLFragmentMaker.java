@@ -67,8 +67,8 @@ public class HTMLFragmentMaker {
             sb.append(" style='").append(css).append("'");
         sb.append(">");
 
-        text = text.replaceAll("\r*\n", "<br/>");
         text = StringEscapeUtils.escapeHtml(text);
+        text = text.replaceAll("\r*\n", "<br/>");
 
         sb.append(text);
         sb.append("</div>");

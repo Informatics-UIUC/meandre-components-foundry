@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.vis.html;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +52,7 @@ import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentProperty;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
@@ -61,14 +63,17 @@ import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.html.VelocityTemplateService;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 
+import sun.misc.BASE64Encoder;
+
 @Component(creator = "Loretta Auvil",
            description = "Generates a webpage from the HTML text that it receives as input.",
            name = "HTML Viewer",
            tags = "html, viewer",
            mode = Mode.webui,
+           rights = Licenses.UofINCSA,
            baseURL = "meandre://seasr.org/components/",
-           dependency = {"velocity-1.6.1-dep.jar"},
-           resources = {"HTMLViewer.vm"})
+           dependency = {"protobuf-java-2.0.3.jar", "velocity-1.6.1-dep.jar"},
+           resources = {"HTMLViewer.vm", "seasrtop.html"})
 
 /**
  * @author Loretta Auvil
@@ -81,7 +86,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
                     name = Names.PORT_HTML)
     protected static final String IN_HTML = Names.PORT_HTML;
 
-	@ComponentProperty(defaultValue = "org/meandre/components/vis/html/HTMLViewer.vm",
+	@ComponentProperty(defaultValue = "org/seasr/meandre/components/vis/html/HTMLViewer.vm",
 	                   description = "The template to use for wrapping the HTML input",
 	                   name = Names.PROP_TEMPLATE)
     protected static final String PROP_TEMPLATE = Names.PROP_TEMPLATE;
@@ -119,6 +124,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
         if (_templateName != null) {
             VelocityTemplateService velocity = VelocityTemplateService.getInstance();
             _context.put("rawHtml", _html);
+            _context.put("base64html", new BASE64Encoder().encode(_html.getBytes()));
 
             _console.finest("Applying the Velocity template");
             _html = velocity.generateOutput(_context, _templateName);
@@ -130,6 +136,9 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
 
         while (!cc.isFlowAborting() && !_done)
             Thread.sleep(1000);
+
+        if (cc.isFlowAborting())
+            _console.info("Flow abort requested - terminating component execution...");
 
         cc.stopWebUIFragment(this);
     }
@@ -166,8 +175,15 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
         _console.entering(getClass().getName(), "handle", response);
 
-        if (request.getParameter("done") != null)
+        if (request.getParameter("done") != null) {
             _done = true;
+            try {
+                response.getWriter().println("<html><head><meta http-equiv='REFRESH' content='1;url=/'></head><body></body></html>");
+            }
+            catch (IOException e) {
+                throw new WebUIException(e);
+            }
+        }
         else
             emptyRequest(response);
 

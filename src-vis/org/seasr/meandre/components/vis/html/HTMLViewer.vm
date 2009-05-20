@@ -1,12 +1,29 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
 <head>
-    <title> #if($title) $title #end </title>
 </head>
-
 <body>
+	<iframe id="htmlFrame" src="data:text/html;base64,$base64html" width="100%" frameborder="1" marginheight="0" marginwidth="0">
+	   Your browser does not support frames!
+	</iframe>
 
+	<br />
 
+	<button type="button" onClick="location.href='/$ccp.getExecutionInstanceID()/?done=true'">DONE</button>
+
+	<script type="text/javascript">
+		function resizeIframe() {
+		    var height = document.documentElement.clientHeight;
+		    height -= document.getElementById('htmlFrame').offsetTop;
+
+		    // not sure how to get this dynamically
+		    height -= 60;
+
+		    document.getElementById('htmlFrame').style.height = height +"px";
+		};
+
+		document.getElementById('htmlFrame').onload = resizeIframe;
+		window.onresize = resizeIframe;
+	</script>
 </body>
 </html>

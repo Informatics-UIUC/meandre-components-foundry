@@ -49,7 +49,7 @@ package org.seasr.meandre.components.tools;
  */
 public abstract class Names {
 
-    public static final String PROP_ERROR_HANDLING = "error_handling";
+    public static final String PROP_ERROR_HANDLING = "ignore_errors";
     public static final String PROP_BASE_URI = "base_uri";
     public static final String PROP_RDF_DIALECT = "rdf_dialect";
     public static final String PROP_MESSAGE = "message";
@@ -76,6 +76,7 @@ public abstract class Names {
 	public static final String PROP_MAX_SIZE = "max_size";
 	public static final String PROP_MIN_SIZE = "min_size";
 	public static final String PROP_SHOW_COUNT = "show_count";
+	public static final String PROP_DEBUG_LEVEL = "debug_level";
 
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";

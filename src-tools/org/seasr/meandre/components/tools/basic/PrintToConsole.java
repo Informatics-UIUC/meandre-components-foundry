@@ -42,7 +42,8 @@
 
 package org.seasr.meandre.components.tools.basic;
 
-import java.io.PrintStream;
+import java.util.Set;
+import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -51,19 +52,19 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
 import org.meandre.core.system.components.ext.StreamDelimiter;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.parsers.DataTypeParser;
 
-/** Prints a Jena Model to the console
+/**
+ * Prints an object to the console
  *
  * @author Xavier Llor&agrave
- *
+ * @author Boris Capitanu
  */
 @Component(
 		name = "Print to console",
@@ -76,73 +77,76 @@ import org.seasr.meandre.components.tools.Names;
 		dependency = {"protobuf-java-2.0.3.jar"},
 		description = "This component takes the input and prints it to the console. "
 )
-public class PrintToConsole implements ExecutableComponent {
+public class PrintToConsole extends AbstractExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------
-
-	@ComponentProperty(
-			name = Names.PROP_WRAP_STREAM,
-			description = "Should the printed object be wrapped as a stream? ",
-		    defaultValue = "false"
-		)
-	private final static String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
-
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_OBJECT,
 			description = "The object to print"
 		)
-	private final static String INPUT_OBJECT = Names.PORT_OBJECT;
+	protected static final String IN_OBJECT = Names.PORT_OBJECT;
 
 	@ComponentOutput(
 			name = Names.PORT_OBJECT,
-			description = "The objet being printed"
+			description = "The object printed"
 		)
-	private final static String OUTPUT_OBJECT = Names.PORT_OBJECT;
+	protected static final String OUT_OBJECT = Names.PORT_OBJECT;
+
+	//--------------------------------------------------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the printed object be wrapped as a stream? ",
+            defaultValue = "false"
+        )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
 	//--------------------------------------------------------------------------------------------
 
 	/** Should be wrapped */
 	private boolean bWrapped;
 
+	private Logger _console;
+
 	//--------------------------------------------------------------------------------------------
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
-	 */
-	public void initialize(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    _console = getConsoleLogger();
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
-	 */
-	public void dispose(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		bWrapped = false;
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		Object data = cc.getDataComponentFromInput(IN_OBJECT);
+        _console.fine("Got input of type: " + data.getClass().toString());
+
+        cc.getOutputConsole().println(DataTypeParser.parseAsString(data));
+
+		cc.pushDataComponentToOutput(OUT_OBJECT, data);
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
+	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	    bWrapped = false;
+	}
 
-		Object obj = cc.getDataComponentFromInput(INPUT_OBJECT);
-		if ( bWrapped && obj instanceof StreamDelimiter ) {
-					printStreamDelimiter(cc, obj);
-		}
-		else {
-			PrintStream con = cc.getOutputConsole();
-			if ( obj instanceof Strings )
-				for ( String s:((Strings)obj).getValueList())
-					con.println(s);
-			else
-				con.println(obj.toString());
-		}
-		cc.pushDataComponentToOutput(OUTPUT_OBJECT, obj);
+	/* (non-Javadoc)
+	 * @see org.meandre.components.abstracts.AbstractExecutableComponent#handleStreamInitiators(org.meandre.core.ComponentContext, java.util.Set)
+	 */
+	@Override
+	protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
+	        throws ComponentContextException {
+	    if (bWrapped)
+	           printStreamDelimiter(cc, cc.getDataComponentFromInput(IN_OBJECT));
+	}
+
+	/* (non-Javadoc)
+	 * @see org.meandre.components.abstracts.AbstractExecutableComponent#handleStreamTerminators(org.meandre.core.ComponentContext, java.util.Set)
+	 */
+	@Override
+	protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
+	        throws ComponentContextException {
+	   if (bWrapped)
+	       printStreamDelimiter(cc, cc.getDataComponentFromInput(IN_OBJECT));
 	}
 
 	/** Prints a stream delimiter

@@ -47,6 +47,7 @@ import java.util.logging.Logger;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
@@ -58,8 +59,14 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
            description = "Converts a text to lowercase.",
            name = "To Lowercase",
            tags = "lowercase, text, transform",
+           rights = Licenses.UofINCSA,
+           dependency = {"protobuf-java-2.0.3.jar"},
            baseURL = "meandre://seasr.org/components/")
 
+/**
+ * @author Lily Dong
+ * @author Boris Capitanu
+ */
 public class ToLowercase extends AbstractExecutableComponent
 {
     @ComponentInput(description = "The text to be converted." +

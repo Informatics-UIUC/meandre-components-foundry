@@ -47,6 +47,7 @@ import java.util.logging.Logger;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
@@ -60,9 +61,15 @@ import org.seasr.meandre.support.text.HTMLUtils;
            		         "the dom tree that are plain text nodes are appended " +
            		         "together and returned as a string.",
            name = "HTML Text Extractor",
+           rights = Licenses.UofINCSA,
            tags = "html, text, converter",
+           dependency = {"protobuf-java-2.0.3.jar", "htmlparser.jar"},
            baseURL = "meandre://seasr.org/components/")
 
+/**
+ * @author Lily Dong
+ * @author Boris Capitanu
+ */
 public class HTMLTextExtractor extends AbstractExecutableComponent
 {
     @ComponentInput(description = "The HTML document." +
