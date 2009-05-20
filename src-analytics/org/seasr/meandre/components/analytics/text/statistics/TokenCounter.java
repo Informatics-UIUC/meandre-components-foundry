@@ -58,13 +58,14 @@ import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.ExecutableComponent;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
+import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
 
 
 /** This component tokenizes the text contained in the input model using OpenNLP.
  *
- * @author Xavier Llor�
+ * @author Xavier Llor&agrave;
  *
  */
 @Component(

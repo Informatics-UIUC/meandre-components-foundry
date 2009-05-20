@@ -71,7 +71,7 @@ import org.seasr.meandre.components.tools.Names;
 
 /** This component tokenizes the text contained in the input model using OpenNLP.
  *
- * @author Xavier Llor�
+ * @author Xavier Llor&agrave;
  *
  */
 @SuppressWarnings("unchecked")
