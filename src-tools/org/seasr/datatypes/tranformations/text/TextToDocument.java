@@ -76,41 +76,45 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 )
 public class TextToDocument extends AbstractExecutableComponent {
 
-    @ComponentInput(name = Names.PORT_TEXT,
-                    description = "The text to be converted to a Document structure")
+    //------------------------------ INPUTS ------------------------------------------------------
+
+    @ComponentInput(
+            name = Names.PORT_TEXT,
+            description = "The text to be converted to a Document structure"
+    )
     protected static final String IN_TEXT = Names.PORT_TEXT;
 
-    @ComponentInput(name = Names.PORT_DOC_TITLE,
-                    description = "The title to associate with this Document")
+    @ComponentInput(
+            name = Names.PORT_DOC_TITLE,
+            description = "The title to associate with this Document"
+    )
     protected static final String IN_DOC_TITLE = Names.PORT_DOC_TITLE;
 
-    @ComponentOutput(name = Names.PORT_DOCUMENT,
-                     description = "The Document structure constructed from the input text")
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            name = Names.PORT_DOCUMENT,
+            description = "The Document structure constructed from the input text"
+    )
     protected static final String OUT_DOCUMENT = Names.PORT_DOCUMENT;
+
+    //--------------------------------------------------------------------------------------------
 
 
     private Logger _console;
 
 
-    /* (non-Javadoc)
-     * @see org.meandre.components.abstracts.AbstractExecutableComponent#initializeCallBack(org.meandre.core.ComponentContextProperties)
-     */
+    //--------------------------------------------------------------------------------------------
+
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _console = getConsoleLogger();
     }
 
-    /* (non-Javadoc)
-     * @see org.meandre.components.abstracts.AbstractExecutableComponent#executeCallBack(org.meandre.core.ComponentContext)
-     */
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object titleObj = cc.getDataComponentFromInput(IN_DOC_TITLE);
         Object textObj = cc.getDataComponentFromInput(IN_TEXT);
-
-        _console.fine(String.format("Received input of type: %s=%s  %s=%s",
-                IN_DOC_TITLE, titleObj.getClass().toString(),
-                IN_TEXT, textObj.getClass().toString()));
 
         String title = DataTypeParser.parseAsString(titleObj);
         String text = DataTypeParser.parseAsString(textObj);
@@ -126,12 +130,8 @@ public class TextToDocument extends AbstractExecutableComponent {
         cc.pushDataComponentToOutput(OUT_DOCUMENT, document);
     }
 
-    /* (non-Javadoc)
-     * @see org.meandre.components.abstracts.AbstractExecutableComponent#disposeCallBack(org.meandre.core.ComponentContextProperties)
-     */
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 
     }
-
 }

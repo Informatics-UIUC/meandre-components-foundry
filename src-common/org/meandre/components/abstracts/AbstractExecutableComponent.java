@@ -217,6 +217,11 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
 
             for (String inputPort : _connectedInputs) {
                 Object data = cc.getDataComponentFromInput(inputPort);
+
+                // show the inputs and data-types received on each input in "debug" mode
+                _consoleLogger.finer(String.format("Input port '%s' has data of type '%s'",
+                        inputPort, data.getClass().getName()));
+
                 if (data instanceof StreamInitiator)
                     inputPortsWithInitiators.add(inputPort);
 

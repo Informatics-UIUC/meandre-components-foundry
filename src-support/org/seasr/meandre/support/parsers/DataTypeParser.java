@@ -42,15 +42,20 @@
 
 package org.seasr.meandre.support.parsers;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 
 import org.seasr.datatypes.BasicDataTypesTools;
+import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.support.exceptions.UnsupportedDataTypeException;
+import org.seasr.meandre.support.io.ModelUtils;
+
+import com.hp.hpl.jena.rdf.model.Model;
 
 /**
  * @author Boris Capitanu
@@ -85,7 +90,7 @@ public class DataTypeParser {
             text = new String((byte[])data);
 
         else
-            throw new UnsupportedDataTypeException(data.getClass().toString());
+            throw new UnsupportedDataTypeException(data.getClass().getName());
 
         return text;
     }
@@ -125,7 +130,7 @@ public class DataTypeParser {
             uri = new URI((String)data);
 
         else
-            throw new UnsupportedDataTypeException(data.getClass().toString());
+            throw new UnsupportedDataTypeException(data.getClass().getName());
 
         return uri;
     }
@@ -155,8 +160,66 @@ public class DataTypeParser {
             map = (Map<String, Integer>)data;
 
         else
-            throw new UnsupportedDataTypeException(data.getClass().toString());
+            throw new UnsupportedDataTypeException(data.getClass().getName());
 
         return map;
+    }
+
+    /**
+     * Attempts to convert the given data to a Model
+     *
+     * @param data The data
+     * @return The Model
+     * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
+     */
+    public static Model parseAsModel(Object data) throws UnsupportedDataTypeException, IOException, URISyntaxException {
+        Model model;
+
+        if (data == null)
+            model = null;
+
+        else
+
+        if (data instanceof Model)
+            model = (Model)data;
+
+        else
+
+        if (data instanceof Bytes)
+            model = ModelUtils.getModel(
+                    BasicDataTypesTools.bytestoByteArray((Bytes) data),
+                    null);
+
+        else
+
+        if (data instanceof byte[])
+            model = ModelUtils.getModel((byte[])data, null);
+
+        else
+
+        if (data instanceof Strings)
+            model = ModelUtils.getModel(
+                    BasicDataTypesTools.stringsToStringArray((Strings)data)[0],
+                    null);
+
+        else
+
+        if (data instanceof String)
+            model = ModelUtils.getModel((String)data, null);
+
+        else
+
+        if (data instanceof URL)
+            model = ModelUtils.getModel(((URL)data).toURI(), null);
+
+        else
+
+        if (data instanceof URI)
+            model = ModelUtils.getModel((URI)data, null);
+
+        else
+            throw new UnsupportedDataTypeException(data.getClass().getName());
+
+        return model;
     }
 }

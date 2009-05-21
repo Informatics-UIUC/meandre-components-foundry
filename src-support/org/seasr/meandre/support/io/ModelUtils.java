@@ -62,16 +62,19 @@ public class ModelUtils {
      * Creates one (or loads one or more existing) model(s) with the content specified
      *
      * @param sModel The model content
+     * @param baseURI The base URI to use for the model, or null if none
      * @param modelArgs An optional set of models that should be populated with the specified content
      * @return The new model created (if no Model arguments were specified), or null if Model arguments were specified
      * @throws IOException Thrown if the content cannot be loaded into the model(s)
      */
-    public static Model getModel(String sModel, Model... modelArgs) throws IOException {
+    public static Model getModel(String sModel, String baseURI, Model... modelArgs)
+        throws IOException {
+
         Model[] models = (modelArgs.length == 0) ?
                 new Model[] { ModelFactory.createDefaultModel() } : modelArgs;
 
         for (Model model : models)
-            readModelFromString(model, sModel);
+            readModelFromString(model, sModel, baseURI);
 
         return (modelArgs.length == 0) ? models[0] : null;
     }
@@ -80,16 +83,19 @@ public class ModelUtils {
      * Creates one (or loads one or more existing) model(s) with the content specified
      *
      * @param modelStream The stream to be used as content for the model
+     * @param baseURI The base URI to use for the model, or null if none
      * @param modelArgs An optional set of models that should be populated with the specified content
      * @return The new model created (if no Model arguments were specified), or null if Model arguments were specified
      * @throws IOException Thrown if the content cannot be loaded into the model(s)
      */
-    public static Model getModel(InputStream modelStream, Model... modelArgs) throws IOException {
+    public static Model getModel(InputStream modelStream, String baseURI, Model... modelArgs)
+        throws IOException {
+
         Model[] models = (modelArgs.length == 0) ?
                 new Model[] { ModelFactory.createDefaultModel() } : modelArgs;
 
         for (Model model : models)
-            readModelFromStream(model, modelStream);
+            readModelFromStream(model, modelStream, baseURI);
 
         return (modelArgs.length == 0) ? models[0] : null;
     }
@@ -98,24 +104,28 @@ public class ModelUtils {
      * Creates one (or loads one or more existing) model(s) with the content specified
      *
      * @param modelBytes The byte array carrying the model content
+     * @param baseURI The base URI to use for the model, or null if none
      * @param modelArgs An optional set of models that should be populated with the specified content
      * @return The new model created (if no Model arguments were specified), or null if Model arguments were specified
      * @throws IOException Thrown if the content cannot be loaded into the model(s)
      */
-    public static Model getModel(byte[] modelBytes, Model... modelArgs) throws IOException {
-        return getModel(new ByteArrayInputStream(modelBytes), modelArgs);
+    public static Model getModel(byte[] modelBytes, String baseURI, Model... modelArgs)
+        throws IOException {
+
+        return getModel(new ByteArrayInputStream(modelBytes), baseURI, modelArgs);
     }
 
     /**
      * Creates one (or loads one or more existing) model(s) with the content specified
      *
      * @param uri The location from where to pull the model content
+     * @param baseURI The base URI to use for the model, or null if none
      * @param modelArgs An optional set of models that should be populated with the specified content
      * @return The new model created (if no Model arguments were specified), or null if Model arguments were specified
      * @throws IOException Thrown if the content cannot be loaded into the model(s)
      */
-    public static Model getModel(URI uri, Model... modelArgs) throws IOException {
-        return getModel(StreamUtils.getInputStreamForResource(uri), modelArgs);
+    public static Model getModel(URI uri, String baseURI, Model... modelArgs) throws IOException {
+        return getModel(StreamUtils.getInputStreamForResource(uri), baseURI, modelArgs);
     }
 
     /**

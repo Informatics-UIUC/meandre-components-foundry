@@ -42,28 +42,25 @@
 
 package org.seasr.datatypes.tranformations;
 
-import java.util.Map;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.meandre.components.tools.Names;
 
 
-/** This component transforms a token count into a map.
+/**
+ * This component transforms a token count into a map.
  *
- * @author Xavier Llor�
+ * @author Xavier Llor&agrave;
+ * @author Boris Capitanu
  *
  */
 @Component(
@@ -78,62 +75,38 @@ import org.seasr.meandre.components.tools.Names;
 		description = "Given a collection of token counts, this component converts them " +
 				      "to a Java map."
 )
-public class TokenCountsToMap implements ExecutableComponent {
+public class TokenCountsToMap extends AbstractExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TOKEN_COUNTS,
 			description = "The token counts to convert to text"
-		)
-	private final static String INPUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+	)
+	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_MAP,
 			description = "The converted token map"
 		)
-	private final static String OUPUT_TOKEN_MAP = Names.PORT_TOKEN_MAP;
+	private final static String OUT_TOKEN_MAP = Names.PORT_TOKEN_MAP;
+
 
 	//--------------------------------------------------------------------------------------------
 
-	//--------------------------------------------------------------------------------------------
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
-		Object obj = cc.getDataComponentFromInput(INPUT_TOKEN_COUNTS);
-		if ( obj instanceof StreamDelimiter )
-			cc.pushDataComponentToOutput(OUPUT_TOKEN_MAP, obj);
-		else {
-			try {
-				IntegersMap im = (IntegersMap)obj;
-				Map<String, Integer> map = BasicDataTypesTools.IntegerMapToMap(im);
-				cc.pushDataComponentToOutput(OUPUT_TOKEN_MAP, map);
-			} catch (ClassCastException e ) {
-				String sMessage = "Input data is not a sequence of token countss";
-				cc.getLogger().warning(sMessage);
-				cc.getOutputConsole().println("WARNING: "+sMessage);
-				throw new ComponentExecutionException(e);
-			}
-		}
+    }
+
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		cc.pushDataComponentToOutput(OUT_TOKEN_MAP,
+		        BasicDataTypesTools.IntegerMapToMap(
+		                (IntegersMap)cc.getDataComponentFromInput(IN_TOKEN_COUNTS)));
 	}
 
-	public void dispose(ComponentContextProperties arg0)
-			throws ComponentExecutionException, ComponentContextException {
-		// TODO Auto-generated method stub
+	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 
 	}
-
-	public void initialize(ComponentContextProperties arg0)
-			throws ComponentExecutionException, ComponentContextException {
-		// TODO Auto-generated method stub
-
-	}
-
-	//--------------------------------------------------------------------------------------------
-
 }

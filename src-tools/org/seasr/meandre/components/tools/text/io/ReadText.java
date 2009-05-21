@@ -53,6 +53,7 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
@@ -67,7 +68,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 /**
  * Reads text from a local or remote location
  *
- * @author Xavier Llor&agrave
+ * @author Xavier Llor&agrave;
  * @author Boris Capitanu
  */
 @Component(
@@ -87,13 +88,15 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 )
 public class ReadText extends AbstractExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
 			description = "The URL or file name containing the text to read"
-		)
+	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
@@ -109,58 +112,47 @@ public class ReadText extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
+
 	private Logger _console;
+
 
 	//--------------------------------------------------------------------------------------------
 
-
-    /* (non-Javadoc)
-     * @see org.meandre.components.abstracts.AbstractExecutableComponent#initializeCallBack(org.meandre.core.ComponentContextProperties)
-     */
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _console = getConsoleLogger();
     }
 
-    /* (non-Javadoc)
-     * @see org.meandre.components.abstracts.AbstractExecutableComponent#executeCallBack(org.meandre.core.ComponentContext)
-     */
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object data = cc.getDataComponentFromInput(IN_LOCATION);
-        _console.fine("Got input of type: " + data.getClass().toString());
 
         URI uri = DataTypeParser.parseAsURI(data);
-        String sRes =  IOUtils.retrieveTextFromResource(uri);
+        String sRes =  IOUtils.getTextFromReader(IOUtils.getReaderForResource(uri));
 
         cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(uri.toString()));
         cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
     }
 
-    /* (non-Javadoc)
-     * @see org.meandre.components.abstracts.AbstractExecutableComponent#disposeCallBack(org.meandre.core.ComponentContextProperties)
-     */
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
-    /* (non-Javadoc)
-     * @see org.meandre.components.abstracts.AbstractExecutableComponent#handleStreamInitiators(org.meandre.core.ComponentContext, java.util.Set)
-     */
+    //--------------------------------------------------------------------------------------------
+
     @Override
     protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
             throws ComponentContextException {
         pushDelimiters(cc, (StreamInitiator)cc.getDataComponentFromInput(IN_LOCATION));
     }
 
-    /* (non-Javadoc)
-     * @see org.meandre.components.abstracts.AbstractExecutableComponent#handleStreamTerminators(org.meandre.core.ComponentContext, java.util.Set)
-     */
     @Override
     protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
             throws ComponentContextException {
         pushDelimiters(cc, (StreamTerminator)cc.getDataComponentFromInput(IN_LOCATION));
     }
+
+    //--------------------------------------------------------------------------------------------
 
     /** Push the delimiters
      *
@@ -172,10 +164,7 @@ public class ReadText extends AbstractExecutableComponent {
             throws ComponentContextException {
         cc.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
         try {
-            StreamDelimiter sd = (StreamDelimiter) sdLoc.getClass().newInstance();
-            for ( String sKey:sd.keySet() )
-                sd.put(sKey, sdLoc.get(sKey));
-            cc.pushDataComponentToOutput(OUT_TEXT, sd);
+            cc.pushDataComponentToOutput(OUT_TEXT, ComponentUtils.cloneStreamDelimiter(sdLoc));
         } catch (Exception e) {
             _console.warning("Failed to create a new delimiter - reusing current one");
             cc.pushDataComponentToOutput(OUT_TEXT, sdLoc);

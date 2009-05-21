@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.tools.basic;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -51,23 +52,22 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.parsers.DataTypeParser;
 
-/** Given a directory pushes all the file name available that match a certain
- * regular expression given in the properties
+/**
+ * Given a directory, this component pushes all the file names available in the
+ * directory that match a certain regular expression given in the properties
  *
  * @author Xavier Llor&agrave;
- *
+ * @author Boris Capitanu
  */
 @Component(
 		name = "List directory files",
@@ -81,46 +81,49 @@ import org.seasr.meandre.components.tools.Names;
 		description = "Given a directory pushes all the file name available that " +
 				      "match a certain regular expression given in the properties."
 )
-public class ListDirectoryFiles implements ExecutableComponent{
+public class ListDirectoryFiles extends AbstractExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------
-
-	@ComponentProperty(
-			name = Names.PROP_EXPRESSION,
-			description = "The regular expression to use as a filter. ",
-		    defaultValue = ".*"
-		)
-	private final static String PROP_EXPRESSION = Names.PROP_EXPRESSION;
-
-	@ComponentProperty(
-			name = Names.PROP_RECURSIVE,
-			description = "Should the directory be processed recursively? ",
-		    defaultValue = "true"
-		)
-	private final static String PROP_RECURSIVE = Names.PROP_RECURSIVE;
-
-	@ComponentProperty(
-			name = Names.PROP_WRAP_STREAM,
-			description = "Should the pushed message be wrapped as a stream. ",
-		    defaultValue = "false"
-		)
-	private final static String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
 			description = "The location of the directory to push"
-		)
-	private final static String INPUT_LOCATION = Names.PORT_LOCATION;
+	)
+	protected static final String IN_LOCATION = Names.PORT_LOCATION;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
 			description = "The location being pushed"
-		)
-	private final static String OUTPUT_LOCATION = Names.PORT_LOCATION;
+	)
+	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_EXPRESSION,
+            description = "The regular expression to use as a filter. ",
+            defaultValue = ".*"
+    )
+    protected static final String PROP_EXPRESSION = Names.PROP_EXPRESSION;
+
+    @ComponentProperty(
+            name = Names.PROP_RECURSIVE,
+            description = "Should the directory be processed recursively? ",
+            defaultValue = "true"
+    )
+    protected static final String PROP_RECURSIVE = Names.PROP_RECURSIVE;
+
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the pushed message be wrapped as a stream. ",
+            defaultValue = "false"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+
+    //--------------------------------------------------------------------------------------------
+
 
 	/** The regular expression */
 	private String sExpression;
@@ -131,46 +134,36 @@ public class ListDirectoryFiles implements ExecutableComponent{
 	/** Should be wrapped */
 	private boolean bWrapped;
 
+	private Logger _console;
+
+
 	//--------------------------------------------------------------------------------------------
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
-	 */
-	public void initialize(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    _console = getConsoleLogger();
+
 		sExpression = ccp.getProperty(PROP_EXPRESSION);
 		bRecursive = Boolean.parseBoolean(ccp.getProperty(PROP_RECURSIVE));
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
-	 */
-	public void dispose(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		sExpression = null;
-		bWrapped = bRecursive = false;
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		String sLoc = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION));
+
+		if ( bWrapped )
+			pushInitiator(cc,sLoc);
+
+		pushLocations(cc, new File(sLoc));
+
+		if ( bWrapped )
+			pushTerminator(cc,sLoc);
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
 
-		Object obj = cc.getDataComponentFromInput(INPUT_LOCATION);
-		if ( obj instanceof StreamDelimiter )
-			cc.pushDataComponentToOutput(OUTPUT_LOCATION, obj);
-		else {
-			String sLoc = (obj instanceof Strings)?((Strings)obj).getValue(0):obj.toString();
-			if ( bWrapped )
-				pushInitiator(cc,sLoc);
-			pushLocations(cc,new File(sLoc));
-			if ( bWrapped )
-				pushTerminator(cc,sLoc);
-		}
-	}
-
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        sExpression = null;
+        bWrapped = bRecursive = false;
+    }
 
 	//-----------------------------------------------------------------------------------
 
@@ -181,10 +174,13 @@ public class ListDirectoryFiles implements ExecutableComponent{
 	 * @throws ComponentContextException Something went wrong when pushing
 	 */
 	private void pushInitiator(ComponentContext cc, String sLoc)
-	throws ComponentContextException {
+	    throws ComponentContextException {
+
+	    _console.fine("Pushing " + StreamInitiator.class.getSimpleName());
+
 		StreamInitiator si = new StreamInitiator();
-		si.put(INPUT_LOCATION, sLoc);
-		cc.pushDataComponentToOutput(OUTPUT_LOCATION,si);
+		si.put(IN_LOCATION, sLoc);
+		cc.pushDataComponentToOutput(OUT_LOCATION,si);
 	}
 
 	/** Pushes a terminator.
@@ -194,10 +190,13 @@ public class ListDirectoryFiles implements ExecutableComponent{
 	 * @throws ComponentContextException Something went wrong when pushing
 	 */
 	private void pushTerminator(ComponentContext cc, String sLoc)
-	throws ComponentContextException {
+	    throws ComponentContextException {
+
+	    _console.fine("Pushing " + StreamTerminator.class.getSimpleName());
+
 		StreamTerminator st = new StreamTerminator();
-		st.put(INPUT_LOCATION, sLoc);
-		cc.pushDataComponentToOutput(OUTPUT_LOCATION,st);
+		st.put(IN_LOCATION, sLoc);
+		cc.pushDataComponentToOutput(OUT_LOCATION,st);
 	}
 
 	/** Pushed the locations that mached the given expression.
@@ -207,11 +206,12 @@ public class ListDirectoryFiles implements ExecutableComponent{
 	 * @throws ComponentContextException Failed to push the the file name to the output
 	 */
 	private boolean pushLocations(ComponentContext cc, File fileLoc)
-	throws ComponentContextException {
+	    throws ComponentContextException {
+
 		if ( fileLoc.isDirectory() ) {
             String[] children = fileLoc.list();
             for (int i=0; bRecursive && i<children.length ; i++) {
-                boolean success = pushLocations(cc,new File(fileLoc, children[i]));
+                boolean success = pushLocations(cc, new File(fileLoc, children[i]));
                 if (!success) {
                     return false;
                 }
@@ -219,11 +219,11 @@ public class ListDirectoryFiles implements ExecutableComponent{
         }
 		else {
 			String sLoc = fileLoc.toString();
-			if ( sLoc.matches(sExpression) )
-				cc.pushDataComponentToOutput(OUTPUT_LOCATION, BasicDataTypesTools.stringToStrings(sLoc));
+			if ( sLoc.matches(sExpression) ) {
+			    _console.fine(String.format("Pushing filename %s", sLoc));
+				cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(sLoc));
+			}
 		}
 		return true;
 	}
-
-
 }

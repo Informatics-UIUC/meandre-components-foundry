@@ -116,7 +116,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
 
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object data = cc.getDataComponentFromInput(IN_HTML);
-        _console.fine("Received input of type: " + data.getClass().toString());
+        _console.fine("Received input of type: " + data.getClass().getName());
 
         _html = DataTypeParser.parseAsString(data);
 

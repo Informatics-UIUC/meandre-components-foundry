@@ -49,18 +49,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 
-/** Tools to help dealing with the basic types
+import com.google.protobuf.ByteString;
+
+/**
+ * Tools to help dealing with the basic types
  *
  * @author Xavier Llor&agrave;
  *
  */
 public abstract class BasicDataTypesTools {
 
-	/** Creates a Strings object out of a regular String.
+	/**
+	 * Creates a Strings object out of a regular String.
 	 *
 	 * @param s The string to use
 	 * @return The new object produced
@@ -71,7 +77,8 @@ public abstract class BasicDataTypesTools {
 		return res.build();
 	}
 
-	/** Creates a Strings object out of an array of String.
+	/**
+	 * Creates a Strings object out of an array of String.
 	 *
 	 * @param s The string to use
 	 * @return The new object produced
@@ -82,7 +89,8 @@ public abstract class BasicDataTypesTools {
 		return res.build();
 	}
 
-	/** Create a string array out of the Strings contents.
+	/**
+	 * Create a string array out of the Strings contents.
 	 *
 	 * @param s The strings to process
 	 * @return The array of strings
@@ -93,7 +101,8 @@ public abstract class BasicDataTypesTools {
 		return saRes;
 	}
 
-	/** Creates an empty string map.
+	/**
+	 * Creates an empty string map.
 	 *
 	 * @return The empty strings map created
 	 */
@@ -102,7 +111,8 @@ public abstract class BasicDataTypesTools {
 		return res.build();
 	}
 
-	/** Creates an empty strings.
+	/**
+	 * Creates an empty strings.
 	 *
 	 * @return The empty strings map created
 	 */
@@ -111,7 +121,8 @@ public abstract class BasicDataTypesTools {
 		return res.build();
 	}
 
-	/** Creates an empty integer maps.
+	/**
+	 * Creates an empty integer maps.
 	 *
 	 * @return The empty integer map created
 	 */
@@ -120,7 +131,8 @@ public abstract class BasicDataTypesTools {
 		return res.build();
 	}
 
-	/** Builds the integer map and sorts it if needed.
+	/**
+	 * Builds the integer map and sorts it if needed.
 	 *
 	 * @param htCounts The token counts
 	 * @param bOrdered Should the counts be ordered?
@@ -148,7 +160,8 @@ public abstract class BasicDataTypesTools {
 		return res.build();
 	}
 
-	/** Converts a protocol buffer string integer map to the equivalent java map
+	/**
+	 * Converts a protocol buffer string integer map to the equivalent java map
 	 *
 	 * @param im The integer map to convert
 	 * @return The converted map
@@ -162,4 +175,28 @@ public abstract class BasicDataTypesTools {
 		return ht;
 	}
 
+	/**
+	 * Converts a protocol buffer Bytes to a byte array
+	 *
+	 * @param bytes The Bytes object to convert
+	 * @return The byte array
+	 */
+	public static byte[] bytestoByteArray(Bytes bytes) {
+	    Byte[] barr = new Byte[bytes.getValueCount()];
+	    barr = bytes.getValueList().toArray(barr);
+
+	    return ArrayUtils.toPrimitive(barr);
+	}
+
+	/**
+	 * Converts a byte array to a protocol buffer Bytes object
+	 *
+	 * @param barr The byte array
+	 * @return The Bytes object
+	 */
+	public static Bytes byteArrayToBytes(byte[] barr) {
+	    org.seasr.datatypes.BasicDataTypes.Bytes.Builder res = BasicDataTypes.Bytes.newBuilder();
+	    res.addValue(ByteString.copyFrom(barr));
+	    return res.build();
+	}
 }

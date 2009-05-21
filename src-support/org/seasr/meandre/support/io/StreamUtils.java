@@ -44,13 +44,13 @@ package org.seasr.meandre.support.io;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.MalformedURLException;
+import java.io.OutputStream;
 import java.net.URI;
+import java.net.URL;
 
 /**
  * @author Boris Capitanu
@@ -81,21 +81,41 @@ public class StreamUtils {
     }
 
     /**
-     * Opens the location from where to read.
+     * Returns an InputStream for the specified resource.
      *
-     * @param uri The location to read from (can be a url or a local file)
-     * @return The reader for this location
-     * @throws IOException Thrown if a problem occurred when creating the reader
-     * @throws MalformedURLException Thrown if a malformed URL was specified
-     * @throws IOException Thrown if there is a problem reading from this location
+     * @param uri The resource location (can be a URL or a local file)
+     * @return The InputStream to use to read from the resource
+     * @throws IOException Thrown if the resource is invalid, does not exist, or cannot be opened
      */
-    public static Reader getReaderForResource(URI uri) throws MalformedURLException, IOException  {
-    	try {
-    		return new InputStreamReader(uri.toURL().openStream());
-    	} catch (IllegalArgumentException e) {
-    	    // URI not absolute - trying as local file
-    	    return new FileReader(uri.toString());
-    	}
+    public static InputStream getInputStreamForResource(URI uri) throws IOException {
+        try {
+            return uri.toURL().openStream();
+        }
+        catch (IllegalArgumentException e) {
+            // URI not absolute - trying as local file
+            return new FileInputStream(uri.toString());
+        }
     }
 
+    /**
+     * Returns an OutputStream for the specified resource
+     *
+     * @param uri The resource location (specified as either file:// or local path)
+     * @return The OutputStream to use to write to the resource
+     * @throws IOException Thrown if the resource is invalid
+     */
+    public static OutputStream getOutputStreamForResource(URI uri) throws IOException {
+        try {
+            URL url = uri.toURL();
+            if (url.getProtocol().equalsIgnoreCase("file"))
+                return new FileOutputStream(url.getFile());
+            else
+                // TODO: add webdav support
+                throw new UnsupportedOperationException("Can only write to file:// or local resources");
+        }
+        catch (IllegalArgumentException e) {
+            // URI not absolute - trying as local file
+            return new FileOutputStream(uri.toString());
+        }
+    }
 }

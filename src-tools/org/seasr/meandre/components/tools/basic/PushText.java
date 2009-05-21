@@ -59,7 +59,8 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 
-/** Pushes a property value to the output
+/**
+ * Pushes a property value to the output
  *
  * @author Xavier Llor&agrave
  * @author Boris Capitanu
@@ -80,38 +81,39 @@ import org.seasr.meandre.components.tools.Names;
 )
 public class PushText extends AbstractExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------
-
-	@ComponentProperty(
-			name = Names.PROP_MESSAGE,
-			description = "The text message to push. ",
-		    defaultValue = "Hello World!"
-		)
-	protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
-
-	@ComponentProperty(
-			name = Names.PROP_TIMES,
-			description = "The number of times to push the message. ",
-		    defaultValue = "1"
-		)
-	protected static final String PROP_TIMES = Names.PROP_TIMES;
-
-	@ComponentProperty(
-			name = Names.PROP_WRAP_STREAM,
-			description = "Should the pushed message be wrapped as a stream. ",
-		    defaultValue = "false"
-		)
-	protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
 			description = "The text message being pushed"
-		)
-	private final static String OUT_TEXT = Names.PORT_TEXT;
+	)
+	protected static final String OUT_TEXT = Names.PORT_TEXT;
+
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_MESSAGE,
+            description = "The text message to push. ",
+            defaultValue = "Hello World!"
+    )
+    protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
+
+    @ComponentProperty(
+            name = Names.PROP_TIMES,
+            description = "The number of times to push the message. ",
+            defaultValue = "1"
+    )
+    protected static final String PROP_TIMES = Names.PROP_TIMES;
+
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the pushed message be wrapped as a stream. ",
+            defaultValue = "false"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
 	//--------------------------------------------------------------------------------------------
+
 
 	/** The message */
 	private String sMessage;
@@ -124,6 +126,7 @@ public class PushText extends AbstractExecutableComponent {
 
 	private Logger _console;
 
+
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -135,18 +138,14 @@ public class PushText extends AbstractExecutableComponent {
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		if ( bWrapped ) {
-		    _console.fine("Pushing stream initiator");
+		if ( bWrapped )
 			pushInitiator(cc);
-		}
 
 		for ( long l=0 ; l<lTimes ; l++ )
 			cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sMessage));
 
-		if ( bWrapped ) {
-		    _console.fine("Pushing stream terminator");
+		if ( bWrapped )
 			pushTerminator(cc);
-		}
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -155,29 +154,33 @@ public class PushText extends AbstractExecutableComponent {
         bWrapped = false;
     }
 
-
 	//-----------------------------------------------------------------------------------
 
-	/** Pushes an initiator.
+	/**
+	 * Pushes an initiator.
 	 *
 	 * @param cc The component context
 	 * @throws ComponentContextException Something went wrong when pushing
 	 */
 	private void pushInitiator(ComponentContext cc) throws ComponentContextException {
+        _console.fine("Pushing " + StreamInitiator.class.getSimpleName());
+
 		StreamInitiator si = new StreamInitiator();
 		si.put(PROP_TIMES, lTimes);
 		cc.pushDataComponentToOutput(OUT_TEXT,si);
 	}
 
-	/** Pushes a terminator.
+	/**
+	 * Pushes a terminator.
 	 *
 	 * @param cc The component context
 	 * @throws ComponentContextException Something went wrong when pushing
 	 */
 	private void pushTerminator(ComponentContext cc) throws ComponentContextException {
+        _console.fine("Pushing " + StreamTerminator.class.getSimpleName());
+
 		StreamTerminator st = new StreamTerminator();
 		st.put(PROP_TIMES, lTimes);
 		cc.pushDataComponentToOutput(OUT_TEXT,st);
 	}
-
 }

@@ -42,11 +42,13 @@
 
 package org.seasr.meandre.support.io;
 
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.PrintStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.net.URI;
 
 /**
@@ -55,22 +57,37 @@ import java.net.URI;
 public class IOUtils {
 
     /**
+     * Opens the location from where to read.
+     *
+     * @param uri The location to read from (can be a URL or a local file)
+     * @return The reader for this location
+     * @throws IOException Thrown if a problem occurred when creating the reader
+     */
+    public static Reader getReaderForResource(URI uri) throws IOException  {
+        try {
+            return new InputStreamReader(uri.toURL().openStream());
+        } catch (IllegalArgumentException e) {
+            // URI not absolute - trying as local file
+            return new FileReader(uri.toString());
+        }
+    }
+
+    /**
      * @param uri The resource location (can be a URL or a local path)
      * @return The text contained in the resource
      * @throws IOException Thrown if a problem occurs when pulling data from the resource
      */
-    public static String retrieveTextFromResource(URI uri) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
-        Reader isr = StreamUtils.getReaderForResource(uri);
-        LineNumberReader lnr = new LineNumberReader(isr);
+    public static String getTextFromReader(Reader reader) throws IOException {
+        BufferedReader br = new BufferedReader(reader);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
 
-        String sTmp;
-        while ( (sTmp=lnr.readLine())!=null )
-            ps.println(sTmp);
+        String sLine;
+        while ((sLine = br.readLine()) != null)
+            pw.println(sLine);
 
-        isr.close();
-        return baos.toString();
+        reader.close();
+        return sw.toString();
     }
 
 }
