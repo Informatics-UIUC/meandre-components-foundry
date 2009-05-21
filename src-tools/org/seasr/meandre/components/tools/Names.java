@@ -80,6 +80,7 @@ public abstract class Names {
 
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";
+	public static final String PORT_DOC_TITLE = "document_title";
 	public static final String PORT_TEXT = "text";
 	public static final String PORT_TOKENS = "tokens";
 	public static final String PORT_TOKEN_BLACKLIST = "tokens_blacklist";
