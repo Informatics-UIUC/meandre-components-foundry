@@ -1,29 +1,30 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-<head>
-</head>
+<head></head>
 <body>
-	<iframe id="htmlFrame" src="data:text/html;base64,$base64html" width="100%" frameborder="1" marginheight="0" marginwidth="0">
-	   Your browser does not support frames!
-	</iframe>
+    <iframe id="htmlFrame" src="data:text/html;base64,$base64Html" width="100%" frameborder="1" marginheight="0" marginwidth="0">
+        Your browser does not support frames!
+    </iframe>
 
-	<br />
+    <br />
 
-	<button type="button" onClick="location.href='/$ccp.getExecutionInstanceID()/?done=true'">DONE</button>
+    <div style="margin-left:auto; margin-right:auto; text-align:center;">
+        <button type="button" onClick="location.href='/$ccp.getExecutionInstanceID()/?done=true'">DONE</button>
+    </div>
 
-	<script type="text/javascript">
-		function resizeIframe() {
-		    var height = document.documentElement.clientHeight;
-		    height -= document.getElementById('htmlFrame').offsetTop;
+    <script type="text/javascript">
+        function resizeIframe() {
+            var height = document.documentElement.clientHeight;
+            height -= document.getElementById('htmlFrame').offsetTop;
 
-		    // not sure how to get this dynamically
-		    height -= 60;
+            // not sure how to get this dynamically to account for the DONE button height
+            height -= 60;
 
-		    document.getElementById('htmlFrame').style.height = height +"px";
-		};
+            document.getElementById('htmlFrame').style.height = height + "px";
+        };
 
-		document.getElementById('htmlFrame').onload = resizeIframe;
-		window.onresize = resizeIframe;
-	</script>
+        window.onresize = resizeIframe;
+        resizeIframe();
+    </script>
 </body>
 </html>

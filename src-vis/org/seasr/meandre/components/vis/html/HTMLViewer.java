@@ -124,7 +124,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
         if (_templateName != null) {
             VelocityTemplateService velocity = VelocityTemplateService.getInstance();
             _context.put("rawHtml", _html);
-            _context.put("base64html", new BASE64Encoder().encode(_html.getBytes()));
+            _context.put("base64Html", new BASE64Encoder().encode(_html.getBytes()));
 
             _console.finest("Applying the Velocity template");
             _html = velocity.generateOutput(_context, _templateName);
