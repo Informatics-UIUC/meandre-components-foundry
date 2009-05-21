@@ -66,7 +66,7 @@ import org.seasr.meandre.components.tools.Names;
 /** Given a directory pushes all the file name available that match a certain
  * regular expression given in the properties
  *
- * @author Xavier Llor&agrave
+ * @author Xavier Llor&agrave;
  *
  */
 @Component(
