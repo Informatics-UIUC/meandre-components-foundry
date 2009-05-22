@@ -57,6 +57,7 @@ import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
@@ -125,9 +126,7 @@ public class ReadText extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Object data = cc.getDataComponentFromInput(IN_LOCATION);
-
-        URI uri = DataTypeParser.parseAsURI(data);
+        URI uri = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
         String sRes =  IOUtils.getTextFromReader(IOUtils.getReaderForResource(uri));
 
         cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(uri.toString()));
@@ -142,13 +141,13 @@ public class ReadText extends AbstractExecutableComponent {
 
     @Override
     protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-            throws ComponentContextException {
+            throws ComponentContextException, ComponentExecutionException {
         pushDelimiters(cc, (StreamInitiator)cc.getDataComponentFromInput(IN_LOCATION));
     }
 
     @Override
     protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-            throws ComponentContextException {
+            throws ComponentContextException, ComponentExecutionException {
         pushDelimiters(cc, (StreamTerminator)cc.getDataComponentFromInput(IN_LOCATION));
     }
 

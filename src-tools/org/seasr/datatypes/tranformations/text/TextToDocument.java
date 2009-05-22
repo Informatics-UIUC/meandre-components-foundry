@@ -113,11 +113,8 @@ public class TextToDocument extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Object titleObj = cc.getDataComponentFromInput(IN_DOC_TITLE);
-        Object textObj = cc.getDataComponentFromInput(IN_TEXT);
-
-        String title = DataTypeParser.parseAsString(titleObj);
-        String text = DataTypeParser.parseAsString(textObj);
+        String title = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_DOC_TITLE));
+        String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 
         Document document = Factory.newDocument();
         document.setTitle(title);

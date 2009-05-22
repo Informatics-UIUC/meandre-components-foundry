@@ -47,10 +47,9 @@ import java.io.FileOutputStream;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-
-
-/** This class provides basic mechanics to install OpenNLP
- *  models in the environment for the component to reach.
+/**
+ * This class provides basic mechanics to install OpenNLP
+ * models in the environment for the component to reach.
  *
  * @author Xavier Llor&agrave;
  *

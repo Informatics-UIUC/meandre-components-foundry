@@ -60,69 +60,97 @@ import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 import org.seasr.meandre.support.text.TagCloudImage;
 
-@Component(creator = "Lily Dong",
-           description = "Creates a tag cloud image from a word count table. " +
-                         "If there are many tags to be displayed, " +
-                         "reduce the maximum size of the font or increase the size of the canvas " +
-                         "to accommodate all of tags.",
-           name = "Tag Cloud Image Maker",
-           rights = Licenses.UofINCSA,
-           tags = "tag cloud, visualization",
-           dependency = {"protobuf-java-2.0.3.jar"},
-           baseURL="meandre://seasr.org/components/")
-
 /**
  * @author Lily Dong
  * @author Boris Capitanu
  */
-public class TagCloudImageMaker extends AbstractExecutableComponent
-{
-    @ComponentInput(description = "Tags to be analyzed." +
-                                  "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>, IntegersMap",
-                    name = Names.PORT_TOKEN_COUNTS)
+
+@Component(
+        creator = "Lily Dong",
+        description = "Creates a tag cloud image from a word count table. " +
+                      "If there are many tags to be displayed, " +
+                      "reduce the maximum size of the font or increase the size of the canvas " +
+                      "to accommodate all of tags.",
+        name = "Tag Cloud Image Maker",
+        rights = Licenses.UofINCSA,
+        tags = "tag cloud, visualization",
+        dependency = {"protobuf-java-2.0.3.jar"},
+        baseURL="meandre://seasr.org/components/"
+)
+public class TagCloudImageMaker extends AbstractExecutableComponent {
+
+    //------------------------------ INPUTS ------------------------------------------------------
+
+    @ComponentInput(
+            description = "Tags to be analyzed." +
+                          "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>, IntegersMap",
+            name = Names.PORT_TOKEN_COUNTS
+    )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
-    @ComponentOutput(description = "The image." +
-                                 "<br>TYPE: Bytes",
-                     name = Names.PORT_RAW_DATA)
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            description = "The image." +
+                          "<br>TYPE: Bytes",
+            name = Names.PORT_RAW_DATA
+    )
     protected final static String OUT_IMAGE_RAW = Names.PORT_RAW_DATA;
 
-	@ComponentProperty(defaultValue = "1000",
-             		   description = "This property sets the width of the canvas.",
-             		   name = Names.PROP_WIDTH)
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+	@ComponentProperty(
+	        defaultValue = "1000",
+            description = "This property sets the width of the canvas.",
+            name = Names.PROP_WIDTH
+	)
     protected static final String PROP_CANVAS_WIDTH = Names.PROP_WIDTH;
 
-	@ComponentProperty(defaultValue = "1000",
-  		   			   description = "This property sets the height of the canvas.",
-  		   			   name = Names.PROP_HEIGHT)
+	@ComponentProperty(
+	        defaultValue = "1000",
+  		   	description = "This property sets the height of the canvas.",
+  		   	name = Names.PROP_HEIGHT
+	)
     protected static final String PROP_CANVAS_HEIGHT = Names.PROP_HEIGHT;
 
-	@ComponentProperty(defaultValue = "Courier",
-	                   description = "This property sets the name of the font to be used for the words in the tag cloud.",
-	                   name = Names.PROP_FONT_NAME)
+	@ComponentProperty(
+	        defaultValue = "Courier",
+	        description = "This property sets the name of the font to be used for the words in the tag cloud.",
+	        name = Names.PROP_FONT_NAME
+	)
     protected static final String PROP_FONT_NAME = Names.PROP_FONT_NAME;
 
-	@ComponentProperty(defaultValue = "150",
-  			           description = "This property sets the maximum size of the font.",
-  			           name = Names.PROP_MAX_SIZE)
+	@ComponentProperty(
+	        defaultValue = "150",
+  			description = "This property sets the maximum size of the font.",
+  			name = Names.PROP_MAX_SIZE
+	)
     protected static final String PROP_FONT_MAX_SIZE = Names.PROP_MAX_SIZE;
 
-	@ComponentProperty(defaultValue = "20",
-	           		   description = "This property sets the minimum size of the font to be used for the words in the tag cloud.",
-	           		   name = Names.PROP_MIN_SIZE)
+	@ComponentProperty(
+	        defaultValue = "20",
+	        description = "This property sets the minimum size of the font to be used for the words in the tag cloud.",
+	        name = Names.PROP_MIN_SIZE
+	)
     protected static final String PROP_FONT_MIN_SIZE = Names.PROP_MIN_SIZE;
 
-	@ComponentProperty(defaultValue = "false",
-    		           description = "Set to 'true' to show the count for each tag. " +
-    		           "Ensure there is enough space for showing the count. In doing so, " +
-    		           "you could increase the canvas width or height or both, or reduce the font size.",
-    		           name = Names.PROP_SHOW_COUNT)
+	@ComponentProperty(
+	        defaultValue = "false",
+    		description = "Set to 'true' to show the count for each tag. " +
+    		              "Ensure there is enough space for showing the count. In doing so, " +
+    		              "you could increase the canvas width or height or both, or reduce the font size.",
+    		name = Names.PROP_SHOW_COUNT
+	)
     protected static final String PROP_SHOW_COUNT = Names.PROP_SHOW_COUNT;
+
+    //--------------------------------------------------------------------------------------------
 
 
 	private Logger _console;
 	private org.seasr.meandre.support.text.TagCloudImageMaker _tagCloudImageMaker;
 
+
+    //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _console = getConsoleLogger();
@@ -144,10 +172,8 @@ public class TagCloudImageMaker extends AbstractExecutableComponent
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Object data = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
-        _console.fine("Got input of type: " + data.getClass().toString());
-
-        Map<String, Integer> table = DataTypeParser.parseAsStringIntegerMap(data);
+        Map<String, Integer> table = DataTypeParser.parseAsStringIntegerMap(
+                cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
         _console.fine("Creating the tag cloud image");
         TagCloudImage image = _tagCloudImageMaker.createTagCloudImage(table);

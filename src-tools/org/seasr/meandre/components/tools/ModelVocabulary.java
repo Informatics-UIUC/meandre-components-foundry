@@ -47,7 +47,8 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-/** This class just provide a convenience place for JSTOR RDF vocabulary
+/**
+ * This class just provide a convenience place for JSTOR RDF vocabulary
  *
  * @author Xavier Llor&agrave;
  *

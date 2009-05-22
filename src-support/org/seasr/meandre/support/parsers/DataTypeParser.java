@@ -90,7 +90,7 @@ public class DataTypeParser {
             text = new String((byte[])data);
 
         else
-            throw new UnsupportedDataTypeException(data.getClass().getName());
+            text = data.toString();
 
         return text;
     }

@@ -42,12 +42,9 @@
 
 package org.seasr.meandre.components.tools.xml.io;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -55,24 +52,26 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.io.StreamUtils;
+import org.seasr.meandre.support.parsers.DataTypeParser;
 import org.w3c.dom.Document;
 
-/** Reads a Jena Model from disk
+/**
  *
- * @author Xavier Llor&agrave
+ * @author Xavier Llor&agrave;
+ * @author Boris Capitanu
  *
  */
 @Component(
@@ -91,42 +90,39 @@ import org.w3c.dom.Document;
 				      "front of an IO error, allowing to continue pushing and empty XML or " +
 				      "throwing and exception forcing the finalization of the flow execution."
 )
-public class ReadXML implements ExecutableComponent {
+public class ReadXML extends AbstractExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------
-
-	@ComponentProperty(
-			name=Names.PROP_ERROR_HANDLING,
-			description = "If set to true errors will be handled and empty models will be pushed. " +
-					      "Otherwise, the component will throw an exception an force the flow to abort.",
-		    defaultValue = "true"
-		)
-	private final static String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
 			description = "The URL or file name containing the model to read"
-		)
-	private final static String INPUT_LOCATION = Names.PORT_LOCATION;
+	)
+	protected static final String IN_LOCATION = Names.PORT_LOCATION;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
 			description = "The URL or file name containing the model read"
-		)
-	private final static String OUTPUT_LOCATION = Names.PORT_LOCATION;
+	)
+	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentOutput(
 			name = Names.PORT_XML,
 			description = "The XML object containing the document read"
 		)
-	private final static String OUTPUT_XML = Names.PORT_XML;
+	private final static String OUT_XML = Names.PORT_XML;
+
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+	// Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
 
 	//--------------------------------------------------------------------------------------------
 
+
 	/** The error handling flag */
-	private boolean bErrorHandling;
+	private boolean bIgnoreErrors;
 
 	/** The document builder factory */
 	private DocumentBuilderFactory factory;
@@ -134,68 +130,74 @@ public class ReadXML implements ExecutableComponent {
 	/** The document builder instance */
 	private DocumentBuilder parser;
 
+	private Logger _console;
+
+
 	//--------------------------------------------------------------------------------------------
 
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    _console = getConsoleLogger();
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
-	 */
-	public void initialize(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		this.bErrorHandling = Boolean.parseBoolean(ccp.getProperty(PROP_ERROR_HANDLING));
+		this.bIgnoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
+
 		try {
 			this.factory = DocumentBuilderFactory.newInstance();
 			this.parser = factory.newDocumentBuilder();
 		}
 		catch (Throwable t) {
 			String sMessage = "Could not initialize the XML parser";
-			ccp.getLogger().warning(sMessage);
-			ccp.getOutputConsole().println("WARNING: "+sMessage);
-			throw new ComponentExecutionException(sMessage+" "+t.toString());
+            _console.warning(sMessage);
+			throw new ComponentExecutionException(sMessage + " " + t.toString());
 		}
 	}
+
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		URI location = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
+
+		Document doc;
+
+		try {
+			doc = parser.parse(StreamUtils.getInputStreamForResource(location));
+		}
+		catch (Throwable t) {
+			_console.warning("Could not read XML from location " + location.toString());
+
+			if ( !bIgnoreErrors )
+				throw new ComponentExecutionException(t);
+			else
+				doc = parser.newDocument();
+		}
+
+		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(location.toString()));
+		cc.pushDataComponentToOutput(OUT_XML, doc);
+	}
+
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        this.bIgnoreErrors = false;
+        this.factory = null;
+        this.parser = null;
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
+            throws ComponentContextException, ComponentExecutionException {
+
+        pushDelimiters(cc, (StreamDelimiter)cc.getDataComponentFromInput(IN_LOCATION));
+    }
+
+    @Override
+    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
+            throws ComponentContextException, ComponentExecutionException {
+
+        pushDelimiters(cc, (StreamDelimiter)cc.getDataComponentFromInput(IN_LOCATION));
+    }
+
+    //--------------------------------------------------------------------------------------------
 
 	/**
-	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
-	 */
-	public void dispose(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		this.bErrorHandling = false;
-		this.factory = null;
-		this.parser = null;
-	}
-
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
-
-		Object obj = cc.getDataComponentFromInput(INPUT_LOCATION);
-		if ( obj instanceof StreamDelimiter ) {
-			pushDelimiters(cc, (StreamDelimiter)obj);
-		}
-		else {
-			String sLocation = (obj instanceof Strings)?((Strings)obj).getValue(0):obj.toString();
-			Document doc = null;
-			try {
-				doc = parser.parse(openLocation(sLocation));
-			} catch (Throwable t) {
-				String sMessage = "Could not read XML from location "+sLocation.substring(0, 100);
-				cc.getLogger().warning(sMessage);
-				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( !bErrorHandling )
-					throw new ComponentExecutionException(t);
-				else {
-					doc = parser.newDocument();
-				}
-			}
-			cc.pushDataComponentToOutput(OUTPUT_LOCATION, BasicDataTypesTools.stringToStrings(sLocation));
-			cc.pushDataComponentToOutput(OUTPUT_XML, doc);
-		}
-	}
-
-	/** Push the delimiters
+	 * Push the delimiters
 	 *
 	 * @param cc The component context
 	 * @param sdLoc The delimiter object
@@ -203,47 +205,14 @@ public class ReadXML implements ExecutableComponent {
 	 */
 	private void pushDelimiters(ComponentContext cc, StreamDelimiter sdLoc)
 			throws ComponentContextException {
-		cc.pushDataComponentToOutput(OUTPUT_LOCATION, sdLoc);
+
+	    cc.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
+
 		try {
-			StreamDelimiter sd = (StreamDelimiter) sdLoc.getClass().newInstance();
-			for ( String sKey:sd.keySet() )
-				sd.put(sKey, sdLoc.get(sKey));
-			cc.pushDataComponentToOutput(OUTPUT_XML, sd);
+			cc.pushDataComponentToOutput(OUT_XML, ComponentUtils.cloneStreamDelimiter(sdLoc));
 		} catch (Exception e) {
-			String sMsg = "[WARNING] Failed to create a new delimiter reusing current one";
-			cc.getOutputConsole().println(sMsg);
-			cc.getLogger().warning(sMsg);
-			cc.pushDataComponentToOutput(OUTPUT_XML, sdLoc);
+			_console.warning("Failed to create a new delimiter - reusing existing one");
+			cc.pushDataComponentToOutput(OUT_XML, sdLoc);
 		}
 	}
-
-
-	//-----------------------------------------------------------------------------------
-
-
-	/** Opens the location from where to read.
-	 *
-	 * @param sLocation The location to read from
-	 * @return The reader for this location
-	 * @throws IOException The location could not be read
-	 */
-	private InputStream openLocation(String sLocation) throws IOException {
-		try {
-			// Try too pull it as a URL
-			URL url = new URL(sLocation);
-			return url.openStream();
-		} catch (MalformedURLException e) {
-			// Badly formated URL. Trying as a local file
-			try {
-				return new FileInputStream(sLocation);
-			} catch (FileNotFoundException e1) {
-				throw e1;
-			}
-		} catch (IOException e) {
-			throw e;
-		}
-	}
-
-
-
 }

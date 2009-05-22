@@ -65,31 +65,43 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 
 import sun.misc.BASE64Encoder;
 
-@Component(creator = "Loretta Auvil",
-           description = "Generates a webpage from the HTML text that it receives as input.",
-           name = "HTML Viewer",
-           tags = "html, viewer",
-           mode = Mode.webui,
-           rights = Licenses.UofINCSA,
-           baseURL = "meandre://seasr.org/components/",
-           dependency = {"protobuf-java-2.0.3.jar", "velocity-1.6.1-dep.jar"},
-           resources = {"HTMLViewer.vm", "seasrtop.html"})
-
 /**
  * @author Loretta Auvil
  * @author Boris Capitanu
  */
+
+@Component(
+        creator = "Loretta Auvil",
+        description = "Generates a webpage from the HTML text that it receives as input.",
+        name = "HTML Viewer",
+        tags = "html, viewer",
+        mode = Mode.webui,
+        rights = Licenses.UofINCSA,
+        baseURL = "meandre://seasr.org/components/",
+        dependency = {"protobuf-java-2.0.3.jar", "velocity-1.6.1-dep.jar"},
+        resources = {"HTMLViewer.vm"}
+)
 public class HTMLViewer extends AbstractExecutableComponent implements WebUIFragmentCallback {
 
-	@ComponentInput(description = "The HTML data" +
-                                  "<br>TYPE: String, Text, byte[]",
-                    name = Names.PORT_HTML)
+    //------------------------------ INPUTS ------------------------------------------------------
+
+	@ComponentInput(
+	        description = "The HTML data" +
+                          "<br>TYPE: String, Text, byte[]",
+            name = Names.PORT_HTML
+	)
     protected static final String IN_HTML = Names.PORT_HTML;
 
-	@ComponentProperty(defaultValue = "org/seasr/meandre/components/vis/html/HTMLViewer.vm",
-	                   description = "The template to use for wrapping the HTML input",
-	                   name = Names.PROP_TEMPLATE)
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+	@ComponentProperty(
+	        defaultValue = "org/seasr/meandre/components/vis/html/HTMLViewer.vm",
+	        description = "The template to use for wrapping the HTML input",
+	        name = Names.PROP_TEMPLATE
+	)
     protected static final String PROP_TEMPLATE = Names.PROP_TEMPLATE;
+
+    //--------------------------------------------------------------------------------------------
 
 
     private Logger _console;
@@ -98,6 +110,8 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
     private String _html;
     private boolean _done;
 
+
+    //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _console = getConsoleLogger();
@@ -115,10 +129,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Object data = cc.getDataComponentFromInput(IN_HTML);
-        _console.fine("Received input of type: " + data.getClass().getName());
-
-        _html = DataTypeParser.parseAsString(data);
+        _html = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HTML));
 
         // Check whether Velocity should be used
         if (_templateName != null) {
@@ -145,6 +156,8 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
+
+    //--------------------------------------------------------------------------------------------
 
     /**
      * This method gets called when a request with no parameters is made to this component
@@ -189,5 +202,4 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
 
         _console.exiting(getClass().getName(), "handle");
     }
-
 }

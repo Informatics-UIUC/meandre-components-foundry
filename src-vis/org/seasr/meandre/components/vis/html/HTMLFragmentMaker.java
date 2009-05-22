@@ -58,47 +58,67 @@ import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 
-@Component(creator = "Boris Capitanu",
-           description = "Generates an HTML fragment based on the input data." +
-           		         "The encoding of the data is specified via the " + Names.PROP_ENCODING + " property. " +
-           		         "Supported MIME types: 'text/plain', 'image/<EXT>' (where <EXT> is one of the standard " +
-           		         "image types; ex: jpg, png...)",
-           name = "HTML Fragment Maker",
-           rights = Licenses.UofINCSA,
-           tags = "multipurpose, internet, mail, extensions, visualization",
-           dependency = {"protobuf-java-2.0.3.jar"},
-           baseURL = "meandre://seasr.org/components/")
-
 /**
  * @author Lily Dong
  * @author Boris Capitanu
  */
+
+@Component(
+        creator = "Boris Capitanu",
+        description = "Generates an HTML fragment based on the input data." +
+           		      "The encoding of the data is specified via the " + Names.PROP_ENCODING + " property. " +
+           		      "Supported MIME types: 'text/plain', 'image/<EXT>' (where <EXT> is one of the standard " +
+           		      "image types; ex: jpg, png...)",
+        name = "HTML Fragment Maker",
+        rights = Licenses.UofINCSA,
+        tags = "multipurpose, internet, mail, extensions, visualization",
+        dependency = {"protobuf-java-2.0.3.jar"},
+        baseURL = "meandre://seasr.org/components/"
+)
 public class HTMLFragmentMaker extends AbstractExecutableComponent {
 
-    @ComponentInput(description = "Raw data encoded in one of the supported encoding types." +
-                                  "<br>TYPE: String, Text, byte[] - text/plain<br>byte[] - image/<ext>",
-                    name = Names.PORT_RAW_DATA)
+    //------------------------------ INPUTS ------------------------------------------------------
+
+    @ComponentInput(
+            description = "Raw data encoded in one of the supported encoding types." +
+                          "<br>TYPE: String, Text, byte[] - text/plain<br>byte[] - image/<ext>",
+            name = Names.PORT_RAW_DATA
+    )
     protected static final String IN_RAW_DATA = Names.PORT_RAW_DATA;
 
-    @ComponentOutput(description = "The HTML fragment wrapping the input data." +
-                                   "<br>TYPE: Text",
-                     name = Names.PORT_HTML)
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            description = "The HTML fragment wrapping the input data." +
+                          "<br>TYPE: Text",
+            name = Names.PORT_HTML
+    )
     protected static final String OUT_HTML = Names.PORT_HTML;
 
-    @ComponentProperty(defaultValue = "text/plain",
-                       description = "Specifies the MIME encoding of the input data.",
-                       name = Names.PROP_ENCODING)
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            defaultValue = "text/plain",
+            description = "Specifies the MIME encoding of the input data.",
+            name = Names.PROP_ENCODING
+    )
     protected static final String PROP_ENCODING = Names.PROP_ENCODING;
 
-    @ComponentProperty(defaultValue = "",
-                       description = "Specifies the ID attached to the HTML fragment.",
-                       name = Names.PROP_ID)
+    @ComponentProperty(
+            defaultValue = "",
+            description = "Specifies the ID attached to the HTML fragment.",
+            name = Names.PROP_ID
+    )
     protected static final String PROP_ID = Names.PROP_ID;
 
-    @ComponentProperty(defaultValue = "",
-                       description = "Specifies a style attribute for the HTML fragment.",
-                       name = Names.PROP_CSS)
+    @ComponentProperty(
+            defaultValue = "",
+            description = "Specifies a style attribute for the HTML fragment.",
+            name = Names.PROP_CSS
+    )
     protected static final String PROP_CSS = Names.PROP_CSS;
+
+    //--------------------------------------------------------------------------------------------
 
 
     private Logger _console;
@@ -106,6 +126,8 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
     private String _id;
     private String _css;
 
+
+    //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _console = getConsoleLogger();
@@ -119,17 +141,18 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Object rawData = cc.getDataComponentFromInput(IN_RAW_DATA);
-        _console.fine("Got input of type: " + rawData.getClass().toString());
-
-        String htmlFragment = makeHtmlFragment(rawData, _mimeType, _id, _css);
+        String htmlFragment = makeHtmlFragment(
+                cc.getDataComponentFromInput(IN_RAW_DATA), _mimeType, _id, _css);
 
         _console.fine("Pushing out: " + htmlFragment);
+
         cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlFragment));
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
+
+    //--------------------------------------------------------------------------------------------
 
     /**
      * Creates an HTML fragment based on the specified data and MIME type

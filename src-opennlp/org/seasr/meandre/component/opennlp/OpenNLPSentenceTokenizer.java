@@ -42,9 +42,8 @@
 
 package org.seasr.meandre.component.opennlp;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
+import java.util.logging.Logger;
 
 import opennlp.tools.lang.english.Tokenizer;
 
@@ -55,20 +54,19 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypes;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 
-/** This component tokenizes the senteces passed on the input model using OpenNLP.
+/**
+ * This component tokenizes the sentences passed on the input model using OpenNLP.
  *
- * @author Xavier Llor�
+ * @author Xavier Llor&agrave;
+ * @author Boris Capitanu
  *
  */
 @Component(
@@ -84,40 +82,40 @@ import org.seasr.meandre.components.tools.Names;
 		description = "This component breaks the text contained in the input sentences " +
 				      "unsing OpenNLP tokenizing facilities."
 )
-public class OpenNLPSentenceTokenizer
-extends OpenNLPBaseUtilities
-implements ExecutableComponent {
+public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 
-	//--------------------------------------------------------------------------------------------
-
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_SENTENCES,
 			description = "The collection of sentence to be tokenized"
-		)
-	private final static String INPUT_SENTENCES = Names.PORT_SENTENCES;
+	)
+	protected static final String IN_SENTENCES = Names.PORT_SENTENCES;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
 			description = "The tokenized sentences"
-		)
-	private final static String OUTPUT_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
+	)
+	protected static final String OUT_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
 
 	//--------------------------------------------------------------------------------------------
+
 
 	/** The OpenNLP tokenizer to use */
 	private Tokenizer tokenizer;
 
+	private Logger _console;
+
+
 	//--------------------------------------------------------------------------------------------
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
-	 */
-	public void initialize(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		super.initialize(ccp);
+
+		_console = getConsoleLogger();
+
 		try {
 			tokenizer = new Tokenizer(
 					ccp.getRunDirectory()+File.separator+
@@ -126,51 +124,34 @@ implements ExecutableComponent {
 					sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"Tok.bin.gz");
 		}
 		catch ( Throwable t ) {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			t.printStackTrace(new PrintStream(baos));
-			throw new ComponentExecutionException("Failed to open tokenizer model for "+sLanguage+". Cannot recover from this error. "+baos.toString());
+			_console.severe("Failed to open tokenizer model for " + sLanguage);
+			throw new ComponentExecutionException(t);
 		}
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
-	 */
-	public void dispose(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		super.dispose(ccp);
-		this.tokenizer = null;
-	}
+	// TODO component seems to expect multiple sentences in the Strings object
+	// it may no longer work properly with components that have been rewritten that
+	// use the DataTypeParser.parseAsString(...) and take that result and convert it to Strings again...
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		Object obj = cc.getDataComponentFromInput(IN_SENTENCES);
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
-		Object obj = cc.getDataComponentFromInput(INPUT_SENTENCES);
-		if ( obj instanceof StreamDelimiter )
-			cc.pushDataComponentToOutput(OUTPUT_TOKENIZED_SENTENCES, obj);
-		else {
-			StringsMap smRes = BasicDataTypesTools.buildEmptyStringsMap();
-			try {
-				org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
-				for ( String sSent:((Strings)obj).getValueList() ) {
-					String [] ta = tokenizer.tokenize(sSent);
-					Strings tokens = BasicDataTypesTools.stringToStrings(ta);
-					res.addKey(sSent);
-					res.addValue(tokens);
-				}
-				smRes = res.build();
-			} catch (ClassCastException e ) {
-				String sMessage = "Input data is not a semantic model";
-				cc.getLogger().warning(sMessage);
-				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( !bErrorHandling )
-					throw new ComponentExecutionException(e);
-			}
-
-			cc.pushDataComponentToOutput(OUTPUT_TOKENIZED_SENTENCES, smRes);
+		StringsMap smRes = BasicDataTypesTools.buildEmptyStringsMap();
+		org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
+		for ( String sSent:((Strings)obj).getValueList() ) {
+		    String [] ta = tokenizer.tokenize(sSent);
+		    Strings tokens = BasicDataTypesTools.stringToStrings(ta);
+		    res.addKey(sSent);
+		    res.addValue(tokens);
 		}
+		smRes = res.build();
+
+		cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, smRes);
 	}
+
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.dispose(ccp);
+        this.tokenizer = null;
+    }
 
 	//--------------------------------------------------------------------------------------------
 

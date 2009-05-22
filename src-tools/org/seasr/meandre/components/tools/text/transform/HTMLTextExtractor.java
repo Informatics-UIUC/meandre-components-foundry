@@ -42,8 +42,6 @@
 
 package org.seasr.meandre.components.tools.text.transform;
 
-import java.util.logging.Logger;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -56,6 +54,11 @@ import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 import org.seasr.meandre.support.text.HTMLUtils;
 
+/**
+ * @author Lily Dong
+ * @author Boris Capitanu
+ */
+
 @Component(creator = "Lily Dong",
            description = "Converts an HTML doc to plain text. All nodes from " +
            		         "the dom tree that are plain text nodes are appended " +
@@ -66,35 +69,34 @@ import org.seasr.meandre.support.text.HTMLUtils;
            dependency = {"protobuf-java-2.0.3.jar", "htmlparser.jar"},
            baseURL = "meandre://seasr.org/components/")
 
-/**
- * @author Lily Dong
- * @author Boris Capitanu
- */
-public class HTMLTextExtractor extends AbstractExecutableComponent
-{
-    @ComponentInput(description = "The HTML document." +
-    		                      "<br>TYPE: String, Text, byte[]",
-                    name = Names.PORT_HTML)
-    protected final static String IN_HTML = Names.PORT_HTML;
+public class HTMLTextExtractor extends AbstractExecutableComponent {
 
-    @ComponentOutput(description = "The text extracted from the HTML document."+
-                                   "<br>TYPE: Text",
-                     name = Names.PORT_TEXT)
-    protected final static String OUT_TEXT = Names.PORT_TEXT;
+    //------------------------------ INPUTS ------------------------------------------------------
+
+    @ComponentInput(
+            description = "The HTML document." +
+    		              "<br>TYPE: String, Text, byte[]",
+            name = Names.PORT_HTML
+    )
+    protected static final String IN_HTML = Names.PORT_HTML;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            description = "The text extracted from the HTML document."+
+                          "<br>TYPE: Text",
+            name = Names.PORT_TEXT
+    )
+    protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 
-    private Logger _console;
-
+    //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _console = getConsoleLogger();
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Object data = cc.getDataComponentFromInput(IN_HTML);
-        _console.fine("Got input of type: " + data.getClass().toString());
-
-        String html = DataTypeParser.parseAsString(data);
+        String html = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HTML));
         String text = HTMLUtils.extractText(html);
 
         cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));

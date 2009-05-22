@@ -43,6 +43,8 @@
 package org.seasr.meandre.components.tools.xml;
 
 import java.io.StringWriter;
+import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -57,23 +59,23 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.w3c.dom.Document;
 
 /** Converts XML into text document
  *
- * @author Xavier Llor&agrave
+ * @author Xavier Llor&agrave;
+ * @author Boris Capitanu
  *
  */
 @Component(
-		name = "XML to text",
+		name = "XML To Text",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -87,43 +89,40 @@ import org.w3c.dom.Document;
 				      "front of an IO error, allowing to continue pushing and empty model or " +
 				      "throwing and exception forcing the finalization of the flow execution."
 )
-public class XMLToText implements ExecutableComponent {
+public class XMLToText extends AbstractExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------
-
-	@ComponentProperty(
-			name=Names.PROP_ERROR_HANDLING,
-			description = "If set to true errors will be handled and empty models will be pushed. " +
-					      "Otherwise, the component will throw an exception an force the flow to abort.",
-		    defaultValue = "true"
-		)
-	private final static String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
-
-	@ComponentProperty(
-			name=Names.PROP_ENCODING,
-			description = "The encoding to use on the outputed text.",
-		    defaultValue = "UTF-8"
-		)
-	private final static String PROP_ENCODING = Names.PROP_ENCODING;
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_XML,
 			description = "The XML containing the XML to be read"
-		)
-	private final static String INPUT_XML = Names.PORT_XML;
+	)
+	protected static final String IN_XML = Names.PORT_XML;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
 			description = "The text containing the XML read"
-		)
-	private final static String OUTPUT_TEXT = Names.PORT_TEXT;
+	)
+	protected static final String OUT_TEXT = Names.PORT_TEXT;
+
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    // Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
+
+    @ComponentProperty(
+            name=Names.PROP_ENCODING,
+            description = "The encoding to use on the outputed text.",
+            defaultValue = "UTF-8"
+    )
+    protected static final String PROP_ENCODING = Names.PROP_ENCODING;
 
 	//--------------------------------------------------------------------------------------------
 
+
 	/** The error handling flag */
-	private boolean bErrorHandling;
+	private boolean bIgnoreErrors;
 
 	/** The transformer for the document */
 	private Transformer transformer;
@@ -131,16 +130,17 @@ public class XMLToText implements ExecutableComponent {
 	/** The string encoding to use */
 	private String sEncoding;
 
+	private Logger _console;
+
+
 	//--------------------------------------------------------------------------------------------
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
-	 */
-	public void initialize(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    _console = getConsoleLogger();
 
-		this.bErrorHandling = Boolean.parseBoolean(ccp.getProperty(PROP_ERROR_HANDLING));
+		this.bIgnoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
 		this.sEncoding = ccp.getProperty(PROP_ENCODING);
+
 		try {
 			transformer = TransformerFactory.newInstance().newTransformer();
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -148,56 +148,54 @@ public class XMLToText implements ExecutableComponent {
 		}
 		catch (Throwable t) {
 			String sMessage = "Could not initialize the XML transformer";
-			ccp.getLogger().warning(sMessage);
-			ccp.getOutputConsole().println("WARNING: "+sMessage);
-			throw new ComponentExecutionException(sMessage+" "+t.toString());
-		}
-
-	}
-
-	/**
-	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
-	 */
-	public void dispose(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		this.bErrorHandling = false;
-		this.transformer = null;
-	}
-
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
-
-		Object obj = cc.getDataComponentFromInput(INPUT_XML);
-		if ( obj instanceof StreamDelimiter )
-			cc.pushDataComponentToOutput(OUTPUT_TEXT, obj);
-		else {
-			String sRes = null;
-			try {
-				Document doc = ( Document )obj;
-				StreamResult result = new StreamResult(new StringWriter());
-				DOMSource source = new DOMSource(doc);
-				transformer.transform(source, result);
-				sRes = result.getWriter().toString();
-			}
-			catch (Throwable t) {
-				String sMessage = "Could not transform XML document into text";
-				cc.getLogger().warning(sMessage);
-				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( bErrorHandling )
-					sRes = "";
-				else
-					throw new ComponentExecutionException(sMessage+" "+t.toString());
-			}
-			cc.pushDataComponentToOutput(OUTPUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
+			_console.warning(sMessage);
+			throw new ComponentExecutionException(sMessage + " " + t.toString());
 		}
 	}
 
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		Object obj = cc.getDataComponentFromInput(IN_XML);
 
-	//-----------------------------------------------------------------------------------
+		String sRes;
 
+		try {
+			Document doc = (Document) obj;
+			StreamResult result = new StreamResult(new StringWriter());
+			DOMSource source = new DOMSource(doc);
+			transformer.transform(source, result);
+			sRes = result.getWriter().toString();
+		}
+		catch (Throwable t) {
+			String sMessage = "Could not transform XML document into text";
+			_console.warning(sMessage);
 
+			if ( bIgnoreErrors )
+				sRes = "";
+			else
+				throw new ComponentExecutionException(sMessage + " " + t.toString());
+		}
 
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
+	}
+
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        this.bIgnoreErrors = false;
+        this.transformer = null;
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
+            throws ComponentContextException, ComponentExecutionException {
+
+        cc.pushDataComponentToOutput(OUT_TEXT, cc.getDataComponentFromInput(IN_XML));
+    }
+
+    @Override
+    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
+            throws ComponentContextException, ComponentExecutionException {
+
+        cc.pushDataComponentToOutput(OUT_TEXT, cc.getDataComponentFromInput(IN_XML));
+    }
 }

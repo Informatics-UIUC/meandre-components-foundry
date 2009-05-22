@@ -48,26 +48,26 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.ModelVocabulary;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.parsers.DataTypeParser;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
-/** A base class for JSTOR extractors
+/**
+ * A base class for JSTOR extractors
  *
- * @author Xavier Llor&agrave
+ * @author Xavier Llor&agrave;
+ * @author Boris Capitanu
  *
  */
 @Component(
-		name = "Wrap text into model",
+		name = "Wrap Text Into Model",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -75,76 +75,55 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 		rights = Licenses.UofINCSA,
 		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, tools, text",
-		description = "Give the text provided in the input, this component generates a " +
-				      "new semantic wrapper model containing the inputed text."
+		description = "Given the text provided in the input, this component generates a " +
+				      "new semantic wrapper model containing the this text."
 )
-public class WrapTextIntoModel implements ExecutableComponent {
+public class WrapTextIntoModel extends AbstractExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TEXT,
 			description = "The text to be wrapped"
-		)
-	private final static String INPUT_TEXT = Names.PORT_TEXT;
+    )
+	protected static final String IN_TEXT = Names.PORT_TEXT;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_DOCUMENT,
 			description = "The model containing the semantic document containing the page text"
-		)
-	private final static String OUTPUT_DOCUMENT = Names.PORT_DOCUMENT;
+	)
+	private final static String OUT_DOCUMENT = Names.PORT_DOCUMENT;
+
 
 	//--------------------------------------------------------------------------------------------
 
-	//--------------------------------------------------------------------------------------------
-
-	/**
-	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
-	 */
-	public void initialize(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
-	 */
-	public void dispose(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		Object obj = cc.getDataComponentFromInput(IN_TEXT);
+
+		String sText = "";
+
+		if (obj instanceof Strings) {
+            for (String s : ((Strings)obj).getValueList())
+                sText += s + " ";
+        } else
+            sText = DataTypeParser.parseAsString(obj);
+
+		Model model = ModelFactory.createDefaultModel();
+		model.add(
+			model.createStatement(
+				model.createResource(),
+				ModelVocabulary.text,
+				model.createTypedLiteral(sText))
+		);
+
+		cc.pushDataComponentToOutput(OUT_DOCUMENT, model);
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
-
-		Object obj = cc.getDataComponentFromInput(INPUT_TEXT);
-		if ( obj instanceof StreamDelimiter )
-			cc.pushDataComponentToOutput(OUTPUT_DOCUMENT, obj);
-		else {
-			Model model = ModelFactory.createDefaultModel();
-			String sText = "";
-			if (obj instanceof Strings) {
-				for ( String s:((Strings)obj).getValueList() )
-					sText += s+" ";
-			}
-			else
-				sText = obj.toString();
-			model.add(
-				model.createStatement(
-					model.createResource(),
-					ModelVocabulary.text,
-					model.createTypedLiteral(sText))
-			);
-			cc.pushDataComponentToOutput(OUTPUT_DOCUMENT, model);
-		}
+	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
-
-
-	//-----------------------------------------------------------------------------------
-
-
-
 }

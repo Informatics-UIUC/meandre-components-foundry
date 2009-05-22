@@ -35,29 +35,38 @@ import org.seasr.meandre.support.text.PDFUtils;
 
 public class PDFTextExtractor extends AbstractExecutableComponent {
 
-    @ComponentInput(description = "The URL of the PDF file." +
-                                  "<br>TYPE: String, URL",
-                    name = Names.PORT_LOCATION)
-    protected final static String IN_PDF_URL = Names.PORT_LOCATION;
+    //------------------------------ INPUTS ------------------------------------------------------
 
-    @ComponentOutput(description = "The text extracted from the PDF file." +
-                                   "<br>TYPE: Text",
-                     name = Names.PORT_TEXT)
-    protected final static String OUT_TEXT = Names.PORT_TEXT;
+    @ComponentInput(
+            description = "The URL of the PDF file." +
+                          "<br>TYPE: String, URL",
+            name = Names.PORT_LOCATION
+    )
+    protected static final String IN_PDF_URL = Names.PORT_LOCATION;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            description = "The text extracted from the PDF file." +
+                          "<br>TYPE: Text",
+            name = Names.PORT_TEXT
+    )
+    protected static final String OUT_TEXT = Names.PORT_TEXT;
+
+    //--------------------------------------------------------------------------------------------
 
 
     private Logger _console;
 
+
+    //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _console = getConsoleLogger();
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Object data = cc.getDataComponentFromInput(IN_PDF_URL);
-        _console.fine("Got input of type: " + data.getClass().toString());
-
-        URI uri = DataTypeParser.parseAsURI(data);
+        URI uri = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_PDF_URL));
         _console.fine("Processing PDF document: " + uri);
 
         String text = PDFUtils.extractText(uri.toURL());
@@ -67,5 +76,4 @@ public class PDFTextExtractor extends AbstractExecutableComponent {
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
-
 }

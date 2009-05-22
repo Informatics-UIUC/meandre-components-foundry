@@ -317,7 +317,9 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
      * @param inputPortsWithInitiators The set of ports where stream initiators arrived
      * @throws ComponentContextException Thrown in the event of an error
      */
-    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators) throws ComponentContextException {
+    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
+        throws ComponentContextException, ComponentExecutionException {
+
         _consoleLogger.entering(getClass().getName(), "handleStreamInitiators", inputPortsWithInitiators);
 
         if (_connectedInputs.size() == 1 && _connectedOutputs.size() == 1) {
@@ -337,7 +339,9 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
      * @param inputPortsWithTerminators The set of ports where stream terminators arrived
      * @throws ComponentContextException Thrown in the event of an error
      */
-    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators) throws ComponentContextException {
+    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
+        throws ComponentContextException, ComponentExecutionException {
+
         _consoleLogger.entering(getClass().getName(), "handleStreamTerminators", inputPortsWithTerminators);
 
         if (_connectedInputs.size() == 1 && _connectedOutputs.size() == 1) {

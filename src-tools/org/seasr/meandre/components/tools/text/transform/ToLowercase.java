@@ -42,8 +42,6 @@
 
 package org.seasr.meandre.components.tools.text.transform;
 
-import java.util.logging.Logger;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -55,6 +53,11 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 
+/**
+ * @author Lily Dong
+ * @author Boris Capitanu
+ */
+
 @Component(creator = "Lily Dong",
            description = "Converts a text to lowercase.",
            name = "To Lowercase",
@@ -63,37 +66,34 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
            dependency = {"protobuf-java-2.0.3.jar"},
            baseURL = "meandre://seasr.org/components/")
 
-/**
- * @author Lily Dong
- * @author Boris Capitanu
- */
-public class ToLowercase extends AbstractExecutableComponent
-{
-    @ComponentInput(description = "The text to be converted." +
-                                  "<br>String, Text, byte[]",
-                    name = Names.PORT_TEXT)
-    protected final static String IN_TEXT = Names.PORT_TEXT;
+public class ToLowercase extends AbstractExecutableComponent {
 
-    @ComponentOutput(description = "The lowercase text." +
-                                   "<br>TYPE: Text",
-                     name = Names.PORT_TEXT)
-    protected final static String OUT_LOWERCASE_TEXT = Names.PORT_TEXT;
+    //------------------------------ INPUTS ------------------------------------------------------
+
+    @ComponentInput(
+            description = "The text to be converted." +
+                          "<br>String, Text, byte[]",
+            name = Names.PORT_TEXT)
+    protected static final String IN_TEXT = Names.PORT_TEXT;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            description = "The lowercase text." +
+                          "<br>TYPE: Text",
+            name = Names.PORT_TEXT)
+    protected static final String OUT_LOWERCASE_TEXT = Names.PORT_TEXT;
 
 
-    private Logger _console;
-
+    //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _console = getConsoleLogger();
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Object data = cc.getDataComponentFromInput(IN_TEXT);
-        _console.fine("Got input of type: " + data.getClass().toString());
-
-        String text = DataTypeParser.parseAsString(data);
-
-        cc.pushDataComponentToOutput(OUT_LOWERCASE_TEXT, BasicDataTypesTools.stringToStrings(text.toLowerCase()));
+        String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+        cc.pushDataComponentToOutput(OUT_LOWERCASE_TEXT,
+                BasicDataTypesTools.stringToStrings(text.toLowerCase()));
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

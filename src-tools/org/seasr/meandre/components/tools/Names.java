@@ -42,7 +42,8 @@
 
 package org.seasr.meandre.components.tools;
 
-/** This abstract class just provide a list of standardized port and property names.
+/**
+ * This abstract class just provide a list of standardized port and property names.
  *
  * @author Xavier Llor&agrave;
  *

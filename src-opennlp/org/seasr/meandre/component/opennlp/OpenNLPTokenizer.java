@@ -42,9 +42,8 @@
 
 package org.seasr.meandre.component.opennlp;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
+import java.util.logging.Logger;
 
 import opennlp.tools.lang.english.Tokenizer;
 
@@ -55,22 +54,22 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.parsers.DataTypeParser;
 
-/** This component tokenizes the text contained in the input model using OpenNLP.
+/**
+ * This component tokenizes the text contained in the input model using OpenNLP.
  *
- * @author Xavier Llor�
+ * @author Xavier Llor&agrave;
+ * @author Boris Capitanu
  *
  */
 @Component(
-		name = "OpenNLP tokenizer",
+		name = "OpenNLP Tokenizer",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -82,40 +81,40 @@ import org.seasr.meandre.components.tools.Names;
 		description = "This component breaks the text contained in the input " +
 				      "unsing OpenNLP tokenizing facilities."
 )
-public class OpenNLPTokenizer
-extends OpenNLPBaseUtilities
-implements ExecutableComponent {
+public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 
-	//--------------------------------------------------------------------------------------------
-
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TEXT,
 			description = "The text to be tokenized"
-		)
-	private final static String INPUT_TEXT = Names.PORT_TEXT;
+	)
+	protected static final String IN_TEXT = Names.PORT_TEXT;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_TOKENS,
 			description = "The sequence of tokens"
-		)
-	private final static String OUTPUT_TOKENS = Names.PORT_TOKENS;
+	)
+	protected static final String OUT_TOKENS = Names.PORT_TOKENS;
 
 	//--------------------------------------------------------------------------------------------
+
 
 	/** The OpenNLP tokenizer to use */
 	private Tokenizer tokenizer;
 
+	private Logger _console;
+
+
 	//--------------------------------------------------------------------------------------------
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
-	 */
-	public void initialize(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		super.initialize(ccp);
+
+		_console = getConsoleLogger();
+
 		// Initialize the tokenizer
 		try {
 			tokenizer = new Tokenizer(
@@ -125,50 +124,39 @@ implements ExecutableComponent {
 					sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"Tok.bin.gz");
 		}
 		catch ( Throwable t ) {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			t.printStackTrace(new PrintStream(baos));
-			throw new ComponentExecutionException("Failed to open tokenizer model for "+sLanguage+". Cannot recover from this error. "+baos.toString());
+			_console.severe("Failed to open tokenizer model for " + sLanguage);
+			throw new ComponentExecutionException(t);
 		}
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
-	 */
-	public void dispose(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		super.dispose(ccp);
-		this.tokenizer = null;
-	}
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		Object obj = cc.getDataComponentFromInput(IN_TEXT);
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
-		Object obj = cc.getDataComponentFromInput(INPUT_TEXT);
-		if ( obj instanceof StreamDelimiter )
-			cc.pushDataComponentToOutput(OUTPUT_TOKENS, obj);
-		else {
-			Strings strRes = BasicDataTypesTools.stringToStrings("");
-			try {
-				Strings strText = (Strings)obj;
-				StringBuffer sb = new StringBuffer();
-				for ( String s:strText.getValueList() ) sb.append(s);
-				String sText = sb.toString();
-				String[] ta = tokenizer.tokenize(sText);
-				// Creating the token sequence
-				strRes = BasicDataTypesTools.stringToStrings(ta);
-			} catch (ClassCastException e ) {
-				String sMessage = "Input data is not a semantic model";
-				cc.getLogger().warning(sMessage);
-				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( !bErrorHandling )
-					throw new ComponentExecutionException(e);
-			}
+		Strings strRes = BasicDataTypesTools.stringToStrings("");
 
-			cc.pushDataComponentToOutput(OUTPUT_TOKENS, strRes);
+		String sText;
+
+		if (obj instanceof Strings) {
+    		Strings strText = (Strings)obj;
+    		StringBuffer sb = new StringBuffer();
+    		for ( String s:strText.getValueList() )
+    		    sb.append(s);
+    		sText = sb.toString();
 		}
+		else
+		    sText = DataTypeParser.parseAsString(obj);
+
+		String[] ta = tokenizer.tokenize(sText);
+		// Creating the token sequence
+		strRes = BasicDataTypesTools.stringToStrings(ta);
+
+		cc.pushDataComponentToOutput(OUT_TOKENS, strRes);
 	}
+
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.dispose(ccp);
+        this.tokenizer = null;
+    }
 
 	//--------------------------------------------------------------------------------------------
 

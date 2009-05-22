@@ -54,9 +54,11 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
@@ -164,7 +166,7 @@ public class WriteModel extends AbstractExecutableComponent {
 
     @Override
     protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-            throws ComponentContextException {
+            throws ComponentContextException, ComponentExecutionException {
 
         pushDelimiters(cc, cc.getDataComponentFromInput(IN_LOCATION),
                 cc.getDataComponentFromInput(IN_DOCUMENT));
@@ -172,7 +174,7 @@ public class WriteModel extends AbstractExecutableComponent {
 
     @Override
     protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-            throws ComponentContextException {
+            throws ComponentContextException, ComponentExecutionException {
 
         pushDelimiters(cc, cc.getDataComponentFromInput(IN_LOCATION),
                 cc.getDataComponentFromInput(IN_DOCUMENT));
@@ -186,10 +188,11 @@ public class WriteModel extends AbstractExecutableComponent {
 	 * @param cc The component context
 	 * @param objLoc The location delimiter
 	 * @param objDoc The document delimiter
+	 * @throws ComponentContextException Context access error
 	 * @throws ComponentContextException Push failed
 	 */
 	private void pushDelimiters(ComponentContext cc, Object objLoc, Object objDoc)
-	    throws ComponentContextException {
+	    throws ComponentExecutionException, ComponentContextException {
 
 		if ( objLoc instanceof StreamDelimiter &&  objDoc instanceof StreamDelimiter)  {
 			cc.pushDataComponentToOutput(OUTPUT_LOCATION, objLoc);
@@ -208,17 +211,30 @@ public class WriteModel extends AbstractExecutableComponent {
 	 * @throws ComponentContextException Push failed
 	 */
 	private void pushMissalignedDelimiters(ComponentContext cc, Object objLoc, Object objDoc)
-	    throws ComponentContextException {
+	    throws ComponentExecutionException {
 
 		_console.warning("Missaligned delimiters received - reusing delimiters to balance the streams");
 
 		if ( objLoc instanceof StreamDelimiter ) {
-			cc.pushDataComponentToOutput(OUTPUT_LOCATION, objLoc);
-			cc.pushDataComponentToOutput(OUT_DOCUMENT, objLoc);
+		    try {
+                StreamDelimiter clone = ComponentUtils.cloneStreamDelimiter((StreamDelimiter) objLoc);
+                cc.pushDataComponentToOutput(OUTPUT_LOCATION, objLoc);
+                cc.pushDataComponentToOutput(OUT_DOCUMENT, clone);
+            }
+            catch (Exception e) {
+                throw new ComponentExecutionException(e);
+            }
+
 		}
 		else {
-			cc.pushDataComponentToOutput(OUTPUT_LOCATION, objDoc);
-			cc.pushDataComponentToOutput(OUT_DOCUMENT, objDoc);
+		    try {
+                StreamDelimiter clone = ComponentUtils.cloneStreamDelimiter((StreamDelimiter) objDoc);
+                cc.pushDataComponentToOutput(OUTPUT_LOCATION, clone);
+                cc.pushDataComponentToOutput(OUT_DOCUMENT, objDoc);
+            }
+            catch (Exception e) {
+                throw new ComponentExecutionException(e);
+            }
 		}
 	}
 }

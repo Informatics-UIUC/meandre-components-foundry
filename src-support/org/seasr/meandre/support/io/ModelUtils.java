@@ -43,12 +43,17 @@
 package org.seasr.meandre.support.io;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
+import org.seasr.meandre.components.tools.ModelVocabulary;
+
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
 
 /**
  * This class provides a set of utility functions for dealing with Models
@@ -199,4 +204,35 @@ public class ModelUtils {
             }
         }
     }
+
+   /**
+    * Converts the model to a string.
+    *
+    * @param model The model to read
+    * @return The dialect version of the model
+    */
+   public static String modelToDialect(Model model, String dialect) {
+       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+       model.write(baos, dialect);
+       return baos.toString();
+   }
+
+   /**
+    * Extract the text of a model.
+    *
+    * @param model The model to use
+    * @return The text contained in the model
+    */
+   public static String extractTextFromModel(Model model) {
+       StringBuffer sbBuffer = new StringBuffer();
+       NodeIterator modelObjects = model.listObjectsOfProperty(ModelVocabulary.text);
+
+       while ( modelObjects.hasNext() ) {
+           Literal node = (Literal)modelObjects.nextNode();
+           sbBuffer.append(node.getValue().toString());
+           sbBuffer.append(" ");
+       }
+
+       return sbBuffer.toString();
+   }
 }
