@@ -144,13 +144,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
-    @ComponentProperty(
-            name = Names.PROP_ERROR_HANDLING,
-            description = "If set to true errors will be handled and they will be reported to the screen ." +
-                          "Otherwise, the component will throw an exception an force the flow to abort. ",
-            defaultValue = "true"
-    )
-    protected static final String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
+	// Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
 
     @ComponentProperty(
             name = Names.PROP_REPLACE,
@@ -189,7 +183,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    _console = getConsoleLogger();
 
-		this.bIgnoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_ERROR_HANDLING));
+		this.bIgnoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
 		this.bReplace = Boolean.parseBoolean(ccp.getProperty(PROP_REPLACE));
 		this.queues[PORT_TOKENS] = new LinkedList<Object>();
 		this.queues[PORT_TOKEN_COUNTS] = new LinkedList<Object>();
