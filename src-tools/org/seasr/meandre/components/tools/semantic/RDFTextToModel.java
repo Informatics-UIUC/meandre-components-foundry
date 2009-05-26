@@ -130,20 +130,20 @@ public class RDFTextToModel extends AbstractExecutableComponent {
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
-	    String modelText = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+	    for (String modelText : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))) {
+            Model model;
 
-        Model model;
+            try {
+                model = ModelUtils.getModel(modelText, sBaseURI);
+            } catch (Exception e) {
+                if (bIgnoreErrors)
+                    model = ModelFactory.createDefaultModel();
+                else
+                    throw new ComponentExecutionException(e);
+            }
 
-        try {
-            model = ModelUtils.getModel(modelText, sBaseURI);
-        } catch (Exception e) {
-            if (bIgnoreErrors)
-                model = ModelFactory.createDefaultModel();
-            else
-                throw new ComponentExecutionException(e);
-        }
-
-	    cc.pushDataComponentToOutput(OUT_DOCUMENT, model);
+    	    cc.pushDataComponentToOutput(OUT_DOCUMENT, model);
+	    }
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

@@ -73,7 +73,8 @@ public class ToLowercase extends AbstractExecutableComponent {
     @ComponentInput(
             description = "The text to be converted." +
                           "<br>String, Text, byte[]",
-            name = Names.PORT_TEXT)
+            name = Names.PORT_TEXT
+    )
     protected static final String IN_TEXT = Names.PORT_TEXT;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
@@ -81,7 +82,8 @@ public class ToLowercase extends AbstractExecutableComponent {
     @ComponentOutput(
             description = "The lowercase text." +
                           "<br>TYPE: Text",
-            name = Names.PORT_TEXT)
+            name = Names.PORT_TEXT
+    )
     protected static final String OUT_LOWERCASE_TEXT = Names.PORT_TEXT;
 
 
@@ -91,9 +93,9 @@ public class ToLowercase extends AbstractExecutableComponent {
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
-        cc.pushDataComponentToOutput(OUT_LOWERCASE_TEXT,
-                BasicDataTypesTools.stringToStrings(text.toLowerCase()));
+        for (String text : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT)))
+            cc.pushDataComponentToOutput(OUT_LOWERCASE_TEXT,
+                    BasicDataTypesTools.stringToStrings(text.toLowerCase()));
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

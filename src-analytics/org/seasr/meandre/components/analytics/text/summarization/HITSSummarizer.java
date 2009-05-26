@@ -55,12 +55,11 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypes;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
@@ -73,13 +72,15 @@ import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 import cern.jet.math.Functions;
 
-/** This component ranks and sorts tokenized sentences. Useful for summarization
+/**
+ * This component ranks and sorts tokenized sentences. Useful for summarization
  *
- * @author Xavier Llor�
+ * @author Xavier Llor&agrave;
+ * @author Boris Capitanu
  *
  */
 @Component(
-		name = "HITS summarizer",
+		name = "HITS Summarizer",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -90,65 +91,55 @@ import cern.jet.math.Functions;
 		description = "This component ranks and sorts the tokenized input sentences " +
 				      "providing a simple summarization by sentence seletion."
 )
-public class HITSSummarizer
-implements ExecutableComponent {
+public class HITSSummarizer extends AbstractExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------
-
-	@ComponentProperty(
-			name = Names.PROP_ERROR_HANDLING,
-			description = "If set to true errors will be handled and they will be reported to the screen ." +
-					      "Otherwise, the component will throw an exception an force the flow to abort. ",
-		    defaultValue = "true"
-		)
-	protected final static String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
-
-	@ComponentProperty(
-			name = Names.PROP_N_TOP_TOKENS,
-			description = "Number of top tokens to output. -1 outputs all the tokens",
-		    defaultValue = "20"
-		)
-	protected final static String PROP_N_TOP_TOKENS = Names.PROP_N_TOP_TOKENS;
-
-	@ComponentProperty(
-			name = Names.PROP_N_TOP_SENTENCES,
-			description = "Number of top sentences to output. -1 outputs all the sentences ",
-		    defaultValue = "6"
-		)
-	protected final static String PROP_N_TOP_SENTENCES = Names.PROP_N_TOP_SENTENCES;
-
-	@ComponentProperty(
-			name = Names.PROP_ITERATIONS,
-			description = "Number of iterations to run. ",
-		    defaultValue = "10"
-		)
-	protected final static String PROP_ITERATIONS = Names.PROP_ITERATIONS;
-
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
 			description = "The tokenized sentences"
-		)
-	private final static String INPUT_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
+	)
+	protected static final String IN_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_SENTENCES,
 			description = "Sorted sentences"
-		)
-	private final static String OUTPUT_SENTENCES = Names.PORT_SENTENCES;
+	)
+	protected static final String OUT_SENTENCES = Names.PORT_SENTENCES;
 
 	@ComponentOutput(
 			name = Names.PORT_TOKENS,
 			description = "Sorted tokens"
 		)
-	private final static String OUTPUT_TOKENS = Names.PORT_TOKENS;
+	private final static String OUT_TOKENS = Names.PORT_TOKENS;
+
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_N_TOP_TOKENS,
+            description = "Number of top tokens to output. -1 outputs all the tokens",
+            defaultValue = "20"
+    )
+    protected static final String PROP_N_TOP_TOKENS = Names.PROP_N_TOP_TOKENS;
+
+    @ComponentProperty(
+            name = Names.PROP_N_TOP_SENTENCES,
+            description = "Number of top sentences to output. -1 outputs all the sentences ",
+            defaultValue = "6"
+    )
+    protected static final String PROP_N_TOP_SENTENCES = Names.PROP_N_TOP_SENTENCES;
+
+    @ComponentProperty(
+            name = Names.PROP_ITERATIONS,
+            description = "Number of iterations to run. ",
+            defaultValue = "10"
+    )
+    protected static final String PROP_ITERATIONS = Names.PROP_ITERATIONS;
 
 	//--------------------------------------------------------------------------------------------
 
-	/** The error handling flag */
-	protected boolean bErrorHandling;
 
 	/** Number of tokens to output */
 	private int iNTopTokens;
@@ -162,59 +153,49 @@ implements ExecutableComponent {
 	/** The algebra object */
 	private Algebra alg;
 
+
 	//--------------------------------------------------------------------------------------------
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
-	 */
-	public void initialize(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.iNTopSentences = Integer.parseInt(ccp.getProperty(PROP_N_TOP_SENTENCES));
 		this.iNTopTokens = Integer.parseInt(ccp.getProperty(PROP_N_TOP_TOKENS));
 		this.iIterations = Integer.parseInt(ccp.getProperty(PROP_ITERATIONS));
-		this.bErrorHandling = Boolean.parseBoolean(ccp.getProperty(PROP_ERROR_HANDLING));
 		this.alg = new Algebra();
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
-	 */
-	public void dispose(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		this.iNTopSentences = this.iNTopTokens = this.iIterations = -1;
-		this.alg = null;
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		StringsMap sm = (StringsMap) cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES);
+		Map<String, Integer> mapTokenToPos = new Hashtable<String,Integer>();
+		SparseDoubleMatrix2D sdm = convertTokenizedSentencesToSparseMatrix(sm, mapTokenToPos);
+		DoubleMatrix1D[] scores = hits(sdm);
+		pushSentence(scores[0],sm,cc);
+		pushTokens(scores[1], mapTokenToPos,cc);
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
-		Object obj = cc.getDataComponentFromInput(INPUT_TOKENIZED_SENTENCES);
-		if ( obj instanceof StreamDelimiter ) {
-			cc.pushDataComponentToOutput(OUTPUT_SENTENCES, obj);
-			cc.pushDataComponentToOutput(OUTPUT_TOKENS, obj);
-		}
-		else {
-			try {
-				StringsMap sm = (StringsMap) obj;
-				Map<String,Integer> mapTokenToPos = new Hashtable<String,Integer>();
-				SparseDoubleMatrix2D sdm = convertTokenizedSentencesToSparseMatrix(sm,mapTokenToPos);
-				DoubleMatrix1D[] scores = hits(sdm);
-				pushSentence(scores[0],sm,cc);
-				pushTokens(scores[1],mapTokenToPos,cc);
-			}
-			catch (ClassCastException e ) {
-				String sMessage = "Input data is not from the basic type Strings";
-				cc.getLogger().warning(sMessage);
-				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( !bErrorHandling )
-					throw new ComponentExecutionException(e);
-			}
-		}
-	}
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        this.iNTopSentences = this.iNTopTokens = this.iIterations = -1;
+        this.alg = null;
+    }
 
 	//--------------------------------------------------------------------------------------------
+
+	@Override
+	protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
+	        throws ComponentContextException, ComponentExecutionException {
+
+	    cc.pushDataComponentToOutput(OUT_SENTENCES, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+        cc.pushDataComponentToOutput(OUT_TOKENS, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+	}
+
+	@Override
+	protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
+	        throws ComponentContextException, ComponentExecutionException {
+
+	    cc.pushDataComponentToOutput(OUT_SENTENCES, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+        cc.pushDataComponentToOutput(OUT_TOKENS, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+	}
+
+    //--------------------------------------------------------------------------------------------
 
 	/** Internal class for sorting purposes */
 	class Entry {
@@ -237,7 +218,7 @@ implements ExecutableComponent {
 	 * @param score The score
 	 * @param sm The sentences
 	 * @param cc The component context
-	 * @throws ComponentContextException Something went wrong while pusshing
+	 * @throws ComponentContextException Something went wrong while pushing
 	 */
 	private void pushSentence(DoubleMatrix1D score, StringsMap sm, ComponentContext cc)
 	throws ComponentContextException {
@@ -259,7 +240,7 @@ implements ExecutableComponent {
 		for ( int i=0 ; i<iMax ; i++ )
 			res.addValue(ea[i].sText);
 
-		cc.pushDataComponentToOutput(OUTPUT_SENTENCES, res.build());
+		cc.pushDataComponentToOutput(OUT_SENTENCES, res.build());
 	}
 
 	/** Push the ranked tokens.
@@ -297,7 +278,7 @@ implements ExecutableComponent {
 		for ( int i=0 ; i<iMax ; i++ )
 			res.addValue(ea[i].sText);
 
-		cc.pushDataComponentToOutput(OUTPUT_TOKENS, res.build());
+		cc.pushDataComponentToOutput(OUT_TOKENS, res.build());
 	}
 
 

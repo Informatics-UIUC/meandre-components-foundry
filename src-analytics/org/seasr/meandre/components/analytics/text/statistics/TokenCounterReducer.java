@@ -43,6 +43,10 @@
 package org.seasr.meandre.components.analytics.text.statistics;
 
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -51,24 +55,26 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.parsers.DataTypeParser;
 
-/** This class reads all the token counts inputed and accumulates the counts
+/**
+ * This class reads all the token counts inputed and accumulates the counts
  *
  * @author Xavier Llor&agrave;
+ * @author Boris Capitanu
  *
  */
 @Component(
-		name = "Token counter reducer",
+		name = "Token Counter Reducer",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -82,45 +88,40 @@ import org.seasr.meandre.components.tools.Names;
 				      "If no wrapped model is provided it will act as a simple pass through. This " +
 				      "component is based on Wrapped models reducer."
 )
-public class TokenCounterReducer
-implements ExecutableComponent {
+public class TokenCounterReducer extends AbstractExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------
-
-	@ComponentProperty(
-			name = Names.PROP_ERROR_HANDLING,
-			description = "If set to true errors will be handled and they will be reported to the screen ." +
-					      "Otherwise, the component will throw an exception an force the flow to abort. ",
-		    defaultValue = "true"
-		)
-	protected final static String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
-
-
-	@ComponentProperty(
-			name = Names.PROP_ORDERED,
-			description = "Should the token counts be ordered?",
-			defaultValue = "true"
-		)
-	private final static String PROP_ORDERED = Names.PROP_ORDERED;
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TOKEN_COUNTS,
 			description = "The token counts to accumulate"
-		)
-	protected final static String INPUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+	)
+	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_COUNTS,
 			description = "The accumulated token counts"
-		)
-	protected final static String OUTPUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+	)
+	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    // Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
+
+    @ComponentProperty(
+            name = Names.PROP_ORDERED,
+            description = "Should the token counts be ordered?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_ORDERED = Names.PROP_ORDERED;
 
 	//--------------------------------------------------------------------------------------------
 
+
 	/** The error handling flag */
-	protected boolean bErrorHandling;
+	protected boolean bIgnoreErrors;
 
 	/** The accumulated counts */
 	protected Hashtable<String,Integer> htAcc;
@@ -131,89 +132,73 @@ implements ExecutableComponent {
 	/** Should the tokens be ordered */
 	private boolean bOrdered;
 
+	private Logger _console;
+
+
 	//--------------------------------------------------------------------------------------------
 
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    _console = getConsoleLogger();
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
-	 */
-	public void initialize(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		this.bErrorHandling = Boolean.parseBoolean(ccp.getProperty(PROP_ERROR_HANDLING));
+		this.bIgnoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
 		this.htAcc = null;
 		this.iCnt = 0;
 		this.bOrdered = Boolean.parseBoolean(ccp.getProperty(PROP_ORDERED));
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
-	 */
-	public void dispose(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		this.bErrorHandling = false;
-		this.htAcc = null;
-		this.iCnt = 0;
-		this.bOrdered = false;
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		Object obj = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
+
+		if ( this.htAcc==null )
+			cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, obj);
+		else
+		    reduceModel(DataTypeParser.parseAsStringIntegerMap(obj));
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
-
-		Object obj = cc.getDataComponentFromInput(INPUT_TOKEN_COUNTS);
-
-		if ( obj instanceof StreamInitiator ) {
-			// Try to revalance a stream
-			if ( this.htAcc!=null ) {
-				String sMessage = "Unbalanced wrapped stream. Got a new initiator without a terminator.";
-				cc.getLogger().warning(sMessage);
-				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( this.bErrorHandling )
-					pushReduction(cc);
-				else
-					throw new ComponentExecutionException(sMessage);
-			}
-			// Initialize the accumulation model
-			initializeReduction();
-		}
-		else if ( obj instanceof StreamTerminator ) {
-			if ( this.htAcc==null ) {
-				String sMessage = "Unbalanced wrapped stream. Got a new terminator without an initiator. Dropping it to try to rebalance.";
-				cc.getLogger().warning(sMessage);
-				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( !this.bErrorHandling )
-					throw new ComponentExecutionException(sMessage);
-			}
-			pushReduction(cc);
-			initializeReduction();
-		}
-		else {
-			if ( this.htAcc==null )
-				cc.pushDataComponentToOutput(OUTPUT_TOKEN_COUNTS, obj);
-			else {
-				try {
-					IntegersMap im = (IntegersMap) obj;
-					reduceModel(im);
-				}
-				catch ( ClassCastException e ) {
-					String sMessage = "Input data is not an integer map";
-					cc.getLogger().warning(sMessage);
-					cc.getOutputConsole().println("WARNING: "+sMessage);
-					if ( !bErrorHandling )
-						throw new ComponentExecutionException(e);
-				}
-
-			}
-		}
-	}
-
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        this.bIgnoreErrors = false;
+        this.htAcc = null;
+        this.iCnt = 0;
+        this.bOrdered = false;
+    }
 
 	//-----------------------------------------------------------------------------------
 
+    @Override
+    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
+            throws ComponentContextException, ComponentExecutionException {
 
-	/** Initializes the basic information about the reduction
+        // Try to revalance a stream
+        if ( this.htAcc!=null ) {
+            String sMessage = "Unbalanced wrapped stream. Got a new initiator without a terminator.";
+            _console.warning(sMessage);
+            if ( this.bIgnoreErrors )
+                pushReduction(cc);
+            else
+                throw new ComponentExecutionException(sMessage);
+        }
+        // Initialize the accumulation model
+        initializeReduction();
+    }
+
+    @Override
+    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
+            throws ComponentContextException, ComponentExecutionException {
+
+        if ( this.htAcc==null ) {
+            String sMessage = "Unbalanced wrapped stream. Got a new terminator without an initiator. Dropping it to try to rebalance.";
+            _console.warning(sMessage);
+            if ( !this.bIgnoreErrors )
+                throw new ComponentExecutionException(sMessage);
+        }
+        pushReduction(cc);
+        initializeReduction();
+    }
+
+    //-----------------------------------------------------------------------------------
+
+	/**
+	 * Initializes the basic information about the reduction
 	 *
 	 */
 	protected void initializeReduction() {
@@ -221,7 +206,8 @@ implements ExecutableComponent {
 		this.iCnt = 0;
 	}
 
-	/** Pushes the accumulated model.
+	/**
+	 * Pushes the accumulated model.
 	 *
 	 * @param cc The component context
 	 * @throws ComponentContextException Failed to push the accumulated model
@@ -234,21 +220,21 @@ implements ExecutableComponent {
 		st.put("count", this.iCnt); st.put("accumulated", 1);
 
 		// Push
-		cc.pushDataComponentToOutput(OUTPUT_TOKEN_COUNTS, si);
-		cc.pushDataComponentToOutput(OUTPUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htAcc,bOrdered));
-		cc.pushDataComponentToOutput(OUTPUT_TOKEN_COUNTS, st);
+		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, si);
+		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htAcc,bOrdered));
+		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, st);
 
 	}
 
-
-	/** Accumulates the model.
+	/**
+	 * Accumulates the model.
 	 *
 	 * @param im The model to accumulate
 	 */
-	protected void reduceModel(IntegersMap im) {
-		for ( int i=0, iMax=im.getKeyCount() ; i<iMax ; i++ ) {
-			String sToken = im.getKey(i);
-			int  iCounts = im.getValue(i).getValue(0);
+	protected void reduceModel(Map<String, Integer> im) {
+	    for (Entry<String, Integer> entry : im.entrySet()) {
+			String sToken = entry.getKey();
+			int  iCounts = entry.getValue();
 			if ( htAcc.containsKey(sToken) )
 				htAcc.put(sToken, htAcc.get(sToken)+iCounts);
 			else
@@ -256,7 +242,6 @@ implements ExecutableComponent {
 		}
 		this.iCnt++;
 	}
-
 }
 
 

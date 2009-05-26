@@ -52,21 +52,19 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
-import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.parsers.DataTypeParser;
 
 
 /** This component tokenizes the text contained in the input model using OpenNLP.
  *
- * @author Xavier Llor�
+ * @author Xavier Llor&agrave;
+ * @author Boris Capitanu
  *
  */
 @Component(
-		name = "Tokens to text",
+		name = "Tokens To Text",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -77,58 +75,36 @@ import org.seasr.meandre.components.tools.Names;
 		description = "Given a collection of tokens, this component converts it " +
 				      "into text."
 )
-public class TokensToText
-extends AnalysisToText {
+public class TokensToText extends AnalysisToText {
 
-	//--------------------------------------------------------------------------------------------
-
-	@ComponentProperty(
-			name = Names.PROP_MESSAGE,
-			description = "The header to use. ",
-		    defaultValue = "Available tokens"
-		)
-	final static String PROP_MESSAGE = Names.PROP_MESSAGE;
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TOKENS,
 			description = "The tokens to convert to text"
-		)
-	private final static String INPUT_TOKENS = Names.PORT_TOKENS;
+	)
+	protected static final String IN_TOKENS = Names.PORT_TOKENS;
+
+	//------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_MESSAGE,
+            description = "The header to use. ",
+            defaultValue = "Available tokens"
+    )
+    protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
+
 
 	//--------------------------------------------------------------------------------------------
 
-	//--------------------------------------------------------------------------------------------
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		String[] tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
-		Object obj = cc.getDataComponentFromInput(INPUT_TOKENS);
-		if ( obj instanceof StreamDelimiter )
-			cc.pushDataComponentToOutput(OUTPUT_TEXT, obj);
-		else {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			PrintStream ps = new PrintStream(baos);
-			try {
-				Strings str = (Strings)obj;
-				printStrings(ps, str, this.iCount, this.iOffset);
-			} catch (ClassCastException e ) {
-				String sMessage = "Input data is not a sequence of tokens";
-				cc.getLogger().warning(sMessage);
-				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( !bErrorHandling )
-					throw new ComponentExecutionException(e);
-			}
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(baos);
 
-			cc.pushDataComponentToOutput(OUTPUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString()));
-		}
+		printStrings(ps, tokens, this.iCount, this.iOffset);
+
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString()));
 	}
-
-
-
-	//--------------------------------------------------------------------------------------------
-
 }

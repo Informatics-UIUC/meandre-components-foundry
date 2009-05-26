@@ -51,25 +51,22 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.ExecutableComponent;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.IntegersMap;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.parsers.DataTypeParser;
 
 
-/** This component tokenizes the text contained in the input model using OpenNLP.
+/**
+ * This component tokenizes the text contained in the input model using OpenNLP.
  *
  * @author Xavier Llor&agrave;
- *
+ * @author Boris Capitanu
  */
 @Component(
-		name = "Token counter",
+		name = "Token Counter",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -82,100 +79,62 @@ import org.seasr.meandre.components.tools.Names;
 				      "tokens. If the document contains multiple token sequences, the " +
 				      "component aggregate all the sequences providing a cummulative count."
 )
-public class TokenCounter
-implements ExecutableComponent {
+public class TokenCounter extends AbstractExecutableComponent {
 
-	//--------------------------------------------------------------------------------------------
-
-	@ComponentProperty(
-			name = Names.PROP_ERROR_HANDLING,
-			description = "If set to true errors will be handled and they will be reported to the screen ." +
-					      "Otherwise, the component will throw an exception an force the flow to abort. ",
-		    defaultValue = "true"
-		)
-	private final static String PROP_ERROR_HANDLING = Names.PROP_ERROR_HANDLING;
-
-	@ComponentProperty(
-			name = Names.PROP_ORDERED,
-			description = "Should the token counts be ordered?",
-			defaultValue = "true"
-		)
-	private final static String PROP_ORDERED = Names.PROP_ORDERED;
-
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TOKENS,
 			description = "The tokens to be counted"
-		)
-	private final static String INPUT_TOKENS = Names.PORT_TOKENS;
+	)
+	protected static final String IN_TOKENS = Names.PORT_TOKENS;
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_COUNTS,
 			description = "The token counts"
-		)
-	private final static String OUTPUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+	)
+	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_ORDERED,
+            description = "Should the token counts be ordered?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_ORDERED = Names.PROP_ORDERED;
 
 	//--------------------------------------------------------------------------------------------
 
-	/** The error handling flag */
-	private boolean bErrorHandling;
 
 	/** Should the tokens be ordered */
 	private boolean bOrdered;
 
+
 	//--------------------------------------------------------------------------------------------
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#initialize(org.meandre.core.ComponentContextProperties)
-	 */
-	public void initialize(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-		this.bErrorHandling = Boolean.parseBoolean(ccp.getProperty(PROP_ERROR_HANDLING));
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.bOrdered = Boolean.parseBoolean(ccp.getProperty(PROP_ORDERED));
 	}
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#dispose(org.meandre.core.ComponentContextProperties)
-	 */
-	public void dispose(ComponentContextProperties ccp)
-			throws ComponentExecutionException, ComponentContextException {
-	}
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		String[] tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
 
-	/**
-	 * @see org.meandre.core.ExecutableComponent#execute(org.meandre.core.ComponentContext)
-	 */
-	public void execute(ComponentContext cc)
-			throws ComponentExecutionException, ComponentContextException {
-		Object obj = cc.getDataComponentFromInput(INPUT_TOKENS);
-		if ( obj instanceof StreamDelimiter )
-			cc.pushDataComponentToOutput(OUTPUT_TOKEN_COUNTS, obj);
-		else {
-			Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>(1000);
-			try {
-				Strings strTokens = (Strings)obj;
-				// Retrieve the tokens and count them
-				for ( String sToken:strTokens.getValueList() ) {
-					if ( htCounts.containsKey(sToken) )
-						htCounts.put(sToken, htCounts.get(sToken)+1);
-					else
-						htCounts.put(sToken, 1);
-				}
+		Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>(1000);
 
-			} catch (ClassCastException e ) {
-				String sMessage = "Input data is not a semantic model";
-				cc.getLogger().warning(sMessage);
-				cc.getOutputConsole().println("WARNING: "+sMessage);
-				if ( !bErrorHandling )
-					throw new ComponentExecutionException(e);
-			}
-
-			cc.pushDataComponentToOutput(OUTPUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts,bOrdered));
+		// Retrieve the tokens and count them
+		for ( String sToken : tokens ) {
+			if ( htCounts.containsKey(sToken) )
+				htCounts.put(sToken, htCounts.get(sToken)+1);
+			else
+				htCounts.put(sToken, 1);
 		}
+
+		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts,bOrdered));
 	}
 
-	//--------------------------------------------------------------------------------------------
-
-
-
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
 }

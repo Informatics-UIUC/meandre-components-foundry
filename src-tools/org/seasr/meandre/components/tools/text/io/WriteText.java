@@ -130,7 +130,12 @@ public class WriteText extends AbstractExecutableComponent {
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		URI sLocation = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
-		String sText = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+
+		if (inputs.length > 1)
+		    throw new ComponentExecutionException("Cannot process multiple inputs per execute()");
+
+		String sText = inputs[0];
 
 		Writer wrtr = IOUtils.getWriterForResource(sLocation);
 		wrtr.write(sText);

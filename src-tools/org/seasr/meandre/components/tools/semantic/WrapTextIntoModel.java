@@ -51,7 +51,6 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.ModelVocabulary;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.parsers.DataTypeParser;
@@ -103,22 +102,19 @@ public class WrapTextIntoModel extends AbstractExecutableComponent {
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		Object obj = cc.getDataComponentFromInput(IN_TEXT);
+		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 
-		String sText = "";
+		StringBuilder sb = new StringBuilder();
 
-		if (obj instanceof Strings) {
-            for (String s : ((Strings)obj).getValueList())
-                sText += s + " ";
-        } else
-            sText = DataTypeParser.parseAsString(obj);
+		for (String input : inputs)
+		    sb.append(input).append(" ");
 
 		Model model = ModelFactory.createDefaultModel();
 		model.add(
 			model.createStatement(
 				model.createResource(),
 				ModelVocabulary.text,
-				model.createTypedLiteral(sText))
+				model.createTypedLiteral(sb.toString()))
 		);
 
 		cc.pushDataComponentToOutput(OUT_DOCUMENT, model);

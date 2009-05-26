@@ -143,26 +143,26 @@ public class TextToXML extends AbstractExecutableComponent {
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		String sText  = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+		for (String sText : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))) {
+    		Document doc;
 
-		Document doc;
+    		try {
+    			doc = parser.parse(new StringInputStream(sText));
+    		}
+    		catch (Throwable t) {
+    			String sMessage = "Could not read XML from text " +
+    			    ((sText.length() > 100) ? sText.substring(0, 100) : sText);
 
-		try {
-			doc = parser.parse(new StringInputStream(sText));
+    			_console.warning(sMessage);
+
+    			if ( !bIgnoreErrors )
+    				throw new ComponentExecutionException(t);
+    			else
+    				doc = parser.newDocument();
+    		}
+
+    		cc.pushDataComponentToOutput(OUT_DOCUMENT, doc);
 		}
-		catch (Throwable t) {
-			String sMessage = "Could not read XML from text " +
-			    ((sText.length() > 100) ? sText.substring(0, 100) : sText);
-
-			_console.warning(sMessage);
-
-			if ( !bIgnoreErrors )
-				throw new ComponentExecutionException(t);
-			else
-				doc = parser.newDocument();
-		}
-
-		cc.pushDataComponentToOutput(OUT_DOCUMENT, doc);
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

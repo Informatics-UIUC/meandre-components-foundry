@@ -53,6 +53,7 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.components.text.datatype.corpora.Document;
 import org.seasr.components.text.util.Factory;
 import org.seasr.meandre.components.tools.Names;
@@ -113,18 +114,26 @@ public class TextToDocument extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        String title = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_DOC_TITLE));
-        String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+        String[] titles = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_DOC_TITLE));
+        String[] texts = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 
-        Document document = Factory.newDocument();
-        document.setTitle(title);
-        document.setDocID(java.util.UUID.randomUUID().toString());
-        document.setContent(text);
+        if (titles.length != texts.length)
+            throw new ComponentExecutionException("Cannot process inputs that are not aligned");
 
-        _console.fine(String.format("Creating document: title='%s'  id='%s'",
-                document.getTitle(), document.getDocID()));
+        for (int i = 0; i < titles.length; i++) {
+            String title = titles[i];
+            String text = texts[i];
 
-        cc.pushDataComponentToOutput(OUT_DOCUMENT, document);
+            Document document = Factory.newDocument();
+            document.setTitle(title);
+            document.setDocID(java.util.UUID.randomUUID().toString());
+            document.setContent(text);
+
+            _console.fine(String.format("Creating document: title='%s'  id='%s'",
+                    document.getTitle(), document.getDocID()));
+
+            cc.pushDataComponentToOutput(OUT_DOCUMENT, document);
+        }
     }
 
     @Override

@@ -62,14 +62,14 @@ import com.hp.hpl.jena.rdf.model.Model;
  */
 public class DataTypeParser {
     /**
-     * Attempts to convert the given data to a String
+     * Attempts to convert the given data to a String array
      *
      * @param data The data
-     * @return The String
+     * @return The String array
      * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
      */
-    public static String parseAsString(Object data) throws UnsupportedDataTypeException {
-        String text;
+    public static String[] parseAsString(Object data) throws UnsupportedDataTypeException {
+        String[] text;
 
         if (data == null)
             text = null;
@@ -77,20 +77,20 @@ public class DataTypeParser {
         else
 
         if (data instanceof Strings)
-            text = BasicDataTypesTools.stringsToStringArray((Strings)data)[0];
+            text = BasicDataTypesTools.stringsToStringArray((Strings)data);
 
         else
 
         if (data instanceof String)
-            text = (String)data;
+            text = new String[] { (String)data };
 
         else
 
         if (data instanceof byte[])
-            text = new String((byte[])data);
+            text = new String[] { new String((byte[])data) };
 
         else
-            text = data.toString();
+            text = new String[] { data.toString() };
 
         return text;
     }

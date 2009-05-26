@@ -55,7 +55,6 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 
 /**
@@ -141,41 +140,30 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        String htmlFragment = makeHtmlFragment(
-                cc.getDataComponentFromInput(IN_RAW_DATA), _mimeType, _id, _css);
+        Object data = cc.getDataComponentFromInput(IN_RAW_DATA);
 
-        _console.fine("Pushing out: " + htmlFragment);
+        if (_mimeType.startsWith("text")) {
+            String[] texts = DataTypeParser.parseAsString(data);
 
-        cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlFragment));
+            for (String text : texts) {
+                String htmlTextFragment = org.seasr.meandre.support.html.HTMLFragmentMaker.makeHtmlTextFragment(text, _id, _css);
+                _console.fine("Pushing out text fragment: " + htmlTextFragment);
+                cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlTextFragment));
+            }
+        }
+
+        else
+
+        if (_mimeType.startsWith("image")) {
+            String htmlImageFragment = org.seasr.meandre.support.html.HTMLFragmentMaker.makeHtmlImageFragment((byte[])data, _mimeType, _id, _css);
+            _console.fine("Pushing out image fragment: " + htmlImageFragment);
+            cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlImageFragment));
+        }
+
+        else
+            throw new UnsupportedEncodingException("Unknown MIME type specified: " + _mimeType);
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    /**
-     * Creates an HTML fragment based on the specified data and MIME type
-     *
-     * @param rawData The raw data
-     * @param mimeType The MIME type of the data
-     * @param id The id to give to the produced HTML fragment
-     * @param css The style attribute to attach to the produced HTML fragment
-     * @return The HTML fragment
-     * @throws UnsupportedDataTypeException Thrown if the input data is not in one of the supported formats
-     * @throws UnsupportedEncodingException Thrown if an unsupported MIME type is specified
-     */
-    protected String makeHtmlFragment(Object rawData, String mimeType, String id, String css)
-        throws UnsupportedDataTypeException, UnsupportedEncodingException {
-
-        if (mimeType.startsWith("text")) {
-            String text = DataTypeParser.parseAsString(rawData);
-            return org.seasr.meandre.support.html.HTMLFragmentMaker.makeHtmlTextFragment(text, id, css);
-        }
-
-        if (mimeType.startsWith("image"))
-            return org.seasr.meandre.support.html.HTMLFragmentMaker.makeHtmlImageFragment((byte[])rawData, mimeType, id, css);
-
-        throw new UnsupportedEncodingException("Unknown MIME type specified: " + mimeType);
     }
 }

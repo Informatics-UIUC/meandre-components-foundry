@@ -61,6 +61,7 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.parsers.DataTypeParser;
 
 /**
  * This component tokenizes the sentences passed on the input model using OpenNLP.
@@ -129,18 +130,16 @@ public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 		}
 	}
 
-	// TODO component seems to expect multiple sentences in the Strings object
-	// it may no longer work properly with components that have been rewritten that
-	// use the DataTypeParser.parseAsString(...) and take that result and convert it to Strings again...
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		Object obj = cc.getDataComponentFromInput(IN_SENTENCES);
+		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_SENTENCES));
 
 		StringsMap smRes = BasicDataTypesTools.buildEmptyStringsMap();
 		org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
-		for ( String sSent:((Strings)obj).getValueList() ) {
-		    String [] ta = tokenizer.tokenize(sSent);
+
+		for (String sentence : inputs) {
+		    String[] ta = tokenizer.tokenize(sentence);
 		    Strings tokens = BasicDataTypesTools.stringToStrings(ta);
-		    res.addKey(sSent);
+		    res.addKey(sentence);
 		    res.addValue(tokens);
 		}
 		smRes = res.build();

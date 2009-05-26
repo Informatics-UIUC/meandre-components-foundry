@@ -129,29 +129,33 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        _html = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HTML));
+        String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HTML));
 
-        // Check whether Velocity should be used
-        if (_templateName != null) {
-            VelocityTemplateService velocity = VelocityTemplateService.getInstance();
-            _context.put("rawHtml", _html);
-            _context.put("base64Html", new BASE64Encoder().encode(_html.getBytes()));
+        for (String html : inputs) {
+            _html = html;
 
-            _console.finest("Applying the Velocity template");
-            _html = velocity.generateOutput(_context, _templateName);
+            // Check whether Velocity should be used
+            if (_templateName != null) {
+                VelocityTemplateService velocity = VelocityTemplateService.getInstance();
+                _context.put("rawHtml", _html);
+                _context.put("base64Html", new BASE64Encoder().encode(_html.getBytes()));
+
+                _console.finest("Applying the Velocity template");
+                _html = velocity.generateOutput(_context, _templateName);
+            }
+
+            _done = false;
+
+            cc.startWebUIFragment(this);
+
+            while (!cc.isFlowAborting() && !_done)
+                Thread.sleep(1000);
+
+            if (cc.isFlowAborting())
+                _console.info("Flow abort requested - terminating component execution...");
+
+            cc.stopWebUIFragment(this);
         }
-
-        _done = false;
-
-        cc.startWebUIFragment(this);
-
-        while (!cc.isFlowAborting() && !_done)
-            Thread.sleep(1000);
-
-        if (cc.isFlowAborting())
-            _console.info("Flow abort requested - terminating component execution...");
-
-        cc.stopWebUIFragment(this);
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

@@ -96,10 +96,10 @@ public class HTMLTextExtractor extends AbstractExecutableComponent {
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        String html = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HTML));
-        String text = HTMLUtils.extractText(html);
-
-        cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
+        for (String html : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HTML))) {
+            String text = HTMLUtils.extractText(html);
+            cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
+        }
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

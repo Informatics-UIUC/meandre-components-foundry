@@ -57,7 +57,6 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 
@@ -130,27 +129,16 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		Object obj = cc.getDataComponentFromInput(IN_TEXT);
+		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 
-		Strings strRes = BasicDataTypesTools.stringToStrings("");
+		StringBuilder sb = new StringBuilder();
 
-		String sText;
+		for (String text : inputs)
+		    sb.append(text).append(" ");
 
-		if (obj instanceof Strings) {
-    		Strings strText = (Strings)obj;
-    		StringBuffer sb = new StringBuffer();
-    		for ( String s:strText.getValueList() )
-    		    sb.append(s);
-    		sText = sb.toString();
-		}
-		else
-		    sText = DataTypeParser.parseAsString(obj);
+		String[] ta = tokenizer.tokenize(sb.toString());
 
-		String[] ta = tokenizer.tokenize(sText);
-		// Creating the token sequence
-		strRes = BasicDataTypesTools.stringToStrings(ta);
-
-		cc.pushDataComponentToOutput(OUT_TOKENS, strRes);
+		cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

@@ -148,17 +148,16 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		String sLoc = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION));
+		for (String sLoc : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION))) {
+    		if ( bWrapped )
+    			pushInitiator(cc,sLoc);
 
-		if ( bWrapped )
-			pushInitiator(cc,sLoc);
+    		pushLocations(cc, new File(sLoc));
 
-		pushLocations(cc, new File(sLoc));
-
-		if ( bWrapped )
-			pushTerminator(cc,sLoc);
+    		if ( bWrapped )
+    			pushTerminator(cc,sLoc);
+		}
 	}
-
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         sExpression = null;
