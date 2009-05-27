@@ -58,14 +58,15 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  * @author Boris Capitanu
  */
 
-@Component(creator = "Lily Dong",
-           description = "Converts a text to lowercase.",
-           name = "To Lowercase",
-           tags = "lowercase, text, transform",
-           rights = Licenses.UofINCSA,
-           dependency = {"protobuf-java-2.0.3.jar"},
-           baseURL = "meandre://seasr.org/components/")
-
+@Component(
+        creator = "Lily Dong",
+        description = "Converts a text to lowercase.",
+        name = "To Lowercase",
+        tags = "lowercase, text, transform",
+        rights = Licenses.UofINCSA,
+        dependency = {"protobuf-java-2.0.3.jar"},
+        baseURL = "meandre://seasr.org/components/tools/"
+)
 public class ToLowercase extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------

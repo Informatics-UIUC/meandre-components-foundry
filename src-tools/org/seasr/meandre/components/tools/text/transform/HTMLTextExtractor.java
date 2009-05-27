@@ -59,16 +59,17 @@ import org.seasr.meandre.support.text.HTMLUtils;
  * @author Boris Capitanu
  */
 
-@Component(creator = "Lily Dong",
-           description = "Converts an HTML doc to plain text. All nodes from " +
-           		         "the dom tree that are plain text nodes are appended " +
-           		         "together and returned as a string.",
-           name = "HTML Text Extractor",
-           rights = Licenses.UofINCSA,
-           tags = "html, text, converter",
-           dependency = {"protobuf-java-2.0.3.jar", "htmlparser.jar"},
-           baseURL = "meandre://seasr.org/components/")
-
+@Component(
+        creator = "Lily Dong",
+        description = "Converts an HTML doc to plain text. All nodes from " +
+           		      "the dom tree that are plain text nodes are appended " +
+           		      "together and returned as a string.",
+        name = "HTML Text Extractor",
+        rights = Licenses.UofINCSA,
+        tags = "html, text, converter",
+        dependency = {"protobuf-java-2.0.3.jar", "htmlparser.jar"},
+        baseURL = "meandre://seasr.org/components/tools/"
+)
 public class HTMLTextExtractor extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------

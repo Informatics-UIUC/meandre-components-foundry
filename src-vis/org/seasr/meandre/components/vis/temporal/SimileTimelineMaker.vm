@@ -1,0 +1,153 @@
+<html>
+<head>
+    <script src="http://simile.mit.edu/timeline/api/timeline-api.js" type="text/javascript"/>
+    <script type="text/javascript">
+	    function submit() {
+	     var select_list_field = document.getElementById('year');
+	     var select_list_selected_index = select_list_field.selectedIndex;
+	     var year = select_list_field.options[select_list_selected_index].text;
+
+	     var select_list_field = document.getElementById('month');
+	     var month = select_list_field.selectedIndex+1;
+
+	     var select_list_field = document.getElementById('day');
+	     var select_list_selected_index = select_list_field.selectedIndex;
+	     var day = select_list_field.options[select_list_selected_index].text;
+
+	     var str = "Date(" + year +"," + month +"," + day +")";
+	     tl.getBand(0).setCenterVisibleDate(Timeline.DateTime.parseGregorianDateTime(eval('new ' + str)));
+	    }
+
+        function toggleVisibility(me){
+	        var child = me.childNodes.item(1);
+	        if (child.style.display == 'none')
+	            child.style.display = '';
+	        else
+	        	child.style.display='none';
+        }
+
+        var tl;
+
+        function onLoad() {
+	        var eventSource = new Timeline.DefaultEventSource();
+
+	        var theme = Timeline.ClassicTheme.create();
+	        theme.event.bubble.width = 450;
+	        theme.event.bubble.height = 350;
+
+	        #set ($nrYears = $maxYear - $minYear)
+	        #set ($index = 0)
+
+	        #if ($nrYears > 0 && $nrYears < 101)
+	            #set ($index = 1)
+	        #else
+	            #set ($index = 2)
+	        #end
+
+	        #set ($units = ["DAY", "MONTH", "YEAR", "DECADE", "CENTURY"])
+
+	        var bandInfos = [
+		        Timeline.createBandInfo({
+		            eventSource:    eventSource,
+		            date:           "Jan 01 $minYear 00:00:00 GMT",
+		            width:          "70%",
+		            intervalUnit:   Timeline.DateTime.${units.get($index)},
+		            intervalPixels: 100,
+		            theme:          theme
+		        }),
+		        Timeline.createBandInfo({
+		            showEventText:   false,
+		            trackHeight:     0.5,
+		            trackGap:        0.2,
+		            eventSource:    eventSource,
+		            date:           "Jan 01 $minYear 00:00:00 GMT",
+		            width:          "20%",
+		                            #set ($index = $index + 1)
+		            intervalUnit:   Timeline.DateTime.${units.get($index)},
+		            intervalPixels: 200
+		        }),
+		        Timeline.createBandInfo({
+		            showEventText:   false,
+		            trackHeight:     0.5,
+		            trackGap:        0.2,
+		            eventSource:    eventSource,
+		            date:           "Jan 01 $minYear 00:00:00 GMT",
+		            width:          "10%",
+		                            #set ($index = $index + 1)
+		            intervalUnit:   Timeline.DateTime.${units.get($index)},
+		            intervalPixels: 500
+		            })
+	        ];
+
+	        bandInfos[1].syncWith = 0;
+	        bandInfos[1].highlight = true;
+	        bandInfos[1].eventPainter.setLayout(bandInfos[0].eventPainter.getLayout(1));
+	        bandInfos[2].syncWith = 0;
+	        bandInfos[2].highlight = true;
+	        bandInfos[2].eventPainter.setLayout(bandInfos[0].eventPainter.getLayout(1));
+
+	        tl = Timeline.create(document.getElementById("my-timeline"), bandInfos);
+	        Timeline.loadXML("$xmlFileName",
+	    	        function(xml, url) {
+	        	        eventSource.loadXML(xml, url);
+	        	    });
+	    }
+
+        var resizeTimerID = null;
+        function onResize() {
+           if (resizeTimerID == null) {
+               resizeTimerID = window.setTimeout(function() {
+                   resizeTimerID = null;
+                   tl.layout();
+               }, 500);
+           }
+        }
+    </script>
+</head>
+
+<body onload="onLoad();" onresize="onResize();">
+	<div id="my-timeline" style="height: 450px; border: 1px solid #aaa"/>
+
+	<br>
+
+	<div>
+		<select id="month">
+			<option selected="yes">January</option>
+			<option>February</option>
+			<option>March</option>
+			<option>April</option>
+			<option>May</option>
+			<option>June</option>
+			<option>July</option>
+			<option>August</option>
+			<option>September</option>
+			<option>October</option>
+			<option>November</option>
+			<option>December</option>
+		</select>
+
+		<label>/</label>
+
+		<select id="day">
+			<option selected="yes">1</option>
+			#foreach ($i in [2..31])
+			    <option>$i</option>
+			#end
+		</select>
+
+		<label>/</label>
+
+		<select id="year">
+			<option selected="yes">$minYear</option>
+			#set ($startYear = $minYear + 1)
+			#foreach ($i in [$startYear..$maxYear])
+			    <option>$i</option>
+			#end
+		</select>
+
+		<label>(mm/dd/yyyy)</label>
+
+		<a href="#" onClick="submit(); return false;">select</a>
+	</div>
+</body>
+</html>

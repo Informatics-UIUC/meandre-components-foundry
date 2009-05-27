@@ -31,7 +31,7 @@ import org.seasr.meandre.support.text.PDFUtils;
            rights = Licenses.UofINCSA,
            tags = "URL, text, pdf",
            dependency = {"protobuf-java-2.0.3.jar", "jPod.jar", "iscwt.jar", "isrt.jar", "jbig2.jar"},
-           baseURL = "meandre://seasr.org/components/")
+           baseURL = "meandre://seasr.org/components/tools/")
 
 public class PDFTextExtractor extends AbstractExecutableComponent {
 

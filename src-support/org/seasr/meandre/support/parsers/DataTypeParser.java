@@ -48,12 +48,16 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.support.exceptions.UnsupportedDataTypeException;
+import org.seasr.meandre.support.io.DOMUtils;
 import org.seasr.meandre.support.io.ModelUtils;
+import org.xml.sax.SAXException;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
@@ -222,4 +226,50 @@ public class DataTypeParser {
 
         return model;
     }
+
+    /**
+     * Attempts to convert the given data to a DOM Document
+     *
+     * @param data The data
+     * @return The DOM Document
+     * @throws UnsupportedDataTypeException
+     * @throws SAXException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     */
+    public static org.w3c.dom.Document parseAsDomDocument(Object data)
+        throws UnsupportedDataTypeException, SAXException, IOException, ParserConfigurationException {
+
+        org.w3c.dom.Document doc;
+
+        if (data == null)
+            doc = null;
+
+        else
+
+        if (data instanceof org.w3c.dom.Document)
+            doc = (org.w3c.dom.Document)data;
+
+        else
+
+        if (data instanceof String)
+            doc = DOMUtils.createDocument((String)data);
+
+        else
+
+        if (data instanceof Strings) {
+            String[] strings = BasicDataTypesTools.stringsToStringArray((Strings)data);
+            if (strings.length > 1)
+                throw new UnsupportedDataTypeException("Cannot process more than one String data at a time");
+
+            doc = DOMUtils.createDocument(strings[0]);
+        }
+
+        else
+            throw new UnsupportedDataTypeException(data.getClass().getName());
+
+        return doc;
+    }
+
+
 }

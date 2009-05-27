@@ -78,6 +78,8 @@ public abstract class Names {
 	public static final String PROP_MIN_SIZE = "min_size";
 	public static final String PROP_SHOW_COUNT = "show_count";
 	public static final String PROP_DEBUG_LEVEL = "debug_level";
+	public static final String PROP_ENTITIES = "entities";
+	public static final String PROP_N_SLICES = "n_slices";
 
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";
