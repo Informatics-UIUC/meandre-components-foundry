@@ -129,9 +129,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HTML));
-
-        for (String html : inputs) {
+        for (String html : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HTML))) {
             _html = html;
 
             // Check whether Velocity should be used

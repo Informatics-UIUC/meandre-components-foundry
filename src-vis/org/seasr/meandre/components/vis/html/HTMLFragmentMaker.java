@@ -143,9 +143,7 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
         Object data = cc.getDataComponentFromInput(IN_RAW_DATA);
 
         if (_mimeType.startsWith("text")) {
-            String[] texts = DataTypeParser.parseAsString(data);
-
-            for (String text : texts) {
+            for (String text : DataTypeParser.parseAsString(data)) {
                 String htmlTextFragment = org.seasr.meandre.support.html.HTMLFragmentMaker.makeHtmlTextFragment(text, _id, _css);
                 _console.fine("Pushing out text fragment: " + htmlTextFragment);
                 cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlTextFragment));

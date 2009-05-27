@@ -61,6 +61,8 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
+    // Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
+
 	@ComponentProperty(
 			name = Names.PROP_LANGUAGE,
 			description = "The language to use in the tokenizer. ",
