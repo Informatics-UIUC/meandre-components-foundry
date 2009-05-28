@@ -44,11 +44,12 @@ package org.seasr.meandre.support.io;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
@@ -88,13 +89,7 @@ public class StreamUtils {
      * @throws IOException Thrown if the resource is invalid, does not exist, or cannot be opened
      */
     public static InputStream getInputStreamForResource(URI uri) throws IOException {
-        try {
-            return uri.toURL().openStream();
-        }
-        catch (IllegalArgumentException e) {
-            // URI not absolute - trying as local file
-            return new FileInputStream(uri.toString());
-        }
+        return getURLforResource(uri).openStream();
     }
 
     /**
@@ -105,17 +100,29 @@ public class StreamUtils {
      * @throws IOException Thrown if the resource is invalid
      */
     public static OutputStream getOutputStreamForResource(URI uri) throws IOException {
-        try {
-            URL url = uri.toURL();
-            if (url.getProtocol().equalsIgnoreCase("file"))
-                return new FileOutputStream(url.getFile());
-            else
-                // TODO: add webdav support
-                throw new UnsupportedOperationException("Can only write to file:// or local resources");
+        URL url = getURLforResource(uri);
+
+        if (url.getProtocol().equalsIgnoreCase("file"))
+            return new FileOutputStream(url.getFile());
+        else
+            // TODO: add webdav support
+            throw new UnsupportedOperationException("Can only write to file:// or local resources");
+    }
+
+    /**
+     * Creates a URL object corresponding to a URI
+     *
+     * @param uri The URI (can reference URLs and local files)
+     * @return The URL object
+     * @throws MalformedURLException
+     */
+    public static URL getURLforResource(URI uri) throws MalformedURLException {
+        try  {
+            return uri.toURL();
         }
         catch (IllegalArgumentException e) {
             // URI not absolute - trying as local file
-            return new FileOutputStream(uri.toString());
+            return new File(uri.toString()).toURI().toURL();
         }
     }
 }

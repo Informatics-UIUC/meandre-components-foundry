@@ -43,7 +43,6 @@
 package org.seasr.meandre.support.io;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -66,12 +65,7 @@ public class IOUtils {
      * @throws IOException Thrown if a problem occurred when creating the reader
      */
     public static Reader getReaderForResource(URI uri) throws IOException  {
-        try {
-            return new InputStreamReader(uri.toURL().openStream());
-        } catch (IllegalArgumentException e) {
-            // URI not absolute - trying as local file
-            return new FileReader(uri.toString());
-        }
+       return new InputStreamReader(StreamUtils.getURLforResource(uri).openStream());
     }
 
     /**

@@ -42,12 +42,16 @@
 
 package org.seasr.meandre.support.text;
 
+import javax.xml.transform.TransformerException;
+
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
 import org.htmlparser.nodes.TagNode;
 import org.htmlparser.nodes.TextNode;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
+import org.seasr.meandre.support.io.DOMUtils;
+import org.w3c.dom.Document;
 
 /**
  * @author Boris Capitanu
@@ -72,6 +76,19 @@ public class HTMLUtils {
         return sb.toString();
     }
 
+    /**
+     * Extracts text from a DOM Document
+     *
+     * @param document The document
+     * @return The extracted text
+     * @throws ParserException
+     * @throws TransformerException
+     */
+    public static String extractText(Document document)
+        throws ParserException, TransformerException {
+
+        return extractText(DOMUtils.getString(document, null));
+    }
 
     /**
      *

@@ -43,8 +43,6 @@
 package org.seasr.meandre.components.tools.semantic.io;
 
 import java.net.URI;
-import java.util.Set;
-import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -78,14 +76,14 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, io, read, model",
 		description = "This component reads a RDF model. The model name is specified " +
 				      "in the input. Also, it is able to read from URLs and local files " +
 				      "using URL of file syntax. The component outputs the semantic model " +
 				      "read. A property allows to control the behaviour of the component in " +
 				      "front of an IO error, allowing to continue pushing and empty model or " +
-				      "throwing and exception forcing the finalization of the flow execution."
+				      "throwing and exception forcing the finalization of the flow execution.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class ReadModel extends AbstractExecutableComponent {
 
@@ -128,14 +126,10 @@ public class ReadModel extends AbstractExecutableComponent {
 	/** The base url to use */
 	private String sBaseURI;
 
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _console = getConsoleLogger();
-
 		this.sBaseURI = ccp.getProperty(PROP_BASE_URI);
 	}
 
@@ -153,15 +147,13 @@ public class ReadModel extends AbstractExecutableComponent {
     //-----------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-            throws ComponentContextException {
-        pushDelimiters(cc, (StreamInitiator)cc.getDataComponentFromInput(IN_LOCATION));
+    protected void handleStreamInitiators() throws Exception {
+        pushDelimiters((StreamInitiator)componentContext.getDataComponentFromInput(IN_LOCATION));
     }
 
     @Override
-    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-            throws ComponentContextException {
-        pushDelimiters(cc, (StreamTerminator)cc.getDataComponentFromInput(IN_LOCATION));
+    protected void handleStreamTerminators() throws Exception {
+        pushDelimiters((StreamTerminator)componentContext.getDataComponentFromInput(IN_LOCATION));
     }
 
     //-----------------------------------------------------------------------------------
@@ -173,17 +165,16 @@ public class ReadModel extends AbstractExecutableComponent {
 	 * @param sdLoc The delimiter object
 	 * @throws ComponentContextException
 	 */
-	private void pushDelimiters(ComponentContext cc, StreamDelimiter sdLoc)
-			throws ComponentContextException {
-		cc.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
+	private void pushDelimiters(StreamDelimiter sdLoc) throws Exception {
+		componentContext.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
 		try {
 			StreamDelimiter sd = (StreamDelimiter) sdLoc.getClass().newInstance();
 			for ( String sKey:sd.keySet() )
 				sd.put(sKey, sdLoc.get(sKey));
-			cc.pushDataComponentToOutput(OUT_DOCUMENT, sd);
+			componentContext.pushDataComponentToOutput(OUT_DOCUMENT, sd);
 		} catch (Exception e) {
-			_console.warning("Failed to create a new delimiter - reusing existing one");
-			cc.pushDataComponentToOutput(OUT_DOCUMENT, sdLoc);
+			console.warning("Failed to create a new delimiter - reusing existing one");
+			componentContext.pushDataComponentToOutput(OUT_DOCUMENT, sdLoc);
 		}
 	}
 }

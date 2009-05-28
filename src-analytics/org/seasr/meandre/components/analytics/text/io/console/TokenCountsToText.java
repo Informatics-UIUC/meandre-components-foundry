@@ -63,6 +63,7 @@ import org.seasr.meandre.components.tools.Names;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "Token Counts To Text",
 		creator = "Xavier Llora",
@@ -70,10 +71,10 @@ import org.seasr.meandre.components.tools.Names;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, tools, text, tokenizer, counting",
 		description = "Given a collection of token counts, this component converts it " +
-				      "into text."
+				      "into text.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class TokenCountsToText extends AnalysisToText {
 

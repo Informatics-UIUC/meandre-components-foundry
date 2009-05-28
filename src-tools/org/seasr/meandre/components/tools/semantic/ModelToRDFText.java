@@ -66,6 +66,7 @@ import com.hp.hpl.jena.rdf.model.Model;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "Model To RDF Text",
 		creator = "Xavier Llora",
@@ -73,10 +74,10 @@ import com.hp.hpl.jena.rdf.model.Model;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, io, transform, model, text",
 		description = "This component takes the input semantic model and converts it into " +
-				      "a text form. Properties allow to specify the dialect to use"
+				      "a text form. Properties allow to specify the dialect to use",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class ModelToRDFText extends AbstractExecutableComponent {
 

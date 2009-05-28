@@ -43,8 +43,6 @@
 package org.seasr.meandre.components.tools.xml.io;
 
 import java.net.URI;
-import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -58,7 +56,6 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamDelimiter;
@@ -74,6 +71,7 @@ import org.w3c.dom.Document;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "Read XML",
 		creator = "Xavier Llora",
@@ -81,14 +79,14 @@ import org.w3c.dom.Document;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, io, read, xml",
 		description = "This component reads a XML. The XML location is specified " +
 				      "in the input. Also, it is able to read from URLs and local files " +
 				      "using URL of file syntax. The component outputs the semantic model " +
 				      "read. A property allows to control the behaviour of the component in " +
 				      "front of an IO error, allowing to continue pushing and empty XML or " +
-				      "throwing and exception forcing the finalization of the flow execution."
+				      "throwing and exception forcing the finalization of the flow execution.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class ReadXML extends AbstractExecutableComponent {
 
@@ -116,13 +114,10 @@ public class ReadXML extends AbstractExecutableComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
-	// Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
+	// Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
 
 	//--------------------------------------------------------------------------------------------
 
-
-	/** The error handling flag */
-	private boolean bIgnoreErrors;
 
 	/** The document builder factory */
 	private DocumentBuilderFactory factory;
@@ -130,23 +125,17 @@ public class ReadXML extends AbstractExecutableComponent {
 	/** The document builder instance */
 	private DocumentBuilder parser;
 
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _console = getConsoleLogger();
-
-		this.bIgnoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
-
 		try {
 			this.factory = DocumentBuilderFactory.newInstance();
 			this.parser = factory.newDocumentBuilder();
 		}
 		catch (Throwable t) {
 			String sMessage = "Could not initialize the XML parser";
-            _console.warning(sMessage);
+            console.warning(sMessage);
 			throw new ComponentExecutionException(sMessage + " " + t.toString());
 		}
 	}
@@ -160,9 +149,9 @@ public class ReadXML extends AbstractExecutableComponent {
 			doc = parser.parse(StreamUtils.getInputStreamForResource(location));
 		}
 		catch (Throwable t) {
-			_console.warning("Could not read XML from location " + location.toString());
+			console.warning("Could not read XML from location " + location.toString());
 
-			if ( !bIgnoreErrors )
+			if ( !ignoreErrors )
 				throw new ComponentExecutionException(t);
 			else
 				doc = parser.newDocument();
@@ -173,7 +162,6 @@ public class ReadXML extends AbstractExecutableComponent {
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.bIgnoreErrors = false;
         this.factory = null;
         this.parser = null;
     }
@@ -181,17 +169,13 @@ public class ReadXML extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-            throws ComponentContextException, ComponentExecutionException {
-
-        pushDelimiters(cc, (StreamDelimiter)cc.getDataComponentFromInput(IN_LOCATION));
+    protected void handleStreamInitiators() throws Exception {
+        pushDelimiters((StreamDelimiter)componentContext.getDataComponentFromInput(IN_LOCATION));
     }
 
     @Override
-    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-            throws ComponentContextException, ComponentExecutionException {
-
-        pushDelimiters(cc, (StreamDelimiter)cc.getDataComponentFromInput(IN_LOCATION));
+    protected void handleStreamTerminators() throws Exception {
+        pushDelimiters((StreamDelimiter)componentContext.getDataComponentFromInput(IN_LOCATION));
     }
 
     //--------------------------------------------------------------------------------------------
@@ -199,20 +183,17 @@ public class ReadXML extends AbstractExecutableComponent {
 	/**
 	 * Push the delimiters
 	 *
-	 * @param cc The component context
 	 * @param sdLoc The delimiter object
-	 * @throws ComponentContextException
+	 * @throws Exception
 	 */
-	private void pushDelimiters(ComponentContext cc, StreamDelimiter sdLoc)
-			throws ComponentContextException {
-
-	    cc.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
+	private void pushDelimiters(StreamDelimiter sdLoc) throws Exception {
+	    componentContext.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
 
 		try {
-			cc.pushDataComponentToOutput(OUT_XML, ComponentUtils.cloneStreamDelimiter(sdLoc));
+		    componentContext.pushDataComponentToOutput(OUT_XML, ComponentUtils.cloneStreamDelimiter(sdLoc));
 		} catch (Exception e) {
-			_console.warning("Failed to create a new delimiter - reusing existing one");
-			cc.pushDataComponentToOutput(OUT_XML, sdLoc);
+			console.warning("Failed to create a new delimiter - reusing existing one");
+			componentContext.pushDataComponentToOutput(OUT_XML, sdLoc);
 		}
 	}
 }

@@ -80,6 +80,7 @@ public abstract class Names {
 	public static final String PROP_DEBUG_LEVEL = "debug_level";
 	public static final String PROP_ENTITIES = "entities";
 	public static final String PROP_N_SLICES = "n_slices";
+	public static final String PROP_YAHOO_API_KEY = "yahoo_api_key";
 
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";
@@ -97,4 +98,8 @@ public abstract class Names {
 	public static final String PORT_JAVA_STRING = "java_string";
 	public static final String PORT_RAW_DATA = "raw_data";
 	public static final String PORT_HTML = "html";
+	public static final String PORT_LATITUDE_VECTOR = "latitude_vector";
+	public static final String PORT_LONGITUDE_VECTOR = "longitude_vector";
+	public static final String PORT_LOCATION_VECTOR = "location_vector";
+	public static final String PORT_CONTEXT_VECTOR = "context_vector";
 }

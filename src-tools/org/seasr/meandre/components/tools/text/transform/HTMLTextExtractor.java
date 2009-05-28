@@ -51,8 +51,10 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.io.DOMUtils;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 import org.seasr.meandre.support.text.HTMLUtils;
+import org.w3c.dom.Document;
 
 /**
  * @author Lily Dong
@@ -75,8 +77,7 @@ public class HTMLTextExtractor extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The HTML document." +
-    		              "<br>TYPE: String, Text, byte[]",
+            description = "The HTML document",
             name = Names.PORT_HTML
     )
     protected static final String IN_HTML = Names.PORT_HTML;
@@ -84,8 +85,7 @@ public class HTMLTextExtractor extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The text extracted from the HTML document."+
-                          "<br>TYPE: Text",
+            description = "The text extracted from the HTML document",
             name = Names.PORT_TEXT
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
@@ -97,7 +97,16 @@ public class HTMLTextExtractor extends AbstractExecutableComponent {
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        for (String html : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HTML))) {
+        Object input = cc.getDataComponentFromInput(IN_HTML);
+
+        String[] htmlDocs;
+
+        if (input instanceof Document)
+            htmlDocs = new String[] { DOMUtils.getString((Document)input, null) };
+        else
+            htmlDocs = DataTypeParser.parseAsString(input);
+
+        for (String html : htmlDocs) {
             String text = HTMLUtils.extractText(html);
             cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
         }

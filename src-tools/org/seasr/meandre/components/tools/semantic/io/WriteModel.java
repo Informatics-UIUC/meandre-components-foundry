@@ -43,8 +43,6 @@
 package org.seasr.meandre.components.tools.semantic.io;
 
 import java.net.URI;
-import java.util.Set;
-import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -56,7 +54,6 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamDelimiter;
@@ -81,14 +78,14 @@ import com.hp.hpl.jena.rdf.model.Model;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, io, read, model",
 		description = "This component writes a RDF model. The model name is specified " +
 				      "in the input. Also, it is able to read from URLs and local files " +
 				      "using URL of file syntax. The component outputs the semantic model " +
 				      "read. A property allows to control the behaviour of the component in " +
 				      "front of an IO error, allowing to continue pushing and empty model or " +
-				      "throwing and exception forcing the finalization of the flow execution."
+				      "throwing and exception forcing the finalization of the flow execution.",
+        dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class WriteModel extends AbstractExecutableComponent {
 
@@ -137,14 +134,10 @@ public class WriteModel extends AbstractExecutableComponent {
 	/** The RDF language dialect */
 	private String sRDFDialect;
 
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _console = getConsoleLogger();
-
 		this.sRDFDialect = ccp.getProperty(PROP_RDF_DIALECT);
 	}
 
@@ -165,19 +158,15 @@ public class WriteModel extends AbstractExecutableComponent {
     //-----------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-            throws ComponentContextException, ComponentExecutionException {
-
-        pushDelimiters(cc, cc.getDataComponentFromInput(IN_LOCATION),
-                cc.getDataComponentFromInput(IN_DOCUMENT));
+    protected void handleStreamInitiators() throws Exception {
+        pushDelimiters(componentContext.getDataComponentFromInput(IN_LOCATION),
+                componentContext.getDataComponentFromInput(IN_DOCUMENT));
     }
 
     @Override
-    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-            throws ComponentContextException, ComponentExecutionException {
-
-        pushDelimiters(cc, cc.getDataComponentFromInput(IN_LOCATION),
-                cc.getDataComponentFromInput(IN_DOCUMENT));
+    protected void handleStreamTerminators() throws Exception {
+        pushDelimiters(componentContext.getDataComponentFromInput(IN_LOCATION),
+                componentContext.getDataComponentFromInput(IN_DOCUMENT));
     }
 
     //-----------------------------------------------------------------------------------
@@ -185,41 +174,34 @@ public class WriteModel extends AbstractExecutableComponent {
 	/**
 	 * Pushes the obtained delimiters
 	 *
-	 * @param cc The component context
 	 * @param objLoc The location delimiter
 	 * @param objDoc The document delimiter
-	 * @throws ComponentContextException Context access error
-	 * @throws ComponentContextException Push failed
+	 * @throws Exception Push failed
 	 */
-	private void pushDelimiters(ComponentContext cc, Object objLoc, Object objDoc)
-	    throws ComponentExecutionException, ComponentContextException {
-
+	private void pushDelimiters(Object objLoc, Object objDoc) throws Exception {
 		if ( objLoc instanceof StreamDelimiter &&  objDoc instanceof StreamDelimiter)  {
-			cc.pushDataComponentToOutput(OUTPUT_LOCATION, objLoc);
-			cc.pushDataComponentToOutput(OUT_DOCUMENT, objDoc);
+			componentContext.pushDataComponentToOutput(OUTPUT_LOCATION, objLoc);
+			componentContext.pushDataComponentToOutput(OUT_DOCUMENT, objDoc);
 		}
 		else
-			pushMissalignedDelimiters(cc,objLoc, objDoc);
+			pushMissalignedDelimiters(objLoc, objDoc);
 	}
 
 	/**
 	 * Push the delimiters to the outputs as needed.
 	 *
-	 * @param cc The component context
 	 * @param objLoc The location delimiter
 	 * @param objDoc The document delimiter
-	 * @throws ComponentContextException Push failed
+	 * @throws Exception Push failed
 	 */
-	private void pushMissalignedDelimiters(ComponentContext cc, Object objLoc, Object objDoc)
-	    throws ComponentExecutionException {
-
-		_console.warning("Missaligned delimiters received - reusing delimiters to balance the streams");
+	private void pushMissalignedDelimiters(Object objLoc, Object objDoc) throws ComponentExecutionException {
+		console.warning("Missaligned delimiters received - reusing delimiters to balance the streams");
 
 		if ( objLoc instanceof StreamDelimiter ) {
 		    try {
                 StreamDelimiter clone = ComponentUtils.cloneStreamDelimiter((StreamDelimiter) objLoc);
-                cc.pushDataComponentToOutput(OUTPUT_LOCATION, objLoc);
-                cc.pushDataComponentToOutput(OUT_DOCUMENT, clone);
+                componentContext.pushDataComponentToOutput(OUTPUT_LOCATION, objLoc);
+                componentContext.pushDataComponentToOutput(OUT_DOCUMENT, clone);
             }
             catch (Exception e) {
                 throw new ComponentExecutionException(e);
@@ -229,8 +211,8 @@ public class WriteModel extends AbstractExecutableComponent {
 		else {
 		    try {
                 StreamDelimiter clone = ComponentUtils.cloneStreamDelimiter((StreamDelimiter) objDoc);
-                cc.pushDataComponentToOutput(OUTPUT_LOCATION, clone);
-                cc.pushDataComponentToOutput(OUT_DOCUMENT, objDoc);
+                componentContext.pushDataComponentToOutput(OUTPUT_LOCATION, clone);
+                componentContext.pushDataComponentToOutput(OUT_DOCUMENT, objDoc);
             }
             catch (Exception e) {
                 throw new ComponentExecutionException(e);

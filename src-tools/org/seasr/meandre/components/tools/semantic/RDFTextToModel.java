@@ -67,6 +67,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "RDF Text To Model",
 		creator = "Xavier Llora",
@@ -75,12 +76,12 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "semantic, io, read, model",
-		dependency = {"protobuf-java-2.0.3.jar"},
 		description = "This component reads an RDF model in text form and buids the model. " +
 				      "The text to convert is received in its input. The component outputs the semantic model " +
 				      "read. A property allows to control the behaviour of the component in " +
 				      "front of an IO error, allowing to continue pushing and empty model or " +
-				      "throwing and exception forcing the finalization of the flow execution."
+				      "throwing and exception forcing the finalization of the flow execution.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class RDFTextToModel extends AbstractExecutableComponent {
 
@@ -111,7 +112,7 @@ public class RDFTextToModel extends AbstractExecutableComponent {
     )
     protected static final String PROP_BASE_URI = Names.PROP_BASE_URI;
 
-    // Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
+    // Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
 
 	//--------------------------------------------------------------------------------------------
 
@@ -119,14 +120,11 @@ public class RDFTextToModel extends AbstractExecutableComponent {
 	/** The base url to use */
 	private String sBaseURI;
 
-	private boolean bIgnoreErrors;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.sBaseURI = ccp.getProperty(PROP_BASE_URI);
-		this.bIgnoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
@@ -136,7 +134,7 @@ public class RDFTextToModel extends AbstractExecutableComponent {
             try {
                 model = ModelUtils.getModel(modelText, sBaseURI);
             } catch (Exception e) {
-                if (bIgnoreErrors)
+                if (ignoreErrors)
                     model = ModelFactory.createDefaultModel();
                 else
                     throw new ComponentExecutionException(e);
@@ -148,6 +146,6 @@ public class RDFTextToModel extends AbstractExecutableComponent {
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.sBaseURI = null;
-        this.bIgnoreErrors = false;
+        this.ignoreErrors = false;
     }
 }

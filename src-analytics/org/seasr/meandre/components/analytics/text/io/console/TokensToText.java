@@ -63,6 +63,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "Tokens To Text",
 		creator = "Xavier Llora",
@@ -70,10 +71,10 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, tools, text, tokenizer, counting",
 		description = "Given a collection of tokens, this component converts it " +
-				      "into text."
+				      "into text.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class TokensToText extends AnalysisToText {
 
@@ -89,7 +90,7 @@ public class TokensToText extends AnalysisToText {
 
     @ComponentProperty(
             name = Names.PROP_MESSAGE,
-            description = "The header to use. ",
+            description = "The header to use.",
             defaultValue = "Available tokens"
     )
     protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;

@@ -48,7 +48,6 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -122,6 +121,7 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+
 	protected static final String simileVelocityTemplate =
 	    "org/seasr/meandre/components/vis/temporal/SimileTimelineMaker.vm";
 
@@ -136,14 +136,10 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
 
     private VelocityContext _context;
 
-    private Logger _console;
-
 
     //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _console = getConsoleLogger();
-
         _context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
     }
@@ -154,7 +150,7 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
         String dir = cc.getPublicResourcesDirectory() + File.separator;
         dir += "timeline" + File.separator;
 
-        _console.finest("Set storage location to " + dir);
+        console.finest("Set storage location to " + dir);
 
         String webUiUrl = cc.getWebUIUrl(true).toString();
         Date now = new Date();
@@ -164,10 +160,10 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
         String htmlLocation = webUiUrl + "public/resources/timeline/" + htmlFileName,
                xmlLocation  = webUiUrl + "public/resources/timeline/" + xmlFileName;
 
-        _console.finest("htmlFileName=" + htmlFileName);
-        _console.finest("xmlFileName=" + xmlFileName);
-        _console.finest("htmlLocation=" + htmlLocation);
-        _console.finest("xmlLocation=" + xmlLocation);
+        console.finest("htmlFileName=" + htmlFileName);
+        console.finest("xmlFileName=" + xmlFileName);
+        console.finest("htmlLocation=" + htmlLocation);
+        console.finest("xmlLocation=" + xmlLocation);
 
         URI xmlURI = DataTypeParser.parseAsURI(dir + xmlFileName);
         URI htmlURI = DataTypeParser.parseAsURI(dir + htmlFileName);
@@ -180,8 +176,8 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
         htmlWriter.write(generateHTML(xmlFileName));
         htmlWriter.close();
 
-        _console.info("The Simile Timeline HTML content was created at " + htmlLocation);
-        _console.info("The Simile Timeline XML content was created at " + xmlLocation);
+        console.info("The Simile Timeline HTML content was created at " + htmlLocation);
+        console.info("The Simile Timeline XML content was created at " + xmlLocation);
 
         cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(htmlLocation));
     }
@@ -209,7 +205,7 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
 
 		doc.getDocumentElement().normalize();
 		docTitle = doc.getDocumentElement().getAttribute("docID");
-		_console.finest("Root element : " + docTitle);
+		console.finest("Root element : " + docTitle);
 		NodeList nodeLst = doc.getElementsByTagName("date");
 		//getConsoleOut().println("Information of date");
 		for (int k = 0; k < nodeLst.getLength(); k++) {

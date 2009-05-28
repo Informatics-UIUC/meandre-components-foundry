@@ -44,7 +44,6 @@ package org.seasr.meandre.components.vis.text;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
@@ -74,8 +73,8 @@ import org.seasr.meandre.support.text.TagCloudImage;
         name = "Tag Cloud Image Maker",
         rights = Licenses.UofINCSA,
         tags = "tag cloud, visualization",
-        dependency = {"protobuf-java-2.0.3.jar"},
-        baseURL="meandre://seasr.org/components/"
+        baseURL="meandre://seasr.org/components/",
+        dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class TagCloudImageMaker extends AbstractExecutableComponent {
 
@@ -146,15 +145,12 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-	private Logger _console;
 	private org.seasr.meandre.support.text.TagCloudImageMaker _tagCloudImageMaker;
 
 
     //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _console = getConsoleLogger();
-
         int canvasWidth = Integer.parseInt(ccp.getProperty(PROP_CANVAS_WIDTH));
         int canvasHeight = Integer.parseInt(ccp.getProperty(PROP_CANVAS_HEIGHT));
 
@@ -175,9 +171,9 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
         Map<String, Integer> table = DataTypeParser.parseAsStringIntegerMap(
                 cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
-        _console.fine("Creating the tag cloud image");
+        console.fine("Creating the tag cloud image");
         TagCloudImage image = _tagCloudImageMaker.createTagCloudImage(table);
-        _console.fine("Tag cloud image created");
+        console.fine("Tag cloud image created");
 
         if (!image.hasAllWords()) {
             StringBuffer buf = new StringBuffer();
@@ -187,7 +183,7 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
             buf.append("2) Decrease the number of words to be displayed.\n");
             buf.append("3) Decrease the minimum font size.\n");
             buf.append("4) Decrease the maximum font size.\n");
-            _console.warning(buf.toString());
+            console.warning(buf.toString());
         }
 
 	    ByteArrayOutputStream baos = new ByteArrayOutputStream();

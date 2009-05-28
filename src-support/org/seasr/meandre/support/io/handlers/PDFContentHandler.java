@@ -40,56 +40,31 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.meandre.support.io;
+package org.seasr.meandre.support.io.handlers;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.Properties;
+import java.net.ContentHandler;
+import java.net.URLConnection;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import org.seasr.meandre.support.text.PDFUtils;
 
-import org.apache.tools.ant.filters.StringInputStream;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import de.intarsys.pdf.parser.COSLoadException;
 
 /**
  * @author Boris Capitanu
+ *
  */
-public class DOMUtils {
-    public static Document createDocument(String xml)
-        throws SAXException, IOException, ParserConfigurationException {
+public class PDFContentHandler extends ContentHandler {
 
-        return createDocument(new StringInputStream(xml));
+    @Override
+    public Object getContent(URLConnection connection) throws IOException {
+        try {
+            return PDFUtils.getDocument(connection.getInputStream(),
+                    connection.getURL().toString(), null);
+        }
+        catch (COSLoadException e) {
+            throw new IOException(e.toString());
+        }
     }
 
-    public static Document createDocument(InputStream inputStream)
-        throws SAXException, IOException, ParserConfigurationException {
-
-        DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-        return dbfac.newDocumentBuilder().parse(inputStream);
-    }
-
-    public static String getString(Document document, Properties outputProperties)
-        throws TransformerException {
-
-        TransformerFactory transfac = TransformerFactory.newInstance();
-        Transformer trans = transfac.newTransformer();
-
-        if (outputProperties != null)
-            trans.setOutputProperties(outputProperties);
-
-        StringWriter sw = new StringWriter();
-        StreamResult result = new StreamResult(sw);
-        DOMSource source = new DOMSource(document);
-        trans.transform(source, result);
-
-        return sw.toString();
-    }
 }

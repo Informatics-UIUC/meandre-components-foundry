@@ -44,8 +44,6 @@ package org.seasr.meandre.components.tools.text.io;
 
 import java.io.Writer;
 import java.net.URI;
-import java.util.Set;
-import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -71,6 +69,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
  */
+
 @Component(
 		name = "Write Text",
 		creator = "Xavier Llora",
@@ -78,13 +77,13 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, io, read, text",
 		description = "This component write text into a file. The component outputs the test. " +
 				      "A property allows to control " +
 				      "the behaviour of the component in front of an IO error, allowing to continue " +
 				      "pushing and empty model or throwing and exception forcing the finalization of " +
-				      "the flow execution."
+				      "the flow execution.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class WriteText extends AbstractExecutableComponent {
 
@@ -116,16 +115,10 @@ public class WriteText extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_TEXT= Names.PORT_TEXT;
 
-    //--------------------------------------------------------------------------------------------
-
-
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _console = getConsoleLogger();
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
@@ -151,21 +144,17 @@ public class WriteText extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-            throws ComponentContextException, ComponentExecutionException {
-
-        pushDelimiters(cc,
-                cc.getDataComponentFromInput(IN_LOCATION),
-                cc.getDataComponentFromInput(IN_TEXT));
+    protected void handleStreamInitiators() throws Exception {
+        pushDelimiters(
+                componentContext.getDataComponentFromInput(IN_LOCATION),
+                componentContext.getDataComponentFromInput(IN_TEXT));
     }
 
     @Override
-    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-            throws ComponentContextException, ComponentExecutionException {
-
-        pushDelimiters(cc,
-                cc.getDataComponentFromInput(IN_LOCATION),
-                cc.getDataComponentFromInput(IN_TEXT));
+    protected void handleStreamTerminators() throws Exception {
+        pushDelimiters(
+                componentContext.getDataComponentFromInput(IN_LOCATION),
+                componentContext.getDataComponentFromInput(IN_TEXT));
     }
 
     //--------------------------------------------------------------------------------------------
@@ -173,41 +162,34 @@ public class WriteText extends AbstractExecutableComponent {
 	/**
 	 * Pushes the obtained delimiters
 	 *
-	 * @param cc The component context
 	 * @param objLoc The location delimiter
 	 * @param objDoc The document delimiter
-	 * @throws ComponentExecutionException
-	 * @throws ComponentContextException Push failed
+	 * @throws Exception Push failed
 	 */
-	private void pushDelimiters(ComponentContext cc, Object objLoc, Object objDoc)
-	    throws ComponentExecutionException, ComponentContextException {
-
+	private void pushDelimiters(Object objLoc, Object objDoc) throws Exception {
 		if ( objLoc instanceof StreamDelimiter &&  objDoc instanceof StreamDelimiter)  {
-			cc.pushDataComponentToOutput(OUT_LOCATION, objLoc);
-			cc.pushDataComponentToOutput(OUT_TEXT, objDoc);
+			componentContext.pushDataComponentToOutput(OUT_LOCATION, objLoc);
+			componentContext.pushDataComponentToOutput(OUT_TEXT, objDoc);
 		}
 		else
-			pushMissalignedDelimiters(cc,objLoc, objDoc);
+			pushMissalignedDelimiters(objLoc, objDoc);
 	}
 
 	/**
 	 * Push the delimiters to the outputs as needed.
 	 *
-	 * @param cc The component context
 	 * @param objLoc The location delimiter
 	 * @param objDoc The document delimiter
 	 * @throws ComponentContextException Push failed
 	 */
-	private void pushMissalignedDelimiters(ComponentContext cc, Object objLoc, Object objDoc)
-	    throws ComponentExecutionException {
-
-	    _console.warning("Missaligned delimiters received");
+	private void pushMissalignedDelimiters(Object objLoc, Object objDoc) throws ComponentExecutionException {
+	    console.warning("Missaligned delimiters received");
 
 		if ( objLoc instanceof StreamDelimiter ) {
 		    try {
                 StreamDelimiter clone = ComponentUtils.cloneStreamDelimiter((StreamDelimiter) objLoc);
-                cc.pushDataComponentToOutput(OUT_LOCATION, objLoc);
-                cc.pushDataComponentToOutput(OUT_TEXT, clone);
+                componentContext.pushDataComponentToOutput(OUT_LOCATION, objLoc);
+                componentContext.pushDataComponentToOutput(OUT_TEXT, clone);
             }
             catch (Exception e) {
                 throw new ComponentExecutionException(e);
@@ -216,8 +198,8 @@ public class WriteText extends AbstractExecutableComponent {
 		else {
 		    try {
                 StreamDelimiter clone = ComponentUtils.cloneStreamDelimiter((StreamDelimiter) objDoc);
-                cc.pushDataComponentToOutput(OUT_LOCATION, clone);
-                cc.pushDataComponentToOutput(OUT_TEXT, objDoc);
+                componentContext.pushDataComponentToOutput(OUT_LOCATION, clone);
+                componentContext.pushDataComponentToOutput(OUT_TEXT, objDoc);
             }
             catch (Exception e) {
                 throw new ComponentExecutionException(e);

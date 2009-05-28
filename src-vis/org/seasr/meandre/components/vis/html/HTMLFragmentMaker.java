@@ -43,7 +43,6 @@
 package org.seasr.meandre.components.vis.html;
 
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -71,8 +70,8 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
         name = "HTML Fragment Maker",
         rights = Licenses.UofINCSA,
         tags = "multipurpose, internet, mail, extensions, visualization",
-        dependency = {"protobuf-java-2.0.3.jar"},
-        baseURL = "meandre://seasr.org/components/"
+        baseURL = "meandre://seasr.org/components/",
+        dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class HTMLFragmentMaker extends AbstractExecutableComponent {
 
@@ -120,7 +119,6 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    private Logger _console;
     private String _mimeType;
     private String _id;
     private String _css;
@@ -129,7 +127,6 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _console = getConsoleLogger();
         _mimeType = ccp.getProperty(PROP_ENCODING).toLowerCase();
 
         _id = ccp.getProperty(PROP_ID);
@@ -145,7 +142,7 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
         if (_mimeType.startsWith("text")) {
             for (String text : DataTypeParser.parseAsString(data)) {
                 String htmlTextFragment = org.seasr.meandre.support.html.HTMLFragmentMaker.makeHtmlTextFragment(text, _id, _css);
-                _console.fine("Pushing out text fragment: " + htmlTextFragment);
+                console.fine("Pushing out text fragment: " + htmlTextFragment);
                 cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlTextFragment));
             }
         }
@@ -154,7 +151,7 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
 
         if (_mimeType.startsWith("image")) {
             String htmlImageFragment = org.seasr.meandre.support.html.HTMLFragmentMaker.makeHtmlImageFragment((byte[])data, _mimeType, _id, _css);
-            _console.fine("Pushing out image fragment: " + htmlImageFragment);
+            console.fine("Pushing out image fragment: " + htmlImageFragment);
             cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlImageFragment));
         }
 

@@ -70,8 +70,6 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
-	// Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
-
 	@ComponentProperty(
 			name = Names.PROP_HEADER,
 			description = "Should the header be added? ",

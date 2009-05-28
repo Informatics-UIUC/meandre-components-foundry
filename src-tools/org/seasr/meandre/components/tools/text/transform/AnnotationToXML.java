@@ -45,7 +45,6 @@ package org.seasr.meandre.components.tools.text.transform;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -127,14 +126,10 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 	//Store properties.
 	private String entities;
 
-	private Logger _console;
-
 
     //--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _console = getConsoleLogger();
-
         entities = ccp.getProperty(PROP_ENTITIES);
     }
 
@@ -149,7 +144,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 
 		String xmlString = DOMUtils.getString(doc_out, outputProperties);
 
-		_console.finest(String.format("XML Output:%n%s", xmlString));
+		console.finest(String.format("XML Output:%n%s", xmlString));
 
 		cc.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
 	}
@@ -174,7 +169,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
         org.w3c.dom.Document doc_out = docBuilder.newDocument();
 
         AnnotationSet as = doc_in.getAnnotations(AnnotationConstants.ANNOTATION_SET_ENTITIES);
-        _console.info("Number of entities in the input: " + as.size());
+        console.info("Number of entities in the input: " + as.size());
 
         Iterator<Annotation> itty = as.iterator();
 
@@ -184,7 +179,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
         doc_out.appendChild(root);
         root.setAttribute("docID", doc_in.getDocID());
 
-        _console.fine("docID: " + doc_in.getDocID());
+        console.fine("docID: " + doc_in.getDocID());
 
         Hashtable<String, Element> ht = new Hashtable<String, Element>();
 

@@ -65,6 +65,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "Wrap Text Into Model",
 		creator = "Xavier Llora",
@@ -72,10 +73,10 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, tools, text",
 		description = "Given the text provided in the input, this component generates a " +
-				      "new semantic wrapper model containing the this text."
+				      "new semantic wrapper model containing the this text.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class WrapTextIntoModel extends AbstractExecutableComponent {
 

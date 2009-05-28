@@ -42,9 +42,6 @@
 
 package org.seasr.meandre.components.tools.semantic;
 
-import java.util.Set;
-import java.util.logging.Logger;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -53,7 +50,6 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -78,12 +74,12 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, io, transform, model, accumulate, reduce",
 		description = "This component is intended to work on wrapped model streams. " +
 				      "Given a sequence of wrapped models, it will create a new model that " +
 				      "accumulates/reduces all the information and then push them the resulting model. " +
-				      "If no wrapped model is provided it will act as a simple pass through. "
+				      "If no wrapped model is provided it will act as a simple pass through. ",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class WrappedModelsReducer extends AbstractExecutableComponent {
 
@@ -105,13 +101,10 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
-	// Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
+	// Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
 
 	//--------------------------------------------------------------------------------------------
 
-
-	/** The error handling flag */
-	protected boolean bErrorHandling;
 
 	/** The accumulating model */
 	protected Model modelAcc;
@@ -119,15 +112,10 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
 	/** Number of models accumulated */
 	protected int iCnt;
 
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _console = getConsoleLogger();
-
-		this.bErrorHandling = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
 		this.modelAcc = null;
 		this.iCnt = 0;
 	}
@@ -142,7 +130,6 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.bErrorHandling = false;
         this.modelAcc = null;
         this.iCnt = 0;
     }
@@ -150,15 +137,13 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-            throws ComponentContextException, ComponentExecutionException {
-
+    protected void handleStreamInitiators() throws Exception {
         // Try to revalance a stream
         if ( this.modelAcc != null ) {
             String sMessage = "Unbalanced wrapped stream. Got a new initiator without a terminator.";
-            _console.warning(sMessage);
-            if ( this.bErrorHandling )
-                pushReduction(cc);
+            console.warning(sMessage);
+            if ( this.ignoreErrors )
+                pushReduction();
             else
                 throw new ComponentExecutionException(sMessage);
         }
@@ -168,17 +153,15 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-            throws ComponentContextException, ComponentExecutionException {
-
+    protected void handleStreamTerminators() throws Exception {
         if ( this.modelAcc==null ) {
             String sMessage = "Unbalanced wrapped stream. Got a new terminator without an initiator. Dropping it to try to rebalance.";
-            _console.warning(sMessage);
-            if ( !this.bErrorHandling )
+            console.warning(sMessage);
+            if ( !this.ignoreErrors )
                 throw new ComponentExecutionException(sMessage);
         }
 
-        pushReduction(cc);
+        pushReduction();
         initializeReduction();
     }
 
@@ -196,10 +179,9 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
 	/**
 	 * Pushes the accumulated model.
 	 *
-	 * @param cc The component context
-	 * @throws ComponentContextException Failed to push the accumulated model
+	 * @throws Exception Failed to push the accumulated model
 	 */
-	protected void pushReduction(ComponentContext cc) throws ComponentContextException {
+	protected void pushReduction() throws Exception {
 		// Create the delimiters
 		StreamInitiator si = new StreamInitiator();
 		StreamTerminator st = new StreamTerminator();
@@ -207,9 +189,9 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
 		st.put("count", this.iCnt); st.put("accumulated", 1);
 
 		// Push
-		cc.pushDataComponentToOutput(OUT_DOCUMENT, si);
-		cc.pushDataComponentToOutput(OUT_DOCUMENT, this.modelAcc);
-		cc.pushDataComponentToOutput(OUT_DOCUMENT, st);
+		componentContext.pushDataComponentToOutput(OUT_DOCUMENT, si);
+		componentContext.pushDataComponentToOutput(OUT_DOCUMENT, this.modelAcc);
+		componentContext.pushDataComponentToOutput(OUT_DOCUMENT, st);
 
 	}
 

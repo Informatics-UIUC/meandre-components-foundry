@@ -40,62 +40,57 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.datatypes.tranformations.text;
+package org.seasr.meandre.components.tools.text.io;
+
+import java.net.ContentHandler;
+import java.net.URL;
+import java.net.URLConnection;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
-import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
-import org.seasr.components.text.datatype.corpora.Document;
-import org.seasr.components.text.util.Factory;
+import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.io.StreamUtils;
 import org.seasr.meandre.support.parsers.DataTypeParser;
+import org.seasr.meandre.support.text.handlers.TextContentHandlerFactory;
 
 /**
  * @author Boris Capitanu
+ *
  */
 
 @Component(
-        name = "Text To Document",
-        description = "Creates a Document structure from the input text. " +
-                      "This Document structure is used by other components for running various analyses.",
         creator = "Boris Capitanu",
-        baseURL = "meandre://seasr.org/components/tools/",
-        firingPolicy = FiringPolicy.all,
-        mode = Mode.compute,
+        description = "Extracts text from the specified input location. " +
+                      "Supported location references include: PDF files, HTML/XML files, text files.",
+        name = "Universal Text Extractor",
         rights = Licenses.UofINCSA,
-        dependency = {"protobuf-java-2.0.3.jar"},
-        tags = "text, document, transformation"
+        tags = "text, converter, pdf, html, xml",
+        dependency = {"protobuf-java-2.0.3.jar", "htmlparser.jar", "jPod.jar", "iscwt.jar", "isrt.jar", "jbig2.jar"},
+        baseURL = "meandre://seasr.org/components/tools/"
 )
-public class TextToDocument extends AbstractExecutableComponent {
+public class UniversalTextExtractor extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            name = Names.PORT_TEXT,
-            description = "The text to be converted to a Document structure"
+            description = "The document location",
+            name = Names.PORT_LOCATION
     )
-    protected static final String IN_TEXT = Names.PORT_TEXT;
-
-    @ComponentInput(
-            name = Names.PORT_DOC_TITLE,
-            description = "The title to associate with this Document"
-    )
-    protected static final String IN_DOC_TITLE = Names.PORT_DOC_TITLE;
+    protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            name = Names.PORT_DOCUMENT,
-            description = "The Document structure constructed from the input text"
+            description = "The text extracted from the given document",
+            name = Names.PORT_TEXT
     )
-    protected static final String OUT_DOCUMENT = Names.PORT_DOCUMENT;
+    protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 
     //--------------------------------------------------------------------------------------------
@@ -106,26 +101,19 @@ public class TextToDocument extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        String[] titles = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_DOC_TITLE));
-        String[] texts = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+        URL location = StreamUtils.getURLforResource(
+                DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION)));
 
-        if (titles.length != texts.length)
-            throw new ComponentExecutionException("Cannot process inputs that are not aligned");
+        console.fine("Location set to: " + location.toString());
 
-        for (int i = 0; i < titles.length; i++) {
-            String title = titles[i];
-            String text = texts[i];
+        URLConnection connection = location.openConnection();
+        ContentHandler handler =
+            new TextContentHandlerFactory().createContentHandler(connection.getContentType());
 
-            Document document = Factory.newDocument();
-            document.setTitle(title);
-            document.setDocID(java.util.UUID.randomUUID().toString());
-            document.setContent(text);
+        console.fine("Content handler set to: " + handler.getClass().getSimpleName());
 
-            console.fine(String.format("Creating document: title='%s'  id='%s'",
-                    document.getTitle(), document.getDocID()));
-
-            cc.pushDataComponentToOutput(OUT_DOCUMENT, document);
-        }
+        cc.pushDataComponentToOutput(OUT_TEXT,
+                BasicDataTypesTools.stringToStrings((String)handler.getContent(connection)));
     }
 
     @Override

@@ -42,8 +42,6 @@
 
 package org.seasr.meandre.components.tools.basic;
 
-import java.util.Set;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -53,7 +51,6 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.meandre.components.tools.Names;
@@ -62,7 +59,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 /**
  * Prints an object to the console
  *
- * @author Xavier Llor&agrave
+ * @author Xavier Llor&agrave;
  * @author Boris Capitanu
  */
 @Component(
@@ -73,8 +70,8 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "io, print, console",
-		dependency = {"protobuf-java-2.0.3.jar"},
-		description = "This component takes the input and prints it to the console. "
+		description = "This component takes the input and prints it to the console. ",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class PrintToConsole extends AbstractExecutableComponent {
 
@@ -116,7 +113,11 @@ public class PrintToConsole extends AbstractExecutableComponent {
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		Object data = cc.getDataComponentFromInput(IN_OBJECT);
-        cc.getOutputConsole().println(DataTypeParser.parseAsString(data));
+        String[] inputs = DataTypeParser.parseAsString(data);
+
+        for (String s : inputs)
+            cc.getOutputConsole().println(s);
+
 		cc.pushDataComponentToOutput(OUT_OBJECT, data);
 	}
 
@@ -127,17 +128,15 @@ public class PrintToConsole extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-	protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-	        throws ComponentContextException {
+	protected void handleStreamInitiators() throws Exception {
 	    if (bWrapped)
-	        printStreamDelimiter(cc, cc.getDataComponentFromInput(IN_OBJECT));
+	        printStreamDelimiter(componentContext.getDataComponentFromInput(IN_OBJECT));
 	}
 
 	@Override
-	protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-	        throws ComponentContextException {
+	protected void handleStreamTerminators() throws Exception {
 	   if (bWrapped)
-	       printStreamDelimiter(cc, cc.getDataComponentFromInput(IN_OBJECT));
+	       printStreamDelimiter(componentContext.getDataComponentFromInput(IN_OBJECT));
 	}
 
 	/**
@@ -146,7 +145,7 @@ public class PrintToConsole extends AbstractExecutableComponent {
 	 * @param cc The component context
 	 * @param obj The delimiter to print
 	 */
-	private void printStreamDelimiter(ComponentContext cc, Object obj) {
+	private void printStreamDelimiter(Object obj) {
 		StringBuffer sb = new StringBuffer();
 		String [] saName = obj.getClass().getName().split("\\"+".");
 		sb.append(saName[saName.length-1]+" [ ");
@@ -154,6 +153,6 @@ public class PrintToConsole extends AbstractExecutableComponent {
 		for ( String sKey:sd.keySet())
 			sb.append("("+sKey+"="+sd.get(sKey)+") ");
 		sb.append("]");
-		cc.getOutputConsole().println(sb);
+		componentContext.getOutputConsole().println(sb);
 	}
 }

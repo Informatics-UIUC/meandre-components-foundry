@@ -40,56 +40,30 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.meandre.support.io;
+package org.seasr.meandre.support.text.handlers;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.Properties;
+import java.net.ContentHandler;
+import java.net.URLConnection;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.apache.tools.ant.filters.StringInputStream;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import org.seasr.meandre.support.io.DOMUtils;
+import org.seasr.meandre.support.text.HTMLUtils;
 
 /**
  * @author Boris Capitanu
+ *
  */
-public class DOMUtils {
-    public static Document createDocument(String xml)
-        throws SAXException, IOException, ParserConfigurationException {
+public class XMLTextContentHandler extends ContentHandler {
 
-        return createDocument(new StringInputStream(xml));
+    @Override
+    public Object getContent(URLConnection connection) throws IOException {
+        try {
+            return HTMLUtils.extractText(
+                    DOMUtils.createDocument(connection.getInputStream()));
+        }
+        catch (Exception e) {
+            throw new IOException(e.toString());
+        }
     }
 
-    public static Document createDocument(InputStream inputStream)
-        throws SAXException, IOException, ParserConfigurationException {
-
-        DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-        return dbfac.newDocumentBuilder().parse(inputStream);
-    }
-
-    public static String getString(Document document, Properties outputProperties)
-        throws TransformerException {
-
-        TransformerFactory transfac = TransformerFactory.newInstance();
-        Transformer trans = transfac.newTransformer();
-
-        if (outputProperties != null)
-            trans.setOutputProperties(outputProperties);
-
-        StringWriter sw = new StringWriter();
-        StreamResult result = new StreamResult(sw);
-        DOMSource source = new DOMSource(document);
-        trans.transform(source, result);
-
-        return sw.toString();
-    }
 }

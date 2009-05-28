@@ -209,14 +209,14 @@ public abstract class AbstractWebServiceHeadComponent extends AbstractExecutable
 		//
         try {
             cc.startWebUIFragment(this);
-            getConsoleLogger().info("Starting " + this.getClass().getName()+ " at " + cc.getFlowID());
+            console.info("Starting " + this.getClass().getName()+ " at " + cc.getFlowID());
 
             long sleepTime = Long.parseLong(cc.getProperty("isFlowAbortingSleep"));
             while (!cc.isFlowAborting()) {
                 Thread.sleep(sleepTime);
             }
 
-            getConsoleLogger().info("Aborting " + this.getClass().getName()+ " at " + cc.getFlowID()+ " Requested");
+            console.info("Aborting " + this.getClass().getName()+ " at " + cc.getFlowID()+ " Requested");
             cc.stopWebUIFragment(this);
        } catch (Exception e) {
             throw new ComponentExecutionException(e);
@@ -233,7 +233,7 @@ public abstract class AbstractWebServiceHeadComponent extends AbstractExecutable
 	 * should be prepared to handle an input event the is an emptyRequest ( which will be empty )
 	 */
 	public void emptyRequest(HttpServletResponse response) throws WebUIException {
-		getConsoleLogger().entering(getClass().getName(), "emptyRequest", response);
+		console.entering(getClass().getName(), "emptyRequest", response);
 
 	    HttpServletRequest request = (HttpServletRequest) new EmptyHttpServletRequest();
 		handle( request, response);
@@ -252,7 +252,7 @@ public abstract class AbstractWebServiceHeadComponent extends AbstractExecutable
 	 */
 	public void handle(HttpServletRequest request, HttpServletResponse response)
 			throws WebUIException {
-		getConsoleLogger().entering(getClass().getName(), "handle", new Object[] { request, response });
+		console.entering(getClass().getName(), "handle", new Object[] { request, response });
 
 		try {
             Semaphore sem = new Semaphore(1, true);
@@ -262,10 +262,10 @@ public abstract class AbstractWebServiceHeadComponent extends AbstractExecutable
             packedDataComponentsOutput.put(httpServletRequest,  request);
             packedDataComponentsOutput.put(httpServletResponse, response);
             packedDataComponentsOutput.put(semaphore, sem);
-           	packedDataComponentsOutput.put(executionInstanceId, getComponentContext().getExecutionInstanceID());
+           	packedDataComponentsOutput.put(executionInstanceId, componentContext.getExecutionInstanceID());
             //
             // If the component property AllowRequestParser is true then Do
-            if(Boolean.parseBoolean(getComponentContext().getProperty(AllowComponentRequestParser))){
+            if(Boolean.parseBoolean(componentContext.getProperty(AllowComponentRequestParser))){
 	            boolean isRequestPropagated = handleServiceRequest(request,response,sem);
 	            if(!isRequestPropagated)
 	            	return;
@@ -273,17 +273,17 @@ public abstract class AbstractWebServiceHeadComponent extends AbstractExecutable
             //
             // The assumption is that the packedDataComponentOutput will be the only output.
             if(isComponentOutputConnected(OutPackedDataComponent))
-            	getComponentContext().pushDataComponentToOutput(OutPackedDataComponent,  packedDataComponentsOutput);
+            	componentContext.pushDataComponentToOutput(OutPackedDataComponent,  packedDataComponentsOutput);
             //
             // Support for individual optional output ports for each output type produced in this component.
             if(isComponentOutputConnected(httpServletRequest))
-            	getComponentContext().pushDataComponentToOutput(httpServletRequest,  request);
+            	componentContext.pushDataComponentToOutput(httpServletRequest,  request);
             if(isComponentOutputConnected(httpServletResponse))
-            	getComponentContext().pushDataComponentToOutput(httpServletResponse, response);
+            	componentContext.pushDataComponentToOutput(httpServletResponse, response);
             if(isComponentOutputConnected(semaphore))
-            	getComponentContext().pushDataComponentToOutput(semaphore, sem);
+            	componentContext.pushDataComponentToOutput(semaphore, sem);
             if(isComponentOutputConnected(executionInstanceId))
-            	getComponentContext().pushDataComponentToOutput(executionInstanceId, getComponentContext().getExecutionInstanceID());
+            	componentContext.pushDataComponentToOutput(executionInstanceId, componentContext.getExecutionInstanceID());
             //
             // Causes our service Thread to be blocked until the semaphore is released somewhere in our flow.
             sem.acquire();
@@ -302,10 +302,10 @@ public abstract class AbstractWebServiceHeadComponent extends AbstractExecutable
 	public void forceServiceShutdown(Semaphore sem){
 		//
 		// Clear all variables..
-		getComponentContext().requestFlowAbortion();
+		componentContext.requestFlowAbortion();
 		//
 		// wait for the server to inform us that our request was received.
-		while (! getComponentContext().isFlowAborting()) {
+		while (! componentContext.isFlowAborting()) {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -341,11 +341,11 @@ public abstract class AbstractWebServiceHeadComponent extends AbstractExecutable
 		//
 		// Do the Shutdown evaluation (an example)
 		String shutdownParameterValue = request.getParameter(
-				getComponentContext().getProperty(ShutdownParameterName));
+				componentContext.getProperty(ShutdownParameterName));
 
 		if( shutdownParameterValue !=null
 			&& shutdownParameterValue.equalsIgnoreCase(
-					getComponentContext().getProperty(ShutdownParameterValue))
+					componentContext.getProperty(ShutdownParameterValue))
 		) {
 			//
 			forceServiceShutdown(sem);

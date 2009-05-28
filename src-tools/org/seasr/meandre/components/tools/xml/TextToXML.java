@@ -42,9 +42,6 @@
 
 package org.seasr.meandre.components.tools.xml;
 
-import java.util.Set;
-import java.util.logging.Logger;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -57,7 +54,6 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.meandre.components.tools.Names;
@@ -71,6 +67,7 @@ import org.w3c.dom.Document;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "Text To XML",
 		creator = "Xavier Llora",
@@ -78,13 +75,13 @@ import org.w3c.dom.Document;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "xml, io, text",
 		description = "This component reads a XML in text form and buids a manipulatable document object. " +
 				      "The text to convert is received in its input. The component outputs the XML object " +
 				      "read. A property allows to control the behaviour of the component in " +
 				      "front of an IO error, allowing to continue pushing and empty XML or " +
-				      "throwing and exception forcing the finalization of the flow execution."
+				      "throwing and exception forcing the finalization of the flow execution.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class TextToXML extends AbstractExecutableComponent {
 
@@ -106,13 +103,10 @@ public class TextToXML extends AbstractExecutableComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
-    // Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
+    // Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
 
 	//--------------------------------------------------------------------------------------------
 
-
-	/** The error handling flag */
-	private boolean bIgnoreErrors;
 
 	/** The document builder factory */
 	private DocumentBuilderFactory factory;
@@ -120,23 +114,17 @@ public class TextToXML extends AbstractExecutableComponent {
 	/** The document builder instance */
 	private DocumentBuilder parser;
 
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _console = getConsoleLogger();
-
-		this.bIgnoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
-
 		try {
 			this.factory = DocumentBuilderFactory.newInstance();
 			this.parser = factory.newDocumentBuilder();
 		}
 		catch (Throwable t) {
 			String sMessage = "Could not initialize the XML parser";
-			_console.warning(sMessage);
+			console.warning(sMessage);
 
 			throw new ComponentExecutionException(sMessage + " " + t.toString());
 		}
@@ -153,9 +141,9 @@ public class TextToXML extends AbstractExecutableComponent {
     			String sMessage = "Could not read XML from text " +
     			    ((sText.length() > 100) ? sText.substring(0, 100) : sText);
 
-    			_console.warning(sMessage);
+    			console.warning(sMessage);
 
-    			if ( !bIgnoreErrors )
+    			if ( !ignoreErrors )
     				throw new ComponentExecutionException(t);
     			else
     				doc = parser.newDocument();
@@ -166,7 +154,6 @@ public class TextToXML extends AbstractExecutableComponent {
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.bIgnoreErrors = false;
         this.factory = null;
         this.parser = null;
     }
@@ -174,16 +161,14 @@ public class TextToXML extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-            throws ComponentContextException, ComponentExecutionException {
-
-        cc.pushDataComponentToOutput(OUT_DOCUMENT, cc.getDataComponentFromInput(IN_TEXT));
+    protected void handleStreamInitiators() throws Exception {
+        componentContext.pushDataComponentToOutput(OUT_DOCUMENT,
+                componentContext.getDataComponentFromInput(IN_TEXT));
     }
 
     @Override
-    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-            throws ComponentContextException, ComponentExecutionException {
-
-        cc.pushDataComponentToOutput(OUT_DOCUMENT, cc.getDataComponentFromInput(IN_TEXT));
+    protected void handleStreamTerminators() throws Exception {
+        componentContext.pushDataComponentToOutput(OUT_DOCUMENT,
+                componentContext.getDataComponentFromInput(IN_TEXT));
     }
 }

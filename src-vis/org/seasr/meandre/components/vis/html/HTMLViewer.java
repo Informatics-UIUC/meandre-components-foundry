@@ -43,7 +43,6 @@
 package org.seasr.meandre.components.vis.html;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -86,8 +85,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-	        description = "The HTML data" +
-                          "<br>TYPE: String, Text, byte[]",
+	        description = "The HTML data",
             name = Names.PORT_HTML
 	)
     protected static final String IN_HTML = Names.PORT_HTML;
@@ -104,7 +102,6 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
     //--------------------------------------------------------------------------------------------
 
 
-    private Logger _console;
     private VelocityContext _context;
     private String _templateName;
     private String _html;
@@ -114,13 +111,12 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
     //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _console = getConsoleLogger();
         _templateName = ccp.getProperty(PROP_TEMPLATE);
 
         // sanity check
         if (_templateName.trim().length() == 0) {
             _templateName = null;
-            _console.fine("No template specified - Velocity will not be invoked");
+            console.fine("No template specified - Velocity will not be invoked");
         }
         else {
             _context = VelocityTemplateService.getInstance().getNewContext();
@@ -138,7 +134,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
                 _context.put("rawHtml", _html);
                 _context.put("base64Html", new BASE64Encoder().encode(_html.getBytes()));
 
-                _console.finest("Applying the Velocity template");
+                console.finest("Applying the Velocity template");
                 _html = velocity.generateOutput(_context, _templateName);
             }
 
@@ -150,7 +146,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
                 Thread.sleep(1000);
 
             if (cc.isFlowAborting())
-                _console.info("Flow abort requested - terminating component execution...");
+                console.info("Flow abort requested - terminating component execution...");
 
             cc.stopWebUIFragment(this);
         }
@@ -168,7 +164,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
      * @throws WebUIException Thrown if a problem occurs when generating the response
      */
     public void emptyRequest(HttpServletResponse response) throws WebUIException {
-        _console.entering(getClass().getName(), "emptyRequest", response);
+        console.entering(getClass().getName(), "emptyRequest", response);
 
         try {
             response.getWriter().println(_html);
@@ -176,7 +172,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
             throw new WebUIException(e);
         }
 
-        _console.exiting(getClass().getName(), "emptyRequest");
+        console.exiting(getClass().getName(), "emptyRequest");
     }
 
     /** This method gets called when a call with parameters is done to a given component
@@ -188,7 +184,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
      * @throws WebUIException A problem occurred during the call back
      */
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
-        _console.entering(getClass().getName(), "handle", response);
+        console.entering(getClass().getName(), "handle", response);
 
         if (request.getParameter("done") != null) {
             _done = true;
@@ -202,6 +198,6 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
         else
             emptyRequest(response);
 
-        _console.exiting(getClass().getName(), "handle");
+        console.exiting(getClass().getName(), "handle");
     }
 }

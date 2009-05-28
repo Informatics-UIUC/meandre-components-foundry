@@ -50,7 +50,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -78,7 +77,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  * @author Boris Capitanu
  *
  */
-@SuppressWarnings("unchecked")
+
 @Component(
 		name = "Token Filter",
 		creator = "Xavier Llora",
@@ -86,14 +85,15 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.any,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, tools, text, filter, tokenizer",
 		description = "This component filters the tokens on the inputs based " +
 				      "based on the list of tokens provided. If new tokens to " +
 				      "filter are provide they either replace the current ones " +
 				      "or add them to the black list. The component outputs the " +
-				      "filtered tokens."
+				      "filtered tokens.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
+@SuppressWarnings("unchecked")
 public class TokenFilter extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
@@ -144,7 +144,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
-	// Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
+	// Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
 
     @ComponentProperty(
             name = Names.PROP_REPLACE,
@@ -156,9 +156,6 @@ public class TokenFilter extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-
-	/** The error handling flag */
-	protected boolean bIgnoreErrors;
 
 	/** Should the token black list be replaced */
 	protected boolean bReplace;
@@ -175,15 +172,10 @@ public class TokenFilter extends AbstractExecutableComponent {
 	/** The set of blacklisted tokens */
 	protected Set<String> setBlacklist = null;
 
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _console = getConsoleLogger();
-
-		this.bIgnoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
 		this.bReplace = Boolean.parseBoolean(ccp.getProperty(PROP_REPLACE));
 		this.queues[PORT_TOKENS] = new LinkedList<Object>();
 		this.queues[PORT_TOKEN_COUNTS] = new LinkedList<Object>();
@@ -195,15 +187,15 @@ public class TokenFilter extends AbstractExecutableComponent {
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		if ( this.setBlacklist == null && !cc.isInputAvailable(IN_TOKEN_BLACKLIST) ) {
 			// No blacklist received yet, so queue the objects
-			queueObjects(cc);
+			queueObjects();
 		}
 		else if ( this.setBlacklist == null && cc.isInputAvailable(IN_TOKEN_BLACKLIST) ) {
 			// Process blacklist and pending
-			processBlacklistAndQueued(cc);
+			processBlacklistAndQueued();
 		}
 		else {
 			// Process normally with the incoming information
-			processNormally(cc);
+			processNormally();
 		}
 	}
 
@@ -213,37 +205,38 @@ public class TokenFilter extends AbstractExecutableComponent {
         this.queues = null;
         this.saInputName = null;
         this.setBlacklist = null;
-        this.bIgnoreErrors = false;
     }
 
 	//--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-            throws ComponentContextException, ComponentExecutionException {
-
+    protected void handleStreamInitiators() throws Exception {
         if (inputPortsWithInitiators.contains(IN_TOKENIZED_SENTENCES))
-            cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+            componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
+                    componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 
         if (inputPortsWithInitiators.contains(IN_TOKEN_COUNTS))
-            cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
+            componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
+                    componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
         if (inputPortsWithInitiators.contains(IN_TOKENS))
-            cc.pushDataComponentToOutput(OUT_TOKENS, cc.getDataComponentFromInput(IN_TOKENS));
+            componentContext.pushDataComponentToOutput(OUT_TOKENS,
+                    componentContext.getDataComponentFromInput(IN_TOKENS));
     }
 
     @Override
-    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-            throws ComponentContextException, ComponentExecutionException {
-
+    protected void handleStreamTerminators() throws Exception {
         if (inputPortsWithTerminators.contains(IN_TOKENIZED_SENTENCES))
-            cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+            componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
+                    componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 
         if (inputPortsWithTerminators.contains(IN_TOKEN_COUNTS))
-            cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
+            componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
+                    componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
         if (inputPortsWithTerminators.contains(IN_TOKENS))
-            cc.pushDataComponentToOutput(OUT_TOKENS, cc.getDataComponentFromInput(IN_TOKENS));
+            componentContext.pushDataComponentToOutput(OUT_TOKENS,
+                    componentContext.getDataComponentFromInput(IN_TOKENS));
     }
 
     //--------------------------------------------------------------------------------------------
@@ -251,37 +244,34 @@ public class TokenFilter extends AbstractExecutableComponent {
 	/**
 	 * No blacklist currently available, just queue the objects in the inputs.
 	 *
-	 * @param cc The component context object
 	 * @throws ComponentContextException Invalid access to the component context
 	 */
-	private void queueObjects(ComponentContext cc) throws ComponentContextException {
-		if ( cc.isInputAvailable(IN_TOKENS) )
-			this.queues[PORT_TOKENS].offer(cc.getDataComponentFromInput(IN_TOKENS));
-		if ( cc.isInputAvailable(IN_TOKEN_COUNTS) )
-			this.queues[PORT_TOKEN_COUNTS].offer(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
-		if ( cc.isInputAvailable(IN_TOKENIZED_SENTENCES) )
-			this.queues[PORT_TOKENIZE_SENTENCES].offer(cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+	private void queueObjects() throws ComponentContextException {
+		if ( componentContext.isInputAvailable(IN_TOKENS) )
+			this.queues[PORT_TOKENS].offer(componentContext.getDataComponentFromInput(IN_TOKENS));
+		if ( componentContext.isInputAvailable(IN_TOKEN_COUNTS) )
+			this.queues[PORT_TOKEN_COUNTS].offer(componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
+		if ( componentContext.isInputAvailable(IN_TOKENIZED_SENTENCES) )
+			this.queues[PORT_TOKENIZE_SENTENCES].offer(componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 	}
 
 	/**
 	 * Process the black list and catches up with the pending objects.
 	 *
-	 * @param cc The component context object
 	 * @throws Exception Thrown if something goes wrong
 	 */
-	protected void processBlacklistAndQueued(ComponentContext cc) throws Exception {
-		processBlacklist(cc.getDataComponentFromInput(IN_TOKEN_BLACKLIST), cc);
-		processQueuedObjects(cc);
+	protected void processBlacklistAndQueued() throws Exception {
+		processBlacklist(componentContext.getDataComponentFromInput(IN_TOKEN_BLACKLIST));
+		processQueuedObjects();
 	}
 
 	/**
 	 * Process the blacklist.
 	 *
 	 * @param objBlackList The black list to process
-	 * @param cc The component context
 	 * @throws Exception Thrown if something goes wrong
 	 */
-	protected void processBlacklist(Object objBlackList, ComponentContext cc ) throws Exception {
+	protected void processBlacklist(Object objBlackList) throws Exception {
 	    String[] words = DataTypeParser.parseAsString(objBlackList);
 		if ( this.setBlacklist==null )
 			this.setBlacklist = new HashSet<String>(100);
@@ -294,44 +284,40 @@ public class TokenFilter extends AbstractExecutableComponent {
 	/**
 	 * Process the queued object.
 	 *
-	 * @param cc The component context
-	 * @throws ComponentContextException Something went wrong while executing
-	 * @throws ComponentExecutionException Invalid casts
+	 * @throws Exception Something went wrong while executing
 	 */
-	protected void processQueuedObjects(ComponentContext cc) throws Exception {
+	protected void processQueuedObjects() throws Exception {
 		Iterator<Object> iterTok = this.queues[PORT_TOKENS].iterator();
-		while ( iterTok.hasNext() ) processTokens(iterTok.next(),cc);
+		while ( iterTok.hasNext() ) processTokens(iterTok.next());
 
 		Iterator<Object> iterTokCnts = this.queues[PORT_TOKEN_COUNTS].iterator();
-		while ( iterTokCnts.hasNext() ) processTokenCounts(iterTokCnts.next(),cc);
+		while ( iterTokCnts.hasNext() ) processTokenCounts(iterTokCnts.next());
 
 		Iterator<Object> iterTS = this.queues[PORT_TOKENIZE_SENTENCES].iterator();
-		while ( iterTS.hasNext() ) processTokenizedSentences(iterTS.next(),cc);
+		while ( iterTS.hasNext() ) processTokenizedSentences(iterTS.next());
 	}
 
 
 	/**
 	 * Process the inputs normally.
 	 *
-	 * @param cc The component context
-	 * @throws ComponentExecutionException Problem while executing
-	 * @throws ComponentContextException  The component context was improperly exception
+	 * @throws Exception Problem while executing
 	 *
 	 */
-	protected void processNormally(ComponentContext cc) throws Exception {
-		if ( cc.isInputAvailable(IN_TOKEN_BLACKLIST)) {
-			processBlacklist(cc.getDataComponentFromInput(IN_TOKEN_BLACKLIST),cc);
+	protected void processNormally() throws Exception {
+		if ( componentContext.isInputAvailable(IN_TOKEN_BLACKLIST)) {
+			processBlacklist(componentContext.getDataComponentFromInput(IN_TOKEN_BLACKLIST));
 		}
-		if ( cc.isInputAvailable(IN_TOKENS) ) {
-			processTokens(cc.getDataComponentFromInput(IN_TOKENS),cc);
-		}
-
-		if ( cc.isInputAvailable(IN_TOKEN_COUNTS) ) {
-			processTokenCounts(cc.getDataComponentFromInput(IN_TOKEN_COUNTS),cc);
+		if ( componentContext.isInputAvailable(IN_TOKENS) ) {
+			processTokens(componentContext.getDataComponentFromInput(IN_TOKENS));
 		}
 
-		if ( cc.isInputAvailable(IN_TOKENIZED_SENTENCES) ) {
-			processTokenizedSentences(cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES),cc);
+		if ( componentContext.isInputAvailable(IN_TOKEN_COUNTS) ) {
+			processTokenCounts(componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
+		}
+
+		if ( componentContext.isInputAvailable(IN_TOKENIZED_SENTENCES) ) {
+			processTokenizedSentences(componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 		}
 	}
 
@@ -339,12 +325,10 @@ public class TokenFilter extends AbstractExecutableComponent {
 	 * Process tokenized sentences.
 	 *
 	 * @param next The object to process
-	 * @param cc The component context
-	 * @throws ComponentContextException Invalid access to the component context
-	 * @throws ComponentExecutionException Invalid cast
+	 * @throws Exception
 	 */
-	protected void processTokenizedSentences(Object next, ComponentContext cc) throws Exception {
-		StringsMap im = safeStringsMapCast(next, cc);
+	protected void processTokenizedSentences(Object next) throws Exception {
+		StringsMap im = safeStringsMapCast(next);
 		org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
 		for ( int i=0, iMax=im.getKeyCount() ; i<iMax ; i++ ) {
 			String sKey = im.getKey(i);
@@ -356,25 +340,23 @@ public class TokenFilter extends AbstractExecutableComponent {
 			res.addKey(sKey);
 			res.addValue(resFiltered.build());
 		}
-		cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, res.build());
+		componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, res.build());
 	}
 
 	/**
 	 * Process token counts sentences.
 	 *
 	 * @param next The object to process
-	 * @param cc The component context
-	 * @throws ComponentContextException Invalid access to the component context
-	 * @throws ComponentExecutionException Class cast exception
+	 * @throws Exception
 	 */
-	protected void processTokenCounts(Object next, ComponentContext cc) throws Exception {
+	protected void processTokenCounts(Object next) throws Exception {
 		Map<String, Integer> im;
 		try {
 		    im = DataTypeParser.parseAsStringIntegerMap(next);
 		}
 		catch (UnsupportedDataTypeException e) {
-		    if (bIgnoreErrors) {
-		        _console.warning("processTokenCounts: UnsupportedDataTypeException ignored - input data was not in the correct format");
+		    if (ignoreErrors) {
+		        console.warning("processTokenCounts: UnsupportedDataTypeException ignored - input data was not in the correct format");
 		        im = new HashMap<String, Integer>();
 		    }
 		    else
@@ -389,24 +371,24 @@ public class TokenFilter extends AbstractExecutableComponent {
 				res.put(sKey, iVal);
 		}
 
-		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(res, false));
+		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
+		        BasicDataTypesTools.mapToIntegerMap(res, false));
 	}
 
 	/**
 	 * Process tokens sentences.
 	 *
 	 * @param next The object to process
-	 * @param cc The component context
-	 * @throws Exception Invalid cast
+	 * @throws Exception
 	 */
-	private void processTokens(Object next, ComponentContext cc) throws Exception {
+	private void processTokens(Object next) throws Exception {
 		String[] tokens;
 		try {
             tokens = DataTypeParser.parseAsString(next);
         }
         catch (UnsupportedDataTypeException e) {
-            if (bIgnoreErrors) {
-                _console.warning("processTokens: UnsupportedDataTypeException ignored - input data was not in the correct format");
+            if (ignoreErrors) {
+                console.warning("processTokens: UnsupportedDataTypeException ignored - input data was not in the correct format");
                 tokens = new String[] {};
             }
             else
@@ -418,24 +400,23 @@ public class TokenFilter extends AbstractExecutableComponent {
 			if ( !this.setBlacklist.contains(sTok) )
 				res.addValue(sTok);
 
-		cc.pushDataComponentToOutput(OUT_TOKENS, res.build());
+		componentContext.pushDataComponentToOutput(OUT_TOKENS, res.build());
 	}
 
 	/**
 	 * Safe cast of strings map.
 	 *
 	 * @param next The object to cast into strings
-	 * @param cc The component context
 	 * @return The strings
-	 * @throws ComponentExecutionException
+	 * @throws Exception
 	 */
-	private StringsMap safeStringsMapCast(Object next, ComponentContext cc) throws Exception {
+	private StringsMap safeStringsMapCast(Object next) throws Exception {
 		try {
 			return (StringsMap)next;
 		}
 		catch ( ClassCastException e ) {
-			_console.warning("Input data is not from the basic type Strings required for blacklists");
-			if ( !bIgnoreErrors )
+			console.warning("Input data is not from the basic type Strings required for blacklists");
+			if ( !ignoreErrors )
 				throw new ComponentExecutionException(e);
 			return BasicDataTypesTools.buildEmptyStringsMap();
 		}

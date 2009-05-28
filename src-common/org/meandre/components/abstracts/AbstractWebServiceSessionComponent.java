@@ -309,7 +309,7 @@ public abstract class AbstractWebServiceSessionComponent extends
 			if( request instanceof EmptyHttpServletRequest ){
 				//
 				// emptyRequest create new sessionKey.
-				getConsoleLogger().info(this.getClass().getName() +": Received Empty Request");
+				console.info(this.getClass().getName() +": Received Empty Request");
 
 				Cookie cookie = setUpSession(instanceId);
 				response.addCookie(cookie);
@@ -327,7 +327,7 @@ public abstract class AbstractWebServiceSessionComponent extends
 			} else {
 				//
 				// parameterizedReuqest received, based on content send response.
-				getConsoleLogger().info(this.getClass().getName() +": Received Request With Parameters");
+				console.info(this.getClass().getName() +": Received Request With Parameters");
 
 				Cookie cookies[] = request.getCookies();
 				Cookie cookie = null;
@@ -342,7 +342,7 @@ public abstract class AbstractWebServiceSessionComponent extends
 							uniqueSessionKey = c.getValue();
 							long nanoTimeValue = Long.valueOf( (Long) sessionTime.get(uniqueSessionKey) );
 							//
-							getConsoleLogger().fine( this.getClass().getName() +
+							console.fine( this.getClass().getName() +
 													": Encountered a Parameterized Request with a valid UniqueSessionKey" +
 													": Elapsed nanoTime since last seen = " +
 													(System.nanoTime() - nanoTimeValue)
@@ -366,7 +366,7 @@ public abstract class AbstractWebServiceSessionComponent extends
 							// Here is the case where we find a Cookie with the right name,
 							// BUT it is not in the collection of cached active keys the simple answer
 							// is to reset the cookie to a good one.
-							getConsoleLogger().fine( this.getClass().getName() +
+							console.fine( this.getClass().getName() +
 													": Encountered a Parameterized Request with an invalid UniqueSessionKey"
 								);
 							//
@@ -392,7 +392,7 @@ public abstract class AbstractWebServiceSessionComponent extends
 					// could not locate existing session for this guy, start over.
 					// This should mean that an authenticated session would have to be expired.
 					// TODO: more work here .... required.
-					getConsoleLogger().fine( this.getClass().getName() +
+					console.fine( this.getClass().getName() +
 											": Encountered a Parameterized Request with NO UniqueSessionKey"
 						);
 					//
@@ -413,10 +413,10 @@ public abstract class AbstractWebServiceSessionComponent extends
 			}
 			//
 			//
-			getConsoleLogger().fine(this.getClass().getName() +": Data event completed conditionally PushDataOutputs");
+			console.fine(this.getClass().getName() +": Data event completed conditionally PushDataOutputs");
 
 			if(pushDataOut){
-				getConsoleLogger().fine(this.getClass().getName() +": Data event completed, ALL Push DataOutputs");
+				console.fine(this.getClass().getName() +": Data event completed, ALL Push DataOutputs");
 
 	            // Build the packedOutputCollection.
 				packedDataComponentsOutput.put(OutHttpServletRequest, request);
@@ -435,10 +435,10 @@ public abstract class AbstractWebServiceSessionComponent extends
 				cc.pushDataComponentToOutput(OutUniqueSessionKey, uniqueSessionKey );
 
 			} else {
-				getConsoleLogger().fine(this.getClass().getName() +": Data event completed, NO Push DataOutputs");
+				console.fine(this.getClass().getName() +": Data event completed, NO Push DataOutputs");
 			}
 		}catch(Exception e){
-			getConsoleLogger().throwing(getClass().getName(), "execute", e);
+			console.throwing(getClass().getName(), "execute", e);
 			throw new ComponentExecutionException(e);
 		}
 
@@ -463,11 +463,11 @@ public abstract class AbstractWebServiceSessionComponent extends
 		//
 		// Do the ClearSession evaluation (second example)
 		String clearSessionParameterValue = request.getParameter(
-				getComponentContext().getProperty(ClearSessionParameterName));
+				componentContext.getProperty(ClearSessionParameterName));
 
 		if( clearSessionParameterValue !=null
 			&& clearSessionParameterValue.equalsIgnoreCase(
-					getComponentContext().getProperty(ClearSessionParameterValue))
+					componentContext.getProperty(ClearSessionParameterValue))
 		) {
 			//
 			purgeSessionKeys(uniqueSessionKey);

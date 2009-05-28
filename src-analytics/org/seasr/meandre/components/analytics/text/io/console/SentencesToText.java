@@ -63,6 +63,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "Sentences To Text",
 		creator = "Xavier Llora",
@@ -70,10 +71,10 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, tools, text, tokenizer, counting",
 		description = "Given a collection of sentences, this component converts it " +
-				      "into text."
+				      "into text.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class SentencesToText extends AnalysisToText {
 

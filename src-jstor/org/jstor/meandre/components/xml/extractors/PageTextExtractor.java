@@ -53,17 +53,18 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.parsers.DataTypeParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * A base class for JSTOR extractors
  *
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "Page Text Extractor",
 		creator = "Xavier Llora",
@@ -72,8 +73,8 @@ import org.w3c.dom.NodeList;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "jstor, xml, extractor, text",
-		dependency = {"protobuf-java-2.0.3.jar"},
-		description = "Extract the text of the pages in an XML JSTOR document."
+		description = "Extract the text of the pages in an XML JSTOR document.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class PageTextExtractor extends AbstractExecutableComponent {
 
@@ -100,7 +101,7 @@ public class PageTextExtractor extends AbstractExecutableComponent {
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		Document doc = (Document)cc.getDataComponentFromInput(IN_XML);
+		Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
 
 		NodeList nl = doc.getChildNodes().item(0).getChildNodes();
 		StringBuffer sb = new StringBuffer();

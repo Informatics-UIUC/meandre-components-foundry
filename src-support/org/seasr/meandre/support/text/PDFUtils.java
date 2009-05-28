@@ -44,7 +44,6 @@ package org.seasr.meandre.support.text;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Iterator;
 
 import org.seasr.meandre.support.io.StreamUtils;
@@ -66,35 +65,46 @@ public class PDFUtils {
     /**
      * Extracts text from a PDF document
      *
-     * @param pdfURL The URL of the PDF document
+     * @param pdfDocument The PDF document
      * @return The text extracted from the PDF document
-     * @throws IOException Thrown if a problem occurred while reading the file
-     * @throws COSLoadException Thrown if a problem occurs during parsing of the PDF document
      */
-    public static String extractText(URL pdfURL) throws IOException, COSLoadException {
-        // sanity check
-        if (pdfURL == null) return null;
-        if (!pdfURL.toString().toLowerCase().endsWith(".pdf"))
-            throw new IllegalArgumentException(pdfURL.toString() + " is not a PDF file");
+    public static String extractText(PDDocument pdfDocument) {
+        StringBuilder sb = new StringBuilder();
+        extractText(pdfDocument.getPageTree(), sb);
+        return sb.toString();
+    }
 
-        byte[] pdfData;
+    /**
+     * Creates a PDDocument from an InputStream
+     *
+     * @param inputStream The InputStream
+     * @param name The name
+     * @param type The type
+     * @return The PDDocument
+     * @throws IOException
+     * @throws COSLoadException
+     */
+    public static PDDocument getDocument(InputStream inputStream, String name, String type)
+        throws IOException, COSLoadException {
 
-        InputStream dataStream = pdfURL.openStream();
-        try {
-            pdfData = StreamUtils.getBytesFromStream(dataStream);
-        } finally {
-            dataStream.close();
-        }
+        return getDocument(StreamUtils.getBytesFromStream(inputStream), name, type);
+    }
 
-        PDDocument pdfDoc = PDDocument.createFromLocator(
-                new ByteArrayLocator(pdfData, pdfURL.toString(), null));
-        try {
-            StringBuilder sb = new StringBuilder();
-            extractText(pdfDoc.getPageTree(), sb);
-            return sb.toString();
-        } finally {
-            pdfDoc.close();
-        }
+    /**
+     * Creates a PDDocument from a byte[]
+     *
+     * @param pdfData The PDF data as a byte[]
+     * @param name The name
+     * @param type The type
+     * @return The PDDocument
+     * @throws IOException
+     * @throws COSLoadException
+     */
+    public static PDDocument getDocument(byte[] pdfData, String name, String type)
+        throws IOException, COSLoadException {
+
+        return PDDocument.createFromLocator(
+                new ByteArrayLocator(pdfData, name, type));
     }
 
     /**
@@ -120,5 +130,4 @@ public class PDFUtils {
             }
         }
     }
-
 }

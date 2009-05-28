@@ -69,11 +69,11 @@ import org.seasr.meandre.components.tools.Names;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "tools, tokenizer, counting, transformations",
-		description = "Converts a Java string into an equivalent string protocol buffer wrapper."
+		description = "Converts a Java string into an equivalent string protocol buffer wrapper.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
-public class JavaStringToStrings extends AbstractExecutableComponent  {
+public class JavaStringToStrings extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -95,7 +95,6 @@ public class JavaStringToStrings extends AbstractExecutableComponent  {
 	//--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-
     }
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
@@ -105,6 +104,5 @@ public class JavaStringToStrings extends AbstractExecutableComponent  {
 	}
 
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-
 	}
 }

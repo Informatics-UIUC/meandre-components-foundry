@@ -64,16 +64,15 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
         name = "To Lowercase",
         tags = "lowercase, text, transform",
         rights = Licenses.UofINCSA,
-        dependency = {"protobuf-java-2.0.3.jar"},
-        baseURL = "meandre://seasr.org/components/tools/"
+        baseURL = "meandre://seasr.org/components/tools/",
+        dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class ToLowercase extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The text to be converted." +
-                          "<br>String, Text, byte[]",
+            description = "The text to be converted",
             name = Names.PORT_TEXT
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
@@ -81,8 +80,7 @@ public class ToLowercase extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The lowercase text." +
-                          "<br>TYPE: Text",
+            description = "The lowercase text",
             name = Names.PORT_TEXT
     )
     protected static final String OUT_LOWERCASE_TEXT = Names.PORT_TEXT;

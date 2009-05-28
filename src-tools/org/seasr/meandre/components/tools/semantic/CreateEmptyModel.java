@@ -42,8 +42,6 @@
 
 package org.seasr.meandre.components.tools.semantic;
 
-import java.util.logging.Logger;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
@@ -52,7 +50,6 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
@@ -67,6 +64,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "Create Empty Model",
 		creator = "Xavier Llora",
@@ -75,10 +73,10 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "io, string",
-		dependency = {"protobuf-java-2.0.3.jar"},
 		description = "Pushes an empty model. It provides " +
 				      "a couple of properties to control how many times it needs to be pushed, " +
-				      "and if it needs to be wrapped with terminators "
+				      "and if it needs to be wrapped with terminators ",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class CreateEmptyModel extends AbstractExecutableComponent {
 
@@ -115,27 +113,23 @@ public class CreateEmptyModel extends AbstractExecutableComponent {
 	/** Should be wrapped */
 	private boolean bWrapped;
 
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _console = getConsoleLogger();
-
 		lTimes = Long.parseLong(ccp.getProperty(PROP_TIMES));
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		if ( bWrapped )
-			pushInitiator(cc);
+			pushInitiator();
 
 		for ( long l=0 ; l<lTimes ; l++ )
 			cc.pushDataComponentToOutput(OUT_DOCUMENT, ModelFactory.createDefaultModel());
 
 		if ( bWrapped )
-			pushTerminator(cc);
+			pushTerminator();
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -148,28 +142,26 @@ public class CreateEmptyModel extends AbstractExecutableComponent {
 	/**
 	 * Pushes an initiator.
 	 *
-	 * @param cc The component context
-	 * @throws ComponentContextException Something went wrong when pushing
+	 * @throws Exception Something went wrong when pushing
 	 */
-	private void pushInitiator(ComponentContext cc) throws ComponentContextException {
-        _console.fine("Pushing " + StreamInitiator.class.getSimpleName());
+	private void pushInitiator() throws Exception {
+        console.fine("Pushing " + StreamInitiator.class.getSimpleName());
 
 		StreamInitiator si = new StreamInitiator();
 		si.put(PROP_TIMES, lTimes);
-		cc.pushDataComponentToOutput(OUT_DOCUMENT,si);
+		componentContext.pushDataComponentToOutput(OUT_DOCUMENT,si);
 	}
 
 	/**
 	 * Pushes a terminator.
 	 *
-	 * @param cc The component context
-	 * @throws ComponentContextException Something went wrong when pushing
+	 * @throws Exception Something went wrong when pushing
 	 */
-	private void pushTerminator(ComponentContext cc) throws ComponentContextException {
-        _console.fine("Pushing " + StreamTerminator.class.getSimpleName());
+	private void pushTerminator() throws Exception {
+        console.fine("Pushing " + StreamTerminator.class.getSimpleName());
 
 		StreamTerminator st = new StreamTerminator();
 		st.put(PROP_TIMES, lTimes);
-		cc.pushDataComponentToOutput(OUT_DOCUMENT,st);
+		componentContext.pushDataComponentToOutput(OUT_DOCUMENT,st);
 	}
 }

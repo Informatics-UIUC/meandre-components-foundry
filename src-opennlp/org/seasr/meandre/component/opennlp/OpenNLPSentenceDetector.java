@@ -43,7 +43,6 @@
 package org.seasr.meandre.component.opennlp;
 
 import java.io.File;
-import java.util.logging.Logger;
 
 import opennlp.tools.lang.english.SentenceDetector;
 import opennlp.tools.sentdetect.SentenceDetectorME;
@@ -76,11 +75,11 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"trove.jar","protobuf-java-2.0.3.jar"},
 		resources = "opennlp-english-models.jar",
 		tags = "semantic, tools, text, opennlp, sentence detector",
 		description = "This component splits sentences of the text contained in the input  " +
-				      "unsing OpenNLP tokenizing facilities."
+				      "unsing OpenNLP tokenizing facilities.",
+		dependency = {"trove.jar","protobuf-java-2.0.3.jar"}
 )
 public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 
@@ -106,15 +105,11 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	/** The OpenNLP tokenizer to use */
 	private SentenceDetectorME sdetector;
 
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		super.initialize(ccp);
-
-		_console = getConsoleLogger();
+		super.initializeCallBack(ccp);
 
 		try {
 			sdetector = new SentenceDetector(
@@ -124,7 +119,7 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 					sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"SD.bin.gz");
 		}
 		catch ( Throwable t ) {
-			_console.severe("Failed to open tokenizer model for " + sLanguage);
+			console.severe("Failed to open tokenizer model for " + sLanguage);
 			throw new ComponentExecutionException(t);
 		}
 	}
@@ -141,7 +136,7 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        super.dispose(ccp);
+        super.disposeCallBack(ccp);
         this.sdetector = null;
     }
 

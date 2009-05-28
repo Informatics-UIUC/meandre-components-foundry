@@ -43,7 +43,6 @@
 package org.seasr.meandre.component.opennlp;
 
 import java.io.File;
-import java.util.logging.Logger;
 
 import opennlp.tools.lang.english.Tokenizer;
 
@@ -70,6 +69,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "OpenNLP sentence tokenizer",
 		creator = "Xavier Llora",
@@ -77,11 +77,11 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"trove.jar","protobuf-java-2.0.3.jar"},
 		resources = "opennlp-english-models.jar",
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences",
 		description = "This component breaks the text contained in the input sentences " +
-				      "unsing OpenNLP tokenizing facilities."
+				      "unsing OpenNLP tokenizing facilities.",
+		dependency = {"trove.jar","protobuf-java-2.0.3.jar"}
 )
 public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 
@@ -107,15 +107,11 @@ public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 	/** The OpenNLP tokenizer to use */
 	private Tokenizer tokenizer;
 
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		super.initialize(ccp);
-
-		_console = getConsoleLogger();
+		super.initializeCallBack(ccp);
 
 		try {
 			tokenizer = new Tokenizer(
@@ -125,7 +121,7 @@ public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 					sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"Tok.bin.gz");
 		}
 		catch ( Throwable t ) {
-			_console.severe("Failed to open tokenizer model for " + sLanguage);
+			console.severe("Failed to open tokenizer model for " + sLanguage);
 			throw new ComponentExecutionException(t);
 		}
 	}
@@ -148,7 +144,7 @@ public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        super.dispose(ccp);
+        super.disposeCallBack(ccp);
         this.tokenizer = null;
     }
 

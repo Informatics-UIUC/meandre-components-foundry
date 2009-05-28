@@ -43,8 +43,6 @@
 package org.seasr.meandre.components.tools.text.io;
 
 import java.net.URI;
-import java.util.Set;
-import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -55,9 +53,7 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
@@ -72,6 +68,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
  */
+
 @Component(
 		name = "Read Text",
 		creator = "Xavier Llora",
@@ -79,13 +76,13 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, io, read, text",
 		description = "This component reads text from a local or remote location. The text location is specified " +
 				      "in the input. The component outputs the text " +
 				      "read. A property controls the behavior of the component in " +
 				      "the event of an IO error, allowing it to ignore the error and continue, or " +
-				      "throw an exception, forcing the finalization of the flow execution."
+				      "throw an exception, forcing the finalization of the flow execution.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class ReadText extends AbstractExecutableComponent {
 
@@ -111,17 +108,11 @@ public class ReadText extends AbstractExecutableComponent {
 		)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
-	//--------------------------------------------------------------------------------------------
-
-
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _console = getConsoleLogger();
     }
 
     @Override
@@ -140,33 +131,30 @@ public class ReadText extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-            throws ComponentContextException, ComponentExecutionException {
-        pushDelimiters(cc, (StreamInitiator)cc.getDataComponentFromInput(IN_LOCATION));
+    protected void handleStreamInitiators() throws Exception {
+        pushDelimiters((StreamInitiator)componentContext.getDataComponentFromInput(IN_LOCATION));
     }
 
     @Override
-    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-            throws ComponentContextException, ComponentExecutionException {
-        pushDelimiters(cc, (StreamTerminator)cc.getDataComponentFromInput(IN_LOCATION));
+    protected void handleStreamTerminators() throws Exception {
+        pushDelimiters((StreamTerminator)componentContext.getDataComponentFromInput(IN_LOCATION));
     }
 
     //--------------------------------------------------------------------------------------------
 
-    /** Push the delimiters
+    /**
+     * Push the delimiters
      *
-     * @param cc The component context
      * @param sdLoc The delimiter object
-     * @throws ComponentContextException
+     * @throws Exception
      */
-    private void pushDelimiters(ComponentContext cc, StreamDelimiter sdLoc)
-            throws ComponentContextException {
-        cc.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
+    private void pushDelimiters(StreamDelimiter sdLoc) throws Exception {
+        componentContext.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
         try {
-            cc.pushDataComponentToOutput(OUT_TEXT, ComponentUtils.cloneStreamDelimiter(sdLoc));
+            componentContext.pushDataComponentToOutput(OUT_TEXT, ComponentUtils.cloneStreamDelimiter(sdLoc));
         } catch (Exception e) {
-            _console.warning("Failed to create a new delimiter - reusing current one");
-            cc.pushDataComponentToOutput(OUT_TEXT, sdLoc);
+            console.warning("Failed to create a new delimiter - reusing current one");
+            componentContext.pushDataComponentToOutput(OUT_TEXT, sdLoc);
         }
     }
 }

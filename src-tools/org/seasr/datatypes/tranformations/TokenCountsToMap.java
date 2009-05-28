@@ -70,10 +70,10 @@ import org.seasr.meandre.components.tools.Names;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "tools, tokenizer, counting, transformations",
 		description = "Given a collection of token counts, this component converts them " +
-				      "to a Java map."
+				      "to a Java map.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class TokenCountsToMap extends AbstractExecutableComponent {
 
@@ -97,7 +97,6 @@ public class TokenCountsToMap extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-
     }
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
@@ -107,6 +106,5 @@ public class TokenCountsToMap extends AbstractExecutableComponent {
 	}
 
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-
 	}
 }

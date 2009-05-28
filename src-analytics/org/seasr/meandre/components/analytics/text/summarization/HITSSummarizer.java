@@ -59,7 +59,6 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypes;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
@@ -79,6 +78,7 @@ import cern.jet.math.Functions;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "HITS Summarizer",
 		creator = "Xavier Llora",
@@ -86,10 +86,10 @@ import cern.jet.math.Functions;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"colt.jar","concurrent.jar","protobuf-java-2.0.3.jar"},
 		tags = "tools, text, tokenizer, sentences, summarization",
 		description = "This component ranks and sorts the tokenized input sentences " +
-				      "providing a simple summarization by sentence seletion."
+				      "providing a simple summarization by sentence seletion.",
+		dependency = {"colt.jar","concurrent.jar","protobuf-java-2.0.3.jar"}
 )
 public class HITSSummarizer extends AbstractExecutableComponent {
 
@@ -180,19 +180,19 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-	protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-	        throws ComponentContextException, ComponentExecutionException {
-
-	    cc.pushDataComponentToOutput(OUT_SENTENCES, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
-        cc.pushDataComponentToOutput(OUT_TOKENS, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+	protected void handleStreamInitiators() throws Exception {
+	    componentContext.pushDataComponentToOutput(OUT_SENTENCES,
+	            componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+	    componentContext.pushDataComponentToOutput(OUT_TOKENS,
+	            componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 	}
 
 	@Override
-	protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-	        throws ComponentContextException, ComponentExecutionException {
-
-	    cc.pushDataComponentToOutput(OUT_SENTENCES, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
-        cc.pushDataComponentToOutput(OUT_TOKENS, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+	protected void handleStreamTerminators() throws Exception {
+	    componentContext.pushDataComponentToOutput(OUT_SENTENCES,
+	            componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+	    componentContext.pushDataComponentToOutput(OUT_TOKENS,
+	            componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 	}
 
     //--------------------------------------------------------------------------------------------

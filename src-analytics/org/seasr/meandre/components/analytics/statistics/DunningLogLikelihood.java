@@ -48,7 +48,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.logging.Logger;
 
 import org.junit.Test;
 import org.meandre.annotations.Component;
@@ -84,7 +83,8 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		              "or Griffiths, D. Head First Statistics. 2009. Second edition. O'Reilly.",
 		name = "Dunning Log Likelihood",
 		tags = "dunning, likelihood, loglikelihood, monk, comparison, statistics",
-		baseURL = "meandre://seasr.org/components/tools/"
+		baseURL = "meandre://seasr.org/components/tools/",
+	    dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class DunningLogLikelihood extends AbstractExecutableComponent {
 
@@ -110,16 +110,10 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 	)
     protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
-	//--------------------------------------------------------------------------------------------
-
-
-	private Logger _console;
-
 
     //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _console = getConsoleLogger();
     }
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
@@ -159,7 +153,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 			else //scale score
 				outputMap.put(key.getString(), new Integer((int)(score/min)));
 
-			_console.info(String.format("%s\t%s\t%s", key.getString(), score, (int)score));
+			console.info(String.format("%s\t%s\t%s", key.getString(), score, (int)score));
 		}
 
 		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));

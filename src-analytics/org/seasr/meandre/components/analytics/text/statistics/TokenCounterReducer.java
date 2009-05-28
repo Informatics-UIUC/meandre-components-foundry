@@ -44,9 +44,7 @@ package org.seasr.meandre.components.analytics.text.statistics;
 
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -57,7 +55,6 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -73,6 +70,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "Token Counter Reducer",
 		creator = "Xavier Llora",
@@ -80,13 +78,13 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, model, accumulate, reduce, token counts",
 		description = "This component is intended to work on wrapped model streams. " +
 				      "Given a sequence of wrapped models, it will create a new model that " +
 				      "accumulates/reduces the token counts and then pushes them the resulting model. " +
 				      "If no wrapped model is provided it will act as a simple pass through. This " +
-				      "component is based on Wrapped models reducer."
+				      "component is based on Wrapped models reducer.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class TokenCounterReducer extends AbstractExecutableComponent {
 
@@ -108,7 +106,7 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
-    // Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
+    // Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
 
     @ComponentProperty(
             name = Names.PROP_ORDERED,
@@ -120,9 +118,6 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 
-	/** The error handling flag */
-	protected boolean bIgnoreErrors;
-
 	/** The accumulated counts */
 	protected Hashtable<String,Integer> htAcc;
 
@@ -132,15 +127,10 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	/** Should the tokens be ordered */
 	private boolean bOrdered;
 
-	private Logger _console;
-
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _console = getConsoleLogger();
-
-		this.bIgnoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
 		this.htAcc = null;
 		this.iCnt = 0;
 		this.bOrdered = Boolean.parseBoolean(ccp.getProperty(PROP_ORDERED));
@@ -156,7 +146,6 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.bIgnoreErrors = false;
         this.htAcc = null;
         this.iCnt = 0;
         this.bOrdered = false;
@@ -165,15 +154,13 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	//-----------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators(ComponentContext cc, Set<String> inputPortsWithInitiators)
-            throws ComponentContextException, ComponentExecutionException {
-
+    protected void handleStreamInitiators() throws Exception {
         // Try to revalance a stream
         if ( this.htAcc!=null ) {
             String sMessage = "Unbalanced wrapped stream. Got a new initiator without a terminator.";
-            _console.warning(sMessage);
-            if ( this.bIgnoreErrors )
-                pushReduction(cc);
+            console.warning(sMessage);
+            if ( this.ignoreErrors )
+                pushReduction();
             else
                 throw new ComponentExecutionException(sMessage);
         }
@@ -182,16 +169,14 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators(ComponentContext cc, Set<String> inputPortsWithTerminators)
-            throws ComponentContextException, ComponentExecutionException {
-
+    protected void handleStreamTerminators() throws Exception {
         if ( this.htAcc==null ) {
             String sMessage = "Unbalanced wrapped stream. Got a new terminator without an initiator. Dropping it to try to rebalance.";
-            _console.warning(sMessage);
-            if ( !this.bIgnoreErrors )
+            console.warning(sMessage);
+            if ( !this.ignoreErrors )
                 throw new ComponentExecutionException(sMessage);
         }
-        pushReduction(cc);
+        pushReduction();
         initializeReduction();
     }
 
@@ -209,10 +194,9 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	/**
 	 * Pushes the accumulated model.
 	 *
-	 * @param cc The component context
-	 * @throws ComponentContextException Failed to push the accumulated model
+	 * @throws Exception Failed to push the accumulated model
 	 */
-	protected void pushReduction(ComponentContext cc) throws ComponentContextException {
+	protected void pushReduction() throws Exception {
 		// Create the delimiters
 		StreamInitiator si = new StreamInitiator();
 		StreamTerminator st = new StreamTerminator();
@@ -220,9 +204,10 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 		st.put("count", this.iCnt); st.put("accumulated", 1);
 
 		// Push
-		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, si);
-		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htAcc,bOrdered));
-		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, st);
+		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, si);
+		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
+		        BasicDataTypesTools.mapToIntegerMap(htAcc,bOrdered));
+		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, st);
 
 	}
 
@@ -243,5 +228,3 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 		this.iCnt++;
 	}
 }
-
-

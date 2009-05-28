@@ -109,14 +109,14 @@ public abstract class AbstractWebServiceTailPrintWriterComponent extends Abstrac
 			throws ComponentExecutionException, ComponentContextException {
 		// logger = getLogger();
 		//
-		getConsoleLogger().entering(getClass().getName(), "execute", cc);
+		console.entering(getClass().getName(), "execute", cc);
 
         Object sResponse = (Object)cc.getDataComponentFromInput(httpServletResponsePayload);
         Semaphore sem = (Semaphore) cc.getDataComponentFromInput(semaphore);
         HttpServletResponse response = (HttpServletResponse) cc.getDataComponentFromInput(httpServletResponse);
 
         try {
-        	getConsoleLogger().fine("Attempting to send using PrintWriter");
+        	console.fine("Attempting to send using PrintWriter");
 
             PrintWriter pw = response.getWriter();
             pw.println( sResponse );
@@ -125,7 +125,7 @@ public abstract class AbstractWebServiceTailPrintWriterComponent extends Abstrac
 
        } catch (IOException e) {
 
-	       	getConsoleLogger().throwing(getClass().getName(), "execute", e);
+	       	console.throwing(getClass().getName(), "execute", e);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos);

@@ -65,6 +65,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
  */
+
 @Component(
 		name = "Token Counter",
 		creator = "Xavier Llora",
@@ -72,12 +73,12 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		dependency = {"protobuf-java-2.0.3.jar"},
 		tags = "semantic, tools, text, tokenizer, counting",
 		description = "Given a document containing collections of tokens, " +
 				      "this component counts all the different occurences of the " +
 				      "tokens. If the document contains multiple token sequences, the " +
-				      "component aggregate all the sequences providing a cummulative count."
+				      "component aggregate all the sequences providing a cummulative count.",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class TokenCounter extends AbstractExecutableComponent {
 

@@ -61,7 +61,7 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
-    // Inherited PROP_IGNORE_ERRORS from AbstractExecutableComponent
+    // Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
 
 	@ComponentProperty(
 			name = Names.PROP_LANGUAGE,
@@ -73,9 +73,6 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 
-	/** The error handling flag */
-	protected boolean bIgnoreErrors;
-
 	/** The language of the text being processed */
 	protected String sLanguage;
 
@@ -84,17 +81,15 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
-		this.bIgnoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
 
 		String sRunFile = ccp.getRunDirectory() + File.separator + "opennlp" + File.separator + "models";
 		boolean bRes = ModelInstaller.installJar(sRunFile, "opennlp-" + sLanguage + "-models.jar", false);
-		if ( !this.bIgnoreErrors && !bRes )
+		if ( !this.ignoreErrors && !bRes )
 			throw new ComponentExecutionException("Failed to install OpenNLP models at "
 			        + new File(sRunFile).getAbsolutePath());
 	}
 
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.sLanguage = null;
-		this.bIgnoreErrors = false;
 	}
 }
