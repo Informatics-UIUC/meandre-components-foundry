@@ -71,7 +71,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  */
 
 @Component(
-		name = "OpenNLP sentence tokenizer",
+		name = "OpenNLP Sentence Tokenizer",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
