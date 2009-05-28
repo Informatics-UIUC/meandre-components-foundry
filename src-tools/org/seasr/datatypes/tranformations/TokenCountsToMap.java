@@ -64,7 +64,7 @@ import org.seasr.meandre.components.tools.Names;
  *
  */
 @Component(
-		name = "Token counts to map",
+		name = "Token Counts To Map",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
