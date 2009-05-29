@@ -83,7 +83,7 @@ public class TopNFilter extends AbstractExecutableComponent {
             description = "Token counts",
             name = Names.PORT_TOKEN_COUNTS
     )
-    protected static final String DATA_INPUT = Names.PORT_TOKEN_COUNTS;
+    protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -91,7 +91,7 @@ public class TopNFilter extends AbstractExecutableComponent {
             description = "Filtered token counts",
             name = Names.PORT_TOKEN_COUNTS
     )
-    protected static final String DATA_OUTPUT = Names.PORT_TOKEN_COUNTS;
+    protected static final String OUT_FILTERED_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -100,7 +100,7 @@ public class TopNFilter extends AbstractExecutableComponent {
             description = "This property sets the maximum number of keys to be outputed",
             name = Names.PROP_N_TOP_TOKENS
     )
-    protected static final String DATA_PROPERTY_UPPER_LIMIT = Names.PROP_N_TOP_TOKENS;
+    protected static final String PROP_UPPER_LIMIT = Names.PROP_N_TOP_TOKENS;
 
     //--------------------------------------------------------------------------------------------
 
@@ -111,11 +111,11 @@ public class TopNFilter extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        upperLimit = Integer.parseInt(ccp.getProperty(DATA_PROPERTY_UPPER_LIMIT));
+        upperLimit = Integer.parseInt(ccp.getProperty(PROP_UPPER_LIMIT));
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Map<String, Integer> inputMap = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(DATA_INPUT));
+        Map<String, Integer> inputMap = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
         Map<String, Integer> outputMap = inputMap;
 
@@ -134,7 +134,7 @@ public class TopNFilter extends AbstractExecutableComponent {
         }
 
         console.fine(String.format("Filter results:%ninput_tokens=%s%noutput_tokens=%s", inputMap.size(), outputMap.size()));
-        cc.pushDataComponentToOutput(DATA_OUTPUT, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
+        cc.pushDataComponentToOutput(OUT_FILTERED_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
