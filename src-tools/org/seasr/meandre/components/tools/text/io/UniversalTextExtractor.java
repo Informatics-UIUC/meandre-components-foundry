@@ -107,8 +107,15 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
         console.fine("Location set to: " + location.toString());
 
         URLConnection connection = location.openConnection();
+        String mimeType = connection.getContentType();
+
+        console.fine("Content type: " + mimeType);
+
         ContentHandler handler =
-            new TextContentHandlerFactory().createContentHandler(connection.getContentType());
+            new TextContentHandlerFactory().createContentHandler(mimeType);
+
+        if (handler == null)
+            throw new UnsupportedOperationException("Do not know how to handle MIME type: " + mimeType);
 
         console.fine("Content handler set to: " + handler.getClass().getSimpleName());
 

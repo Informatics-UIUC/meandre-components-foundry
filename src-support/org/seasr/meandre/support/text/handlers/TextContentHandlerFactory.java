@@ -54,22 +54,24 @@ import org.seasr.meandre.support.io.handlers.PlainTextContentHandler;
 public class TextContentHandlerFactory implements ContentHandlerFactory {
 
     public ContentHandler createContentHandler(String contentType) {
-        if (contentType.equalsIgnoreCase("text/plain"))
+        contentType = contentType.toLowerCase();
+
+        if (contentType.startsWith("text/plain"))
             return new PlainTextContentHandler();
 
         else
 
-        if (contentType.equalsIgnoreCase("text/html"))
+        if (contentType.startsWith("text/html"))
             return new HTMLTextContentHandler();
 
         else
 
-        if (contentType.equalsIgnoreCase("application/xml"))
+        if (contentType.startsWith("application/xml"))
             return new XMLTextContentHandler();
 
         else
 
-        if (contentType.equalsIgnoreCase("application/pdf"))
+        if (contentType.startsWith("application/pdf"))
             return new PDFTextContentHandler();
 
 
