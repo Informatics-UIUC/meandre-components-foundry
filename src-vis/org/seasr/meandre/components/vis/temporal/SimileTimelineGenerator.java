@@ -91,9 +91,9 @@ import org.w3c.dom.NodeList;
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/tools/",
         dependency = {"protobuf-java-2.0.3.jar", "velocity-1.6.1-dep.jar"},
-        resources = {"SimileTimelineMaker.vm"}
+        resources = {"SimileTimelineGenerator.vm"}
 )
-public class SimileTimelineMaker extends AbstractExecutableComponent {
+public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -124,7 +124,7 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
 
 
 	protected static final String simileVelocityTemplate =
-	    "org/seasr/meandre/components/vis/temporal/SimileTimelineMaker.vm";
+	    "org/seasr/meandre/components/vis/temporal/SimileTimelineGenerator.vm";
 
     /** Store document title */
     private String docTitle;
@@ -207,7 +207,9 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
     private String generateXML(Document doc) {
     	minYear = Integer.MAX_VALUE;
     	maxYear = Integer.MIN_VALUE;
-
+    	
+//TODO: StringBuffer buf needs to be replaced with the XML document object
+ 
     	StringBuffer buf = new StringBuffer(); //Store XML
     	buf.append("<data>\n");
 
@@ -288,6 +290,9 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
 		        StringTokenizer st = new StringTokenizer(sentence, "|");
 		        StringBuffer sb = new StringBuffer();
 		        int nr = 0;
+		        
+		        //TODO: This highlighting needs to be in the css and work with the template system
+		        
 		        while(st.hasMoreTokens()) {
 		        	String nt = st.nextToken();
 		        	int pos = nt.toLowerCase().indexOf(aDate);
