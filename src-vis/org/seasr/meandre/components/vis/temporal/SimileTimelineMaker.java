@@ -105,10 +105,10 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-	        description = "Location to use to store the HTML and XML files",
-	        name = Names.PORT_LOCATION
+	        description = "The HTML for the Simile Timeline viewer",
+	        name = Names.PORT_HTML
 	)
-	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
+	protected static final String OUT_HTML = Names.PORT_HTML;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -172,14 +172,16 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
         xmlWriter.write(generateXML(doc));
         xmlWriter.close();
 
+        String simileHtml = generateHTML(xmlFileName);
+
         Writer htmlWriter = IOUtils.getWriterForResource(htmlURI);
-        htmlWriter.write(generateHTML(xmlFileName));
+        htmlWriter.write(simileHtml);
         htmlWriter.close();
 
         console.info("The Simile Timeline HTML content was created at " + htmlLocation);
         console.info("The Simile Timeline XML content was created at " + xmlLocation);
 
-        cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(htmlLocation));
+        cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(simileHtml));
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
