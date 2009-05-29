@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.vis.temporal;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -147,10 +148,15 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
 
-        String dir = cc.getPublicResourcesDirectory() + File.separator;
-        dir += "timeline" + File.separator;
+        String dirName = cc.getPublicResourcesDirectory() + File.separator;
+        dirName += "timeline" + File.separator;
 
-        console.finest("Set storage location to " + dir);
+        File dir = new File(dirName);
+        if (!dir.exists())
+            if (!dir.mkdir())
+                throw new IOException("The directory '" + dirName + "' could not be created!");
+
+        console.finest("Set storage location to " + dirName);
 
         String webUiUrl = cc.getWebUIUrl(true).toString();
         Date now = new Date();
@@ -165,8 +171,8 @@ public class SimileTimelineMaker extends AbstractExecutableComponent {
         console.finest("htmlLocation=" + htmlLocation);
         console.finest("xmlLocation=" + xmlLocation);
 
-        URI xmlURI = DataTypeParser.parseAsURI(dir + xmlFileName);
-        URI htmlURI = DataTypeParser.parseAsURI(dir + htmlFileName);
+        URI xmlURI = DataTypeParser.parseAsURI(dirName + xmlFileName);
+        URI htmlURI = DataTypeParser.parseAsURI(dirName + htmlFileName);
 
         Writer xmlWriter = IOUtils.getWriterForResource(xmlURI);
         xmlWriter.write(generateXML(doc));
