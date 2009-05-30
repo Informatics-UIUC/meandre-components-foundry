@@ -164,7 +164,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 	protected Queue<Object>[] queues  = new Queue[3];
 	protected final int PORT_TOKENS = 0;
 	protected final int PORT_TOKEN_COUNTS = 1;
-	protected final int PORT_TOKENIZE_SENTENCES = 2;
+	protected final int PORT_TOKENIZED_SENTENCES = 2;
 
 	/** The list of available inputs */
 	protected String [] saInputName = null;
@@ -179,7 +179,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 		this.bReplace = Boolean.parseBoolean(ccp.getProperty(PROP_REPLACE));
 		this.queues[PORT_TOKENS] = new LinkedList<Object>();
 		this.queues[PORT_TOKEN_COUNTS] = new LinkedList<Object>();
-		this.queues[PORT_TOKENIZE_SENTENCES] = new LinkedList<Object>();
+		this.queues[PORT_TOKENIZED_SENTENCES] = new LinkedList<Object>();
 		this.saInputName = ccp.getInputNames();
 		this.setBlacklist = null;
 	}
@@ -201,7 +201,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.bReplace = false;
-        this.queues[PORT_TOKENS] = this.queues[PORT_TOKEN_COUNTS] = this.queues[PORT_TOKENIZE_SENTENCES] = null;
+        this.queues[PORT_TOKENS] = this.queues[PORT_TOKEN_COUNTS] = this.queues[PORT_TOKENIZED_SENTENCES] = null;
         this.queues = null;
         this.saInputName = null;
         this.setBlacklist = null;
@@ -252,7 +252,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 		if ( componentContext.isInputAvailable(IN_TOKEN_COUNTS) )
 			this.queues[PORT_TOKEN_COUNTS].offer(componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
 		if ( componentContext.isInputAvailable(IN_TOKENIZED_SENTENCES) )
-			this.queues[PORT_TOKENIZE_SENTENCES].offer(componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+			this.queues[PORT_TOKENIZED_SENTENCES].offer(componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 	}
 
 	/**
@@ -293,7 +293,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 		Iterator<Object> iterTokCnts = this.queues[PORT_TOKEN_COUNTS].iterator();
 		while ( iterTokCnts.hasNext() ) processTokenCounts(iterTokCnts.next());
 
-		Iterator<Object> iterTS = this.queues[PORT_TOKENIZE_SENTENCES].iterator();
+		Iterator<Object> iterTS = this.queues[PORT_TOKENIZED_SENTENCES].iterator();
 		while ( iterTS.hasNext() ) processTokenizedSentences(iterTS.next());
 	}
 

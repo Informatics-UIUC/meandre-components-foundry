@@ -96,6 +96,9 @@ public abstract class Names {
 	public static final String PORT_SENTENCES = "sentences";
 	public static final String PORT_OBJECT = "object";
 	public static final String PORT_OBJECT_2 = "object2";
+    public static final String PORT_OBJECT_3 = "object3";
+    public static final String PORT_OBJECT_4 = "object4";
+    public static final String PORT_OBJECT_5 = "object5";
 	public static final String PORT_XML = "xml";
 	public static final String PORT_TOKEN_MAP = "token_map";
 	public static final String PORT_JAVA_STRING = "java_string";
