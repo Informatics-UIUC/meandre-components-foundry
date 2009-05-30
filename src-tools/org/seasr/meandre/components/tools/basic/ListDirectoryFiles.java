@@ -68,7 +68,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  * @author Boris Capitanu
  */
 @Component(
-		name = "List directory files",
+		name = "List Directory Files",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
