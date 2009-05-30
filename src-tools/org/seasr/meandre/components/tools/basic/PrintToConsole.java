@@ -123,23 +123,27 @@ public class PrintToConsole extends AbstractExecutableComponent {
 
 		if (data instanceof StringsMap) {
 		    StringsMap sm = (StringsMap)data;
+		    outputConsole.println("--- Strings Map ---");
             for (int i = 0; i < sm.getValueCount(); i++) {
                 String key = sm.getKey(i);
                 Strings values = sm.getValue(i);
 
-                outputConsole.println(String.format("key: '%s'%nvalues:%n%s", key, values));
+                outputConsole.println(String.format("key: \"%s\"%nvalues:%n%s", key, values));
             }
+            outputConsole.println("-------------------");
 		}
 
 		else
 
 		if (data instanceof IntegersMap) {
 		    IntegersMap im = (IntegersMap)data;
+		    outputConsole.println("--- Integers Map ---");
 		    for (int i = 0; i < im.getValueCount(); i++) {
 		        String key = im.getKey(i);
 		        Integers values = im.getValue(i);
                 outputConsole.println(String.format("key: %s%nvalues: %s%n", key, values));
 		    }
+		    outputConsole.println("--------------------");
 		}
 
 		else {
