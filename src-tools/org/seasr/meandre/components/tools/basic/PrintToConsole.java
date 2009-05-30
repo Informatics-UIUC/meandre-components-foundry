@@ -42,6 +42,8 @@
 
 package org.seasr.meandre.components.tools.basic;
 
+import java.io.PrintStream;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -53,6 +55,10 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.seasr.datatypes.BasicDataTypes.Integers;
+import org.seasr.datatypes.BasicDataTypes.IntegersMap;
+import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 
@@ -113,10 +119,33 @@ public class PrintToConsole extends AbstractExecutableComponent {
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		Object data = cc.getDataComponentFromInput(IN_OBJECT);
-        String[] inputs = DataTypeParser.parseAsString(data);
+        PrintStream outputConsole = cc.getOutputConsole();
 
-        for (String s : inputs)
-            cc.getOutputConsole().println(s);
+		if (data instanceof StringsMap) {
+		    StringsMap sm = (StringsMap)data;
+            for (int i = 0; i < sm.getValueCount(); i++) {
+                String key = sm.getKey(i);
+                Strings values = sm.getValue(i);
+
+                outputConsole.println(String.format("key: '%s'%nvalues:%n%s", key, values));
+            }
+		}
+
+		else
+
+		if (data instanceof IntegersMap) {
+		    IntegersMap im = (IntegersMap)data;
+		    for (int i = 0; i < im.getValueCount(); i++) {
+		        String key = im.getKey(i);
+		        Integers values = im.getValue(i);
+                outputConsole.println(String.format("key: %s%nvalues: %s%n", key, values));
+		    }
+		}
+
+		else {
+            for (String s : DataTypeParser.parseAsString(data))
+                outputConsole.println(s);
+		}
 
 		cc.pushDataComponentToOutput(OUT_OBJECT, data);
 	}
