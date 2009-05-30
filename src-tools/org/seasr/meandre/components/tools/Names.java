@@ -81,6 +81,8 @@ public abstract class Names {
 	public static final String PROP_ENTITIES = "entities";
 	public static final String PROP_N_SLICES = "n_slices";
 	public static final String PROP_YAHOO_API_KEY = "yahoo_api_key";
+	public static final String PROP_REPLICATION_MODE = "replication_mode";
+	public static final String PROP_REPLICATION_METHOD = "replication_method_name";
 
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";
@@ -93,6 +95,7 @@ public abstract class Names {
 	public static final String PORT_TOKENIZED_SENTENCES = "tokenized_sentences";
 	public static final String PORT_SENTENCES = "sentences";
 	public static final String PORT_OBJECT = "object";
+	public static final String PORT_OBJECT_2 = "object2";
 	public static final String PORT_XML = "xml";
 	public static final String PORT_TOKEN_MAP = "token_map";
 	public static final String PORT_JAVA_STRING = "java_string";
