@@ -87,11 +87,16 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
+            description = "The document location",
+            name = Names.PORT_LOCATION
+    )
+    protected static final String OUT_LOCATION = Names.PORT_LOCATION;
+
+    @ComponentOutput(
             description = "The text extracted from the given document",
             name = Names.PORT_TEXT
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
-
 
     //--------------------------------------------------------------------------------------------
 
@@ -101,8 +106,8 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        URL location = StreamUtils.getURLforResource(
-                DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION)));
+        Object input = cc.getDataComponentFromInput(IN_LOCATION);
+        URL location = StreamUtils.getURLforResource(DataTypeParser.parseAsURI(input));
 
         console.fine("Location set to: " + location.toString());
 
@@ -119,6 +124,7 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
 
         console.fine("Content handler set to: " + handler.getClass().getSimpleName());
 
+        cc.pushDataComponentToOutput(OUT_LOCATION, input);
         cc.pushDataComponentToOutput(OUT_TEXT,
                 BasicDataTypesTools.stringToStrings((String)handler.getContent(connection)));
     }
