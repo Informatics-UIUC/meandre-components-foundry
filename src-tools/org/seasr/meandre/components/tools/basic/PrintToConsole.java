@@ -89,13 +89,15 @@ public class PrintToConsole extends AbstractExecutableComponent {
 	)
 	protected static final String IN_OBJECT = Names.PORT_OBJECT;
 
+	//------------------------------ OUTPUTS -----------------------------------------------------
+
 	@ComponentOutput(
 			name = Names.PORT_OBJECT,
 			description = "The object printed"
 	)
 	protected static final String OUT_OBJECT = Names.PORT_OBJECT;
 
-    //------------------------------ OUTPUTS -----------------------------------------------------
+    //------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
             name = Names.PROP_WRAP_STREAM,

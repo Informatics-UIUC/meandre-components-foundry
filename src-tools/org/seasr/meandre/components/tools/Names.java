@@ -83,11 +83,13 @@ public abstract class Names {
 	public static final String PROP_YAHOO_API_KEY = "yahoo_api_key";
 	public static final String PROP_REPLICATION_MODE = "replication_mode";
 	public static final String PROP_REPLICATION_METHOD = "replication_method_name";
+	public static final String PROP_SEPARATOR = "separator";
 
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";
 	public static final String PORT_DOC_TITLE = "document_title";
 	public static final String PORT_TEXT = "text";
+	public static final String PORT_TEXT_2 = "text2";
 	public static final String PORT_TOKENS = "tokens";
 	public static final String PORT_TOKEN_BLACKLIST = "tokens_blacklist";
 	public static final String PORT_TOKEN_COUNTS = "token_counts";
