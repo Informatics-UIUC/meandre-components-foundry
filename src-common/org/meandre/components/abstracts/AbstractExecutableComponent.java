@@ -156,7 +156,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
 
         ignoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
         if (ignoreErrors)
-            console.info("Exceptions are being ignored per user's request.");
+            console.info(ccp.getExecutionInstanceID() + ": Exceptions are being ignored per user's request.");
 
         connectedInputs = new HashSet<String>();
         for (String componentInput : ccp.getInputNames())
@@ -215,9 +215,12 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
             for (String inputPort : connectedInputs) {
                 Object data = cc.getDataComponentFromInput(inputPort);
 
+                // data = null seems to happen for components with FiringPolicy.any
+                if (data == null) continue;
+
                 // show the inputs and data-types received on each input in "debug" mode
                 console.finer(String.format("Input port '%s' has data of type '%s'",
-                        inputPort, data.getClass().getName()));
+                            inputPort, data.getClass().getName()));
 
                 if (data instanceof StreamInitiator)
                     inputPortsWithInitiators.add(inputPort);
