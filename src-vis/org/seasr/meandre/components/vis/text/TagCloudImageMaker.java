@@ -158,8 +158,8 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
         if (fontName.trim().length() == 0)
             fontName = null;
 
-        int fontSizeMin = Integer.parseInt(ccp.getProperty(PROP_FONT_MIN_SIZE));
-        int fontSizeMax = Integer.parseInt(ccp.getProperty(PROP_FONT_MAX_SIZE));
+        float fontSizeMin = Float.parseFloat(ccp.getProperty(PROP_FONT_MIN_SIZE));
+        float fontSizeMax = Float.parseFloat(ccp.getProperty(PROP_FONT_MAX_SIZE));
 
         boolean showCounts = Boolean.parseBoolean(ccp.getProperty(PROP_SHOW_COUNT));
 

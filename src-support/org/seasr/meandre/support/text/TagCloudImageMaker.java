@@ -58,12 +58,13 @@ import java.util.Map.Entry;
  */
 public class TagCloudImageMaker {
 
-    private int _canvasWidth, _canvasHeight, _maxFontSize, _minFontSize;
+    private int _canvasWidth, _canvasHeight;
+    private float _maxFontSize, _minFontSize;
     private String _fontName;
     private boolean _showCounts;
 
     public TagCloudImageMaker(int canvasWidth, int canvasHeight,
-            String fontName, int minFontSize, int maxFontSize, boolean showCounts) {
+            String fontName, float minFontSize, float maxFontSize, boolean showCounts) {
         _canvasWidth = canvasWidth;
         _canvasHeight = canvasHeight;
         _fontName = fontName;
@@ -112,7 +113,7 @@ public class TagCloudImageMaker {
         _maxFontSize = maxFontSize;
     }
 
-    public int getMaxFontSize() {
+    public float getMaxFontSize() {
         return _maxFontSize;
     }
 
@@ -123,7 +124,7 @@ public class TagCloudImageMaker {
         _minFontSize = minFontSize;
     }
 
-    public int getMinFontSize() {
+    public float getMinFontSize() {
         return _minFontSize;
     }
 
