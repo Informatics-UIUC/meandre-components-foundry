@@ -50,6 +50,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.seasr.datatypes.BasicDataTypes.ByteMap;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
@@ -199,4 +200,36 @@ public abstract class BasicDataTypesTools {
 	    res.addValue(ByteString.copyFrom(barr));
 	    return res.build();
 	}
+
+	/**
+     * Converts a protocol buffer string byte map to the equivalent java map
+     *
+     * @param bm The byte map to convert
+     * @return The converted map
+     */
+    public static Map<String,byte[]> ByteMapToMap ( ByteMap bm ) {
+        Map<String,byte[]> ht = new Hashtable<String,byte[]>(bm.getValueCount());
+
+        for ( int i=0,iMax=bm.getValueCount() ; i<iMax ; i++ )
+            ht.put(bm.getKey(i), bytestoByteArray(bm.getValue(i)));
+
+        return ht;
+    }
+
+    /**
+     * Builds the byte map
+     *
+     * @param htCounts The token counts
+     * @param bOrdered Should the counts be ordered?
+     * @return The IntegerMap
+     */
+    public static ByteMap mapToByteMap(Map<String, byte[]> htBytes) {
+        org.seasr.datatypes.BasicDataTypes.ByteMap.Builder res = BasicDataTypes.ByteMap.newBuilder();
+        for ( Entry<String, byte[]> entry:htBytes.entrySet() ) {
+            res.addKey(entry.getKey());
+            res.addValue(byteArrayToBytes(entry.getValue()));
+        }
+        return res.build();
+    }
+
 }

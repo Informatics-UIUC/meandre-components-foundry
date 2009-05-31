@@ -61,6 +61,7 @@ import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.WebUIException;
 import org.meandre.webui.WebUIFragmentCallback;
+import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 
 /**
@@ -154,7 +155,7 @@ public class ServiceHeadPost extends AbstractExecutableComponent
 		try {
 			Semaphore sem = new Semaphore(1, true);
 			sem.acquire();
-			componentContext.pushDataComponentToOutput(OUT_REQUEST, map);
+			componentContext.pushDataComponentToOutput(OUT_REQUEST, BasicDataTypesTools.mapToByteMap(map));
 			componentContext.pushDataComponentToOutput(OUT_RESPONSE, response);
 			componentContext.pushDataComponentToOutput(OUT_SEMAPHORE, sem);
 			sem.acquire();

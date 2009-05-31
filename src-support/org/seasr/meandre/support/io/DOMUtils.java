@@ -62,7 +62,7 @@ import org.xml.sax.SAXException;
 /**
  * @author Boris Capitanu
  */
-public class DOMUtils {
+public abstract class DOMUtils {
     public static Document createDocument(String xml)
         throws SAXException, IOException, ParserConfigurationException {
 

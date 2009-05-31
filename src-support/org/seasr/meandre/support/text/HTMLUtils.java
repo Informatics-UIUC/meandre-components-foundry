@@ -56,7 +56,7 @@ import org.w3c.dom.Document;
 /**
  * @author Boris Capitanu
  */
-public class HTMLUtils {
+public abstract class HTMLUtils {
 
     /**
      * Extracts text from an HTML document

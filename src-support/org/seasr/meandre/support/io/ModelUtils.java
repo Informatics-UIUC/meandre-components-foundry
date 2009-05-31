@@ -61,7 +61,7 @@ import com.hp.hpl.jena.rdf.model.NodeIterator;
  * @author Boris Capitanu
  *
  */
-public class ModelUtils {
+public abstract class ModelUtils {
 
     /**
      * Creates one (or loads one or more existing) model(s) with the content specified

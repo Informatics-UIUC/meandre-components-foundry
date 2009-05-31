@@ -57,13 +57,9 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.io.ModelUtils;
+import org.seasr.meandre.support.parsers.DataTypeParser;
+import org.seasr.meandre.support.zotero.ZoteroUtils;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 
 /**
@@ -107,15 +103,14 @@ public class ZoteroAuthorExtractor extends AbstractExecutableComponent {
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
-	@SuppressWarnings("unchecked")
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		Map<String,byte[]> map = (Map<String, byte[]>) cc.getDataComponentFromInput(IN_REQUEST);
+		Map<String,byte[]> map = DataTypeParser.parseAsStringByteArrayMap(cc.getDataComponentFromInput(IN_REQUEST));
 
 		List<Vector<String>> list = new LinkedList<Vector<String>>();
 
 		for ( String sKey:map.keySet() ) {
 			Model model = ModelUtils.getModel(map.get(sKey), null);
-			list.addAll(pullGraph(model));
+			list.addAll(ZoteroUtils.extractAuthors(model));
 		}
 
 		cc.pushDataComponentToOutput(OUT_AUTHOR_LIST, list);
@@ -123,54 +118,4 @@ public class ZoteroAuthorExtractor extends AbstractExecutableComponent {
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
-
-    //--------------------------------------------------------------------------------------------
-
-	private List<Vector<String>> pullGraph(Model model) {
-		final String QUERY_AUTHORS =
-            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"+
-            "PREFIX dc: <http://purl.org/dc/elements/1.1/>\n"+
-            "PREFIX foaf: <http://xmlns.com/foaf/0.1/>\n"+
-            "SELECT DISTINCT ?doc ?first ?last " +
-            "WHERE { " +
-            "      ?doc rdf:type rdf:Seq . " +
-            "      ?doc ?pred ?author ." +
-            "      ?author rdf:type foaf:Person ." +
-            "      ?author foaf:givenname ?first . " +
-            "      ?author foaf:surname ?last " +
-            "} " +
-            "ORDER BY ?doc" ;
-
-       // Query the basic properties
-       //QuerySolutionMap qsmBindings = new QuerySolutionMap();
-       //qsmBindings.add("component", res);
-
-       Query query = QueryFactory.create(QUERY_AUTHORS) ;
-       QueryExecution exec = QueryExecutionFactory.create(query, model, null);//qsmBindings);
-       ResultSet results = exec.execSelect();
-
-       String sLastDocID = "";
-       List<Vector<String>> vecRes = new LinkedList<Vector<String>>();
-       Vector<String> vec = null;
-       while ( results.hasNext() ) {
-    	   QuerySolution resProps = results.nextSolution();
-    	   String sDoc   = resProps.getResource("doc").toString();
-    	   String sFirst = resProps.getLiteral("first").getString();
-    	   String sLast  = resProps.getLiteral("last").getString();
-    	   if ( sDoc.equals(sLastDocID)) {
-    		   vec.add(sLast+", "+sFirst);
-    	   }
-    	   else {
-    		   if ( vec!=null )
-    			   vecRes.add(vec);
-			   vec = new Vector<String>();
-			   vec.add(sLast+", "+sFirst);
-			   sLastDocID = sDoc;
-    	   }
-       }
-       if ( vec==null ) vec = new Vector<String>();
-       if ( vec.size()>0 ) vecRes.add(vec);
-
-       return vecRes;
-	}
 }

@@ -60,7 +60,7 @@ import de.intarsys.tools.locator.ByteArrayLocator;
 /**
  * @author Boris Capitanu
  */
-public class PDFUtils {
+public abstract class PDFUtils {
 
     /**
      * Extracts text from a PDF document

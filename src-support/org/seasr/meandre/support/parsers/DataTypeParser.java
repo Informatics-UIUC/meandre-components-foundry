@@ -51,6 +51,7 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.seasr.datatypes.BasicDataTypesTools;
+import org.seasr.datatypes.BasicDataTypes.ByteMap;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
@@ -64,7 +65,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 /**
  * @author Boris Capitanu
  */
-public class DataTypeParser {
+public abstract class DataTypeParser {
     /**
      * Attempts to convert the given data to a String array
      *
@@ -160,8 +161,44 @@ public class DataTypeParser {
 
         else
 
-        if (data instanceof Map)
+        if (data instanceof Map) {
             map = (Map<String, Integer>)data;
+            if (!(map.values().iterator().next() instanceof Integer))
+                throw new UnsupportedDataTypeException("The given map is not in the correct format!");
+        }
+
+        else
+            throw new UnsupportedDataTypeException(data.getClass().getName());
+
+        return map;
+    }
+
+    /**
+     * Attempts to convert the given data to a Map<String, byte[]>
+     *
+     * @param data The data
+     * @return The Map<String, byte[]>
+     * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, byte[]> parseAsStringByteArrayMap(Object data) throws UnsupportedDataTypeException {
+        Map<String, byte[]> map;
+
+        if (data == null)
+            map = null;
+
+        else
+
+        if (data instanceof ByteMap)
+            map = BasicDataTypesTools.ByteMapToMap((ByteMap)data);
+
+        else
+
+        if (data instanceof Map) {
+            map = (Map<String, byte[]>)data;
+            if (!(map.values().iterator().next() instanceof byte[]))
+                throw new UnsupportedDataTypeException("The given map is not in the correct format!");
+        }
 
         else
             throw new UnsupportedDataTypeException(data.getClass().getName());

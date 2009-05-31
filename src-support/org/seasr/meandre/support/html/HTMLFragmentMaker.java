@@ -49,7 +49,7 @@ import org.apache.commons.lang.StringEscapeUtils;
  * @author Boris Capitanu
  *
  */
-public class HTMLFragmentMaker {
+public abstract class HTMLFragmentMaker {
     /**
      * Creates a &lt;div&gt; element containing the HTML-escaped text specified
      *

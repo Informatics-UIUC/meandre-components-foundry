@@ -55,7 +55,7 @@ import java.net.URI;
 /**
  * @author Boris Capitanu
  */
-public class IOUtils {
+public abstract class IOUtils {
 
     /**
      * Opens the location from where to read.

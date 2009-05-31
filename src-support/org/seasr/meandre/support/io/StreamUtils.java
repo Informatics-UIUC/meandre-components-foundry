@@ -56,7 +56,7 @@ import java.net.URL;
 /**
  * @author Boris Capitanu
  */
-public class StreamUtils {
+public abstract class StreamUtils {
 
     /**
      * Reads the content of an InputStream into a byte array
