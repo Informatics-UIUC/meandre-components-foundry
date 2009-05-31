@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Generic Build script for a Meandre Components repository. 
+
+    This build.xml provides targets useful in dealing with a repository of
+    Meandre Components. These targets do things like generating rdf descriptors
+    that Meandre needs to execute and the ability to upload the code and
+    descriptors to a running Meandre server.
+-->
+
+<project name="Components-Foundry" default="dist" basedir=".">
+
+    <!--
+    ======================
+    REPOSITORY SPECIFIC INFO
+    ======================
+    These are the only properties that should vary from repository to 
+    repository.
+    -->
+
+    <!-- used in jar file name, error messages, etc. -->
+    <property name="project.name" value="foundry"/>
+
+    <!-- 
+    =================================
+    ENVIRONMENT CHECKS
+    ==================================== 
+    -->
+
+    <!-- Check whether Java 1.5+ is being used -->
+    <condition property="using.java.1.5">
+        <or>
+            <equals arg1="${ant.java.version}" arg2="1.5"/>
+            <equals arg1="${ant.java.version}" arg2="1.6"/>
+        </or>
+    </condition>
+
+    <!-- Check whether Ant 1.7 is being used. 1.7 is needed for junit4 
+    support (junit4 allows annotations to declare test cases). -->
+    <condition property="using.ant.1.7">
+        <contains string="${ant.version}" substring="1.7"/>
+    </condition>
+
+    <!-- Make sure we're running under the correct environment -->
+    <fail message="This package requires Ant 1.7." unless="using.ant.1.7"/>
+    <fail message="This package requires at least Java 5. Please set JAVA_HOME to point to where JDK 1.5 or higher is installed."
+          unless="using.java.1.5"/>
+
+    <!-- 
+    =================================
+    DIRECTORY STRUCTURE DEFINITION
+    ==================================== 
+    -->
+
+    <!-- Project structure -->
+    <property name="lib.dir" value="${basedir}/lib/jars"/>
+    <property name="lib.devkit.dir" value="${basedir}/lib/devkit"/>
+    <property name="build.dir" value="${basedir}/build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="dist.dir" value="${basedir}/dist"/>
+    <property name="descriptors.dir" value="${build.dir}/descriptors"/>
+    <property name="javadoc.dir" value="${build.dir}/javadoc"/>
+
+
+    <!-- Default settings for the 'upload-components' task -->
+    <property name="server" value="localhost"/>
+    <property name="port" value="1714"/>
+    <property name="user" value="admin"/>
+    <property name="pw" value="admin"/>
+
+
+    <!-- JUnit elements -->
+    <property name="test.classes.dir" value="${build.dir}/classes-test/"/>
+    <property name="test.root.dir" value="${basedir}/tests/"/>
+    <property name="test.logs.dir" value="${test.root.dir}/log"/>
+    <property name="test.output.dir" value="${test.root.dir}/output"/>
+
+    <!-- Generated JAR location -->
+    <property name="components.jar.file" value="${project.name}-components.jar"/>    
+
+    
+    <!-- Code locations -->
+    <path id="src.code.dirs">
+        <dirset dir="${basedir}" includes="src"/>
+    </path>
+
+    <!-- Test locations -->
+    <path id="src.test.root.dirs">
+        <dirset dir="${basedir}" includes="src-test" />
+    </path>
+
+    <!--
+    =================
+    WIKI UPLOAD PROPERTIES
+    =================
+    -->  
+    <!-- Confluence settings (for update-wiki task) -->
+    <!-- These need to be handled differently - they should probably be set in $HOME/.SEASR/WikiCreateComponentPages.conf or specified via command line -->
+    <!--
+    <property name="confluence.server" value="https://apps.lis.uiuc.edu/wiki"/>
+    <property name="confluence.space" value="seasrD"/>
+    <property name="confluence.title" value="Available Components"/>
+    -->
+
+
+    <!--
+    =================
+    CLASSPATHS
+    =================
+    -->
+
+    <!-- Compilation classpath -->
+    <path id="classpath.build">
+        <fileset dir="${lib.dir}" includes="*.jar"/>
+        <fileset dir="${lib.devkit.dir}" includes="*.jar"/>
+    </path>
+
+    <!-- Runtime class path -->
+    <path id="classpath.runtime">
+        <path refid="classpath.build"/>
+        <pathelement path="${java.class.path}"/>
+        <fileset dir="${dist.dir}" includes="*.jar"/>
+    </path>   
+     
+    <!-- Runtime class path for component installer (alpha)-->
+    <path id="classpath.devkit">
+        <path refid="classpath.build"/>
+        <path location="${classes.dir}"/>
+        <pathelement path="${java.class.path}"/>
+        <fileset dir="${dist.dir}" includes="*.jar"/>
+    </path>   
+
+    <!--
+    =================
+    BUILD TARGETS
+    =================
+    -->
+
+    <!--
+        Creates required folders
+    -->
+    <target name="init" description="-> creates required folders">
+
+        <tstamp/>
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+        <mkdir dir="${descriptors.dir}"/>
+        <mkdir dir="${javadoc.dir}"/>
+        <mkdir dir="${test.root.dir}"/>
+        <mkdir dir="${test.classes.dir}"/>
+        <mkdir dir="${test.logs.dir}"/>
+        <mkdir dir="${test.output.dir}"/>
+    </target>    
+
+    <!--
+        Performs cleanup
+    -->
+    <target name="clean" description="-> removes build artifacts">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+        <delete dir="${test.root.dir}"/>
+        <delete dir="./log"/>
+    </target>
+
+    <!--
+        Compiles components code
+    -->
+    <target name="compile"
+        depends="init"
+        description="-> compiles all components">
+        <!-- compile -->
+        <javac source="1.5"
+               debug="on"
+               debuglevel="lines,vars,source"
+               destdir="${classes.dir}">
+            <src refid="src.code.dirs"/>
+            <classpath refid="classpath.build"/>
+        </javac>
+
+        <!-- include other files that should be available to runtime classpath-->
+        <copy todir="${classes.dir}"
+              includeEmptyDirs="no">
+            <fileset dir="${basedir}">
+                <include name="src/**/*.properties"/>
+                <include name="src/**/*.xml"/>
+                <include name="src/**/*.vm"/>
+                <include name="src/**/*.list"/>
+            </fileset>
+            <regexpmapper from="^src/(.+)$" to="\1"/>
+        </copy>
+    </target>
+
+    <!--
+        Packages all components into one jar file
+    -->
+    <target name="dist"
+            depends="compile"
+            description="-> creates components jar file">
+        <jar destfile="${dist.dir}/${components.jar.file}"
+             basedir="${classes.dir}"/>
+    </target>
+
+    <!--
+    =================
+    JUNIT TESTS TARGETS
+    =================
+    -->
+
+    <!--
+        Compile tests
+    -->
+    <target name="compile-tests"
+            depends="dist"
+            description="-> compiles the unit tests">
+        <!-- compile -->
+        <javac debug="on"
+               debuglevel="lines,vars,source"
+               destdir="${test.classes.dir}">
+            <src refid="src.test.root.dirs"/>
+            <classpath refid="classpath.runtime"/>
+        </javac>
+
+        <!-- include other files that should be available to runtime classpath-->
+        <copy todir="${test.classes.dir}"
+              includeEmptyDirs="no">
+            <fileset dir="${basedir}">
+                <include name="src-test/**/*.properties"/>
+                <include name="src-test/**/*.xml"/>
+                <include name="src-test/**/*.vm"/>
+                <include name="src-test/**/*.list"/>
+            </fileset>
+            <regexpmapper from="^src-test/(.+)$" to="\1"/>
+        </copy>
+    </target>
+
+
+    <!--
+        run the JUnit tests
+    -->
+    <target name="run-tests"
+            depends="compile-tests"
+            description= "-> runs the unit tests and generates xml logs and html reports">
+        <mkdir dir="${test.logs.dir}/xml"/>
+        <junit printsummary="yes"
+               forkmode="once"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="yes"
+               showoutput="yes">
+            <jvmarg value="-Duser.language=en"/>
+            <classpath>
+                <path refid="classpath.runtime"/>
+                <pathelement location="${test.classes.dir}"/>
+            </classpath>
+            <formatter type="xml"/>
+            <formatter type="brief" usefile="false"/>
+            <batchtest todir="${test.logs.dir}/xml">
+                <fileset dir="${test.classes.dir}" includes="**/*Test.class"/>
+            </batchtest>
+        </junit>
+        <junitreport todir="${test.logs.dir}/xml">
+            <fileset dir="${test.logs.dir}/xml">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="noframes" todir="${test.root.dir}"/>
+        </junitreport>
+        <echo message="Report generated at: 
+            file://${test.root.dir}/junit-noframes.html"/>
+    </target>
+
+
+    <!--
+    =================
+    MEANDRE RELATED TARGETS
+    =================
+    -->
+
+
+    <!--
+      installs all components (descriptors and java contexts) to a 
+      meandre-infrastructure server
+    -->
+    <target name="upload-components"
+        depends="compile"
+        description="-> uploads and installs components to a Meandre Infrastructure server running on the local machine">
+        <java classname="org.meandre.tools.components.InstallComponentsCMD"
+              fork="yes"
+              maxmemory="1024m">
+            <classpath refid="classpath.devkit"/>
+            <jvmarg value="-showversion"/>
+
+            <arg value="--class-dir"/>
+            <arg value="${classes.dir}"/>
+
+            <arg value="--lib-dir"/>
+            <arg value="${lib.dir}"/>
+
+            <arg value="--tmp-dir"/>
+            <arg value="${build.dir}"/>
+
+            <arg value="--meandre-host"/>
+            <arg value="${server}"/>
+
+            <arg value="--meandre-port"/>
+            <arg value="${port}"/>
+
+            <arg value="--meandre-username"/>
+            <arg value="${user}"/>
+
+            <arg value="--meandre-password"/>
+            <arg value="${pw}"/>
+        </java>
+    </target>
+
+    <!--
+        Creates/updates the wiki component documentation
+    -->
+    <target name="update-wiki"
+            description="-> updates the wiki documentation for components.  Example: >ant update-wiki -Dusername=wiki_username -Dpassword=wiki_password">
+        <java classname="org.meandre.tools.components.WikiCreateComponentPages"
+              fork="yes"
+              maxmemory="1024m">
+            <classpath refid="classpath.runtime"/>
+            <jvmarg value="-showversion"/>
+            <arg value="-s"/>
+            <arg value="${confluence.server}"/>
+            <arg value="-d"/>
+            <arg value="${componentsDescriptorsDir}"/>
+            <arg value="--title"/>
+            <arg value="${confluence.title}"/>
+            <arg value="--space"/>
+            <arg value="${confluence.space}"/>
+            <arg value="-u"/>
+            <arg value="${username}"/>
+            <arg value="-p"/>
+            <arg value="${password}"/>
+        </java>
+    </target>
+
+    <!-- 
+        CLOVER targets 
+    -->
+    <target name="check.clover">
+        <taskdef resource="cloverlib.xml"/>
+        <available property="clover.installed" classname="com.cenqua.clover.CloverInstr" />
+    </target>
+
+    <target name="guard.noclover" depends="check.clover" unless="clover.installed">
+        <fail message="The target you are attempting to run requires Clover, which doesn't appear to be installed"/>
+    </target>
+
+    <target name="with.clover" depends="guard.noclover" description="-> enables code coverage analysis for following tasks">
+        <mkdir dir="${test.root.dir}/clover"/>
+        <clover-setup/>
+    </target>
+
+    <target name="clover-xml" description="-> generates the code coverage report in XML format">
+        <mkdir dir="${test.root.dir}/clover/history"/>
+        <clover-historypoint historyDir="${test.root.dir}/clover/history"/>
+        <clover-report>
+            <current outfile="${test.root.dir}/clover/coverage.xml">
+                <format type="xml"/>
+            </current>
+        </clover-report>
+    </target>
+
+    <target name="clover-html" description="-> generates the code coverage report in HTML format">
+        <clover-historypoint historyDir="${test.root.dir}/clover/history"/>
+        <clover-html-report outdir="${test.root.dir}/clover"/>
+        <echo message="The code coverage report is available at file:///${test.root.dir}/clover"/>
+    </target>
+
+    <target name="clover-pdf" description="-> generates the code coverage report in PDF format">
+        <clover-historypoint historyDir="${test.root.dir}/clover/history"/>
+        <clover-pdf-report outfile="${test.root.dir}/clover/coverage.pdf"/>
+    </target>
+
+</project>
+
+<!-- DO NOT EDIT BELOW THIS LINE PLEASE -->
+<!-- vim:sw=4:softtabstop=4:expandtab
+-->
