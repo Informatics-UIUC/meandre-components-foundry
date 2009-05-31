@@ -53,8 +53,8 @@
     -->
 
     <!-- Project structure -->
-    <property name="lib.dir" value="${basedir}/lib/jars"/>
-    <property name="lib.devkit.dir" value="${basedir}/lib/devkit"/>
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="lib.devkit.dir" value="${basedir}/lib"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="dist.dir" value="${basedir}/dist"/>
@@ -182,12 +182,12 @@
         <copy todir="${classes.dir}"
               includeEmptyDirs="no">
             <fileset dir="${basedir}">
-                <include name="src/**/*.properties"/>
-                <include name="src/**/*.xml"/>
-                <include name="src/**/*.vm"/>
-                <include name="src/**/*.list"/>
+                <include name="src-*/**/*.properties"/>
+                <include name="src-*/**/*.xml"/>
+                <include name="src-*/**/*.vm"/>
+                <include name="src-*/**/*.list"/>
             </fileset>
-            <regexpmapper from="^src/(.+)$" to="\1"/>
+            <regexpmapper from="^src-*/(.+)$" to="\1"/>
         </copy>
     </target>
 
