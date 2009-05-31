@@ -183,8 +183,9 @@
                 <include name="src-*/**/*.xml"/>
                 <include name="src-*/**/*.vm"/>
                 <include name="src-*/**/*.list"/>
+                <include name="src-*/**/*.jar"/>
             </fileset>
-            <regexpmapper from="^src-*/(.+)$" to="\1"/>
+            <regexpmapper from="^src-.+/.+/(.+)$" to="\1"/>
         </copy>
     </target>
 
