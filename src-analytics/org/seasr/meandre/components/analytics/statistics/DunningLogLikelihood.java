@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.junit.Test;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -163,7 +162,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
     }
 
     //--------------------------------------------------------------------------------------------
-
+/*
 	@Test
 	public void testSampleData(){
 		Map<String, Number> analysisCounts = new HashMap<String,Number>();
@@ -187,7 +186,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 
 		}
 	}
-
+*/
 	private Map<ReverseScoredString, double[]> doDunning(Map<String, Number> analysisCounts,
 			Map<String, Number> referenceCounts,int cutoff) {
 		Map<ReverseScoredString, double[]> results;
