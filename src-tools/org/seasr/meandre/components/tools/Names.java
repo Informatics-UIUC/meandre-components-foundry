@@ -110,4 +110,8 @@ public abstract class Names {
 	public static final String PORT_LONGITUDE_VECTOR = "longitude_vector";
 	public static final String PORT_LOCATION_VECTOR = "location_vector";
 	public static final String PORT_CONTEXT_VECTOR = "context_vector";
+	public static final String PORT_REQUEST_DATA = "request_data";
+	public static final String PORT_RESPONSE_HANDLER = "response_handler";
+	public static final String PORT_SEMAPHORE = "semaphore";
+	public static final String PORT_AUTHOR_LIST = "author_list";
 }

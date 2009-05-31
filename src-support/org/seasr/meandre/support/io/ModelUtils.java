@@ -183,7 +183,7 @@ public class ModelUtils {
         if (baseURI.length > 1)
             throw new IllegalArgumentException("baseURI can only be specified once");
 
-        String uri = (baseURI.length == 1) ? baseURI[0] : null;
+        String uri = (baseURI != null && baseURI.length == 1) ? baseURI[0] : null;
 
         try {
             model.read(modelStream, uri, "RDF/XML");

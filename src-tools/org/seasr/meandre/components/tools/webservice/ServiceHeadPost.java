@@ -85,7 +85,7 @@ public class ServiceHeadPost extends AbstractExecutableComponent
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			description = "A map object containing the key elements on the request and the associated values",
+			description = "A map object containing the key elements of the request and the associated values",
 			name = Names.PORT_REQUEST_DATA
 	)
 	protected static final String OUT_REQUEST = Names.PORT_REQUEST_DATA;
