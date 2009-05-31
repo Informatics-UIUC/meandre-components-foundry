@@ -112,7 +112,6 @@
     <!-- Compilation classpath -->
     <path id="classpath.build">
         <fileset dir="${lib.dir}" includes="*.jar"/>
-        <fileset dir="${lib.devkit.dir}" includes="*.jar"/>
     </path>
 
     <!-- Runtime class path -->
