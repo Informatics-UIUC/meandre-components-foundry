@@ -178,7 +178,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         xmlWriter.write(generateXML(doc));
         xmlWriter.close();
 
-        String simileHtml = generateHTML(xmlFileName);
+        String simileHtml = generateHTML(xmlLocation);
 
         Writer htmlWriter = IOUtils.getWriterForResource(htmlURI);
         htmlWriter.write(simileHtml);
@@ -207,9 +207,9 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     private String generateXML(Document doc) {
     	minYear = Integer.MAX_VALUE;
     	maxYear = Integer.MIN_VALUE;
-    	
+
 //TODO: StringBuffer buf needs to be replaced with the XML document object
- 
+
     	StringBuffer buf = new StringBuffer(); //Store XML
     	buf.append("<data>\n");
 
@@ -290,9 +290,9 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 		        StringTokenizer st = new StringTokenizer(sentence, "|");
 		        StringBuffer sb = new StringBuffer();
 		        int nr = 0;
-		        
+
 		        //TODO: This highlighting needs to be in the css and work with the template system
-		        
+
 		        while(st.hasMoreTokens()) {
 		        	String nt = st.nextToken();
 		        	int pos = nt.toLowerCase().indexOf(aDate);
