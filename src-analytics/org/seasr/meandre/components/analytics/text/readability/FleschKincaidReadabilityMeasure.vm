@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head></head>
+<body>
+    #foreach( $doc in $fleschDocs )
+    <h1>Readability Analysis</h1>
+    <h2>$doc.Title</h2>
+    <table>
+        <tr>
+            <td colspan="2">
+                <a href="$doc.Location">$doc.Location</a>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <strong><a href="$FLESCH_KINCAID_WIKIPEDIA_URL">Flesch-Kincaid Readability Test</a></strong>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Total Syllables</td>
+            <td>$doc.ReadabilityMeasure.getSyllables()</td>
+        </tr>
+
+        <tr>
+            <td>Total Words</td>
+            <td>$doc.ReadabilityMeasure.getWords()</td>
+        </tr>
+
+        <tr>
+            <td>Total Sentences</td>
+            <td>$doc.ReadabilityMeasure.getSentences()</td>
+        </tr>
+
+        <tr>
+            <td>Flesch Reading Ease Score</td>
+            <td>$doc.ReadabilityMeasure.getReadingEaseScore()</td>
+        <tr>
+
+        <tr>
+            <td>Flesch Grade Level</td>
+            <td>$doc.ReadabilityMeasure.getGradeLevel()</td>
+        </tr>
+    </table>
+
+    <br>
+    #end
+</body>
+</html>

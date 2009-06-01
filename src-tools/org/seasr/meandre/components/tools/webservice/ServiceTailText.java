@@ -50,6 +50,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
@@ -69,6 +70,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		description = "Service tail for a web service",
 		name = "Service Tail Text",
 		tags = "WebUI, post, process request",
+		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
 		baseURL = "meandre://seasr.org/components/zotero/",

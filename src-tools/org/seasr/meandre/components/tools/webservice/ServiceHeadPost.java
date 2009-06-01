@@ -54,6 +54,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
@@ -76,6 +77,7 @@ import org.seasr.meandre.components.tools.Names;
 		description = "Service head for a service that gets data via posts",
 		name = "Service Head Post",
 		tags = "WebUI, post, process request",
+		rights = Licenses.UofINCSA,
 		mode = Mode.webui,
 		firingPolicy = FiringPolicy.all,
 		baseURL = "meandre://seasr.org/components/tools/"

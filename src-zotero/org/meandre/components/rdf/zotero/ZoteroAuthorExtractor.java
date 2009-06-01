@@ -51,6 +51,7 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
@@ -74,6 +75,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 		description = "Extract the authors for each entry of a Zotero RDF",
 		name = "Zotero Author Extractor",
 		tags = "zotero, authors, information extraction",
+		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
 		baseURL = "meandre://seasr.org/components/zotero/"

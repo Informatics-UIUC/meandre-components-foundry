@@ -51,6 +51,7 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
@@ -79,6 +80,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 		description = "Extract the urls for each of the entry of a Zotero RDF",
 		name = "Zotero URL Extractor",
 		tags = "zotero, authors, information extraction",
+		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
 		baseURL = "meandre://seasr.org/components/zotero/"
