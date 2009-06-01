@@ -74,6 +74,7 @@ public class WebConsoleHandler extends Handler {
         String formattedRecord = getFormatter().format(record);
         try {
             _outputStream.write(formattedRecord.getBytes());
+            _outputStream.flush();
         }
         catch (IOException e) {
             // TODO Auto-generated catch block
