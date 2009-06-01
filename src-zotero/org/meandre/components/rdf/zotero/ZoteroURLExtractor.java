@@ -150,7 +150,7 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 				return; // TODO: Why return? Aren't we supposed to process the remaining documents?
 			}
 
-			if (itemCount == 0){
+			if (itemCount == 0) {
 				cc.pushDataComponentToOutput(OUT_NO_DATA,
 				        "Your items contained no URL information. Check to see that the URL attribute contains a valid url.");
 				return; // TODO: Why return? Aren't we supposed to process the remaining documents?
