@@ -56,6 +56,7 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.html.VelocityTemplateService;
 import org.seasr.meandre.support.parsers.DataTypeParser;
@@ -169,7 +170,8 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
 		_fleschDocs.add(new FleschDocument(title, location, measure));
 
 		if (!_gotInitiator)
-		    cc.pushDataComponentToOutput(OUT_HTML_REPORT, generateReport());
+		    cc.pushDataComponentToOutput(OUT_HTML_REPORT,
+		            BasicDataTypesTools.stringToStrings(generateReport()));
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -200,7 +202,8 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
         if (inputPortsWithTerminators.contains(IN_ITEM_TITLE) &&
             inputPortsWithTerminators.contains(IN_ITEM_URL)) {
 
-                componentContext.pushDataComponentToOutput(OUT_HTML_REPORT, generateReport());
+                componentContext.pushDataComponentToOutput(OUT_HTML_REPORT,
+                        BasicDataTypesTools.stringToStrings(generateReport()));
                 _gotInitiator = false;
                 _fleschDocs.clear();
             }
