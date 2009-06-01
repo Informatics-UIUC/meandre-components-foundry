@@ -77,7 +77,7 @@ import org.seasr.meandre.support.text.analytics.ReadabilityMeasure;
 @Component(
 		creator = "Xavier Llor&agrave",
 		description = "Computes the Flesch Kincaid readability measure as explained at http://en.wikipedia.org/wiki/Flesch-Kincaid_Readability_Test. The code is based on the work done by Daniel Shiffman at http://www.shiffman.net/teaching/a2z/week1/",
-		name = "Flesch Kincaid readability measure",
+		name = "Flesch Kincaid Readability Measure",
 		tags = "zotero, text, readability, measure",
 		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
