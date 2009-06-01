@@ -51,8 +51,11 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.io.StreamUtils;
@@ -131,5 +134,23 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_LOCATION);
+        componentContext.pushDataComponentToOutput(OUT_TEXT, si);
+        componentContext.pushDataComponentToOutput(OUT_LOCATION,
+                ComponentUtils.cloneStreamDelimiter(si));
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_LOCATION);
+        componentContext.pushDataComponentToOutput(OUT_TEXT, st);
+        componentContext.pushDataComponentToOutput(OUT_LOCATION,
+                ComponentUtils.cloneStreamDelimiter(st));
     }
 }

@@ -54,6 +54,7 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -193,7 +194,8 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
         si.put(OUT_ITEM_TITLE, sDoc);
 
         componentContext.pushDataComponentToOutput(OUT_ITEM_LOCATION, si);
-        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE, si);
+        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE,
+                ComponentUtils.cloneStreamDelimiter(si));
     }
 
     /**
@@ -209,6 +211,7 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
         st.put(OUT_ITEM_TITLE, sDoc);
 
         componentContext.pushDataComponentToOutput(OUT_ITEM_LOCATION, st);
-        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE, st);
+        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE,
+                ComponentUtils.cloneStreamDelimiter(st));
     }
 }

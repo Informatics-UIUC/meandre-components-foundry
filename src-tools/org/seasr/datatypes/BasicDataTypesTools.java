@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.seasr.datatypes.BasicDataTypes.ByteMap;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
@@ -62,6 +61,7 @@ import com.google.protobuf.ByteString;
  * Tools to help dealing with the basic types
  *
  * @author Xavier Llor&agrave;
+ * @author Boris Capitanu
  *
  */
 public abstract class BasicDataTypesTools {
@@ -183,10 +183,11 @@ public abstract class BasicDataTypesTools {
 	 * @return The byte array
 	 */
 	public static byte[] bytestoByteArray(Bytes bytes) {
-	    Byte[] barr = new Byte[bytes.getValueCount()];
-	    barr = bytes.getValueList().toArray(barr);
+	    ByteString bs = bytes.getValue(0);
+	    byte[] barr = new byte[bs.size()];
+	    bs.copyTo(barr, 0);
 
-	    return ArrayUtils.toPrimitive(barr);
+	    return barr;
 	}
 
 	/**

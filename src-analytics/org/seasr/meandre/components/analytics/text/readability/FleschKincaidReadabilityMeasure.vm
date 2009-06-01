@@ -3,10 +3,10 @@
 <head></head>
 <body>
     <h1>Readability Analysis</h1>
-    <strong><a href="$FLESCH_KINCAID_WIKIPEDIA_URL">Flesch-Kincaid Readability Test</a></strong>
+    <h2><a href="$FLESCH_KINCAID_WIKIPEDIA_URL">Flesch-Kincaid Readability Test</a></h2>
 
     #foreach( $doc in $fleschDocs )
-    <h2><a href="${doc.getLocation()}">${doc.getTitle()}</a></h2>
+    <h3><a href="${doc.getLocation()}">${doc.getTitle()}</a></h3>
     <table>
         <tr>
             <td>Total Syllables</td>

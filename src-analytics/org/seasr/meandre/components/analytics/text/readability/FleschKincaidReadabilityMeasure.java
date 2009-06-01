@@ -75,7 +75,7 @@ import org.seasr.meandre.support.text.analytics.ReadabilityMeasure;
  */
 
 @Component(
-		creator = "Xavier Llor&agrave",
+		creator = "Xavier Llora",
 		description = "Computes the Flesch Kincaid readability measure as explained at http://en.wikipedia.org/wiki/Flesch-Kincaid_Readability_Test. The code is based on the work done by Daniel Shiffman at http://www.shiffman.net/teaching/a2z/week1/",
 		name = "Flesch Kincaid Readability Measure",
 		tags = "zotero, text, readability, measure",
@@ -199,7 +199,8 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
             throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
 
         if (inputPortsWithInitiators.contains(IN_ITEM_TITLE) &&
-            inputPortsWithInitiators.contains(IN_ITEM_URL)) {
+            inputPortsWithInitiators.contains(IN_ITEM_URL) &&
+            inputPortsWithInitiators.contains(IN_CONTENT)) {
 
             _fleschDocs = new Vector<FleschDocument>();
             _gotInitiator = true;
@@ -214,7 +215,8 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
             throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
         if (inputPortsWithTerminators.contains(IN_ITEM_TITLE) &&
-            inputPortsWithTerminators.contains(IN_ITEM_URL)) {
+            inputPortsWithTerminators.contains(IN_ITEM_URL) &&
+            inputPortsWithTerminators.contains(IN_CONTENT)) {
 
                 componentContext.pushDataComponentToOutput(OUT_HTML_REPORT,
                         BasicDataTypesTools.stringToStrings(generateReport()));
