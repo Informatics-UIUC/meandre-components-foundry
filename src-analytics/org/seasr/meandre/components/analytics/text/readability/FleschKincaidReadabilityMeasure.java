@@ -98,9 +98,9 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
 
 	@ComponentInput(
 			description = "Item title",
-			name = Names.PORT_TEXT
+			name = Names.PORT_DOC_TITLE
 	)
-	protected static final String IN_ITEM_TITLE = Names.PORT_TEXT;
+	protected static final String IN_ITEM_TITLE = Names.PORT_DOC_TITLE;
 
 	@ComponentInput(
 			description = "Item location",
@@ -135,15 +135,27 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
     private Vector<FleschDocument> _fleschDocs = new Vector<FleschDocument>();
     private boolean _gotInitiator;
 
-    private class FleschDocument {
-        public final String Title;
-        public final URI Location;
-        public final ReadabilityMeasure ReadabilityMeasure;
+    public class FleschDocument {
+        private final String _title;
+        private final URI _location;
+        private final ReadabilityMeasure _measure;
 
         public FleschDocument(String title, URI location, ReadabilityMeasure measure) {
-            Title = title;
-            Location = location;
-            ReadabilityMeasure = measure;
+            _title = title;
+            _location = location;
+            _measure = measure;
+        }
+
+        public String getTitle() {
+            return _title;
+        }
+
+        public String getLocation() {
+            return _location.toString();
+        }
+
+        public ReadabilityMeasure getMeasure() {
+            return _measure;
         }
     }
 
@@ -157,6 +169,8 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
 	    _context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
         _context.put("FLESCH_KINCAID_WIKIPEDIA_URL", FLESCH_KINCAID_WIKIPEDIA_URL);
+        _context.put("String", String.class);
+        _context.put("Math", Math.class);
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {

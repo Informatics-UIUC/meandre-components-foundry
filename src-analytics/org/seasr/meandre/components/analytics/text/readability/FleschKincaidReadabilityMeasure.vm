@@ -2,16 +2,10 @@
 <html>
 <head></head>
 <body>
-    #foreach( $doc in $fleschDocs )
     <h1>Readability Analysis</h1>
-    <h2>$doc.Title</h2>
+    #foreach( $doc in $fleschDocs )
+    <h2><a href="${doc.getLocation()}">${doc.getTitle()}</a></h2>
     <table>
-        <tr>
-            <td colspan="2">
-                <a href="$doc.Location">$doc.Location</a>
-            </td>
-        </tr>
-
         <tr>
             <td colspan="2">
                 <strong><a href="$FLESCH_KINCAID_WIKIPEDIA_URL">Flesch-Kincaid Readability Test</a></strong>
@@ -20,27 +14,29 @@
 
         <tr>
             <td>Total Syllables</td>
-            <td>$doc.ReadabilityMeasure.getSyllables()</td>
+            <td>${doc.getMeasure().getSyllables()}</td>
         </tr>
 
         <tr>
             <td>Total Words</td>
-            <td>$doc.ReadabilityMeasure.getWords()</td>
+            <td>${doc.getMeasure().getWords()}</td>
         </tr>
 
         <tr>
             <td>Total Sentences</td>
-            <td>$doc.ReadabilityMeasure.getSentences()</td>
+            <td>${doc.getMeasure().getSentences()}</td>
         </tr>
 
         <tr>
             <td>Flesch Reading Ease Score</td>
-            <td>$doc.ReadabilityMeasure.getReadingEaseScore()</td>
+            #set( $fres = $Math.round(${doc.getMeasure().getReadingEaseScore()}) )
+            <td>$fres</td>
         <tr>
 
         <tr>
             <td>Flesch Grade Level</td>
-            <td>$doc.ReadabilityMeasure.getGradeLevel()</td>
+            #set( $fgl = $String.format('%.1f', ${doc.getMeasure().getGradeLevel()}) )
+            <td>$fgl</td>
         </tr>
     </table>
 
