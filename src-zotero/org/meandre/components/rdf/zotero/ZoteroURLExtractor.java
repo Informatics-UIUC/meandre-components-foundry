@@ -129,7 +129,7 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 
 
     private boolean bWrapped;
-
+    private int itemCount;
 
     //--------------------------------------------------------------------------------------------
 
@@ -140,24 +140,24 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		Map<String,byte[]> map = DataTypeParser.parseAsStringByteArrayMap(cc.getDataComponentFromInput(IN_REQUEST));
 
+		itemCount = 0;
+
 		for ( String sKey:map.keySet() ) {
+		    int count = 0;
 			Map<String, String> mapURLs = null;
-			int itemCount = 0;
 			try {
 				Model model = ModelUtils.getModel(map.get(sKey), "meandre://specialUri");
 				mapURLs = ZoteroUtils.extractURLs(model);
-				itemCount = mapURLs.size();
+				count = mapURLs.size();
+				itemCount += count;
 			} catch (Exception e) {
 			    console.log(Level.WARNING, "Error in data format", e);
 				cc.pushDataComponentToOutput(OUT_NO_DATA, "Error in data format. "+e.getMessage());
-				return; // TODO: Why return? Aren't we supposed to process the remaining documents?
+				return;
 			}
 
-			if (itemCount == 0) {
-				cc.pushDataComponentToOutput(OUT_NO_DATA,
-				        "Your items contained no URL information. Check to see that the URL attribute contains a valid url.");
-				return; // TODO: Why return? Aren't we supposed to process the remaining documents?
-			}
+			if (count == 0)
+			    continue;
 
 			if (bWrapped)
 			    pushInitiator(sKey);
@@ -165,7 +165,7 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 			for (Entry<String, String> item : mapURLs.entrySet()) {
 			    String sURI = item.getKey();
 			    String sTitle = item.getValue();
-			    console.fine("{ uri= " + sURI + " } { title= " + sTitle + " }");
+			    console.fine("[ uri = '" + sURI + "' title = '" + sTitle + "' ]");
 
 			    cc.pushDataComponentToOutput(OUT_ITEM_LOCATION, sURI);
 	            cc.pushDataComponentToOutput(OUT_ITEM_TITLE, sTitle);
@@ -174,6 +174,10 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 			if (bWrapped)
 			    pushTerminator(sKey);
 		}
+
+        if (itemCount == 0)
+            cc.pushDataComponentToOutput(OUT_NO_DATA,
+                    "Your items contained no URL information. Check to see that the URL attribute contains a valid url.");
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

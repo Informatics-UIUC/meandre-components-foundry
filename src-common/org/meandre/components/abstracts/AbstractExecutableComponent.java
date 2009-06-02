@@ -47,6 +47,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,6 +55,7 @@ import java.util.logging.Logger;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.components.ComponentInputCache;
 import org.meandre.components.PackedDataComponents;
+import org.meandre.components.abstracts.util.ComponentLogFormatter;
 import org.meandre.components.abstracts.util.WebConsoleHandler;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
@@ -119,7 +121,8 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
     public void initialize(ComponentContextProperties ccp)
             throws ComponentExecutionException, ComponentContextException {
 
-        Handler consoleHandler = new WebConsoleHandler(ccp.getOutputConsole(), Logger.getLogger("").getHandlers()[0].getFormatter());
+        Formatter formatter = new ComponentLogFormatter(ccp.getExecutionInstanceID(), ccp.getFlowExecutionInstanceID(), ccp.getFlowID());
+        Handler consoleHandler = new WebConsoleHandler(ccp.getOutputConsole(), formatter);
         consoleHandler.setLevel(Level.ALL);
 
         console = Logger.getLogger(ccp.getFlowExecutionInstanceID() + "/" + ccp.getExecutionInstanceID());
