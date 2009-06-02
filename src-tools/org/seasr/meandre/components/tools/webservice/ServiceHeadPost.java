@@ -141,8 +141,8 @@ public class ServiceHeadPost extends AbstractExecutableComponent
 	@SuppressWarnings("unchecked")
 	public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
 		console.info("Request received from " + request.getRemoteHost()
-				+ "/" + request.getRemoteAddr() + ":" + request.getRemotePort()
-				+ "[" + request.getRemoteUser() + "]");
+				+ " (" + request.getRemoteAddr() + ":" + request.getRemotePort() + ")"
+				+ ((request.getRemoteUser() != null) ? " [" + request.getRemoteUser() + "]" : ""));
 
 		Map<String,byte[]> map = new Hashtable<String,byte[]>();
 		Enumeration mapRequest = request.getParameterNames();
