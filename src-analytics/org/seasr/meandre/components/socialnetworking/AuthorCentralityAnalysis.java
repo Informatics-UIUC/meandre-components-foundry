@@ -85,7 +85,7 @@ import edu.uci.ics.jung.graph.Graph;
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
 		baseURL = "meandre://seasr.org/components/zotero/",
-		dependency = {"protobuf-java-2.0.3.jar", "velocity-1.6.1-dep.jar", "commons-collections-3.2.1.jar"},
+		dependency = {"protobuf-java-2.0.3.jar", "velocity-1.6.1-dep.jar"},
         resources = {"AuthorCentralityAnalysis.vm"}
 )
 public class AuthorCentralityAnalysis extends AbstractExecutableComponent {
