@@ -43,6 +43,7 @@
 package org.seasr.meandre.component.opennlp;
 
 import java.io.File;
+import java.util.logging.Level;
 
 import opennlp.tools.lang.english.Tokenizer;
 
@@ -74,11 +75,10 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		resources = "opennlp-english-models.jar",
 		tags = "semantic, tools, text, opennlp, tokenizer",
 		description = "This component breaks the text contained in the input " +
 				      "unsing OpenNLP tokenizing facilities.",
-		dependency = {"trove.jar","protobuf-java-2.0.3.jar"}
+		dependency = {"trove.jar","protobuf-java-2.0.3.jar", "opennlp-english-models.jar"}
 )
 public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 
@@ -119,7 +119,7 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 					sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"Tok.bin.gz");
 		}
 		catch ( Throwable t ) {
-			console.severe("Failed to open tokenizer model for " + sLanguage);
+			console.log(Level.SEVERE,"Failed to open tokenizer model for " + sLanguage, t);
 			throw new ComponentExecutionException(t);
 		}
 	}

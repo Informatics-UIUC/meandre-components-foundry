@@ -77,11 +77,10 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		resources = "opennlp-english-models.jar",
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences",
 		description = "This component breaks the text contained in the input sentences " +
 				      "unsing OpenNLP tokenizing facilities.",
-		dependency = {"trove.jar","protobuf-java-2.0.3.jar"}
+		dependency = {"trove.jar","protobuf-java-2.0.3.jar", "opennlp-english-models.jar"}
 )
 public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 

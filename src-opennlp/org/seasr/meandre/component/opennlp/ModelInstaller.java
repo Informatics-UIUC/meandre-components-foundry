@@ -44,6 +44,7 @@ package org.seasr.meandre.component.opennlp;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -67,7 +68,7 @@ public class ModelInstaller {
 	 * @param bForce Force the installation by deleting the folder
 	 * @return True is the process finished correctly, false otherwhise.
 	 */
-	public static boolean installJar ( String sRootDir, String sJarName, boolean bForce ) {
+	public static boolean installJar ( String sRootDir, InputStream jarStream, boolean bForce ) {
 		File fRootDir = new File(sRootDir);
 		// Basic checking
 		if ( fRootDir.exists() ) {
@@ -84,7 +85,7 @@ public class ModelInstaller {
 
 		// Unjar the contents
 		try {
-			JarInputStream jar = new JarInputStream(ModelInstaller.class.getResourceAsStream(sJarName));
+			JarInputStream jar = new JarInputStream(jarStream);
 			JarEntry je = null;
 			while ( (je=jar.getNextJarEntry())!=null ) {
 	            File fileTarget = new File(sRootDir+File.separator+je.getName().replaceAll("/", File.separator));

@@ -43,6 +43,7 @@
 package org.seasr.meandre.component.opennlp;
 
 import java.io.File;
+import java.io.FileInputStream;
 
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
@@ -83,7 +84,10 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 		this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
 
 		String sRunFile = ccp.getRunDirectory() + File.separator + "opennlp" + File.separator + "models";
-		boolean bRes = ModelInstaller.installJar(sRunFile, "opennlp-" + sLanguage + "-models.jar", false);
+		File modelsJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
+		        "contexts" + File.separator + "java" + File.separator + "opennlp-" + sLanguage + "-models.jar");
+		console.fine("Installing " + sLanguage + " models from: " + modelsJar.toString());
+		boolean bRes = ModelInstaller.installJar(sRunFile, new FileInputStream(modelsJar), false);
 		if ( !this.ignoreErrors && !bRes )
 			throw new ComponentExecutionException("Failed to install OpenNLP models at "
 			        + new File(sRunFile).getAbsolutePath());

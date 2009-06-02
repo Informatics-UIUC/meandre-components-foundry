@@ -131,9 +131,9 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.htAcc = null;
-		this.iCnt = 0;
-		this.bOrdered = Boolean.parseBoolean(ccp.getProperty(PROP_ORDERED));
+	    this.bOrdered = Boolean.parseBoolean(ccp.getProperty(PROP_ORDERED));
+
+	    initializeReduction();
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
@@ -164,8 +164,7 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
             else
                 throw new ComponentExecutionException(sMessage);
         }
-        // Initialize the accumulation model
-        initializeReduction();
+        htAcc = new Hashtable<String, Integer>();
     }
 
     @Override
@@ -187,7 +186,7 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	 *
 	 */
 	protected void initializeReduction() {
-		this.htAcc = new Hashtable<String, Integer>(1000);
+		this.htAcc = null;
 		this.iCnt = 0;
 	}
 
@@ -208,7 +207,6 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
 		        BasicDataTypesTools.mapToIntegerMap(htAcc,bOrdered));
 		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, st);
-
 	}
 
 	/**
