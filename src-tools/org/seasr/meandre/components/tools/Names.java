@@ -115,4 +115,5 @@ public abstract class Names {
 	public static final String PORT_SEMAPHORE = "semaphore";
 	public static final String PORT_AUTHOR_LIST = "author_list";
 	public static final String PORT_NO_DATA = "no_data";
+	public static final String PORT_GRAPH = "graph";
 }

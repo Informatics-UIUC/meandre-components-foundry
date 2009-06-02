@@ -1,0 +1,20 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head></head>
+<body>
+    <table>
+        <tr>
+            <td><strong>Author</strong></td>
+            <td><strong>Betweenness Centrality</strong></td>
+        </tr>
+
+        #foreach( $ranking in $centralityRankings )
+        <tr>
+            <td>${ranking.getAuthorName()}</td>
+            <td>${ranking.getRankScore()}</td>
+        </tr>
+        #end
+
+    </table>
+</body>
+</html>

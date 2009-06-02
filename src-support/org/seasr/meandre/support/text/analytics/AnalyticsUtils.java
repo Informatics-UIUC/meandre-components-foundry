@@ -42,9 +42,20 @@
 
 package org.seasr.meandre.support.text.analytics;
 
+import java.util.Hashtable;
+import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import org.seasr.meandre.support.text.SyntacticUtils;
+
+import edu.uci.ics.jung.algorithms.importance.AbstractRanker;
+import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseEdge;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseGraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseVertex;
+import edu.uci.ics.jung.utils.UserData;
 
 /**
  * @author capitanu
@@ -86,4 +97,40 @@ public abstract class AnalyticsUtils {
         return new ReadabilityMeasure(syllables, words, sentences, fres, fgl);
     }
 
+    public static Graph buildGraph(List<Vector<String>> listAuthors, String userDatum) {
+        UndirectedSparseGraph g = new UndirectedSparseGraph();
+        Hashtable<String,UndirectedSparseVertex> htVertex = new Hashtable<String,UndirectedSparseVertex>();
+
+        for ( Vector<String> vec:listAuthors ) {
+            for ( String sAuthor:vec )
+                if ( !htVertex.containsKey(sAuthor) ) {
+                    UndirectedSparseVertex v = new UndirectedSparseVertex();
+                    v.addUserDatum(userDatum, sAuthor, UserData.SHARED);
+                    g.addVertex(v);
+                    htVertex.put(sAuthor, v);
+                }
+        }
+
+        for ( Vector<String> vec:listAuthors ) {
+            Object[] oa = vec.toArray();
+            for ( int i=0,iMax=oa.length ; i<iMax ; i++ )
+                for ( int j=i+1,jMax=oa.length ; j<jMax ; j++ ) {
+                    UndirectedSparseEdge e = new UndirectedSparseEdge(htVertex.get(oa[i].toString()), htVertex.get(oa[j].toString()));
+                    try {
+                        g.addEdge(e);
+                    }
+                    catch (Exception exception) {
+                        // The edge was already added
+                    }
+                }
+        }
+
+        return g;
+    }
+
+    public static AbstractRanker computeBetweenness(Graph g) {
+        BetweennessCentrality rBC = new BetweennessCentrality(g,true,false);
+        rBC.evaluate();
+        return rBC;
+    }
 }

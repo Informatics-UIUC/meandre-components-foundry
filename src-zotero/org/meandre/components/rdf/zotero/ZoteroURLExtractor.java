@@ -84,7 +84,8 @@ import com.hp.hpl.jena.rdf.model.Model;
 		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
-		baseURL = "meandre://seasr.org/components/zotero/"
+		baseURL = "meandre://seasr.org/components/zotero/",
+		dependency = {"protobuf-java-2.0.3.jar"}
 )
 public class ZoteroURLExtractor extends AbstractExecutableComponent {
 
