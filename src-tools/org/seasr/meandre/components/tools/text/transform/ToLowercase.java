@@ -58,6 +58,8 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  * @author Boris Capitanu
  */
 
+// TODO: add the ability to lowercase tokencounts
+
 @Component(
         creator = "Lily Dong",
         description = "Converts a text to lowercase.",
