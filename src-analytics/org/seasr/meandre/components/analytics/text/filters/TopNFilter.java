@@ -105,13 +105,13 @@ public class TopNFilter extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    private int upperLimit;
+    private int _upperLimit;
 
 
     //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        upperLimit = Integer.parseInt(ccp.getProperty(PROP_UPPER_LIMIT));
+        _upperLimit = Integer.parseInt(ccp.getProperty(PROP_UPPER_LIMIT));
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
@@ -119,6 +119,7 @@ public class TopNFilter extends AbstractExecutableComponent {
 
         Map<String, Integer> outputMap = inputMap;
 
+        int upperLimit = _upperLimit;
         if (inputMap.size() > upperLimit) {
             byValueComparator bvc = new byValueComparator(inputMap);
             TreeMap<String, Integer> sortedMap = new TreeMap<String, Integer>(bvc);
