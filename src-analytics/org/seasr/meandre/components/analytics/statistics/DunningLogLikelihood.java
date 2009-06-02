@@ -152,7 +152,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 			else //scale score
 				outputMap.put(key.getString(), new Integer((int)(score/min)));
 
-			console.info(String.format("%s\t%s\t%s", key.getString(), score, (int)score));
+			console.fine(String.format("%s\t%s\t%s", key.getString(), score, (int)score));
 		}
 
 		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
