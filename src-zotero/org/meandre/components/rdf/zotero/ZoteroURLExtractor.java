@@ -67,9 +67,9 @@ import org.seasr.meandre.support.zotero.ZoteroUtils;
 import com.hp.hpl.jena.rdf.model.Model;
 
 /**
- * This class extracts the list of authors per entry from a Zotero RDF
- * For each Zotero item, we have an output for the url, title, and a flag
- * indicating whether this is the last item or not.
+ * This class extracts the list of urls per entry from a Zotero RDF
+ * For each Zotero item, we have an output for the url, and title. We output
+ * a message on the "PORT_NO_DATA" if there were no urls extracted.
  *
  * @author Xavier Llor&agrave;
  * @author Loretta Auvil
@@ -80,7 +80,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 		creator = "Xavier Llora",
 		description = "Extract the urls for each of the entry of a Zotero RDF",
 		name = "Zotero URL Extractor",
-		tags = "zotero, authors, information extraction",
+		tags = "zotero, url",
 		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
