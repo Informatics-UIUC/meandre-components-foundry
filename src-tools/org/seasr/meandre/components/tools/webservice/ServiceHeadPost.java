@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.tools.webservice;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
@@ -151,7 +152,12 @@ public class ServiceHeadPost extends AbstractExecutableComponent
 			String [] sa = request.getParameterValues(sName);
 			String sAcc = "";
 			for ( String s:sa ) sAcc+=s;
-			map.put(sName, sAcc.getBytes());
+			try {
+                map.put(sName, sAcc.getBytes("UTF-8"));
+            }
+            catch (UnsupportedEncodingException e) {
+                throw new WebUIException(e);
+            }
 		}
 
 		try {

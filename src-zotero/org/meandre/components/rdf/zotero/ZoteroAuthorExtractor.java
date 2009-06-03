@@ -112,7 +112,12 @@ public class ZoteroAuthorExtractor extends AbstractExecutableComponent {
 
 		for ( String sKey:map.keySet() ) {
 			Model model = ModelUtils.getModel(map.get(sKey), null);
-			list.addAll(ZoteroUtils.extractAuthors(model));
+			List<Vector<String>> authorList = ZoteroUtils.extractAuthors(model);
+            for (Vector<String> authors : authorList) {
+                for (String author : authors)
+                    console.finest("author: " + author);
+            }
+			list.addAll(authorList);
 		}
 
 		cc.pushDataComponentToOutput(OUT_AUTHOR_LIST, list);
