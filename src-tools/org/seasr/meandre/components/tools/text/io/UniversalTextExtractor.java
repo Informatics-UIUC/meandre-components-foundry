@@ -119,17 +119,26 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
 
         console.fine("Content type: " + mimeType);
 
-        ContentHandler handler =
-            new TextContentHandlerFactory().createContentHandler(mimeType);
+        String text;
 
-        if (handler == null)
-            throw new UnsupportedOperationException("Do not know how to handle MIME type: " + mimeType);
+        if (mimeType == null) {
+            console.warning(String.format("The location '%s' is no longer available", location.toString()));
+            text = "";
+        }
+        else {
+            ContentHandler handler =
+                new TextContentHandlerFactory().createContentHandler(mimeType);
 
-        console.fine("Content handler set to: " + handler.getClass().getSimpleName());
+            if (handler == null)
+                throw new UnsupportedOperationException("Do not know how to handle MIME type: " + mimeType);
+
+            console.fine("Content handler set to: " + handler.getClass().getSimpleName());
+            text = (String)handler.getContent(connection);
+        }
 
         cc.pushDataComponentToOutput(OUT_LOCATION, input);
         cc.pushDataComponentToOutput(OUT_TEXT,
-                BasicDataTypesTools.stringToStrings((String)handler.getContent(connection)));
+                BasicDataTypesTools.stringToStrings(text));
     }
 
     @Override
