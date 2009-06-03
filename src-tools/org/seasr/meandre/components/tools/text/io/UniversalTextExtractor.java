@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.tools.text.io;
 
+import java.io.FileNotFoundException;
 import java.net.ContentHandler;
 import java.net.URL;
 import java.net.URLConnection;
@@ -122,7 +123,7 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
         String text;
 
         if (mimeType == null) {
-            console.warning(String.format("The location '%s' is no longer available", location.toString()));
+            console.warning(String.format("The location '%s' cannot be contacted", location.toString()));
             text = "";
         }
         else {
@@ -133,7 +134,13 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
                 throw new UnsupportedOperationException("Do not know how to handle MIME type: " + mimeType);
 
             console.fine("Content handler set to: " + handler.getClass().getSimpleName());
-            text = (String)handler.getContent(connection);
+            try {
+                text = (String)handler.getContent(connection);
+            }
+            catch (FileNotFoundException e) {
+                console.warning(String.format("The location '%s' is no longer available", location.toString()));
+                text = "";
+            }
         }
 
         cc.pushDataComponentToOutput(OUT_LOCATION, input);
