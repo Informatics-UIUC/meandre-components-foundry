@@ -214,6 +214,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
                 child.setAttributeNode(attr);
                 root.appendChild(child);
                 ht.put(s, child);
+                console.fine("Entity: " + s + " :" + ann.getType());
             }
         }
 
