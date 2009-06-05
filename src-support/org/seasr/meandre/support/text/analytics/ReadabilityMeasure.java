@@ -42,6 +42,10 @@
 
 package org.seasr.meandre.support.text.analytics;
 
+import java.util.StringTokenizer;
+
+import org.seasr.meandre.support.text.SyntacticUtils;
+
 /**
  * @author Boris Capitanu
  *
@@ -80,5 +84,39 @@ public class ReadabilityMeasure {
 
     public float getGradeLevel() {
         return fleschGradeLevel;
+    }
+
+    public static ReadabilityMeasure computeFleschReadabilityMeasure(String content) {
+        int syllables = 0;
+        int sentences = 0;
+        int words     = 0;
+
+        String delimiters = ".,':;?{}[]=-+_!@#$%^&*() ";
+        StringTokenizer tokenizer = new StringTokenizer(content,delimiters);
+        //go through all words
+        while (tokenizer.hasMoreTokens())
+        {
+            String word = tokenizer.nextToken();
+            syllables += SyntacticUtils.countSyllables(word);
+            words++;
+        }
+        //look for sentence delimiters
+        String sentenceDelim = ".:;?!";
+        StringTokenizer sentenceTokenizer = new StringTokenizer(content,sentenceDelim);
+        sentences = sentenceTokenizer.countTokens();
+
+        //calculate flesch reading ease score
+        final float f1 = (float) 206.835;
+        final float f2 = (float) 84.6;
+        final float f3 = (float) 1.015;
+        float r1 = (float) syllables / (float) words;
+        float r2 = (float) words / (float) sentences;
+        float fres = f1 - (f2*r1) - (f3*r2);
+
+        //calculate the flesch grade level
+        float fgl = 0.39f * ((float) words / (float)sentences) +
+        11.8f * ((float)syllables / (float)words) - 15.59f;
+
+        return new ReadabilityMeasure(syllables, words, sentences, fres, fgl);
     }
 }

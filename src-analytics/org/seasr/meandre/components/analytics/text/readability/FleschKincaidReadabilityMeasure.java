@@ -60,7 +60,6 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.html.VelocityTemplateService;
 import org.seasr.meandre.support.parsers.DataTypeParser;
-import org.seasr.meandre.support.text.analytics.AnalyticsUtils;
 import org.seasr.meandre.support.text.analytics.ReadabilityMeasure;
 
 /**
@@ -180,7 +179,7 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
 
 		console.fine(String.format("Processing '%s' from '%s'", title, location.toString()));
 
-		ReadabilityMeasure measure = AnalyticsUtils.computeFleschReadabilityMeasure(content);
+		ReadabilityMeasure measure = ReadabilityMeasure.computeFleschReadabilityMeasure(content);
 		_fleschDocs.add(new FleschDocument(title, location, measure));
 
 		if (!_gotInitiator)
