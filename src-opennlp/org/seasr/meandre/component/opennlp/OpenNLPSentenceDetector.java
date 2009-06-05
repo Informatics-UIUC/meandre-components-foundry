@@ -111,10 +111,7 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 		super.initializeCallBack(ccp);
 
 		try {
-			sdetector = new SentenceDetector(
-					ccp.getRunDirectory()+File.separator+
-					"opennlp"+File.separator+"models"+File.separator+
-					sLanguage+File.separator+"sentdetect"+File.separator+
+			sdetector = new SentenceDetector(sOpenNLPDir+"sentdetect"+File.separator+
 					sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"SD.bin.gz");
 		}
 		catch ( Throwable t ) {

@@ -113,10 +113,7 @@ public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 		super.initializeCallBack(ccp);
 
 		try {
-			tokenizer = new Tokenizer(
-					ccp.getRunDirectory()+File.separator+
-					"opennlp"+File.separator+"models"+File.separator+
-					sLanguage+File.separator+"tokenize"+File.separator+
+			tokenizer = new Tokenizer(sOpenNLPDir+"tokenize"+File.separator+
 					sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"Tok.bin.gz");
 		}
 		catch ( Throwable t ) {
