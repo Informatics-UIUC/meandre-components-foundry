@@ -137,6 +137,9 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 		Document doc_in = (Document) cc.getDataComponentFromInput(IN_DOCUMENT);
 
 		org.w3c.dom.Document doc_out = annotationToXml(doc_in, entities);
+		int nNodes = doc_out.getDocumentElement().getChildNodes().getLength();
+		if (nNodes == 0)
+		    console.warning("Empty Simile XML generated!");
 
 		Properties outputProperties = new Properties();
 		outputProperties.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
