@@ -87,10 +87,14 @@
 	        bandInfos[2].eventPainter.setLayout(bandInfos[0].eventPainter.getLayout(1));
 
 	        tl = Timeline.create(document.getElementById("my-timeline"), bandInfos);
-	        Timeline.loadXML("$xmlFileName",
-	    	        function(xml, url) {
-	        	        eventSource.loadXML(xml, url);
-	        	    });
+
+            var simileXml = document.getElementById('__simileXml').contentWindow.document;
+            eventSource.loadXML(simileXml, "$simileXmlUrl");
+
+	        //Timeline.loadXML("$simileXmlUrl",
+	    	//        function(xml, url) {
+	        //	        eventSource.loadXML(xml, url);
+	        //	    });
 	    }
 
         var resizeTimerID = null;
@@ -106,6 +110,9 @@
 </head>
 
 <body onload="onLoad();" onresize="onResize();">
+    <iframe src="data:text/xml;base64,$simileXmlBase64" id="__simileXml" tabIndex='-1'
+        style="position:absolute;width:0;height:0;border:0"></iframe>
+
 	<div id="my-timeline" style="height: 450px; border: 1px solid #aaa"></div>
 
 	<br>

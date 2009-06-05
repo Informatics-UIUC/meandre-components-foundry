@@ -72,6 +72,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import sun.misc.BASE64Encoder;
+
 /**
  * @author Lily Dong
  * @author Boris Capitanu
@@ -174,11 +176,13 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         URI xmlURI = DataTypeParser.parseAsURI(dirName + xmlFileName);
         URI htmlURI = DataTypeParser.parseAsURI(dirName + htmlFileName);
 
+        String simileXml = generateXML(doc);
+
         Writer xmlWriter = IOUtils.getWriterForResource(xmlURI);
-        xmlWriter.write(generateXML(doc));
+        xmlWriter.write(simileXml);
         xmlWriter.close();
 
-        String simileHtml = generateHTML(xmlLocation);
+        String simileHtml = generateHTML(simileXml, xmlLocation);
 
         Writer htmlWriter = IOUtils.getWriterForResource(htmlURI);
         htmlWriter.write(simileHtml);
@@ -195,11 +199,12 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-    private String generateHTML(String xmlFileName) throws Exception {
+    private String generateHTML(String simileXml, String simileXmlUrl) throws Exception {
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
         _context.put("maxYear", maxYear);
         _context.put("minYear", minYear);
-        _context.put("xmlFileName", xmlFileName);
+        _context.put("simileXmlBase64", new BASE64Encoder().encode(simileXml.getBytes()));
+        _context.put("simileXmlUrl", simileXmlUrl);
 
         return velocity.generateOutput(_context, simileVelocityTemplate);
     }
