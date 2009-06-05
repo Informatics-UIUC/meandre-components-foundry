@@ -68,7 +68,7 @@ public class ModelInstaller {
 	 * @param bForce Force the installation by deleting the folder
 	 * @return True is the process finished correctly, false otherwhise.
 	 */
-	public static boolean installJar ( String sRootDir, InputStream jarStream, boolean bForce ) {
+	public static synchronized boolean installJar ( String sRootDir, InputStream jarStream, boolean bForce ) {
 		File fRootDir = new File(sRootDir);
 		// Basic checking
 		if ( fRootDir.exists() ) {
