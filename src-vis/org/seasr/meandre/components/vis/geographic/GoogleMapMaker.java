@@ -235,6 +235,10 @@ public class GoogleMapMaker	extends AbstractExecutableComponent
                 while(st.hasMoreTokens()) {
                     String nt = st.nextToken();
                     int pos = nt.toLowerCase().indexOf(fstNode.getTextContent());
+
+                    if(pos == -1)
+        	    		continue;
+
                     int offset = pos+fstNode.getTextContent().length();
                     nt = new StringBuffer(nt).insert(offset, "</font>").toString();
                     offset = pos;
