@@ -138,7 +138,7 @@ public class ModelInstaller {
 //    public static void main ( String [] sArgs ) {
 //    	File run = new File("run/opennlp/models");
 //    	run.mkdirs();
-//    	installJar(run.toString(), "opennlp-english-models.jar", true);
+//    	installJar(run.toString(), "maxent-models.jar", true);
 //
 //    }
 }

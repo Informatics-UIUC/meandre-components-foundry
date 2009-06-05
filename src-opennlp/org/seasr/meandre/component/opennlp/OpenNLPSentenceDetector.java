@@ -78,7 +78,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		tags = "semantic, tools, text, opennlp, sentence detector",
 		description = "This component splits sentences of the text contained in the input  " +
 				      "unsing OpenNLP tokenizing facilities.",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar", "opennlp-english-models.jar"}
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar", "maxent-models.jar"}
 )
 public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 

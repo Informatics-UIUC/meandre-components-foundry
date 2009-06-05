@@ -82,19 +82,20 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp"+File.separator+"models";
+	    sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
 
 		this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
 
 		File modelsJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
-		        "contexts" + File.separator + "java" + File.separator + "opennlp-" + sLanguage + "-models.jar");
+		        "contexts" + File.separator + "java" + File.separator + "maxent-models.jar");
 		console.fine("Installing " + sLanguage + " models from: " + modelsJar.toString());
 		boolean bRes = ModelInstaller.installJar(sOpenNLPDir, new FileInputStream(modelsJar), false);
 		if ( !this.ignoreErrors && !bRes )
 			throw new ComponentExecutionException("Failed to install OpenNLP models at "
 			        + new File(sOpenNLPDir).getAbsolutePath());
 
-		sOpenNLPDir += File.separator+sLanguage+File.separator;
+		sOpenNLPDir += File.separator+"models"+File.separator
+		                +sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+File.separator;
 	}
 
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
