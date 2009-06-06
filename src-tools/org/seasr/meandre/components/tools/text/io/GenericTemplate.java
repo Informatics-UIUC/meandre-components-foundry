@@ -92,15 +92,15 @@ import org.seasr.meandre.support.html.VelocityTemplateService;
  */
 
 @Component(
-        creator="Mike Haberman",
-        description="Generates and displays a webpage via a Velocity Template ",
-        name="Generic Template",
-        tags="string, visualization",
+        creator = "Mike Haberman",
+        description = "Generates and displays a webpage via a Velocity Template ",
+        name = "Generic Template",
+        tags = "string, visualization",
         rights = Licenses.UofINCSA,
-        mode=Mode.webui,
-        baseURL="meandre://seasr.org/components/",
-        resources={"TemplateGUI.vm"},
-        dependency={"velocity-1.6.1-dep.jar"}
+        mode = Mode.webui,
+        baseURL = "meandre://seasr.org/components/",
+        resources = { "GenericTemplate.vm" },
+        dependency = { "velocity-1.6.1-dep.jar" }
 )
 public class GenericTemplate extends AbstractExecutableComponent implements WebUIFragmentCallback {
 
@@ -163,7 +163,7 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
     protected boolean doRefresh = true;
 
     protected boolean done;
-    Map<String, String[]> parameterMap;
+    private Map<String, String[]> parameterMap;
 
 
     //--------------------------------------------------------------------------------------------

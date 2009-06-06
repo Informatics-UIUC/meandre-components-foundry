@@ -46,6 +46,7 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
 
 /**
@@ -57,13 +58,13 @@ import org.seasr.meandre.components.tools.Names;
 @Component(
         creator = "Lily Dong",
         description = "Presents a simple text area for user to input string.",
-        name = "InputStringGUI",
+        name = "Input Text",
         tags = "string, visualization",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/",
         dependency = { "velocity-1.6.1-dep.jar" },
-        resources = { "InputString.vm" }
+        resources = { "InputText.vm" }
 )
 public class InputText extends GenericTemplate {
 
@@ -102,12 +103,14 @@ public class InputText extends GenericTemplate {
 
     //--------------------------------------------------------------------------------------------
 
-	public InputText()
-	{
-		templateVariables = new String[] { PROP_TITLE, PROP_MESSAGE, PROP_DEFAULT };
-		//
-		// velocity could always access these via $ccp.getProperty("title")
-		// but now they will be visible as $title, $message
-		//
+	@Override
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    templateVariables = new String[] { PROP_TITLE, PROP_MESSAGE, PROP_DEFAULT };
+	    //
+        // velocity could always access these via $ccp.getProperty("title")
+        // but now they will be visible as $title, $message
+        //
+
+	    super.initializeCallBack(ccp);
 	}
 }
