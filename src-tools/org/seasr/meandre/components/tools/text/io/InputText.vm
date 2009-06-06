@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<title> #if($title) $title #end
+</title>
+<script language="JavaScript">
+function validate(form, value) {
+   var trimmed = value.replace(/^\s+|\s+$/g, '') ;
+   if (trimmed.length != 0)
+      form.submit();
+   else
+      alert("Please input valid string and submit again.");
+}
+</script>
+
+</head>
+<body>
+<br/>
+
+<div>
+
+$message 
+#set ($fieldName = "context")
+$gui.setPushValue($fieldName)
+<form name="input" method="POST" action="/$sInstanceId">
+<br/>
+
+<TEXTAREA NAME="$fieldName" COLS="40" ROWS="6">
+$defaultValue
+</TEXTAREA>
+<br/>
+
+<input type="submit" value="Submit" 
+     onclick="validate(this.form, this.form.${fieldName}.value); return false;">
+</form>
+</div>
+</body>
+</html>
