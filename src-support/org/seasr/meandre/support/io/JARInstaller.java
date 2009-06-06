@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.meandre.component.opennlp;
+package org.seasr.meandre.support.io;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -49,13 +49,19 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 /**
- * This class provides basic mechanics to install OpenNLP
- * models in the environment for the component to reach.
+ * This class provides basic mechanics to install
+ * the contents of a JAR file into a particular location
+ * for access by components
  *
  * @author Xavier Llor&agrave;
+ * @author Boris Capitanu
  *
  */
-public class ModelInstaller {
+public class JARInstaller {
+
+    public enum InstallStatus {
+        SUCCESS, FAILED, SKIPPED
+    }
 
 	/** Chunk size */
 	private static final int READ_WRITE_CHUNK_SIZE = 65536;
@@ -63,21 +69,21 @@ public class ModelInstaller {
 	/** Install the contents of the jar at the given location. If location
 	 * exists no installation is performed, unless forced.
 	 *
-	 * @param sRootDir The location of the root directory where to install the stuff
+	 * @param sDestDir The location of the root directory where to install the stuff
 	 * @param sJarName The name of the jar to expand
 	 * @param bForce Force the installation by deleting the folder
-	 * @return True is the process finished correctly, false otherwhise.
+	 * @return True is the process finished correctly, false otherwise.
 	 */
-	public static synchronized boolean installJar ( String sRootDir, InputStream jarStream, boolean bForce ) {
-		File fRootDir = new File(sRootDir);
+	public static synchronized InstallStatus installFromStream(InputStream jarStream, String sDestDir, boolean bForce ) {
+		File fRootDir = new File(sDestDir);
 		// Basic checking
 		if ( fRootDir.exists() ) {
 			if ( bForce ) {
 				boolean bOK = deleteDir(fRootDir);
-				if ( !bOK ) return false;
+				if ( !bOK ) return InstallStatus.FAILED;
 			}
 			else {
-				return true;
+				return InstallStatus.SKIPPED;
 			}
 		}
 		else
@@ -88,7 +94,7 @@ public class ModelInstaller {
 			JarInputStream jar = new JarInputStream(jarStream);
 			JarEntry je = null;
 			while ( (je=jar.getNextJarEntry())!=null ) {
-	            File fileTarget = new File(sRootDir+File.separator+je.getName().replaceAll("/", File.separator));
+	            File fileTarget = new File(sDestDir+File.separator+je.getName().replaceAll("/", File.separator));
 				if ( je.isDirectory() ) {
 					fileTarget.mkdirs();
 				} else {
@@ -102,11 +108,11 @@ public class ModelInstaller {
 	            }
 	        }
 		} catch (Throwable t) {
-			deleteDir(new File(sRootDir));
-			return false;
+			deleteDir(new File(sDestDir));
+			return InstallStatus.FAILED;
 		}
 
-		return true;
+		return InstallStatus.SUCCESS;
 	}
 
 
@@ -134,11 +140,4 @@ public class ModelInstaller {
     	else
     		return true;
     }
-
-//    public static void main ( String [] sArgs ) {
-//    	File run = new File("run/opennlp/models");
-//    	run.mkdirs();
-//    	installJar(run.toString(), "maxent-models.jar", true);
-//
-//    }
 }

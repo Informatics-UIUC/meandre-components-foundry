@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+#*
+
+1. need to download fluid
+   http://wiki.fluidproject.org/
+2. place the fluid-components in published resources
+   perhaps we can just deploy the war file on the jetty app?
+3. set $FPath to where fluid-components live
+   (see below)
+
+*#
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>#if($title) $title #end
+</title>
+
+<link href="${FPath}/css/fluid.components.uploader.css"
+      rel="stylesheet" type="text/css" />
+
+      <link href="${FPath}/css/fluid.layout.css"
+      rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="${FPath}/js/Fluid-all.js">
+</script>
+</head>
+
+<body>
+
+<div id="uploader-contents">
+
+  <form method="post"
+       enctype="multipart/form-data" class="fl-progressive-enhanceable">
+   <p>Browse to upload a file.</p>
+   <input name="fileData" type="file" />
+   <div><input type="submit" value="Save"/>
+   </div>
+  </form>
+
+  <form class="fl-uploader fl-progressive-enhancer"
+      method="get" enctype="multipart/form-data">
+
+   <div class="fl-uploader-queue-wrapper">
+     <div class="fl-scroller-table-head">
+       <table cellspacing="0" cellpadding="0"
+              summary="Headers for the file queue.">
+           <caption>File Upload Queue:</caption>
+           <tr>
+           <th scope="col" class="fileName">File Name</th>
+           <th scope="col" class="fileSize">Size&nbsp;&nbsp;</th>
+           <th scope="col" class="fileRemove">&nbsp;</th>
+           </tr>
+       </table>
+     </div>
+     <div class="fl-scroller">
+        <div class="scroller-inner">
+          <table cellspacing="0" class="fl-uploader-queue"
+            summary="Queue of files to upload.">
+          <tbody>
+          <tr id="queue-row-tmplt" class="fluid-templates">
+          <th class="fileName" scope="row">File Name Placeholder</th>
+          <td class="fileSize">0 KB</td>
+          <td class="actions">
+            <button type="button" class="iconBtn"
+                    title="Remove File" tabindex="-1">
+             <span class="text-description">Remove file from queue</span>
+             </button>
+          </td>
+          </tr>
+          </tbody>
+          </table>
+            <div class="file-progress" id="row-progressor-tmplt">
+              <span class="file-progress-text">76%</span>
+            </div>
+         </div>
+      </div>
+
+      <div class="fl-uploader-browse-instructions"> Choose
+        <em>Browse files</em> to add files to the queue
+      </div>
+
+      <div class="fl-scroller-table-foot">
+       <table cellspacing="0" cellpadding="0" summary="Status of file queue.">
+       <tr>
+       <td class="total-file-progress">
+       Total: <span class="fl-uploader-totalFiles">0</span> files(<span class="fl-uploader-totalBytes">0 KB</span>)
+       </td>
+       <td class="footer-button" align="right" >
+       <a href="#" class="fl-uploader-browse">Browse files</a>
+       </td>
+       </tr>
+       </table>
+          <div class="total-progress">&nbsp;</div>
+     </div>
+    </div>
+
+    <div class="fl-uploader-btns">
+      <button type="button" class="fl-uploader-pause hidden">Stop Upload</button>     <button type="button" class="fl-uploader-upload default dim"
+        disabled="disabled">Upload</button>
+    </div>
+   </form>
+
+   <div class="fluid-templates">
+     <table id="fluid-uploader"
+           summary="Invisible placeholder for Uploader templates.">
+     <tr id="queue-error-tmplt" class="queue-error-row">
+     <td colspan="3" class="queue-error"></td>
+     </tr>
+     </table>
+   </div>
+
+</div>
+
+## href="/meandre://seasr.org/zigzag/1238704027002/1401424595981711324/flow/fluid-mau/instance/gui?done=true"
+
+
+<script>
+  var myUploader = fluid.progressiveEnhanceableUploader(".fl-uploader", ".fl-progressive-enhanceable",
+  { uploadManager:
+    { type: "fluid.swfUploadManager",
+      options:
+      { flashURL: "${FPath}/flash/swfupload.swf",
+          uploadURL: "/$sInstanceId",
+        },
+      decorators:
+         { type: "fluid.swfUploadSetupDecorator",
+           options:
+             {flashButtonImageURL: "$FPath/images/uploader/browse.png" }
+         }
+     },
+   }
+ );
+</script>
+
+
+<br/>
+<br/>
+
+##
+## this is the variable that the componet uses
+## to determine if we are done uploading files
+##
+#set ($fieldName = "done")
+$gui.setPushValue($fieldName)
+
+<STYLE TYPE="text/css">
+#in {width:400px}
+#in P              { font-size: 14pt; line-height: 14pt }
+#in P:first-letter { font-size: 200%; float: left }
+#in SPAN           { text-transform: uppercase }
+#in A              { font-size: 18pt; line-height: 18pt }
+</STYLE>
+
+
+<div id="in">
+<p> Once all the files are uploaded, selecting process will push
+the contents of each of these files to the next component.
+</p>
+<p>
+Note this component assumes that the file(s) contains ascii based text.
+</p>
+<p>
+<div align="center">
+   <a id="url" href="/$sInstanceId?${fieldName}=true">Process</a>
+</div>
+</p>
+</div>
+
+</body>
+</html>

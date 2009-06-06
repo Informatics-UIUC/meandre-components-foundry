@@ -47,9 +47,11 @@ import java.io.FileInputStream;
 
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.io.JARInstaller;
+import org.seasr.meandre.support.io.JARInstaller.InstallStatus;
 
 /**
  * Provides basic utilities for the OpenNLP components.
@@ -88,11 +90,17 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 
 		File modelsJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
 		        "contexts" + File.separator + "java" + File.separator + "maxent-models.jar");
+		if (!modelsJar.exists())
+		    throw new ComponentContextException("Could not find dependency: " + modelsJar.toString());
+
 		console.fine("Installing " + sLanguage + " models from: " + modelsJar.toString());
-		boolean bRes = ModelInstaller.installJar(sOpenNLPDir, new FileInputStream(modelsJar), false);
-		if ( !this.ignoreErrors && !bRes )
-			throw new ComponentExecutionException("Failed to install OpenNLP models at "
-			        + new File(sOpenNLPDir).getAbsolutePath());
+
+		InstallStatus status = JARInstaller.installFromStream(new FileInputStream(modelsJar), sOpenNLPDir, false);
+		if (status == InstallStatus.SKIPPED)
+		    console.fine("Installation skipped - models already installed");
+
+		if (status == InstallStatus.FAILED)
+			throw new ComponentContextException("Failed to install OpenNLP models at " + new File(sOpenNLPDir).getAbsolutePath());
 
 		sOpenNLPDir += File.separator+"models"+File.separator
 		                +sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+File.separator;
