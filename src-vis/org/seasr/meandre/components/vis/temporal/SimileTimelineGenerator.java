@@ -235,7 +235,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 			String startMonth = null,
 					 endMonth = null;
 
-			Pattern datePattern = Pattern.compile("(january|jan|feburary|feb|march|mar|" + //look for month
+			Pattern datePattern = Pattern.compile("(january|jan|february|feb|march|mar|" + //look for month
 					"april|apr|may|june|jun|july|jul|august|aug|september|sept|october|oct|"+
 					"november|nov|december|dec)");
 			Matcher dateMatcher = datePattern.matcher(aDate);
