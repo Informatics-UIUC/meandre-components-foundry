@@ -84,6 +84,10 @@ public abstract class Names {
 	public static final String PROP_REPLICATION_MODE = "replication_mode";
 	public static final String PROP_REPLICATION_METHOD = "replication_method_name";
 	public static final String PROP_SEPARATOR = "separator";
+	public static final String PROP_PROPERTIES = "properties";
+	public static final String PROP_REFRESH = "refresh_after_execute";
+	public static final String PROP_TITLE = "title";
+	public static final String PROP_DEFAULT = "default_value";
 
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";
