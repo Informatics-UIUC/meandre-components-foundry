@@ -48,7 +48,6 @@ import java.io.Writer;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,8 +67,7 @@ import org.seasr.meandre.support.html.VelocityTemplateService;
 import org.seasr.meandre.support.io.IOUtils;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import sun.misc.BASE64Encoder;
@@ -221,11 +219,11 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 		doc.getDocumentElement().normalize();
 		docTitle = doc.getDocumentElement().getAttribute("docID");
 		console.finest("Root element : " + docTitle);
-		NodeList nodeLst = doc.getElementsByTagName("date");
+		NodeList dateNodes = doc.getElementsByTagName("date");
 		//getConsoleOut().println("Information of date");
-		for (int k = 0; k < nodeLst.getLength(); k++) {
-			Node fstNode = nodeLst.item(k);
-			String aDate = fstNode.getTextContent();
+		for (int i = 0, iMax = dateNodes.getLength(); i < iMax; i++) {
+			Element elEntity = (Element)dateNodes.item(i);
+			String aDate = elEntity.getAttribute("value");
 
 			//standardize date
 			//getConsoleOut().println("time : " + aDate);
@@ -280,37 +278,29 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 			datePattern = Pattern.compile("(\\d{3,4})"); //look for year with 3 or 4 digits
 			dateMatcher = datePattern.matcher(aDate);
 			if(dateMatcher.find()) { //look for year
-				NamedNodeMap nnp = fstNode.getAttributes();
-		        String sentence = nnp.getNamedItem("sentence").getNodeValue();
+	            StringBuffer sbHtml = new StringBuffer();
+	            int nr = 0;
 
-		        //escape invalid xml characters
-//		        sentence = sentence.replaceAll("[&]",  "&amp;");
-//		        sentence = sentence.replaceAll("[<]",  "&lt;");
-//		        sentence = sentence.replaceAll("[>]",  "&gt;");
-//		        sentence = sentence.replaceAll("[\"]", "&quot; ");
-//		        sentence = sentence.replaceAll("[\']", "&#39;");
+			    NodeList sentenceNodes = elEntity.getElementsByTagName("sentence");
+			    for (int idx = 0, idxMax = sentenceNodes.getLength(); idx < idxMax; idx++) {
+			        Element elSentence = (Element)sentenceNodes.item(idx);
+			        String docTitle = elSentence.getAttribute("docTitle");
+			        String theSentence = elSentence.getTextContent();
 
-		        sentence = StringEscapeUtils.escapeXml(sentence);
+			        int datePos = theSentence.toLowerCase().indexOf(aDate);
+                    String str = "</font>";
+                    int offset = datePos+aDate.length();
+                    theSentence = new StringBuffer(theSentence).insert(offset, str).toString();
+                    offset = datePos;
+                    str = "<font color='red'>";
+                    theSentence = new StringBuffer(theSentence).insert(offset, str).toString();
+                    sbHtml.append("<div onclick='toggleVisibility(this)' style='position:relative' align='left'><b>Sentence ").append(++nr);
+                    if (docTitle != null && docTitle.length() > 0)
+                        sbHtml.append(" from '" + docTitle + "'");
+                    sbHtml.append("</b><span style='display: ' align='left'><table><tr><td>").append(theSentence).append("</td></tr></table></span></div>");
+			    }
 
-		        StringTokenizer st = new StringTokenizer(sentence, "|");
-		        StringBuffer sb = new StringBuffer();
-		        int nr = 0;
-
-		        //TODO: This highlighting needs to be in the css and work with the template system
-
-		        while(st.hasMoreTokens()) {
-		        	String nt = st.nextToken();
-		        	int pos = nt.toLowerCase().indexOf(aDate);
-		        	String str = "&lt;/font&gt;";
-		        	int offset = pos+aDate.length();
-		        	nt = new StringBuffer(nt).insert(offset, str).toString();
-		        	offset = pos;
-		        	str = "&lt;font color=&#39;red&#39;&gt;";
-		        	nt = new StringBuffer(nt).insert(offset, str).toString();
-		        	sb.append("&lt;div onclick=&#39;toggleVisibility(this)&#39; style=&#39;position:relative&#39; ALIGN=&#39;LEFT&#39;&gt;&lt;b&gt;Sentence ").append(++nr).append("&lt;/b&gt;");
-		        	sb.append("&lt;span style=&#39;display: &#39; ALIGN=&#39;LEFT&#39;&gt; &lt;table &gt;&lt;tr&gt;&lt;td&gt;").append(nt).append("&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/span&gt;&lt;/div&gt;");
-		        }
-		        sentence = sb.toString();
+		        String sentence = StringEscapeUtils.escapeXml(sbHtml.toString());
 
 				year = dateMatcher.group(1);
 				minYear = Math.min(minYear, Integer.parseInt(year));

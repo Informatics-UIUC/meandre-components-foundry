@@ -42,15 +42,13 @@
 
 package org.seasr.meandre.components.tools.text.transform;
 
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -60,7 +58,6 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.components.text.datatype.corpora.Annotation;
 import org.seasr.components.text.datatype.corpora.AnnotationConstants;
 import org.seasr.components.text.datatype.corpora.AnnotationSet;
@@ -68,9 +65,8 @@ import org.seasr.components.text.datatype.corpora.Document;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.io.DOMUtils;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
-import org.w3c.dom.Text;
+import org.w3c.dom.NodeList;
 
 /**
  * @author Lily Dong
@@ -123,33 +119,37 @@ public class AnnotationToXML extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-	//Store properties.
-	private String entities;
+	private String _entities;
+	private DocumentBuilder _docBuilder;
+	private Properties _xmlProperties;
+	private Vector<org.w3c.dom.Document> _simileDocs = new Vector<org.w3c.dom.Document>();
+	private boolean _gotInitiator;
 
 
     //--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        entities = ccp.getProperty(PROP_ENTITIES);
+        _entities = ccp.getProperty(PROP_ENTITIES);
+
+        DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+        _docBuilder = dbfac.newDocumentBuilder();
+
+        _xmlProperties = new Properties();
+        _xmlProperties.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        _xmlProperties.put(OutputKeys.INDENT, "yes");
+
+        _gotInitiator = false;
     }
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		Document doc_in = (Document) cc.getDataComponentFromInput(IN_DOCUMENT);
 
-		org.w3c.dom.Document doc_out = annotationToXml(doc_in, entities);
-		int nNodes = doc_out.getDocumentElement().getChildNodes().getLength();
-		if (nNodes == 0)
-		    console.warning("Empty Simile XML generated!");
+		_simileDocs.add(annotationToXml(doc_in, _entities));
 
-		Properties outputProperties = new Properties();
-		outputProperties.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		outputProperties.put(OutputKeys.INDENT, "yes");
-
-		String xmlString = DOMUtils.getString(doc_out, outputProperties);
-
-		console.finest(String.format("XML Output:%n%s", xmlString));
-
-		cc.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
+		if (!_gotInitiator) {
+		    String xmlString = DOMUtils.getString(_simileDocs.get(0), _xmlProperties);
+		    cc.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
+		}
 	}
 
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -157,19 +157,36 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+	@Override
+	protected void handleStreamInitiators() throws Exception {
+        if (_gotInitiator)
+            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
+
+        _simileDocs = new Vector<org.w3c.dom.Document>();
+        _gotInitiator = true;
+	}
+
+	@Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!_gotInitiator)
+            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
+
+        String xmlString = DOMUtils.getString(mergeXmlDocuments(), _xmlProperties);
+        componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
+
+        _gotInitiator = false;
+        _simileDocs.clear();
+    }
+
+    //--------------------------------------------------------------------------------------------
+
     private org.w3c.dom.Document annotationToXml(Document doc_in, String entities)
-        throws ComponentExecutionException, TransformerFactoryConfigurationError {
+        throws Exception {
 
-        DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder;
+        String docId = doc_in.getDocID();
+        String docTitle = doc_in.getTitle();
 
-        try {
-            docBuilder = dbfac.newDocumentBuilder();
-        }
-        catch(ParserConfigurationException e) {
-            throw new ComponentExecutionException(e);
-        }
-        org.w3c.dom.Document doc_out = docBuilder.newDocument();
+        org.w3c.dom.Document doc_out = _docBuilder.newDocument();
 
         AnnotationSet as = doc_in.getAnnotations(AnnotationConstants.ANNOTATION_SET_ENTITIES);
         console.info("Number of entities in the input: " + as.size());
@@ -180,47 +197,78 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 
         Element root = doc_out.createElement("root");
         doc_out.appendChild(root);
-        root.setAttribute("docID", doc_in.getDocID());
+        root.setAttribute("docID", docId);
+        if (docTitle != null)
+            root.setAttribute("docTitle", docTitle);
 
-        console.fine("docID: " + doc_in.getDocID());
-
-        Hashtable<String, Element> ht = new Hashtable<String, Element>();
+        console.fine("docID: " + docId);
+        console.fine("docTitle: " + docTitle);
 
         while (itty.hasNext()) {
             Annotation ann = itty.next();
             if(entities.indexOf(ann.getType()) != -1) {
                 AnnotationSet subSet = as2.get(ann.getStartNodeOffset(), ann.getEndNodeOffset());
                 Iterator<Annotation> itty2 = subSet.iterator();
-                StringBuffer buf = new StringBuffer();
+                StringBuffer sentenceBuffer = new StringBuffer();
                 while(itty2.hasNext()) {
                     Annotation item = itty2.next();
-                    buf.append(item.getContent(doc_in).trim());
-                }
-                String value = buf.toString();
-                //some sentences extracted are surrounded by void ".
-                value = value.replaceAll("\"", " ");
-
-                String s = ann.getContent(doc_in).trim().toLowerCase();
-                if(ht.containsKey(s)) {
-                    Element child = ht.get(s);
-                    Attr attr = child.getAttributeNode("sentence");
-                    //append new sentences using | as list separator.
-                    attr.setNodeValue(attr.getNodeValue() + " | " + value);
-                    continue;
+                    sentenceBuffer.append(item.getContent(doc_in).trim());
                 }
 
-                Element child = doc_out.createElement(ann.getType());
-                Text text = doc_out.createTextNode(s);
-                Attr attr = doc_out.createAttribute("sentence");
-                attr.setNodeValue(value);
-                child.appendChild(text);
-                child.setAttributeNode(attr);
-                root.appendChild(child);
-                ht.put(s, child);
-                console.fine("Entity: " + s + " :" + ann.getType());
+                String sentence = sentenceBuffer.toString();
+                Element elSentence = createSentenceNode(doc_out, sentence, docId, docTitle);
+
+                String entityValue = ann.getContent(doc_in).trim().toLowerCase();
+                console.fine("Entity: " + entityValue + " :" + ann.getType());
+
+                Element elEntity = doc_out.getElementById(ann.getType() + ":" + entityValue);
+
+                if (elEntity == null) {
+                    elEntity = doc_out.createElement(ann.getType());
+                    elEntity.setAttribute("value", entityValue);
+                    elEntity.setAttribute("id", ann.getType()+":"+entityValue);
+                    elEntity.setIdAttribute("id", true);
+                    root.appendChild(elEntity);
+                }
+
+                elEntity.appendChild(elSentence);
             }
         }
 
         return doc_out;
+    }
+
+    private Element createSentenceNode(org.w3c.dom.Document doc_out, String sentence, String docId, String docTitle) {
+        Element elSentence = doc_out.createElement("sentence");
+
+        if (docId != null)
+            elSentence.setAttribute("docId", docId);
+
+        if (docTitle != null)
+            elSentence.setAttribute("docTitle", docTitle);
+
+        elSentence.setTextContent(sentence);
+
+        return elSentence;
+    }
+
+    private org.w3c.dom.Document mergeXmlDocuments() {
+        if (_simileDocs.size() == 0) return null;
+        if (_simileDocs.size() == 1) return _simileDocs.get(0);
+
+        org.w3c.dom.Document doc = _docBuilder.newDocument();
+        Element root = doc.createElement("root");
+        doc.appendChild(root);
+
+        for (org.w3c.dom.Document d : _simileDocs) {
+            NodeList nodes = d.getDocumentElement().getChildNodes();
+            for (int i = 0, iMax = nodes.getLength(); i < iMax; i++) {
+                Element elEntity = (Element)nodes.item(i);
+
+
+            }
+        }
+
+        return doc;
     }
 }
