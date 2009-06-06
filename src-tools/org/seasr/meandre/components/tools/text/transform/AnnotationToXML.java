@@ -264,8 +264,27 @@ public class AnnotationToXML extends AbstractExecutableComponent {
             NodeList nodes = d.getDocumentElement().getChildNodes();
             for (int i = 0, iMax = nodes.getLength(); i < iMax; i++) {
                 Element elEntity = (Element)nodes.item(i);
+                String entityId = elEntity.getAttribute("id");
 
+                Element element = doc.getElementById(entityId);
+                if (element == null) {
+                    element = doc.createElement(elEntity.getNodeName());
+                    element.setAttribute("value", elEntity.getAttribute("value"));
+                    element.setAttribute("id", elEntity.getAttribute("id"));
+                    element.setIdAttribute("id", true);
+                    root.appendChild(element);
+                }
 
+                NodeList entityChildren = elEntity.getElementsByTagName("sentence");
+                for (int j = 0, jMax = entityChildren.getLength(); j < jMax; j++) {
+                    Element child = (Element)entityChildren.item(j);
+                    String docId = child.getAttribute("docId");
+                    String docTitle = child.getAttribute("docTitle");
+                    if (docId == null || docId.length() == 0) docId = null;
+                    if (docTitle == null || docTitle.length() == 0) docTitle = null;
+                    Element elSentence = createSentenceNode(doc, child.getTextContent(), docId, docTitle);
+                    element.appendChild(elSentence);
+                }
             }
         }
 

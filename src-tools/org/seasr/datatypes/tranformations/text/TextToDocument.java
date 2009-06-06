@@ -52,6 +52,8 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.components.text.datatype.corpora.Document;
 import org.seasr.components.text.util.Factory;
 import org.seasr.meandre.components.tools.Names;
@@ -130,5 +132,27 @@ public class TextToDocument extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (inputPortsWithInitiators.contains(IN_TEXT) &&
+            inputPortsWithInitiators.contains(IN_DOC_TITLE)) {
+
+            StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_TEXT);
+            componentContext.pushDataComponentToOutput(OUT_DOCUMENT, si);
+        }
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (inputPortsWithTerminators.contains(IN_TEXT) &&
+            inputPortsWithTerminators.contains(IN_DOC_TITLE)) {
+
+            StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_TEXT);
+            componentContext.pushDataComponentToOutput(OUT_DOCUMENT, st);
+        }
     }
 }
