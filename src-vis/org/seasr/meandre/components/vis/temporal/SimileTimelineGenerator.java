@@ -288,12 +288,11 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 			        String theSentence = elSentence.getTextContent();
 
 			        int datePos = theSentence.toLowerCase().indexOf(aDate);
-                    String str = "</font>";
-                    int offset = datePos+aDate.length();
-                    theSentence = new StringBuffer(theSentence).insert(offset, str).toString();
-                    offset = datePos;
-                    str = "<font color='red'>";
-                    theSentence = new StringBuffer(theSentence).insert(offset, str).toString();
+			        String sentBefore = theSentence.substring(0, datePos);
+			        String sentAfter = theSentence.substring(datePos + aDate.length());
+			        theSentence = StringEscapeUtils.escapeHtml(sentBefore) +
+			                      "<font color='red'>" + StringEscapeUtils.escapeHtml(aDate) + "</font>" +
+			                      StringEscapeUtils.escapeHtml(sentAfter);
                     sbHtml.append("<div onclick='toggleVisibility(this)' style='position:relative' align='left'><b>Sentence ").append(++nr);
                     if (docTitle != null && docTitle.length() > 0)
                         sbHtml.append(" from '" + docTitle + "'");
