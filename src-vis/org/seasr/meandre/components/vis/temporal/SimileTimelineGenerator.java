@@ -295,7 +295,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 			                      StringEscapeUtils.escapeHtml(sentAfter);
                     sbHtml.append("<div onclick='toggleVisibility(this)' style='position:relative' align='left'><b>Sentence ").append(++nr);
                     if (docTitle != null && docTitle.length() > 0)
-                        sbHtml.append(" from '" + docTitle + "'");
+                        sbHtml.append(" from '" + StringEscapeUtils.escapeHtml(docTitle) + "'");
                     sbHtml.append("</b><span style='display: ' align='left'><table><tr><td>").append(theSentence).append("</td></tr></table></span></div>");
 			    }
 
