@@ -223,7 +223,7 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
                 _fleschDocs.clear();
             }
             else
-                throw new Exception("Unbalanced or unexpected StreamInitiator received");
+                throw new Exception("Unbalanced or unexpected StreamTerminator received");
     }
 
     //--------------------------------------------------------------------------------------------

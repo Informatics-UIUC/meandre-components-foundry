@@ -143,7 +143,8 @@ public class TextToDocument extends AbstractExecutableComponent {
 
             StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_TEXT);
             componentContext.pushDataComponentToOutput(OUT_DOCUMENT, si);
-        }
+        } else
+            throw new Exception("Unbalanced or unexpected StreamInitiator received");
     }
 
     @Override
@@ -153,6 +154,7 @@ public class TextToDocument extends AbstractExecutableComponent {
 
             StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_TEXT);
             componentContext.pushDataComponentToOutput(OUT_DOCUMENT, st);
-        }
+        } else
+            throw new Exception("Unbalanced or unexpected StreamTerminator received");
     }
 }
