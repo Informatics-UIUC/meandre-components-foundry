@@ -15,15 +15,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>#if($title) $title #end
 </title>
 
 <link href="${FPath}/css/fluid.components.uploader.css"
-      rel="stylesheet" type="text/css" />
+      rel="stylesheet" type="text/css">
 
 <link href="${FPath}/css/fluid.layout.css"
-      rel="stylesheet" type="text/css" />
+      rel="stylesheet" type="text/css">
 
 <script type="text/javascript" src="${FPath}/js/Fluid-all.js">
 </script>
@@ -111,32 +111,30 @@
 
 </div>
 
-##
-## this is the variable that the componet uses
-## to determine if we are done uploading files
-##
-
-#set ($fieldName = "done")
-$gui.setPushValue($fieldName)
-
-
 <script>
   var myUploader = fluid.progressiveEnhanceableUploader(".fl-uploader", ".fl-progressive-enhanceable",
   { uploadManager:
     { type: "fluid.swfUploadManager",
       options:
       { flashURL: "${FPath}/flash/swfupload.swf",
-          uploadURL: "/$sInstanceId?${fieldName}=true",
+          uploadURL: "/$sInstanceId",
         },
       decorators:
          { type: "fluid.swfUploadSetupDecorator",
            options:
-             {flashButtonImageURL: "${FPath}/images/uploader/browse.png" }
+             { flashButtonImageURL: "${FPath}/images/uploader/browse.png" }
          }
      },
    }
  );
 </script>
+
+<br />
+<br />
+
+<div style="margin-left:30px; margin-right:auto; text-align:left;">
+    <button type="button" onClick="location.href='/$sInstanceId/?done=true'">NEXT</button>
+</div>
 
 </body>
 </html>

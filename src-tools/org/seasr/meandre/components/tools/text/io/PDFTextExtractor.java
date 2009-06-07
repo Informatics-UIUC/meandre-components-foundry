@@ -1,5 +1,7 @@
 package org.seasr.meandre.components.tools.text.io;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -11,6 +13,7 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
+import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.io.StreamUtils;
 import org.seasr.meandre.support.parsers.DataTypeParser;
@@ -41,7 +44,7 @@ public class PDFTextExtractor extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The location of the PDF file",
+            description = "The location of the PDF file, or the raw byte content",
             name = Names.PORT_LOCATION
     )
     protected static final String IN_PDF_LOCATION = Names.PORT_LOCATION;
@@ -61,17 +64,34 @@ public class PDFTextExtractor extends AbstractExecutableComponent {
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        URL pdfURL = StreamUtils.getURLforResource(
-            DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_PDF_LOCATION)));
+        Object input = cc.getDataComponentFromInput(IN_PDF_LOCATION);
 
-        console.fine("Processing PDF document: " + pdfURL);
+        InputStream pdfStream;
+        String pdfName;
 
-        URLConnection connection = pdfURL.openConnection();
-        if (!connection.getContentType().equalsIgnoreCase("application/pdf"))
-            console.warning(String.format("%s does not appear to be a PDF document", pdfURL.toString()));
+        if (input instanceof byte[] || input instanceof Bytes) {
+            byte[] pdfData = (input instanceof Bytes) ?
+                    BasicDataTypesTools.bytestoByteArray((Bytes)input) :
+                    (byte[])input;
+
+            pdfStream = new ByteArrayInputStream(pdfData);
+            pdfName = "raw_data";
+        } else {
+            URL pdfURL = StreamUtils.getURLforResource(
+                DataTypeParser.parseAsURI(input));
+
+            console.fine("Processing PDF document: " + pdfURL);
+
+            URLConnection connection = pdfURL.openConnection();
+            if (!connection.getContentType().equalsIgnoreCase("application/pdf"))
+                console.warning(String.format("%s does not appear to be a PDF document", pdfURL.toString()));
+
+            pdfStream = connection.getInputStream();
+            pdfName = pdfURL.toString();
+        }
 
         String text = PDFUtils.extractText(
-                PDFUtils.getDocument(connection.getInputStream(), pdfURL.toString(), null));
+                PDFUtils.getDocument(pdfStream, pdfName, null));
 
         cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
     }

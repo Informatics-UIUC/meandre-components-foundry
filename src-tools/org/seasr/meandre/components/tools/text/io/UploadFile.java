@@ -54,6 +54,7 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -180,19 +181,20 @@ public class UploadFile extends GenericTemplate {
             throw new ComponentContextException("Failed to install Fluid components at " + new File(sFluidDir).getAbsolutePath());
 	}
 
+	public void executeCallBack(ComponentContext cc) throws Exception {
+	    if (wrapStream) pushInitiator();
+
+	    super.executeCallBack(cc);
+
+	    if (wrapStream) pushTerminator();
+	}
+
     //--------------------------------------------------------------------------------------------
 
 	@Override
     protected boolean processRequest(HttpServletRequest request) throws IOException
     {
-	    if (wrapStream) {
-	        try {
-	            pushInitiator();
-	        }
-	        catch (Exception e1) {
-	            throw new IOException(e1.toString());
-	        }
-	    }
+	    if (!expectMoreRequests(request)) return true;
 
 	    MultipartParser mp = new MultipartParser(request, maxFileSize);
 	    Part part;
@@ -234,15 +236,6 @@ public class UploadFile extends GenericTemplate {
 	            }
 	        }
 	    }
-
-	    if (wrapStream) {
-            try {
-                pushTerminator();
-            }
-            catch (Exception e1) {
-                throw new IOException(e1.toString());
-            }
-        }
 
 		return true;
     }

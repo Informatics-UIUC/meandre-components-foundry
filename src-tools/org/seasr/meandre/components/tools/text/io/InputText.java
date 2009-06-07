@@ -47,9 +47,11 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
 
@@ -71,6 +73,14 @@ import org.seasr.meandre.components.tools.Names;
         resources = { "InputText.vm" }
 )
 public class InputText extends GenericTemplate {
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            description = "The text",
+            name = Names.PORT_TEXT
+    )
+    protected static final String OUT_TEXT = Names.PORT_TEXT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -120,6 +130,13 @@ public class InputText extends GenericTemplate {
 
 	@Override
 	protected boolean processRequest(HttpServletRequest request) throws IOException {
+	    try {
+            componentContext.pushDataComponentToOutput(OUT_TEXT, request.getParameter("context"));
+        }
+        catch (ComponentContextException e) {
+            throw new IOException(e.toString());
+        }
+
 	    return true;
 	}
 }

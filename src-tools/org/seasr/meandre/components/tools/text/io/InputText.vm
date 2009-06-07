@@ -22,10 +22,10 @@ function validate(form, value) {
 
 <div>
 
-$message 
+$message
 #set ($fieldName = "context")
-$gui.setPushValue($fieldName)
-<form name="input" method="POST" action="/$sInstanceId">
+
+<form name="input" method="POST" action="/${sInstanceId}?done=true">
 <br/>
 
 <TEXTAREA NAME="$fieldName" COLS="40" ROWS="6">
@@ -33,7 +33,7 @@ $defaultValue
 </TEXTAREA>
 <br/>
 
-<input type="submit" value="Submit" 
+<input type="submit" value="Submit"
      onclick="validate(this.form, this.form.${fieldName}.value); return false;">
 </form>
 </div>

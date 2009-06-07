@@ -132,6 +132,7 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         templateName = ccp.getProperty(PROP_TEMPLATE);
 
@@ -169,11 +170,15 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
         }
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         String sInstanceId = cc.getExecutionInstanceID();
         context.put("sInstanceId", sInstanceId);
         context.put("cc", cc);
         context.put("gui", this);
+        String webUIUrl = cc.getWebUIUrl(true).toString();
+        if (webUIUrl.endsWith("/")) webUIUrl = webUIUrl.substring(0, webUIUrl.length()-1);
+        context.put("webUIUrl", webUIUrl);
 
         done = false;
 
@@ -185,9 +190,12 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
         if (cc.isFlowAborting())
             console.info("Flow abort requested - terminating component execution...");
 
+        console.finest("Stopping WebUI fragment");
+
         cc.stopWebUIFragment(this);
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
@@ -195,12 +203,19 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
 
     public void emptyRequest(HttpServletResponse response) throws WebUIException
     {
+        console.entering(getClass().getName(), "emptyRequest", response);
+
     	// TODO: it would be nice to see the request object here
     	generateContent(null, response);
+
+        console.exiting(getClass().getName(), "emptyRequest");
+
     }
 
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException
     {
+        console.entering(getClass().getName(), "handle", response);
+
         //
         // this is the workhorse method
         // process the input, determine any errors,
@@ -222,8 +237,12 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
         //
         // see if this component can handle multiple requests before
         // releasing the semaphore,
-        if (expectMoreRequests(request)) return;
+        if (expectMoreRequests(request)) {
+            console.finest("Expecting more requests");
+            return;
+        }
 
+        console.finest("done = true");
         done = true;
 
         // No Errors,
@@ -233,12 +252,24 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
         } catch (IOException e) {
             throw new WebUIException("Unable to generate redirect response", e);
         }
+
+        console.exiting(getClass().getName(), "handle");
     }
 
     //--------------------------------------------------------------------------------------------
 
     protected void generateContent(HttpServletRequest request, HttpServletResponse response) throws WebUIException
     {
+        if (done) {
+            try {
+                generateMetaRefresh(response);
+            }
+            catch (IOException e) {
+                throw new WebUIException(e);
+            }
+            return;
+        }
+
         try {
             // request could be null on the "first" request
             context.put("request",  request);
@@ -258,6 +289,7 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
 
     protected void generateMetaRefresh(HttpServletResponse response) throws IOException
     {
+        console.finest("Sending refresh request");
         response.getWriter().println("<html><head><meta http-equiv='REFRESH' content='1;url=/'></head><body></body></html>");
     }
 
