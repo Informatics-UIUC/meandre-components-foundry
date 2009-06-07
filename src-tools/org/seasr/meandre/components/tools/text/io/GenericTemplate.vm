@@ -21,7 +21,6 @@ font-size: 1em;
 
 GUITemplate.vm (from org.meandre.components.core.webui)
 We did it $date
-$gui.setPushValue("done")
 <div align="center">
 <table align=center>
 <font size=2>

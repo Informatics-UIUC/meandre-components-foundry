@@ -42,24 +42,31 @@
 
 package org.seasr.meandre.components.tools.text.io;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.io.JARInstaller;
 import org.seasr.meandre.support.io.JARInstaller.InstallStatus;
+
+import com.oreilly.servlet.multipart.FilePart;
+import com.oreilly.servlet.multipart.MultipartParser;
+import com.oreilly.servlet.multipart.ParamPart;
+import com.oreilly.servlet.multipart.Part;
 
 /** NOTES
  *
@@ -93,17 +100,27 @@ import org.seasr.meandre.support.io.JARInstaller.InstallStatus;
 )
 public class UploadFile extends GenericTemplate {
 
-    //------------------------------ PROPERTIES --------------------------------------------------
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
-	//
-	// reset the defaults inherited from TemplateGUI,  to this component
-	//
-	@ComponentProperty(
-	        description = "title",
-	        name = Names.PROP_TITLE,
-	        defaultValue = "Uploader"
-	)
-	protected static final String PROP_TITLE = Names.PROP_TITLE;
+    @ComponentOutput(
+            description = "The file path of the uploaded file(s)",
+            name = Names.PORT_FILENAME
+    )
+    protected static final String OUT_FILE_PATH = Names.PORT_FILENAME;
+
+    @ComponentOutput(
+            description = "The MIME type of the uploaded file(s)",
+            name = Names.PORT_MIME_TYPE
+    )
+    protected static final String OUT_MIME_TYPE = Names.PORT_MIME_TYPE;
+
+    @ComponentOutput(
+            description = "The content of the uploaded file(s)",
+            name = Names.PORT_RAW_DATA
+    )
+    protected static final String OUT_RAW_DATA = Names.PORT_RAW_DATA;
+
+    //------------------------------ PROPERTIES --------------------------------------------------
 
 	@ComponentProperty(
 	        description = "The template name",
@@ -112,25 +129,38 @@ public class UploadFile extends GenericTemplate {
 	)
     protected static final String PROP_TEMPLATE = GenericTemplate.PROP_TEMPLATE;
 
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Wrap output as stream?",
+            defaultValue = "false"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+
+    @ComponentProperty(
+            name = Names.PROP_MAX_SIZE,
+            description = "Maximum file size accepted (in MB) default: 10MB",
+            defaultValue = "10"
+    )
+    protected static final String PROP_MAX_SIZE = Names.PROP_MAX_SIZE;
+
 	//--------------------------------------------------------------------------------------------
 
 
-	private ArrayList<String> output;
+    private int maxFileSize;
+    private boolean wrapStream;
 
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    templateVariables = new String[] { PROP_TITLE };
-        //
-        // velocity could always access these via $ccp.getProperty("title")
-        // but now they will be visible as $title
-        //
-
 	    super.initializeCallBack(ccp);
 
-	    output = new ArrayList<String>();
+	    wrapStream = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
+	    maxFileSize = Integer.parseInt(ccp.getProperty(PROP_MAX_SIZE));
+	    maxFileSize *= 1024 * 1024;
+
+	    context.put("title", "File Upload");
 
 	    context.put("FPath", "/public/resources/fluid/fluid-components");
 	    String sFluidDir = ccp.getPublicResourcesDirectory() + File.separator + "fluid";
@@ -155,51 +185,93 @@ public class UploadFile extends GenericTemplate {
 	@Override
     protected boolean processRequest(HttpServletRequest request) throws IOException
     {
-    	// if this request is the last request, return
-    	if (request.getParameter(formInputName) != null) return true;
+	    if (wrapStream) {
+	        try {
+	            pushInitiator();
+	        }
+	        catch (Exception e1) {
+	            throw new IOException(e1.toString());
+	        }
+	    }
 
-    	BufferedReader br = null;
-    	br = request.getReader();
+	    MultipartParser mp = new MultipartParser(request, maxFileSize);
+	    Part part;
+	    while ((part = mp.readNextPart()) != null) {
+	        String name = part.getName();
+	        if (part.isParam()) {
+	            // it's a parameter part
+	            ParamPart paramPart = (ParamPart) part;
+	            String value = paramPart.getStringValue();
+	            console.finest("param; name=" + name + ", value=" + value);
+	        }
+	        else if (part.isFile()) {
+	            // it's a file part
+	            FilePart filePart = (FilePart) part;
+	            String fileName = filePart.getFileName();
+	            if (fileName != null) {
+	                // the part actually contained a file
+	                ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
+	                long size = filePart.writeTo(dataStream);
+	                String filePath = filePart.getFilePath();
+                    String contentType = filePart.getContentType();
 
-		if (br == null) return false;
+	                console.fine("Received " + filePath + " (" + contentType + "), size: " + size + " bytes");
 
-		console.fine("processing input");
+	                try {
+                        componentContext.pushDataComponentToOutput(OUT_FILE_PATH, filePath);
+                        componentContext.pushDataComponentToOutput(OUT_MIME_TYPE, contentType);
+                        componentContext.pushDataComponentToOutput(OUT_RAW_DATA,
+                                BasicDataTypesTools.byteArrayToBytes(dataStream.toByteArray()));
+                    }
+                    catch (ComponentContextException e) {
+                        throw new IOException(e.toString());
+                    }
 
-		String line = br.readLine();
-		String boundary = line.trim();
+	            }
+	            else {
+	                // the field did not contain a file
+	                console.finest("file; name=" + name + "; EMPTY");
+	            }
+	        }
+	    }
 
-		//continue reading until the beginning of file
-		while ((line = br.readLine()) != null) {
-			line = line.trim();
-			if (line.length() == 0) continue;
-			if (line.startsWith("Content-Type:")) break;
-		}
+	    if (wrapStream) {
+            try {
+                pushTerminator();
+            }
+            catch (Exception e1) {
+                throw new IOException(e1.toString());
+            }
+        }
 
-		StringBuffer buf = new StringBuffer();
-		while ((line = br.readLine()) != null) {
-			line = line.trim();
-			if (line.length() == 0) continue;
-			if(line.startsWith(boundary)) //end of file
-			    break;
-			buf.append(line).append("\n");
-		}
-		br.close();
-
-		// now save this input in an array
-		String outputString = buf.toString();
-		output.add(outputString);
-
-		console.fine("got input: " + outputString);
-
-		// all is good, no errors
 		return true;
     }
 
-	@Override
-    protected void subPushOutput() throws Exception
-    {
-	    for (String s : output)
-    		componentContext.pushDataComponentToOutput(GenericTemplate.OUT_OBJECT,
-    		        BasicDataTypesTools.stringToStrings(s));
+    //--------------------------------------------------------------------------------------------
+
+	/**
+     * Pushes an initiator.
+     *
+     * @throws Exception Something went wrong when pushing
+     */
+    private void pushInitiator() throws Exception {
+        console.fine("Pushing " + StreamInitiator.class.getSimpleName());
+
+        componentContext.pushDataComponentToOutput(OUT_FILE_PATH, new StreamInitiator());
+        componentContext.pushDataComponentToOutput(OUT_MIME_TYPE, new StreamInitiator());
+        componentContext.pushDataComponentToOutput(OUT_RAW_DATA, new StreamInitiator());
+    }
+
+    /**
+     * Pushes a terminator.
+     *
+     * @throws Exception Something went wrong when pushing
+     */
+    private void pushTerminator() throws Exception {
+        console.fine("Pushing " + StreamTerminator.class.getSimpleName());
+
+        componentContext.pushDataComponentToOutput(OUT_FILE_PATH, new StreamTerminator());
+        componentContext.pushDataComponentToOutput(OUT_MIME_TYPE, new StreamTerminator());
+        componentContext.pushDataComponentToOutput(OUT_RAW_DATA, new StreamTerminator());
     }
 }

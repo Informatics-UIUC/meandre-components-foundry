@@ -95,6 +95,11 @@ public abstract class DataTypeParser {
             text = new String[] { new String((byte[])data) };
 
         else
+
+        if (data instanceof Bytes)
+            text = new String[] { new String(BasicDataTypesTools.bytestoByteArray((Bytes)data)) };
+
+        else
             text = new String[] { data.toString() };
 
         return text;

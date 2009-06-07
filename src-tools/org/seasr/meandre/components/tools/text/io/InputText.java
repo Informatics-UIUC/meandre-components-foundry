@@ -42,6 +42,10 @@
 
 package org.seasr.meandre.components.tools.text.io;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
@@ -74,21 +78,21 @@ public class InputText extends GenericTemplate {
 	// specific to this component
 	//
 	@ComponentProperty(
-	        description = "title",
+	        description = "The title for the page",
 	        name = Names.PROP_TITLE,
 	        defaultValue = "Input a string"
 	)
 	protected static final String PROP_TITLE = Names.PROP_TITLE;
 
 	@ComponentProperty(
-	        description = "message",
+	        description = "The message to present to the user",
 	        name = Names.PROP_MESSAGE,
 	        defaultValue = "Please input a string"
 	)
 	protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
 
 	@ComponentProperty(
-	        description = "default value",
+	        description = "Default value to use for the input",
 	        name = Names.PROP_DEFAULT,
 	        defaultValue = ""
 	)
@@ -112,5 +116,10 @@ public class InputText extends GenericTemplate {
         //
 
 	    super.initializeCallBack(ccp);
+	}
+
+	@Override
+	protected boolean processRequest(HttpServletRequest request) throws IOException {
+	    return true;
 	}
 }

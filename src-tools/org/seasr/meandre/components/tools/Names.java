@@ -120,4 +120,6 @@ public abstract class Names {
 	public static final String PORT_AUTHOR_LIST = "author_list";
 	public static final String PORT_NO_DATA = "no_data";
 	public static final String PORT_GRAPH = "graph";
+	public static final String PORT_FILENAME = "file_name";
+	public static final String PORT_MIME_TYPE = "mime_type";
 }

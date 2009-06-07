@@ -43,10 +43,8 @@
 package org.seasr.meandre.components.tools.text.io;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,7 +52,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
@@ -102,25 +99,7 @@ import org.seasr.meandre.support.html.VelocityTemplateService;
         resources = { "GenericTemplate.vm" },
         dependency = { "velocity-1.6.1-dep.jar" }
 )
-public class GenericTemplate extends AbstractExecutableComponent implements WebUIFragmentCallback {
-
-    //------------------------------ INPUTS ------------------------------------------------------
-
-    //
-    // this is a generic input, doesn't have to be used, up to the template
-    //
-    /*
-    @ComponentInput(description="Name of input port", name= "input")
-    public final static String DATA_INPUT = "input";
-    */
-
-    //------------------------------ OUTPUTS -----------------------------------------------------
-
-    @ComponentOutput(
-            description = "Name of output port",
-            name = Names.PORT_OBJECT
-    )
-    protected static final String OUT_OBJECT = Names.PORT_OBJECT;
+public abstract class GenericTemplate extends AbstractExecutableComponent implements WebUIFragmentCallback {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -132,18 +111,11 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
 	protected static final String PROP_TEMPLATE = Names.PROP_TEMPLATE;
 
 	@ComponentProperty(
-	        description = "User supplied property list",
+	        description = "User supplied property list (key=value comma-separated pairs)",
 	        name = Names.PROP_PROPERTIES,
-	        defaultValue = "key=value,author=mike"
+	        defaultValue = ""
 	)
 	protected static final String PROP_TEMPLATE_PROPERTIES = Names.PROP_PROPERTIES;
-
-	@ComponentProperty(
-	        description = "Generate meta refresh html after execute",
-	        name = Names.PROP_REFRESH,
-	        defaultValue = "true"
-	)
-    protected static final String PROP_REFRESH_AFTER_EXECUTE = Names.PROP_REFRESH;
 
     //--------------------------------------------------------------------------------------------
 
@@ -151,27 +123,17 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
     protected VelocityContext context;
     protected String templateName;
 
-    /* what field will we check for in the HTTPRequest */
-    // the template should actually set this variable via $gui.setPushValue()
-    protected String formInputName = "done";
-
     // convenience properties to easily push additional properties
     // not needed, template can always do $ccp.getProperty("title")
     protected String[] templateVariables = {};
 
-    // generate meta refresh html after execute
-    protected boolean doRefresh = true;
-
     protected boolean done;
-    private Map<String, String[]> parameterMap;
 
 
     //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         templateName = ccp.getProperty(PROP_TEMPLATE);
-        doRefresh = Boolean.parseBoolean(ccp.getProperty(PROP_REFRESH_AFTER_EXECUTE));
-
 
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
         context = velocity.getNewContext();
@@ -224,9 +186,6 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
             console.info("Flow abort requested - terminating component execution...");
 
         cc.stopWebUIFragment(this);
-
-        // allow subclasses to determine what to push to the output
-        subPushOutput();
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -240,11 +199,8 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
     	generateContent(null, response);
     }
 
-    @SuppressWarnings("unchecked")
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException
     {
-        parameterMap = (Map<String, String[]>) request.getParameterMap();
-
         //
         // this is the workhorse method
         // process the input, determine any errors,
@@ -268,33 +224,15 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
         // releasing the semaphore,
         if (expectMoreRequests(request)) return;
 
+        done = true;
+
         // No Errors,
         // just push the browser to the "next" component
         try{
-            // when the page has been handled, generate a browser refresh
-            if (doRefresh) {
-               generateMetaRefresh(response);
-            }
-         }catch (IOException e) {
-            throw new WebUIException("unable to generate redirect response");
-         }
-         finally {
-            done = true;
-         }
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    protected void subPushOutput() throws Exception
-    {
-        // default is to push the formInputName value
-        // now push the output to the next component
-        // allow subclasses to push a form value or ParameterParser object
-        //
-        String defaultOutput = parameterMap.get(formInputName)[0];
-        //console.println("pushing " + defaultOutput);
-        //console.flush();
-        componentContext.pushDataComponentToOutput(OUT_OBJECT, defaultOutput);
+            generateMetaRefresh(response);
+        } catch (IOException e) {
+            throw new WebUIException("Unable to generate redirect response", e);
+        }
     }
 
     //--------------------------------------------------------------------------------------------
@@ -318,37 +256,22 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
         }
     }
 
-    // exposed to the template
-    public void setPushValue(String parameterName)
-    {
-    	formInputName = parameterName;
-    }
-
     protected void generateMetaRefresh(HttpServletResponse response) throws IOException
     {
- 	   PrintWriter writer = response.getWriter();
-       writer.println("<html><head><title>Refresh Page</title>");
-       writer.println("<meta http-equiv='REFRESH' content='0;url=/'></head>");
-       writer.println("<body>Refreshing Page</body></html>");
+        response.getWriter().println("<html><head><meta http-equiv='REFRESH' content='1;url=/'></head><body></body></html>");
     }
 
     //
     // not only check errors, process the input at this step
     // return false on errors, bad input, etc
     // return true if all is good
-    protected boolean processRequest(HttpServletRequest request) throws IOException
-    {
-    	// server side form validation goes here
-    	// any processing of the request parameters
-    	return true;
-    }
+    protected abstract boolean processRequest(HttpServletRequest request) throws IOException;
 
     protected boolean expectMoreRequests(HttpServletRequest request)
     {
-    	// we are done, if the 'formInputName' is in the request
-    	// e.g. ?done=true or whatever
+    	// we are done, e.g. ?done=true
     	// if the request does NOT contain this parameter
     	// we will assume, we are expecting more input
-    	return (request.getParameter(formInputName) == null);
+    	return (request.getParameter("done") == null);
     }
 }

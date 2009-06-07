@@ -22,7 +22,7 @@
 <link href="${FPath}/css/fluid.components.uploader.css"
       rel="stylesheet" type="text/css" />
 
-      <link href="${FPath}/css/fluid.layout.css"
+<link href="${FPath}/css/fluid.layout.css"
       rel="stylesheet" type="text/css" />
 
 <script type="text/javascript" src="${FPath}/js/Fluid-all.js">
@@ -33,21 +33,18 @@
 
 <div id="uploader-contents">
 
-  <form method="post"
-       enctype="multipart/form-data" class="fl-progressive-enhanceable">
+  <form method="POST" enctype="multipart/form-data" class="fl-progressive-enhanceable">
    <p>Browse to upload a file.</p>
    <input name="fileData" type="file" />
    <div><input type="submit" value="Save"/>
    </div>
   </form>
 
-  <form class="fl-uploader fl-progressive-enhancer"
-      method="get" enctype="multipart/form-data">
+  <form class="fl-uploader fl-progressive-enhancer" method="GET" enctype="multipart/form-data">
 
    <div class="fl-uploader-queue-wrapper">
      <div class="fl-scroller-table-head">
-       <table cellspacing="0" cellpadding="0"
-              summary="Headers for the file queue.">
+       <table cellspacing="0" cellpadding="0" summary="Headers for the file queue.">
            <caption>File Upload Queue:</caption>
            <tr>
            <th scope="col" class="fileName">File Name</th>
@@ -58,8 +55,7 @@
      </div>
      <div class="fl-scroller">
         <div class="scroller-inner">
-          <table cellspacing="0" class="fl-uploader-queue"
-            summary="Queue of files to upload.">
+          <table cellspacing="0" class="fl-uploader-queue" summary="Queue of files to upload.">
           <tbody>
           <tr id="queue-row-tmplt" class="fluid-templates">
           <th class="fileName" scope="row">File Name Placeholder</th>
@@ -80,7 +76,7 @@
       </div>
 
       <div class="fl-uploader-browse-instructions"> Choose
-        <em>Browse files</em> to add files to the queue
+        <em>Browse files</em> to add files to the upload queue
       </div>
 
       <div class="fl-scroller-table-foot">
@@ -115,7 +111,13 @@
 
 </div>
 
-## href="/meandre://seasr.org/zigzag/1238704027002/1401424595981711324/flow/fluid-mau/instance/gui?done=true"
+##
+## this is the variable that the componet uses
+## to determine if we are done uploading files
+##
+
+#set ($fieldName = "done")
+$gui.setPushValue($fieldName)
 
 
 <script>
@@ -124,51 +126,17 @@
     { type: "fluid.swfUploadManager",
       options:
       { flashURL: "${FPath}/flash/swfupload.swf",
-          uploadURL: "/$sInstanceId",
+          uploadURL: "/$sInstanceId?${fieldName}=true",
         },
       decorators:
          { type: "fluid.swfUploadSetupDecorator",
            options:
-             {flashButtonImageURL: "$FPath/images/uploader/browse.png" }
+             {flashButtonImageURL: "${FPath}/images/uploader/browse.png" }
          }
      },
    }
  );
 </script>
-
-
-<br/>
-<br/>
-
-##
-## this is the variable that the componet uses
-## to determine if we are done uploading files
-##
-#set ($fieldName = "done")
-$gui.setPushValue($fieldName)
-
-<STYLE TYPE="text/css">
-#in {width:400px}
-#in P              { font-size: 14pt; line-height: 14pt }
-#in P:first-letter { font-size: 200%; float: left }
-#in SPAN           { text-transform: uppercase }
-#in A              { font-size: 18pt; line-height: 18pt }
-</STYLE>
-
-
-<div id="in">
-<p> Once all the files are uploaded, selecting process will push
-the contents of each of these files to the next component.
-</p>
-<p>
-Note this component assumes that the file(s) contains ascii based text.
-</p>
-<p>
-<div align="center">
-   <a id="url" href="/$sInstanceId?${fieldName}=true">Process</a>
-</div>
-</p>
-</div>
 
 </body>
 </html>
