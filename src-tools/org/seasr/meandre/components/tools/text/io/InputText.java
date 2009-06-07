@@ -119,13 +119,11 @@ public class InputText extends GenericTemplate {
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    templateVariables = new String[] { PROP_TITLE, PROP_MESSAGE, PROP_DEFAULT };
-	    //
-        // velocity could always access these via $ccp.getProperty("title")
-        // but now they will be visible as $title, $message
-        //
-
 	    super.initializeCallBack(ccp);
+
+	    context.put("title", ccp.getProperty(PROP_TITLE));
+	    context.put("message", ccp.getProperty(PROP_MESSAGE));
+	    context.put("defaultValue", ccp.getProperty(PROP_DEFAULT));
 	}
 
 	@Override
