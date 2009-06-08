@@ -110,6 +110,7 @@ public class ServiceHeadPost extends AbstractExecutableComponent
     //--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    console.info("Service location: " + ccp.getWebUIUrl(true) + ccp.getExecutionInstanceID());
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
