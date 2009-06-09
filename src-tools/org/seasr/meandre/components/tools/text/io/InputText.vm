@@ -23,18 +23,20 @@ function validate(form, value) {
 <div>
 
 $message
+
 #set ($fieldName = "context")
 
 <form name="input" method="POST" action="/${sInstanceId}?done=true">
 <br/>
 
-<TEXTAREA NAME="$fieldName" COLS="40" ROWS="6">
+<textarea name="$fieldName" cols="40" rows="6">
 $defaultValue
-</TEXTAREA>
+</textarea>
+
 <br/>
 
 <input type="submit" value="Submit"
-     onclick="validate(this.form, this.form.${fieldName}.value); return false;">
+     onclick="validate(this.form, this.form.${fieldName}.value); return false;" />
 </form>
 </div>
 </body>
