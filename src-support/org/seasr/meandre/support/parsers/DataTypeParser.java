@@ -58,6 +58,7 @@ import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.support.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.support.io.DOMUtils;
 import org.seasr.meandre.support.io.ModelUtils;
+import org.seasr.meandre.support.io.StreamUtils;
 import org.xml.sax.SAXException;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -314,4 +315,42 @@ public abstract class DataTypeParser {
     }
 
 
+    /**
+     *
+     * @param data
+     * @return
+     * @throws UnsupportedOperationException
+     * @throws IOException
+     */
+    public static byte[] parseAsByteArray(Object data) throws UnsupportedOperationException, IOException {
+        byte[] barr;
+
+        if (data == null)
+            barr = null;
+
+        else
+
+        if (data instanceof byte[])
+            barr = (byte[])data;
+
+        else
+
+        if (data instanceof Bytes)
+            barr = BasicDataTypesTools.bytestoByteArray((Bytes)data);
+
+        else
+
+        if (data instanceof URI)
+            barr = StreamUtils.getBytesFromStream(StreamUtils.getInputStreamForResource((URI)data));
+
+        else
+
+        if (data instanceof URL)
+            barr = StreamUtils.getBytesFromStream(((URL)data).openStream());
+
+        else
+            throw new UnsupportedOperationException(data.getClass().getName());
+
+        return barr;
+    }
 }
