@@ -254,7 +254,7 @@
             <formatter type="xml"/>
             <formatter type="brief" usefile="false"/>
             <batchtest todir="${test.logs.dir}/xml">
-                <fileset dir="${test.classes.dir}" includes="**/*Test.class"/>
+                <fileset dir="${test.classes.dir}" includes="**/*Tests.class"/>
             </batchtest>
         </junit>
         <junitreport todir="${test.logs.dir}/xml">
