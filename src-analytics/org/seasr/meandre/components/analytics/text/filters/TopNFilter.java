@@ -102,16 +102,24 @@ public class TopNFilter extends AbstractExecutableComponent {
     )
     protected static final String PROP_UPPER_LIMIT = Names.PROP_N_TOP_TOKENS;
 
+    @ComponentProperty(
+            defaultValue = "false",
+            description = "Perform bottom N filtering",
+            name = Names.PROP_BOTTOM_N
+    )
+    protected static final String PROP_BOTTOM_N = Names.PROP_BOTTOM_N;
+
     //--------------------------------------------------------------------------------------------
 
 
     private int _upperLimit;
-
+    private boolean _bottomN;
 
     //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _upperLimit = Integer.parseInt(ccp.getProperty(PROP_UPPER_LIMIT));
+        _bottomN = Boolean.parseBoolean(ccp.getProperty(PROP_BOTTOM_N));
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
@@ -126,7 +134,7 @@ public class TopNFilter extends AbstractExecutableComponent {
             sortedMap.putAll(inputMap);
             outputMap = new Hashtable<String, Integer>();
             while (upperLimit > 0) {
-                String key = sortedMap.firstKey();
+                String key = _bottomN ? sortedMap.lastKey() : sortedMap.firstKey();
                 Integer value = (Integer)sortedMap.get(key);
                 outputMap.put(key, value);
                 sortedMap.remove(key);
