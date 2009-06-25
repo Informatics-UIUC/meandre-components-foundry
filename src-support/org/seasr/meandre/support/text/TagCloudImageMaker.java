@@ -139,7 +139,7 @@ public class TagCloudImageMaker {
     public TagCloudImage createTagCloudImage(Map<String, Integer> wordCounts)
         throws InterruptedException {
 
-        if (wordCounts == null) return null;
+        if (wordCounts == null || wordCounts.size() == 0) return null;
 
         int length = wordCounts.size();
         String[] text = new String[length];

@@ -196,6 +196,10 @@ public class UploadFile extends GenericTemplate {
     {
 	    if (!expectMoreRequests(request)) return true;
 
+	    // TODO: look at using commons-fileupload lib for parsing upload requests - has friendlier license than oreilly
+	    // ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+        // List lstItems = upload.parseRequest(request);
+
 	    MultipartParser mp = new MultipartParser(request, maxFileSize);
 	    Part part;
 	    while ((part = mp.readNextPart()) != null) {

@@ -168,11 +168,16 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Map<String, Integer> table = DataTypeParser.parseAsStringIntegerMap(
-                cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
+        Map<String, Integer> table = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
         console.fine("Creating the tag cloud image");
         TagCloudImage image = _tagCloudImageMaker.createTagCloudImage(table);
+
+        if (image == null) {
+            outputError("The tag cloud image cannot be created - no word counts found");
+            return;
+        }
+
         console.fine("Tag cloud image created");
 
         if (!image.hasAllWords()) {

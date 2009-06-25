@@ -52,6 +52,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.components.ComponentInputCache;
 import org.meandre.components.PackedDataComponents;
@@ -64,6 +65,7 @@ import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.ExecutableComponent;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
+import org.meandre.core.utils.ExceptionFormatter;
 import org.seasr.meandre.components.tools.Names;
 
 /**
@@ -71,6 +73,15 @@ import org.seasr.meandre.components.tools.Names;
  * @author Boris Capitanu
  */
 public abstract class AbstractExecutableComponent implements ExecutableComponent {
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            description = "This port is used to output any unhandled errors encountered during the execution of this component",
+            name = Names.PORT_TEXT
+    )
+    protected static final String OUT_ERROR = Names.PORT_TEXT;
+
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -181,6 +192,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
         }
         catch (ComponentContextException e) {
             console.throwing(getClass().getName(), "initializeCallBack", e);
+
             throw e;
         }
         catch (ComponentExecutionException e) {
@@ -255,15 +267,22 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
         }
         catch (ComponentContextException e) {
             console.throwing(getClass().getName(), "executeCallBack", e);
-            throw e;
+            outputError(e);
+
+            if (!ignoreErrors)
+                throw e;
         }
         catch (ComponentExecutionException e) {
             console.throwing(getClass().getName(), "executeCallBack", e);
+            outputError(e);
+
             if (!ignoreErrors)
                 throw e;
         }
         catch (Exception e) {
             console.throwing(getClass().getName(), "executeCallBack", e);
+            outputError(e);
+
             if (!ignoreErrors)
                 throw new ComponentExecutionException(e);
         }
@@ -376,5 +395,31 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
      */
     public boolean isComponentOutputConnected(String componentOutputName) {
         return connectedOutputs.contains(componentOutputName);
+    }
+
+    public void outputError(String message) {
+        console.severe(message);
+        outputError(message, null);
+    }
+
+    public void outputError(Exception e) {
+        outputError(null, e);
+    }
+
+    public void outputError(String message, Exception e) {
+        if (componentContext == null) return;
+
+        String errorMsg;
+
+        if (message != null && e != null)
+            errorMsg = String.format("%s%n%s", message, ExceptionFormatter.formatException(e));
+        else
+            errorMsg = (message != null) ? message : ExceptionFormatter.formatException(e);
+
+        try {
+            componentContext.pushDataComponentToOutput(OUT_ERROR, errorMsg);
+        }
+        catch (ComponentContextException e1) {
+        }
     }
 }

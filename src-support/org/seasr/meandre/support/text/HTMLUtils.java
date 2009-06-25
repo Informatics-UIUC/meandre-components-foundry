@@ -44,11 +44,8 @@ package org.seasr.meandre.support.text;
 
 import javax.xml.transform.TransformerException;
 
-import org.htmlparser.Node;
 import org.htmlparser.Parser;
-import org.htmlparser.nodes.TagNode;
-import org.htmlparser.nodes.TextNode;
-import org.htmlparser.util.NodeList;
+import org.htmlparser.beans.StringBean;
 import org.htmlparser.util.ParserException;
 import org.seasr.meandre.support.io.DOMUtils;
 import org.w3c.dom.Document;
@@ -66,14 +63,12 @@ public abstract class HTMLUtils {
      * @throws ParserException Thrown if a problem occurs while parsing the HTML document
      */
     public static String extractText(String html) throws ParserException {
-        StringBuffer sb = new StringBuffer();
-
+        StringBean textScraper = new StringBean();
         Parser parser = new Parser();
         parser.setInputHTML(html);
-        NodeList list = parser.parse (null);
-        traverse(list,sb);
+        parser.visitAllNodesWith(textScraper);
 
-        return sb.toString();
+        return textScraper.getStrings();
     }
 
     /**
@@ -89,23 +84,4 @@ public abstract class HTMLUtils {
 
         return extractText(DOMUtils.getString(document, null));
     }
-
-    /**
-     *
-     * @param list to be traversed
-     */
-    private static void traverse(NodeList list, StringBuffer sb) {
-        if (list != null)
-            for (int i = 0; i < list.size(); i++) {
-                Node node = list.elementAt(i);
-                if (node instanceof TextNode)
-                    sb.append(((TextNode)node).getText().trim()).append("\n");
-                else
-                    if (node instanceof TagNode) {
-                        NodeList sublist = ((TagNode)node).getChildren();
-                        traverse(sublist, sb);
-                    }
-            }
-    }
-
 }
