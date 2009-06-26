@@ -78,9 +78,9 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
 
     @ComponentOutput(
             description = "This port is used to output any unhandled errors encountered during the execution of this component",
-            name = Names.PORT_TEXT
+            name = Names.PORT_ERROR
     )
-    protected static final String OUT_ERROR = Names.PORT_TEXT;
+    protected static final String OUT_ERROR = Names.PORT_ERROR;
 
 
     //------------------------------ PROPERTIES --------------------------------------------------
@@ -339,12 +339,19 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
     protected void handleStreamInitiators() throws Exception {
         console.entering(getClass().getName(), "handleStreamInitiators", inputPortsWithInitiators);
 
-        if (connectedInputs.size() == 1 && connectedOutputs.size() == 1) {
+        int nConnectedOutputs = connectedOutputs.size();
+        if (connectedInputs.size() == 1 && (nConnectedOutputs == 1 || nConnectedOutputs == 2)) {
             console.fine("Forwarding " + StreamInitiator.class.getSimpleName() + " to the next component...");
-            componentContext.pushDataComponentToOutput(
-                    componentContext.getOutputNames()[0],
-                    componentContext.getDataComponentFromInput(
-                            componentContext.getInputNames()[0]));
+
+            String outputPortName = null;
+            for (String portName : componentContext.getOutputNames())
+                if (!portName.equals(OUT_ERROR)) {
+                    outputPortName = portName;
+                    break;
+                }
+
+            componentContext.pushDataComponentToOutput(outputPortName,
+                    componentContext.getDataComponentFromInput(componentContext.getInputNames()[0]));
         } else
             console.fine("Ignoring " + StreamInitiator.class.getSimpleName() + " received on ports " + inputPortsWithInitiators);
 
@@ -361,12 +368,19 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
 
         console.entering(getClass().getName(), "handleStreamTerminators", inputPortsWithTerminators);
 
-        if (connectedInputs.size() == 1 && connectedOutputs.size() == 1) {
+        int nConnectedOutputs = connectedOutputs.size();
+        if (connectedInputs.size() == 1 && (nConnectedOutputs == 1 || nConnectedOutputs == 2)) {
             console.fine("Forwarding " + StreamTerminator.class.getSimpleName() + " to the next component...");
-            componentContext.pushDataComponentToOutput(
-                    componentContext.getOutputNames()[0],
-                    componentContext.getDataComponentFromInput(
-                            componentContext.getInputNames()[0]));
+
+            String outputPortName = null;
+            for (String portName : componentContext.getOutputNames())
+                if (!portName.equals(OUT_ERROR)) {
+                    outputPortName = portName;
+                    break;
+                }
+
+            componentContext.pushDataComponentToOutput(outputPortName,
+                    componentContext.getDataComponentFromInput(componentContext.getInputNames()[0]));
         } else
             console.fine("Ignoring " + StreamTerminator.class.getSimpleName() + " received on ports " + inputPortsWithTerminators);
 

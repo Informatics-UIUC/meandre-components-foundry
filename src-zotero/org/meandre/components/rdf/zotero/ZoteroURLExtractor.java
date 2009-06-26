@@ -111,12 +111,6 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_ITEM_TITLE = Names.PORT_TEXT;
 
-	@ComponentOutput(
-			description = "No data to display.",
-			name = Names.PORT_NO_DATA
-	)
-	public final static String OUT_NO_DATA = Names.PORT_NO_DATA;
-
     //------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
@@ -134,11 +128,13 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		Map<String,byte[]> map = DataTypeParser.parseAsStringByteArrayMap(cc.getDataComponentFromInput(IN_REQUEST));
 
 		itemCount = 0;
@@ -153,7 +149,7 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 				itemCount += count;
 			} catch (Exception e) {
 			    console.log(Level.WARNING, "Error in data format", e);
-				cc.pushDataComponentToOutput(OUT_NO_DATA, "Error in data format. "+e.getMessage());
+				cc.pushDataComponentToOutput(OUT_ERROR, "Error in data format. "+e.getMessage());
 				return;
 			}
 
@@ -164,7 +160,7 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 			    pushInitiator(sKey);
 
 			for (Entry<String, String> item : mapURLs.entrySet()) {
-			    String sURI = item.getKey();
+			    String sURI = item.getKey().replaceAll(" ", "%20");
 			    String sTitle = item.getValue();
 			    console.fine("[ uri = '" + sURI + "' title = '" + sTitle + "' ]");
 
@@ -177,10 +173,11 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 		}
 
         if (itemCount == 0)
-            cc.pushDataComponentToOutput(OUT_NO_DATA,
+            cc.pushDataComponentToOutput(OUT_ERROR,
                     "Your items contained no URL information. Check to see that the URL attribute contains a valid url.");
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 

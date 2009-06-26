@@ -64,6 +64,7 @@ import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.html.VelocityTemplateService;
+import org.seasr.meandre.support.io.DOMUtils;
 import org.seasr.meandre.support.io.IOUtils;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 import org.w3c.dom.Document;
@@ -140,11 +141,13 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
 
@@ -176,6 +179,13 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
         String simileXml = generateXML(doc);
 
+        Document xmlDoc = DOMUtils.createDocument(simileXml);
+        xmlDoc.normalize();
+        if (xmlDoc.getDocumentElement().getElementsByTagName("event").getLength() == 0) {
+            cc.pushDataComponentToOutput(OUT_ERROR, "No dates could be extracted from your item(s) - Nothing to display");
+            return;
+        }
+
         Writer xmlWriter = IOUtils.getWriterForResource(xmlURI);
         xmlWriter.write(simileXml);
         xmlWriter.close();
@@ -192,6 +202,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(simileHtml));
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
@@ -214,7 +225,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 //TODO: StringBuffer buf needs to be replaced with the XML document object
 
     	StringBuffer buf = new StringBuffer(); //Store XML
-    	buf.append("<data>\n");
+    	buf.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n").append("<data>\n");
 
 		doc.getDocumentElement().normalize();
 		docTitle = doc.getDocumentElement().getAttribute("docID");

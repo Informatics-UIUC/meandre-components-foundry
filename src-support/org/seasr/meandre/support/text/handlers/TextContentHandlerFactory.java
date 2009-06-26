@@ -66,7 +66,7 @@ public class TextContentHandlerFactory implements ContentHandlerFactory {
 
         else
 
-        if (contentType.startsWith("application/xml"))
+        if (contentType.startsWith("application/xml") || contentType.startsWith("text/xml"))
             return new XMLTextContentHandler();
 
         else

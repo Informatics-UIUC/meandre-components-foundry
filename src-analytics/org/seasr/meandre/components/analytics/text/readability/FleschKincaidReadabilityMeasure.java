@@ -161,7 +161,8 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
 
     //--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    _template = ccp.getProperty(PROP_TEMPLATE);
 	    _gotInitiator = false;
 
@@ -172,7 +173,8 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
         _context.put("Math", Math.class);
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		String title = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_ITEM_TITLE))[0];
 		URI location = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_ITEM_URL));
 		String content = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_CONTENT))[0];
@@ -182,11 +184,14 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
 		ReadabilityMeasure measure = ReadabilityMeasure.computeFleschReadabilityMeasure(content);
 		_fleschDocs.add(new FleschDocument(title, location, measure));
 
-		if (!_gotInitiator)
+		if (!_gotInitiator) {
 		    cc.pushDataComponentToOutput(OUT_HTML_REPORT,
 		            BasicDataTypesTools.stringToStrings(generateReport()));
+		    _fleschDocs.clear();
+		}
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 

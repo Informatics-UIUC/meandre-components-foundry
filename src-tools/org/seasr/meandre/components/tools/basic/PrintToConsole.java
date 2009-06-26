@@ -115,11 +115,13 @@ public class PrintToConsole extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		Object data = cc.getDataComponentFromInput(IN_OBJECT);
         PrintStream outputConsole = cc.getOutputConsole();
 
@@ -156,7 +158,8 @@ public class PrintToConsole extends AbstractExecutableComponent {
 		cc.pushDataComponentToOutput(OUT_OBJECT, data);
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	    bWrapped = false;
 	}
 
@@ -164,13 +167,15 @@ public class PrintToConsole extends AbstractExecutableComponent {
 
 	@Override
 	protected void handleStreamInitiators() throws Exception {
+	    super.handleStreamInitiators();
 	    if (bWrapped)
 	        printStreamDelimiter(componentContext.getDataComponentFromInput(IN_OBJECT));
 	}
 
 	@Override
 	protected void handleStreamTerminators() throws Exception {
-	   if (bWrapped)
+	    super.handleStreamTerminators();
+	    if (bWrapped)
 	       printStreamDelimiter(componentContext.getDataComponentFromInput(IN_OBJECT));
 	}
 

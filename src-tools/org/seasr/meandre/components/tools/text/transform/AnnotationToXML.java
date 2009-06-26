@@ -58,6 +58,8 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.components.text.datatype.corpora.Annotation;
 import org.seasr.components.text.datatype.corpora.AnnotationConstants;
 import org.seasr.components.text.datatype.corpora.AnnotationSet;
@@ -128,7 +130,8 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _entities = ccp.getProperty(PROP_ENTITIES);
 
         DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
@@ -141,7 +144,8 @@ public class AnnotationToXML extends AbstractExecutableComponent {
         _gotInitiator = false;
     }
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		Document doc_in = (Document) cc.getDataComponentFromInput(IN_DOCUMENT);
 
 		_simileDocs.add(annotationToXml(doc_in, _entities));
@@ -152,7 +156,8 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 		}
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
     //--------------------------------------------------------------------------------------------
@@ -172,7 +177,9 @@ public class AnnotationToXML extends AbstractExecutableComponent {
             throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
         String xmlString = DOMUtils.getString(mergeXmlDocuments(), _xmlProperties);
+        componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, new StreamInitiator());
         componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
+        componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, new StreamTerminator());
 
         _gotInitiator = false;
         _simileDocs.clear();

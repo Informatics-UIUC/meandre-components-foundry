@@ -130,13 +130,15 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    this.bOrdered = Boolean.parseBoolean(ccp.getProperty(PROP_ORDERED));
 
 	    initializeReduction();
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		Object obj = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
 
 		if ( this.htAcc==null )
@@ -145,6 +147,7 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 		    reduceModel(DataTypeParser.parseAsStringIntegerMap(obj));
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.htAcc = null;
         this.iCnt = 0;
@@ -155,6 +158,8 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 
     @Override
     protected void handleStreamInitiators() throws Exception {
+        console.entering(getClass().getName(), "handleStreamInitiators");
+
         // Try to revalance a stream
         if ( this.htAcc!=null ) {
             String sMessage = "Unbalanced wrapped stream. Got a new initiator without a terminator.";
@@ -165,10 +170,14 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
                 throw new ComponentExecutionException(sMessage);
         }
         htAcc = new Hashtable<String, Integer>();
+
+        console.exiting(getClass().getName(), "handleStreamInitiators");
     }
 
     @Override
     protected void handleStreamTerminators() throws Exception {
+        console.entering(getClass().getName(), "handleStreamTerminators");
+
         if ( this.htAcc==null ) {
             String sMessage = "Unbalanced wrapped stream. Got a new terminator without an initiator. Dropping it to try to rebalance.";
             console.warning(sMessage);
@@ -177,6 +186,8 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
         }
         pushReduction();
         initializeReduction();
+
+        console.exiting(getClass().getName(), "handleStreamTerminators");
     }
 
     //-----------------------------------------------------------------------------------
@@ -204,8 +215,7 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 
 		// Push
 		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, si);
-		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
-		        BasicDataTypesTools.mapToIntegerMap(htAcc,bOrdered));
+		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htAcc,bOrdered));
 		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, st);
 	}
 
