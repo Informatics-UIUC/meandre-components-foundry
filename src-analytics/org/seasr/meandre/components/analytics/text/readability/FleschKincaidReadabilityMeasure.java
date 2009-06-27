@@ -56,6 +56,8 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.html.VelocityTemplateService;
@@ -222,8 +224,10 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
             inputPortsWithTerminators.contains(IN_ITEM_URL) &&
             inputPortsWithTerminators.contains(IN_CONTENT)) {
 
+                componentContext.pushDataComponentToOutput(OUT_HTML_REPORT, new StreamInitiator());
                 componentContext.pushDataComponentToOutput(OUT_HTML_REPORT,
                         BasicDataTypesTools.stringToStrings(generateReport()));
+                componentContext.pushDataComponentToOutput(OUT_HTML_REPORT, new StreamTerminator());
                 _gotInitiator = false;
                 _fleschDocs.clear();
             }
