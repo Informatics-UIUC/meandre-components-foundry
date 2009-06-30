@@ -46,6 +46,7 @@ import java.io.FileNotFoundException;
 import java.net.ContentHandler;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -123,8 +124,8 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
         String text;
 
         if (mimeType == null) {
-            console.warning(String.format("The location '%s' cannot be contacted", location.toString()));
-            text = "";
+            outputError(String.format("The location '%s' cannot be contacted", location.toString()), Level.WARNING);
+            return;
         }
         else {
             ContentHandler handler =
@@ -138,8 +139,8 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
                 text = (String)handler.getContent(connection);
             }
             catch (FileNotFoundException e) {
-                console.warning(String.format("The location '%s' is no longer available", location.toString()));
-                text = "";
+                outputError(String.format("The location '%s' is no longer available", location.toString()), Level.WARNING);
+                return;
             }
         }
 

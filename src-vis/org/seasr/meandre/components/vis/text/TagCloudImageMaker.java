@@ -44,6 +44,7 @@ package org.seasr.meandre.components.vis.text;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 
@@ -174,7 +175,7 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
         TagCloudImage image = _tagCloudImageMaker.createTagCloudImage(table);
 
         if (image == null) {
-            outputError("The tag cloud image cannot be created - no word counts found");
+            outputError("The tag cloud image cannot be created - no word counts found", Level.WARNING);
             return;
         }
 

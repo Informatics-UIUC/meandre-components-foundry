@@ -48,6 +48,7 @@ import java.io.Writer;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -182,7 +183,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         Document xmlDoc = DOMUtils.createDocument(simileXml);
         xmlDoc.normalize();
         if (xmlDoc.getDocumentElement().getElementsByTagName("event").getLength() == 0) {
-            cc.pushDataComponentToOutput(OUT_ERROR, "No dates could be extracted from your item(s) - Nothing to display");
+            outputError("No dates could be extracted from your item(s) - Nothing to display", Level.WARNING);
             return;
         }
 

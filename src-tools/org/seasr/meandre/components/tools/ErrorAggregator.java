@@ -44,6 +44,7 @@ package org.seasr.meandre.components.tools;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -81,13 +82,19 @@ public class ErrorAggregator extends AbstractExecutableComponent {
 
     @ComponentInput(
             name = Names.PORT_OBJECT,
-            description = "Where to get the terminator from"
+            description = "The object"
     )
     protected static final String IN_OBJECT = Names.PORT_OBJECT;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     // Inherited OUT_ERROR from AbstractExecutableComponent
+
+    @ComponentOutput(
+            name = Names.PORT_OBJECT,
+            description = "The object"
+    )
+    protected static final String OUT_OBJECT = Names.PORT_OBJECT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -98,12 +105,20 @@ public class ErrorAggregator extends AbstractExecutableComponent {
     )
     protected static final String PROP_OUTPUT_HTML = Names.PROP_OUTPUT_HTML;
 
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Treat incoming input as streaming input?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+
     //--------------------------------------------------------------------------------------------
 
 
     private StringBuilder _errorAccumulator;
     private Object _payload;
     private boolean _htmlOutput;
+    private boolean _streaming;
 
 
     //--------------------------------------------------------------------------------------------
@@ -111,6 +126,7 @@ public class ErrorAggregator extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _htmlOutput = Boolean.parseBoolean(ccp.getProperty(PROP_OUTPUT_HTML));
+        _streaming = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 
         resetState();
     }
@@ -119,16 +135,22 @@ public class ErrorAggregator extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         if (cc.isInputAvailable(IN_ERROR)) {
             String errorMsg = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_ERROR))[0];
+            console.fine("Got error message: '" + errorMsg + "'");
             _errorAccumulator.append(errorMsg);
 
             if (_htmlOutput)
                 _errorAccumulator.append("<br><hr style='color: red; height: 2px;'/><br>");
             else
                 _errorAccumulator.append(String.format("%n--------------------------%n"));
+
+            if (!_streaming) pushAccumulatedErrors();
         }
 
-        if (cc.isInputAvailable(IN_OBJECT))
+        if (cc.isInputAvailable(IN_OBJECT)) {
             _payload = cc.getDataComponentFromInput(IN_OBJECT);
+
+            if (!_streaming) cc.pushDataComponentToOutput(OUT_OBJECT, _payload);
+        }
     }
 
     @Override
@@ -147,7 +169,7 @@ public class ErrorAggregator extends AbstractExecutableComponent {
             if (_errorAccumulator.length() == 0) {
                 if (_payload != null) {
                     console.fine("Got input with no errors - forwarding it...");
-                    componentContext.pushDataComponentToOutput(OUT_ERROR, _payload);
+                    componentContext.pushDataComponentToOutput(OUT_OBJECT, _payload);
                 }
                 else
                     console.warning("There was no data received on port '" + IN_OBJECT + "'! Nothing to forward.");

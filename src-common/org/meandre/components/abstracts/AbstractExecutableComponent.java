@@ -192,8 +192,8 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
         }
         catch (ComponentContextException e) {
             console.throwing(getClass().getName(), "initializeCallBack", e);
-
-            throw e;
+            if (!ignoreErrors)
+                throw e;
         }
         catch (ComponentExecutionException e) {
             console.throwing(getClass().getName(), "initializeCallBack", e);
@@ -267,21 +267,21 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
         }
         catch (ComponentContextException e) {
             console.throwing(getClass().getName(), "executeCallBack", e);
-            outputError(e);
+            cc.pushDataComponentToOutput(OUT_ERROR, ExceptionFormatter.formatException(e));
 
             if (!ignoreErrors)
                 throw e;
         }
         catch (ComponentExecutionException e) {
             console.throwing(getClass().getName(), "executeCallBack", e);
-            outputError(e);
+            cc.pushDataComponentToOutput(OUT_ERROR, ExceptionFormatter.formatException(e));
 
             if (!ignoreErrors)
                 throw e;
         }
         catch (Exception e) {
             console.throwing(getClass().getName(), "executeCallBack", e);
-            outputError(e);
+            cc.pushDataComponentToOutput(OUT_ERROR, ExceptionFormatter.formatException(e));
 
             if (!ignoreErrors)
                 throw new ComponentExecutionException(e);
@@ -411,21 +411,23 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
         return connectedOutputs.contains(componentOutputName);
     }
 
-    public void outputError(String message) {
-        console.severe(message);
-        outputError(message, null);
+    public void outputError(String message, Level level) {
+        outputError(message, null, level);
     }
 
-    public void outputError(Exception e) {
-        outputError(null, e);
+    public void outputError(Exception e, Level level) {
+        outputError(null, e, level);
     }
 
-    public void outputError(String message, Exception e) {
+    public void outputError(String message, Exception e, Level level) {
         if (componentContext == null) return;
 
         String errorMsg;
 
-        if (message != null && e != null)
+        if (level != null)
+            console.log(level, (message != null) ? message : "", e);
+
+        if ((message != null) && (e != null))
             errorMsg = String.format("%s%n%s", message, ExceptionFormatter.formatException(e));
         else
             errorMsg = (message != null) ? message : ExceptionFormatter.formatException(e);
@@ -434,6 +436,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
             componentContext.pushDataComponentToOutput(OUT_ERROR, errorMsg);
         }
         catch (ComponentContextException e1) {
+            console.log(Level.SEVERE, "Cannot push to the error output!", e1);
         }
     }
 }

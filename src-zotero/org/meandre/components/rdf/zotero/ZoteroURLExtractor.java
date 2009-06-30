@@ -115,7 +115,7 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = Names.PROP_WRAP_STREAM,
-            description = "Should the pushed message be wrapped as a stream. ",
+            description = "Should the pushed message be wrapped as a stream.",
             defaultValue = "true"
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
@@ -148,8 +148,13 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 				count = mapURLs.size();
 				itemCount += count;
 			} catch (Exception e) {
-			    console.log(Level.WARNING, "Error in data format", e);
-				cc.pushDataComponentToOutput(OUT_ERROR, "Error in data format. "+e.getMessage());
+			    if (bWrapped)
+			        pushInitiator(sKey);
+
+			    outputError("Error in data format", e, Level.WARNING);
+
+			    if (bWrapped)
+			        pushTerminator(sKey);
 				return;
 			}
 
@@ -172,9 +177,15 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 			    pushTerminator(sKey);
 		}
 
-        if (itemCount == 0)
-            cc.pushDataComponentToOutput(OUT_ERROR,
-                    "Your items contained no URL information. Check to see that the URL attribute contains a valid url.");
+        if (itemCount == 0) {
+            if (bWrapped)
+                pushInitiator("");
+
+            outputError("Your items contained no URL information. Check to see that the URL attribute contains a valid url.", Level.WARNING);
+
+            if (bWrapped)
+                pushTerminator("");
+        }
 	}
 
     @Override

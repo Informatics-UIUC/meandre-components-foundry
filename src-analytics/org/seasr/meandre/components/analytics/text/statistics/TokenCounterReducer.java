@@ -184,6 +184,7 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
             if ( !this.ignoreErrors )
                 throw new ComponentExecutionException(sMessage);
         }
+
         pushReduction();
         initializeReduction();
 
@@ -215,7 +216,8 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 
 		// Push
 		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, si);
-		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htAcc,bOrdered));
+		if (htAcc != null && htAcc.size() > 0)
+		    componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htAcc,bOrdered));
 		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, st);
 	}
 
