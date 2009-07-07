@@ -110,12 +110,13 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		super.initializeCallBack(ccp);
 
+		String path = sOpenNLPDir+"sentdetect"+File.separator+
+		    sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"SD.bin.gz";
 		try {
-			sdetector = new SentenceDetector(sOpenNLPDir+"sentdetect"+File.separator+
-					sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"SD.bin.gz");
+			sdetector = new SentenceDetector(path);
 		}
 		catch ( Throwable t ) {
-			console.severe("Failed to open tokenizer model for " + sLanguage);
+			console.severe("Failed to open tokenizer model for " + path);
 			throw new ComponentExecutionException(t);
 		}
 	}
