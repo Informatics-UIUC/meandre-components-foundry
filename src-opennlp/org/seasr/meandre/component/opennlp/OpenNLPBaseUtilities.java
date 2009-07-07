@@ -72,6 +72,13 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 		    defaultValue = "english"
 		)
 	protected static final String PROP_LANGUAGE = Names.PROP_LANGUAGE;
+	
+	@ComponentProperty(
+			name = "openNLPdir",
+			description = "OpenNLP directory, if non-empty, skip install",
+		    defaultValue = ""
+		)
+	protected static final String PROP_OPENNLP_DIR = "openNLPdir";
 
 	//--------------------------------------------------------------------------------------------
 
@@ -84,9 +91,19 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
-
+		
 		this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
+		
+		
+		String tmp = ccp.getProperty(PROP_OPENNLP_DIR).trim();
+		if (tmp.length() > 0) {
+			sOpenNLPDir = tmp;
+			console.info("Skip install using " + sOpenNLPDir);
+			return;
+		}
+		
+		
+	    sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
 
 		File modelsJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
 		        "contexts" + File.separator + "java" + File.separator + "maxent-models.jar");
