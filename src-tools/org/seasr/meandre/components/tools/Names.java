@@ -90,6 +90,8 @@ public abstract class Names {
 	public static final String PROP_DEFAULT = "default_value";
 	public static final String PROP_BOTTOM_N = "bottom_n";
 	public static final String PROP_OUTPUT_HTML = "output_html";
+	public static final String PROP_POS_FILTER_REGEX  = "pos_filter_regex";
+	
 
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";
@@ -125,4 +127,7 @@ public abstract class Names {
 	public static final String PORT_FILENAME = "file_name";
 	public static final String PORT_MIME_TYPE = "mime_type";
 	public static final String PORT_ERROR = "error";
+	
+	public static final String PORT_POS_TUPLE  = "pos_tuple";
+	public static final String PORT_POS_TUPLES = "pos_tuples";
 }
