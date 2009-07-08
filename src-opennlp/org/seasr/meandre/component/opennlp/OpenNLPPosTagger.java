@@ -196,40 +196,6 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 		}
 	}
 
-	private final static String SEP_CHAR = ",";
-	
-	private String markup(int sentenceId,
-			              String sentence, 
-			              String token, 
-			              String tag, 
-			              int offset,
-			              int globalOffset)
-	{
-		StringBuilder sb = new StringBuilder();
-		int j = sentence.indexOf(token,offset);
-		
-		sb.append(tag).append(SEP_CHAR);
-		sb.append(sentenceId).append(SEP_CHAR);
-		sb.append(globalOffset+j).append(SEP_CHAR);
-		
-		// append the token last, since there will be no ambiguity 
-		// to find the token
-		sb.append(token);
-		return sb.toString();
-	}
-	
-	private int markUp(String sentence, String[] tokens, int globalOffset)
-	{
-		int idx = 0;
-		for (int i = 0; i < tokens.length; i++) {
-			String token = tokens[i];
-			int j = sentence.indexOf(token,idx);
-			console.info(token + " at " + j + "," + (globalOffset + j));
-			idx = j + token.length();
-		}
-		return idx;
-	}
-	
 	
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
@@ -246,7 +212,7 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 		//
 		StringsMap input = (StringsMap) cc.getDataComponentFromInput(IN_TOKENS);
 		
-        int idx = 0;
+        int globalOffset = 0;
 		int count = input.getKeyCount();
 		console.fine("processing " + count);
 		
@@ -257,19 +223,23 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 			String[] tokens = DataTypeParser.parseAsString(value);
 			String[] tags   = tagger.tag(tokens);
 			
-			// idx += markUp(key, tokens, idx);
-			
-			int offset = 0;
+			int withinSentenceOffset = 0;
 			for (int j = 0; j < tags.length; j++) {
-				String result = markup(i, key, tokens[j], tags[j], offset, idx);
-			    offset += tokens[j].length();
-				
 				
 				if ( pattern == null || 
 					(pattern != null && pattern.matcher(tags[j]).matches()))
 				{
+					
+					// find where the token is in the sentence
+					int tokenStart = key.indexOf(tokens[j], withinSentenceOffset);
+					// add in the global offset
+					tokenStart += globalOffset;
+					
+					
+					String result = PosTuple.toString(tags[j], i, tokenStart, tokens[j]);
+					
 					//
-					// we have a choice at this point
+					// we have a choice at this point:
 					// we can push out each result
 					// or we can collect all the results
 					// and push out an array of results
@@ -285,11 +255,13 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 
 				}
 				
+				withinSentenceOffset += tokens[j].length();
+				
 			}
 			// add the key's length, not the offset
 			// since the key will contain white space
 			// we need a true index
-			idx += key.length();
+			globalOffset += key.length();
 		}
 		
 		// push the whole collection, protocol safe
