@@ -261,7 +261,7 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 			
 			int offset = 0;
 			for (int j = 0; j < tags.length; j++) {
-				String result = markup(i+1, key, tokens[j], tags[j], offset, idx);
+				String result = markup(i, key, tokens[j], tags[j], offset, idx);
 			    offset += tokens[j].length();
 				
 				
