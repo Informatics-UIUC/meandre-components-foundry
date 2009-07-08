@@ -42,6 +42,9 @@
 
 package org.seasr.meandre.component.opennlp;
 
+import org.seasr.meandre.support.opennlp.PosTuple;
+
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
