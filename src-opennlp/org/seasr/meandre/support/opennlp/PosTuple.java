@@ -20,6 +20,11 @@ public class PosTuple extends StringTuple{
 		  pos, sentenceId, tokenStart, token
 	} 
 	
+	public PosTuple()
+	{
+		super(TUPLE_FIELDS.values().length);
+	}
+	
 	public PosTuple(String data) 
 	{	
 		super(data);

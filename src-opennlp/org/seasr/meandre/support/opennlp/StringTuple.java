@@ -8,22 +8,46 @@ public class StringTuple {
 	
 	String[] values;
 	
+	public StringTuple() 
+	{
+		this(0);
+	}
+	
 	public StringTuple(String data) 
 	{	
+        setData(data);
+	}
+	
+	public StringTuple(int size)
+	{
+		values = new String[size];
+	}
+	
+	public void setData(String data) 
+	{	
 		StringTokenizer tokens = new StringTokenizer(data, TOKEN_DELIM);
-		values = new String[tokens.countTokens()];
+		int size = tokens.countTokens();
+		if (values == null || values.length != size) {
+			values = new String[size];
+		}
+		
 		int i = 0;
 		while(tokens.hasMoreTokens()) {
 			values[i++] = tokens.nextToken();
 		}
 	}
 	
-	protected String getValue(int i) 
+	public void setValue(int idx, String v) 
+	{
+		values[idx] = v;
+	}
+	
+	public String getValue(int i) 
 	{
 		return values[i];
 	}
 	
-	protected int getValueAsInt(int i) 
+	public int getValueAsInt(int i) 
 	{
 		return Integer.parseInt(values[i]);
 	}
