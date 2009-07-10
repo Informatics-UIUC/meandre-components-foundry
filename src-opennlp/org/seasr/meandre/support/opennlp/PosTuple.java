@@ -12,33 +12,34 @@ import java.util.StringTokenizer;
 *
 */
 
-public class PosTuple {
+public class PosTuple extends StringTuple{
 	
-	public static final String TOKEN_DELIM = ",";
-	
-	String pos;
-	int sentenceId;
-	int tokenStart;
-	String token;
+	// token must be last, since there will be no ambiguity 
+	// to find the token
+	public enum TUPLE_FIELDS {  
+		  pos, sentenceId, tokenStart, token
+	} 
 	
 	public PosTuple(String data) 
 	{	
-		StringTokenizer tokens = new StringTokenizer(data, TOKEN_DELIM);
-		pos        = tokens.nextToken();
-		sentenceId = Integer.parseInt(tokens.nextToken());
-		tokenStart = Integer.parseInt(tokens.nextToken());
-		token      = tokens.nextToken();
+		super(data);
 	}
 	
-	public String getPOS() {return pos;}
-	public int getSentenceId() {return sentenceId;}
-	public int getTokenStart() {return tokenStart;}
-	public String getToken() {return token;}
-	
-	public String toString()
+	public String getValue(TUPLE_FIELDS field) 
 	{
-		return toString(pos,sentenceId, tokenStart, token);
+		return getValue(field.ordinal());
 	}
+	
+	public int getValueAsInt(TUPLE_FIELDS field) 
+	{
+		return getValueAsInt(field.ordinal());
+	}
+	
+	public String getPOS()     {return getValue(TUPLE_FIELDS.pos);}
+	public int getSentenceId() {return getValueAsInt(TUPLE_FIELDS.sentenceId);}
+	public int getTokenStart() {return getValueAsInt(TUPLE_FIELDS.tokenStart);}
+	public String getToken()   {return getValue(TUPLE_FIELDS.token);}
+	
 	
 	public static String toString(String pos, int sentenceId, int tokenStart, String token)
 	{
@@ -46,8 +47,6 @@ public class PosTuple {
 		sb.append(pos).append(TOKEN_DELIM);
 		sb.append(sentenceId).append(TOKEN_DELIM);
 		sb.append(tokenStart).append(TOKEN_DELIM);
-		// append the token last, since there will be no ambiguity 
-		// to find the token
 		sb.append(token);
 		return sb.toString();
 	}
