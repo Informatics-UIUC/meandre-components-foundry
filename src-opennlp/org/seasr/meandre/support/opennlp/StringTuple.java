@@ -1,12 +1,14 @@
 package org.seasr.meandre.support.opennlp;
 
 import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.HashMap;
 
 public class StringTuple {
 	
    public static final String TOKEN_DELIM = ",";
 	
-	String[] values;
+   String[] values; 
 	
 	public StringTuple() 
 	{
@@ -22,6 +24,10 @@ public class StringTuple {
 	{
 		values = new String[size];
 	}
+	
+	
+	
+	public int fieldCount() {return values.length;}
 	
 	public void setData(String data) 
 	{	
@@ -63,3 +69,17 @@ public class StringTuple {
 		return sb.toString();
 	}
 }
+
+/*
+
+public StringTuple(StringTuple copyMe, int additionalFieldCount) 
+{
+	int sz0 = copyMe.values.length;
+	int sz1 = additionalFieldCount;
+	
+	this.values = new String[sz0 + sz1];
+	for (int i = 0; i < sz0; i++) {
+		this.values[i] = copyMe.getValue(i);
+	}
+}
+*/

@@ -2,7 +2,10 @@ package org.seasr.meandre.support.opennlp;
 
 
 import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.HashMap;
 
+import org.seasr.meandre.support.opennlp.StringTuplePeer;
 
 /*
 *
@@ -12,13 +15,34 @@ import java.util.StringTokenizer;
 *
 */
 
-public class PosTuple extends StringTuple{
+
+
+/*
+for (TUPLE_FIELDS tf : TUPLE_FIELDS.values()) {
+	int idx = tf.ordinal();
+	fieldMap.put(fieldNames[idx], idx);	
+}
+*/
+
+
+
+public class PosTuple extends StringTuple {
+	
+	public static final String POS_FIELD         = "pos";
+	public static final String SENTENCE_ID_FIELD = "sentenceId";
+	public static final String TOKEN_START_FIELD = "tokenStart";
+	public static final String TOKEN_FIELD       = "token";
 	
 	// token must be last, since there will be no ambiguity 
 	// to find the token
-	public enum TUPLE_FIELDS {  
+	static String[] fieldNames = {
+		  POS_FIELD, SENTENCE_ID_FIELD, TOKEN_START_FIELD, TOKEN_FIELD
+    };
+	public static enum TUPLE_FIELDS {  
 		  pos, sentenceId, tokenStart, token
-	} 
+	}
+	
+	static StringTuplePeer peer = new StringTuplePeer(fieldNames);
 	
 	public PosTuple()
 	{
@@ -30,21 +54,21 @@ public class PosTuple extends StringTuple{
 		super(data);
 	}
 	
+	public static StringTuplePeer getPeer()
+	{
+		return peer;
+	}
+	
 	public String getValue(TUPLE_FIELDS field) 
 	{
 		return getValue(field.ordinal());
 	}
 	
-	public int getValueAsInt(TUPLE_FIELDS field) 
+	public String getValue(String fieldName) 
 	{
-		return getValueAsInt(field.ordinal());
+		int idx = peer.getIndexForFieldName(fieldName);
+		return getValue(idx);
 	}
-	
-	public String getPOS()     {return getValue(TUPLE_FIELDS.pos);}
-	public int getSentenceId() {return getValueAsInt(TUPLE_FIELDS.sentenceId);}
-	public int getTokenStart() {return getValueAsInt(TUPLE_FIELDS.tokenStart);}
-	public String getToken()   {return getValue(TUPLE_FIELDS.token);}
-	
 	
 	public static String toString(String pos, int sentenceId, int tokenStart, String token)
 	{
