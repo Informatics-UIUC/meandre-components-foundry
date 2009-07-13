@@ -128,6 +128,9 @@ public abstract class Names {
 	public static final String PORT_MIME_TYPE = "mime_type";
 	public static final String PORT_ERROR = "error";
 	
-	public static final String PORT_POS_TUPLE  = "pos_tuple";
-	public static final String PORT_POS_TUPLES = "pos_tuples";
+	public static final String PORT_TUPLE  = "tuple";
+	public static final String PORT_TUPLES = "tuples";
+	public static final String PORT_META_TUPLE = "meta_tuple";
+	
+	
 }
