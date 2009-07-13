@@ -118,10 +118,16 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
     //------------------------------ OUTPUTS -----------------------------------------------------
 	
 	@ComponentOutput(
-			name = Names.PORT_POS_TUPLES,
-			description = "set of tuples: (POS,sentenceId,offset,token)"
+			name = Names.PORT_TUPLES,
+			description = "set of tuples: (pos,sentenceId,offset,token)"
 	)
-	protected static final String OUT_POS_TUPLES = Names.PORT_POS_TUPLES;
+	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+	
+	@ComponentOutput(
+			name = Names.PORT_META_TUPLE,
+			description = "meta data for tuples: (pos,sentenceId,offset,token)"
+	)
+	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 	
 	
 	//----------------------------- PROPERTIES ---------------------------------------------------
@@ -197,8 +203,14 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 			console.severe("Failed to open tokenizer model for " + sLanguage);
 			throw new ComponentExecutionException(t);
 		}
+		
+		//
+		// metaData for this tuple producer
+		// 
+		metaData = BasicDataTypesTools.stringToStrings(PosTuple.getPeer().toString());
 	}
 
+	private Strings metaData;
 	
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
@@ -254,6 +266,7 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 					/*
 					cc.pushDataComponentToOutput(OUT_POS_TUPLE,  // note a SINGLE tuple
 							BasicDataTypesTools.stringToStrings(result));
+							// you would need to push the meta data as well here
 					*/
 
 				}
@@ -271,7 +284,10 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 	    String[] results = new String[output.size()];
 	    output.toArray(results);
 	    Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
-	    cc.pushDataComponentToOutput(OUT_POS_TUPLES, outputSafe);
+	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+	    
+	    // tuple meta data
+	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
