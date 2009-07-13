@@ -6,8 +6,6 @@ import java.util.HashMap;
 
 public class StringTuple {
 	
-   public static final String TOKEN_DELIM = ",";
-	
    String[] values; 
 	
 	public StringTuple() 
@@ -17,7 +15,7 @@ public class StringTuple {
 	
 	public StringTuple(String data) 
 	{	
-        setData(data);
+        setValues(data);
 	}
 	
 	public StringTuple(int size)
@@ -25,22 +23,11 @@ public class StringTuple {
 		values = new String[size];
 	}
 	
-	
-	
 	public int fieldCount() {return values.length;}
 	
-	public void setData(String data) 
+	public void setValues(String data) 
 	{	
-		StringTokenizer tokens = new StringTokenizer(data, TOKEN_DELIM);
-		int size = tokens.countTokens();
-		if (values == null || values.length != size) {
-			values = new String[size];
-		}
-		
-		int i = 0;
-		while(tokens.hasMoreTokens()) {
-			values[i++] = tokens.nextToken();
-		}
+		values = StringTuplePeer.parseMe(values, data);
 	}
 	
 	public void setValue(int idx, String v) 
@@ -60,14 +47,10 @@ public class StringTuple {
 	
 	public String toString()
 	{
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < values.length; i++) {
-			sb.append(values[i]);
-			if (i + 1 < values.length)
-			   sb.append(TOKEN_DELIM);
-		}
-		return sb.toString();
+		return StringTuplePeer.toString(this.values);
 	}
+	
+	
 }
 
 /*

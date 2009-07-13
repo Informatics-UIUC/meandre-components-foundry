@@ -73,9 +73,9 @@ public class PosTuple extends StringTuple {
 	public static String toString(String pos, int sentenceId, int tokenStart, String token)
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append(pos).append(TOKEN_DELIM);
-		sb.append(sentenceId).append(TOKEN_DELIM);
-		sb.append(tokenStart).append(TOKEN_DELIM);
+		sb.append(pos).append(StringTuplePeer.TOKEN_DELIM);
+		sb.append(sentenceId).append(StringTuplePeer.TOKEN_DELIM);
+		sb.append(tokenStart).append(StringTuplePeer.TOKEN_DELIM);
 		sb.append(token);
 		return sb.toString();
 	}
