@@ -130,7 +130,7 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 	/** The OpenNLP tokenizer to use */
 	private PosTagger tagger = null;
 	Pattern pattern = null;
-    private Strings metaData;
+   
 
 
 	//--------------------------------------------------------------------------------------------
@@ -194,10 +194,7 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 			throw new ComponentExecutionException(t);
 		}
 
-		//
-		// metaData for this tuple producer
-		//
-		metaData = BasicDataTypesTools.stringToStrings(PosTuple.getTuplePeer().getFieldNames());
+		
 	}
 
 	@Override
@@ -275,7 +272,12 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 	    Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
 	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 
-	    // tuple meta data
+	    
+	    //
+		// metaData for this tuple producer
+		//
+	    Strings metaData;
+		metaData = BasicDataTypesTools.stringToStrings(PosTuple.getTuplePeer().getFieldNames());
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
 	}
 
