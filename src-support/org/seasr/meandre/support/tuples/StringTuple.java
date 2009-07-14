@@ -1,12 +1,6 @@
 package org.seasr.meandre.support.tuples;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
 
-import java.util.StringTokenizer;
-import java.util.Map;
-import java.util.HashMap;
 
 public class StringTuple {
 	
@@ -27,11 +21,14 @@ public class StringTuple {
 		values = new String[size];
 	}
 	
-	public int fieldCount() {return values.length;}
+	public int fieldCount() 
+	{
+		return values.length;
+	}
 	
 	public void setValues(String data) 
 	{	
-		values = StringTuplePeer.parseMe(values, data);
+		values = TupleUtilities.parseMe(values, data);
 	}
 	
 	public void setValue(int idx, String v) 
@@ -44,6 +41,7 @@ public class StringTuple {
 		return values[i];
 	}
 	
+	
 	public int getValueAsInt(int i) 
 	{
 		return Integer.parseInt(values[i]);
@@ -51,7 +49,7 @@ public class StringTuple {
 	
 	public String toString()
 	{
-		return StringTuplePeer.toString(this.values);
+		return TupleUtilities.toString(this.values);
 	}
 }
 

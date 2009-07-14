@@ -1,5 +1,8 @@
 package org.seasr.meandre.support.tuples;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 
 /*
@@ -30,21 +33,45 @@ package org.seasr.meandre.support.tuples;
 
 
 
-public class DynamicTuplePeer extends StringTuplePeer {
+public class DynamicTuplePeer  {
 	
+	Map<String,Integer> fieldMap;
+	String[] fieldNames;
+
 	protected DynamicTuplePeer()
 	{
 	}
 	
 	public DynamicTuplePeer(String[] fieldNames)
 	{
-		super(fieldNames);
+		this.fieldNames = fieldNames;
+		fieldMap = new HashMap<String,Integer>();
+		for (int i = 0; i < fieldNames.length; i++) {
+			fieldMap.put(fieldNames[i], i);
+		}
 	}
 	
-	public DynamicTuplePeer(String toParse)
+	public DynamicTuplePeer(String toParse)  // csv of fieldNames
 	{
-		super(StringTuplePeer.parseMe(null, toParse));
+		this(TupleUtilities.parseMe(null, toParse));
 	}
+	
+	
+	public int getIndexForFieldName(String fn)
+	{
+		return fieldMap.get(fn);
+	}
+	
+	public String getFieldNames()
+	{
+		return TupleUtilities.toString(this.fieldNames);
+	}
+	
+	public String toString()
+	{
+		return getFieldNames();
+	}
+	
 	
 	public DynamicTuplePeer(DynamicTuplePeer subset, String[] additionalFields)
 	{

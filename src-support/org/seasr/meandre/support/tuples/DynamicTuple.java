@@ -1,15 +1,16 @@
 package org.seasr.meandre.support.tuples;
 
 
-public class DynamicTuple extends StringTuple
+public class DynamicTuple 
 {
+	String[] values; 
 	DynamicTuplePeer peer;
 	
 	protected DynamicTuple() {}
 	
 	protected DynamicTuple(int size)
 	{
-		super(size);
+		values = new String[size];
 	}
 	
 	public void setPeer(DynamicTuplePeer peer)
@@ -17,29 +18,49 @@ public class DynamicTuple extends StringTuple
 		this.peer = peer;
 	}
 	
-	public void setValues(String parseMe) 
+	public DynamicTuplePeer getPeer() 
 	{
-		super.setValues(parseMe);
+		return this.peer;
+	}
+	
+	public void setValues(String data) 
+	{	
+		values = TupleUtilities.parseMe(values, data);
+	}
+	
+	public void setValue(int idx, String v) 
+	{
+		values[idx] = v;
 	}
 	
 	public void setValues(DynamicTuple copyMe, String parseMe)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append(copyMe.toString());
-		sb.append(StringTuplePeer.TOKEN_DELIM);
+		sb.append(TupleUtilities.TOKEN_DELIM);
 		sb.append(parseMe);
 		
-		super.setValues(sb.toString());
+		this.setValues(sb.toString());
 	}
 	
 	public void setValue(String fieldName, String value)
 	{
 		int idx = peer.getIndexForFieldName(fieldName);
-		super.setValue(idx, value);
+		this.setValue(idx, value);
+	}
+	
+	public String getValue(int i) 
+	{
+		return values[i];
 	}
 	
 	public String getValue(String fieldName) 
 	{
-		return super.getValue(peer.getIndexForFieldName(fieldName));
+		return this.getValue(peer.getIndexForFieldName(fieldName));
+	}
+	
+	public String toString()
+	{
+		return TupleUtilities.toString(this.values);
 	}
 }
