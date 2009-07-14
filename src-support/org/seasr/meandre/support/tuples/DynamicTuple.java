@@ -73,6 +73,12 @@ public class DynamicTuple
 	public void setValues(String data) 
 	{	
 		values = TupleUtilities.parseMe(values, data);
+		
+		//
+		// Assert this.values.length == peer.getFieldNames().length
+		//
+		// right now, we assume no empty/null fields
+		//
 	}
 	
 	public void setValue(int idx, String v) 

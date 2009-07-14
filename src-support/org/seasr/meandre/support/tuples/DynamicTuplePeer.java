@@ -91,6 +91,7 @@ public class DynamicTuplePeer  {
 	{
 	}
 	
+	
 	public DynamicTuplePeer(String[] fieldNames)
 	{
 		this.fieldNames = fieldNames;
@@ -103,6 +104,19 @@ public class DynamicTuplePeer  {
 	public DynamicTuplePeer(String toParse)  // csv of fieldNames
 	{
 		this(TupleUtilities.parseMe(null, toParse));
+	}
+	
+	public DynamicTuplePeer(DynamicTuplePeer subset, String[] additionalFields)
+	{
+		int size = subset.fieldNames.length + additionalFields.length;
+		String[] fields = new String[size];
+		int idx = 0;
+		for (int i = 0; i < subset.fieldNames.length; i++) {
+			fields[idx++] = subset.fieldNames[i];
+		}
+		for (int i = 0; i < additionalFields.length; i++) {
+			fields[idx++] = additionalFields[i];
+		}
 	}
 	
 	
@@ -122,18 +136,7 @@ public class DynamicTuplePeer  {
 	}
 	
 	
-	public DynamicTuplePeer(DynamicTuplePeer subset, String[] additionalFields)
-	{
-		int size = subset.fieldNames.length + additionalFields.length;
-		String[] fields = new String[size];
-		int idx = 0;
-		for (int i = 0; i < subset.fieldNames.length; i++) {
-			fields[idx++] = subset.fieldNames[i];
-		}
-		for (int i = 0; i < additionalFields.length; i++) {
-			fields[idx++] = additionalFields[i];
-		}
-	}
+	
 	
 	// factory for tuples
 	public DynamicTuple createTuple()
