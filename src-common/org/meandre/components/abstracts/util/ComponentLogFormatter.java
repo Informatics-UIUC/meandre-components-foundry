@@ -86,7 +86,7 @@ public class ComponentLogFormatter extends Formatter {
 
         srcClassName = srcClassName.substring(srcClassName.lastIndexOf(".") + 1);
 
-        return String.format("%6$tH:%6$tM:%6$tS [%s]: %s\t[%s.%s] <%s>%n",
+        return String.format("%6$tm/%6$td/%6$ty %6$tH:%6$tM:%6$tS [%s]: %s\t[%s.%s] <%s>%n",
                 record.getLevel(), msg, srcClassName, srcMethodName, _shortCompId, new Date(record.getMillis()));
     }
 
