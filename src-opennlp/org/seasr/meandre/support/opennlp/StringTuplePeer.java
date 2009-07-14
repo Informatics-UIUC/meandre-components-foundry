@@ -36,7 +36,10 @@ public class StringTuplePeer {
 		return toString(this.fieldNames);
 	}
 	
-	
+	public static String[] parseMe(String toParse)
+	{
+		return parseMe(null, toParse);
+	}
 	
 	public static String[] parseMe(String[] values, String toParse)
 	{

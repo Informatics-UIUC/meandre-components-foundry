@@ -49,8 +49,6 @@ public class StringTuple {
 	{
 		return StringTuplePeer.toString(this.values);
 	}
-	
-	
 }
 
 /*
