@@ -197,7 +197,7 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 		//
 		// metaData for this tuple producer
 		//
-		metaData = BasicDataTypesTools.stringToStrings(PosTuple.getPeer().getFieldNames());
+		metaData = BasicDataTypesTools.stringToStrings(PosTuple.getTuplePeer().getFieldNames());
 	}
 
 	@Override
