@@ -98,12 +98,11 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 		String tmp = ccp.getProperty(PROP_OPENNLP_DIR).trim();
 		if (tmp.length() > 0) {
 			sOpenNLPDir = tmp;
-			console.info("Skip install using " + sOpenNLPDir);
-			return;
 		}
-		
-		
-	    sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
+		else {
+		   sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
+		}
+
 
 		File modelsJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
 		        "contexts" + File.separator + "java" + File.separator + "maxent-models.jar");
