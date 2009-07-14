@@ -72,7 +72,7 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 		    defaultValue = "english"
 		)
 	protected static final String PROP_LANGUAGE = Names.PROP_LANGUAGE;
-	
+
 	@ComponentProperty(
 			name = "openNLPdir",
 			description = "OpenNLP directory, if non-empty, skip install",
@@ -90,19 +90,14 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		
-		this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
-		
-		
-		String tmp = ccp.getProperty(PROP_OPENNLP_DIR).trim();
-		if (tmp.length() > 0) {
-			sOpenNLPDir = tmp;
-		}
-		else {
-		   sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
-		}
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 
+		this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
+
+		sOpenNLPDir = ccp.getProperty(PROP_OPENNLP_DIR).trim();
+		if (sOpenNLPDir.length() == 0)
+		    sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
 
 		File modelsJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
 		        "contexts" + File.separator + "java" + File.separator + "maxent-models.jar");
@@ -118,11 +113,14 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 		if (status == InstallStatus.FAILED)
 			throw new ComponentContextException("Failed to install OpenNLP models at " + new File(sOpenNLPDir).getAbsolutePath());
 
-		sOpenNLPDir += File.separator+"models"+File.separator
-		                +sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+File.separator;
+		// constructs the final OpenNLP models path based on the language chosen
+		// example:  <sOpenNLPDir>/models/English/
+		sOpenNLPDir += (sOpenNLPDir.endsWith(File.separator) ? "" : File.separator) + "models" + File.separator
+		                + sLanguage.substring(0,1).toUpperCase() + sLanguage.substring(1) + File.separator;
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.sLanguage = null;
 	}
 }

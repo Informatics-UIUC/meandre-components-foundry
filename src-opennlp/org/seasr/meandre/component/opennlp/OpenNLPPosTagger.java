@@ -42,26 +42,14 @@
 
 package org.seasr.meandre.component.opennlp;
 
-import org.seasr.meandre.support.opennlp.PosTuple;
-
-
 import java.io.File;
-import java.io.InputStream;
-import java.io.FileInputStream;
-
-import java.util.regex.Pattern;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import opennlp.tools.lang.english.PosTagger;
-import opennlp.tools.postag.POSDictionary;
-
-//
-// NOTE for openNLP versions:
-// latest
-// import opennlp.tools.dictionary.Dictionary;
-// old version == see constructor
 import opennlp.tools.ngram.Dictionary;
+import opennlp.tools.postag.POSDictionary;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -73,11 +61,11 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.seasr.datatypes.BasicDataTypes;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.opennlp.PosTuple;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 
 /**
@@ -88,9 +76,8 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  */
 
 //
-// General Path:  Text -> SentenceDetector -> SentenceTokenizer -> PosTagger 
+// General Path:  Text -> SentenceDetector -> SentenceTokenizer -> PosTagger
 //
-
 
 @Component(
 		name = "OpenNLP POS Tagger",
@@ -107,30 +94,29 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 
     //------------------------------ INPUTS ------------------------------------------------------
-	
+
 	@ComponentInput(
 			name = Names.PORT_TOKENS,
 			description = "The sequence of tokens"
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENS;
-	
 
     //------------------------------ OUTPUTS -----------------------------------------------------
-	
+
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
 			description = "set of tuples: (pos,sentenceId,offset,token)"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
-	
+
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
 			description = "meta data for tuples: (pos,sentenceId,offset,token)"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
-	
-	
+
 	//----------------------------- PROPERTIES ---------------------------------------------------
+
 	@ComponentProperty(
 			name = Names.PROP_POS_FILTER_REGEX,
 			description = "optional regular expression to inline filter POS (e.g. JJ|RB)",
@@ -138,38 +124,42 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 		)
 	protected static final String PROP_POS_FILTER_REGEX = Names.PROP_POS_FILTER_REGEX;
 
-	
+	//--------------------------------------------------------------------------------------------
+
+
 	/** The OpenNLP tokenizer to use */
 	private PosTagger tagger = null;
 	Pattern pattern = null;
+    private Strings metaData;
+
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+
 		super.initializeCallBack(ccp);
-		
+
 		String regex = ccp.getProperty(PROP_POS_FILTER_REGEX).trim();
 		if (regex.length() > 0) {
 			pattern = Pattern.compile(regex);
 		}
-		
-		
+
 		try {
 			// from maxent-models.jar
 			String tagPath          = // e.g.  /opennlp/models/English/parser/tag.bin.gz
 			    sOpenNLPDir + "parser" + File.separator+"tag.bin.gz";
-			
+
 			String dictionaryPath    = // e.g. /opennlp/models/English/parser/dict.bin.gz
 				sOpenNLPDir + "parser"+ File.separator+"dict.bin.gz";
-			
+
 			String tagDictionaryPath = // e.g. /opennlp/models/English/parser/tagdict
 				sOpenNLPDir + "parser"+ File.separator+"tagdict";
-			
+
 			File tagFile     = new File(tagPath);
 			File dictFile    = new File(dictionaryPath);
 			File tagDictFile = new File(tagDictionaryPath);
-			
+
 			if (! tagFile.canRead()) {
 				console.severe("Failed to open tag file for " + tagPath);
 				throw new ComponentExecutionException();
@@ -182,77 +172,76 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 				console.severe("Failed to open tag dictionary model for " + tagDictionaryPath);
 				throw new ComponentExecutionException();
 			}
-			
-			
+
+
 			/*  NEW WAY, untested */
 			/*
 			InputStream dIs  = new FileInputStream(dictFile);
-			tagger = new PosTagger(tagPath, 
-					               new Dictionary(dIs), 
+			tagger = new PosTagger(tagPath,
+					               new Dictionary(dIs),
 					               new POSDictionary(tagDictionaryPath, true));
-					               
+
 		    */
-			
+
 			/* OLD WAY */
-			tagger = new PosTagger(tagPath, 
-					               new Dictionary(dictionaryPath), 
+			tagger = new PosTagger(tagPath,
+					               new Dictionary(dictionaryPath),
 					               new POSDictionary(tagDictionaryPath, true));
-			
+
 		}
 		catch ( Throwable t ) {
 			console.severe("Failed to open tokenizer model for " + sLanguage);
 			throw new ComponentExecutionException(t);
 		}
-		
+
 		//
 		// metaData for this tuple producer
-		// 
+		//
 		metaData = BasicDataTypesTools.stringToStrings(PosTuple.getPeer().getFieldNames());
 	}
 
-	private Strings metaData;
-	
-	public void executeCallBack(ComponentContext cc) throws Exception 
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception
 	{
-		
+
 		List<String> output = new ArrayList<String>();
-		
-		
+
+
 		// input was encoded via :
 		// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
 		//
-		
+
 		//
 		// NEED a parser here ? DataTypeParser.parseAsMap ???
 		//
 		StringsMap input = (StringsMap) cc.getDataComponentFromInput(IN_TOKENS);
-		
+
         int globalOffset = 0;
 		int count = input.getKeyCount();
 		console.fine("processing " + count);
-		
+
 		for (int i = 0; i < count; i++) {
 			String key    = input.getKey(i);    // this is the entire sentence
 			Strings value = input.getValue(i);  // this is the set of tokens for that sentence
-			
+
 			String[] tokens = DataTypeParser.parseAsString(value);
 			String[] tags   = tagger.tag(tokens);
-			
+
 			int withinSentenceOffset = 0;
 			for (int j = 0; j < tags.length; j++) {
-				
-				if ( pattern == null || 
+
+				if ( pattern == null ||
 					(pattern != null && pattern.matcher(tags[j]).matches()))
 				{
-					
+
 					// find where the token is in the sentence
 					int tokenStart = key.indexOf(tokens[j], withinSentenceOffset);
 					// add in the global offset
 					tokenStart += globalOffset;
-					
-					
+
+
 					String result = PosTuple.toString(tags[j], i, tokenStart, tokens[j]);
-					
+
 					//
 					// we have a choice at this point:
 					// we can push out each result
@@ -260,9 +249,9 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 					// and push out an array of results
 					//
 					console.info(result);
-					
+
 					output.add(result);
-					
+
 					/*
 					cc.pushDataComponentToOutput(OUT_POS_TUPLE,  // note a SINGLE tuple
 							BasicDataTypesTools.stringToStrings(result));
@@ -270,26 +259,27 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 					*/
 
 				}
-				
+
 				withinSentenceOffset += tokens[j].length();
-				
+
 			}
 			// add the key's length, not the offset
 			// since the key will contain white space
 			// we need a true index
 			globalOffset += key.length();
 		}
-		
+
 		// push the whole collection, protocol safe
 	    String[] results = new String[output.size()];
 	    output.toArray(results);
 	    Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
 	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
-	    
+
 	    // tuple meta data
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         super.disposeCallBack(ccp);
         this.tagger = null;
