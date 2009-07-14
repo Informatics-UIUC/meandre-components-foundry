@@ -102,6 +102,9 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 		File modelsJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
 		        "contexts" + File.separator + "java" + File.separator + "maxent-models.jar");
 		if (!modelsJar.exists())
+		    modelsJar = new File(sOpenNLPDir + File.separator + "maxent-models.jar");
+
+		if (!modelsJar.exists())
 		    throw new ComponentContextException("Could not find dependency: " + modelsJar.toString());
 
 		console.fine("Installing " + sLanguage + " models from: " + modelsJar.toString());
