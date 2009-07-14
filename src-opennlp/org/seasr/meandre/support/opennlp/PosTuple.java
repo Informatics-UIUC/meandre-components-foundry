@@ -1,12 +1,10 @@
 package org.seasr.meandre.support.opennlp;
 
 
-import java.util.StringTokenizer;
-import java.util.Map;
-import java.util.HashMap;
 
-import org.seasr.meandre.support.tuples.StringTuplePeer;
-import org.seasr.meandre.support.tuples.StringTuple;
+import org.seasr.meandre.support.tuples.DynamicTuplePeer;
+import org.seasr.meandre.support.tuples.DynamicTuple;
+import org.seasr.meandre.support.tuples.TupleUtilities;
 
 
 /*
@@ -14,21 +12,12 @@ import org.seasr.meandre.support.tuples.StringTuple;
 * Helper class for processing POS tuples
 *
 * @author Mike Haberman;
+* 
+* Note: this is an example of a static version of DynamicTuple
 *
 */
 
-
-
-/*
-for (TUPLE_FIELDS tf : TUPLE_FIELDS.values()) {
-	int idx = tf.ordinal();
-	fieldMap.put(fieldNames[idx], idx);	
-}
-*/
-
-
-
-public class PosTuple extends StringTuple {
+public class PosTuple extends DynamicTuple {
 	
 	public static final String POS_FIELD         = "pos";
 	public static final String SENTENCE_ID_FIELD = "sentenceId";
@@ -44,21 +33,24 @@ public class PosTuple extends StringTuple {
 		  pos, sentenceId, tokenStart, token
 	}
 	
-	static StringTuplePeer peer = new StringTuplePeer(fieldNames);
+	static DynamicTuplePeer posPeer = new DynamicTuplePeer(fieldNames);
 	
 	public PosTuple()
 	{
 		super(TUPLE_FIELDS.values().length);
+		setPeer(posPeer);
 	}
 	
 	public PosTuple(String data) 
 	{	
-		super(data);
+		super(TUPLE_FIELDS.values().length);
+		setPeer(posPeer);
+		setValues(data);
 	}
 	
-	public static StringTuplePeer getPeer()
+	public static DynamicTuplePeer getTuplePeer()
 	{
-		return peer;
+		return posPeer;
 	}
 	
 	public String getValue(TUPLE_FIELDS field) 
@@ -66,19 +58,23 @@ public class PosTuple extends StringTuple {
 		return getValue(field.ordinal());
 	}
 	
-	public String getValue(String fieldName) 
-	{
-		int idx = peer.getIndexForFieldName(fieldName);
-		return getValue(idx);
-	}
-	
 	public static String toString(String pos, int sentenceId, int tokenStart, String token)
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append(pos).append(StringTuplePeer.TOKEN_DELIM);
-		sb.append(sentenceId).append(StringTuplePeer.TOKEN_DELIM);
-		sb.append(tokenStart).append(StringTuplePeer.TOKEN_DELIM);
+		sb.append(pos).append(TupleUtilities.TOKEN_DELIM);
+		sb.append(sentenceId).append(TupleUtilities.TOKEN_DELIM);
+		sb.append(tokenStart).append(TupleUtilities.TOKEN_DELIM);
 		sb.append(token);
 		return sb.toString();
 	}
 }
+
+
+
+
+/*
+for (TUPLE_FIELDS tf : TUPLE_FIELDS.values()) {
+	int idx = tf.ordinal();
+	fieldMap.put(fieldNames[idx], idx);	
+}
+*/
