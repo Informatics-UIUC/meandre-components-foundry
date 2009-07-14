@@ -5,7 +5,9 @@ import java.util.StringTokenizer;
 import java.util.Map;
 import java.util.HashMap;
 
-import org.seasr.meandre.support.opennlp.StringTuplePeer;
+import org.seasr.meandre.support.tuples.StringTuplePeer;
+import org.seasr.meandre.support.tuples.StringTuple;
+
 
 /*
 *
