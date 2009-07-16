@@ -43,6 +43,7 @@
 package org.jstor.meandre.components.xml.extractors;
 
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 
@@ -72,6 +73,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import de.schlichtherle.io.FileInputStream;
+import de.schlichtherle.io.FileOutputStream;
 
 /**
  * Extracts the set of authors from an XML result returned from a JSTOR DFR query
@@ -123,6 +125,10 @@ public class DFRAuthorExtractor extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_DFR_XML));
 
+        OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream("/tmp/data2.xml"),"UTF-8");
+        out.write(DOMUtils.getString(doc, null));
+        out.close();
+
         NodeList records = processDocument(doc);
 
         console.fine("Found " + records.getLength() + " records");
@@ -142,6 +148,9 @@ public class DFRAuthorExtractor extends AbstractExecutableComponent {
                 if (namespaceURI.equals("http://purl.org/dc/elements/1.1/"))
                     return "dc";
 
+                if (namespaceURI.equals("http://www.loc.gov/zing/srw/"))
+                    return "boris";
+
                 return null;
             }
 
@@ -149,11 +158,14 @@ public class DFRAuthorExtractor extends AbstractExecutableComponent {
                 if (prefix.equals("dc"))
                     return "http://purl.org/dc/elements/1.1/";
 
+                if (prefix.equals("boris"))
+                    return "http://www.loc.gov/zing/srw/";
+
                 return null;
             }
         });
 
-        XPathExpression exprRecords = xpath.compile("/searchRetrieveResponse/records/record");
+        XPathExpression exprRecords = xpath.compile("/boris:searchRetrieveResponse/boris:records/boris:record");
         NodeList records = (NodeList) exprRecords.evaluate(doc, XPathConstants.NODESET);
 
         return records;
@@ -169,7 +181,7 @@ public class DFRAuthorExtractor extends AbstractExecutableComponent {
         DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
         domFactory.setNamespaceAware(true);
         DocumentBuilder builder = domFactory.newDocumentBuilder();
-        Document doc = builder.parse(new InputSource(new InputStreamReader(new FileInputStream("/tmp/data.xml"), Charset.forName("UTF-8"))));
+        Document doc = builder.parse(new InputSource(new InputStreamReader(new FileInputStream("/tmp/data2.xml"), Charset.forName("UTF-8"))));
 
         System.out.println(DOMUtils.getString(doc, null) + "\n");
 
