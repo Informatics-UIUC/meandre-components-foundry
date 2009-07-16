@@ -117,9 +117,11 @@ public class TextToXML extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		try {
 			this.factory = DocumentBuilderFactory.newInstance();
+			this.factory.setNamespaceAware(true);
 			this.parser = factory.newDocumentBuilder();
 		}
 		catch (Throwable t) {
@@ -130,7 +132,8 @@ public class TextToXML extends AbstractExecutableComponent {
 		}
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		for (String sText : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))) {
     		Document doc;
 
@@ -153,6 +156,7 @@ public class TextToXML extends AbstractExecutableComponent {
 		}
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.factory = null;
         this.parser = null;

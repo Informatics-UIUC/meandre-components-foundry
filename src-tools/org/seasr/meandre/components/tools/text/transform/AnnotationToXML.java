@@ -135,6 +135,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
         _entities = ccp.getProperty(PROP_ENTITIES);
 
         DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+        dbfac.setNamespaceAware(true);
         _docBuilder = dbfac.newDocumentBuilder();
 
         _xmlProperties = new Properties();

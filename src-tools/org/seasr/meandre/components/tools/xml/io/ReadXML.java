@@ -128,9 +128,11 @@ public class ReadXML extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		try {
 			this.factory = DocumentBuilderFactory.newInstance();
+			this.factory.setNamespaceAware(true);
 			this.parser = factory.newDocumentBuilder();
 		}
 		catch (Throwable t) {
@@ -140,7 +142,8 @@ public class ReadXML extends AbstractExecutableComponent {
 		}
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		URI location = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
 
 		Document doc;
@@ -161,6 +164,7 @@ public class ReadXML extends AbstractExecutableComponent {
 		cc.pushDataComponentToOutput(OUT_XML, doc);
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.factory = null;
         this.parser = null;

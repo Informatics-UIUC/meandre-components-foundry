@@ -73,6 +73,8 @@ public abstract class DOMUtils {
         throws SAXException, IOException, ParserConfigurationException {
 
         DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+        dbfac.setNamespaceAware(true); // never forget this!
+
         return dbfac.newDocumentBuilder().parse(inputStream);
     }
 
