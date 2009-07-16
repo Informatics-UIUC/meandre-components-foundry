@@ -227,27 +227,24 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 			int withinSentenceOffset = 0;
 			for (int j = 0; j < tags.length; j++) {
 
-				if ( pattern == null ||
-					(pattern != null && pattern.matcher(tags[j]).matches()))
+				if ( pattern == null || pattern.matcher(tags[j]).matches())
 				{
+				   // find where the token is in the sentence
+				   int tokenStart = key.indexOf(tokens[j], withinSentenceOffset);
+				   // add in the global offset
+				   tokenStart += globalOffset;
 
-					// find where the token is in the sentence
-					int tokenStart = key.indexOf(tokens[j], withinSentenceOffset);
-					// add in the global offset
-					tokenStart += globalOffset;
+   				   String result = PosTuple.toString(tags[j], i, tokenStart, tokens[j]);
 
+				   //
+				   // we have a choice at this point:
+				   // we can push out each result
+				   // or we can collect all the results
+				   // and push out an array of results
+				   //
+				   console.info(result);
 
-					String result = PosTuple.toString(tags[j], i, tokenStart, tokens[j]);
-
-					//
-					// we have a choice at this point:
-					// we can push out each result
-					// or we can collect all the results
-					// and push out an array of results
-					//
-					console.info(result);
-
-					output.add(result);
+				   output.add(result);
 
 					/*
 					cc.pushDataComponentToOutput(OUT_POS_TUPLE,  // note a SINGLE tuple
