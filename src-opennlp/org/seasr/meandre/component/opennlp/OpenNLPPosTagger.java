@@ -242,7 +242,7 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 				   // or we can collect all the results
 				   // and push out an array of results
 				   //
-				   console.info(result);
+				   console.fine("pos pushing tuple " + result);
 
 				   output.add(result);
 
