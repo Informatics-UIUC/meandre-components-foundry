@@ -1,10 +1,6 @@
 package org.seasr.meandre.components.sentiment;
 
 
-
-
-
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -52,17 +48,17 @@ import org.seasr.meandre.support.tuples.DynamicTuplePeer;
 
 
 @Component(
-		name = "tuple value frequency counter",
+		name = "tuple value filter",
 		creator = "Mike Haberman",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
-		description = "This component counts the incoming set of tuples " ,
+		tags = "tuple, tools, text, filter",
+		description = "This component filters the incoming set of tuples " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar"}
 )
-public class TupleValueFrequencyCounter  extends AbstractExecutableComponent {
+public class TupleFilter  extends AbstractExecutableComponent {
 	
 
     //------------------------------ INPUTS ------------------------------------------------------
@@ -84,31 +80,45 @@ public class TupleValueFrequencyCounter  extends AbstractExecutableComponent {
 	
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples (key,count)"
+			description = "set of filtered tuples"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 	
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuples (count, token)"
+			description = "meta data for the tuples (same as input)"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 	
 	//----------------------------- PROPERTIES ---------------------------------------------------
+
 	@ComponentProperty(
-			name = "tupleField",
-			description = "to which field of the tuple to apply freq. counting",
-		    defaultValue = "token"
+			name = Names.PROP_FILTER_REGEX,
+			description = "regular expression to filter tuples",
+		    defaultValue = "*"
 		)
-	protected static final String PROP_FILTER_FIELD = "tupleField";
+	protected static final String PROP_FILTER_REGEX = Names.PROP_FILTER_REGEX;
+	
+	@ComponentProperty(
+			name = "tupleFilterField",
+			description = "to which field of the tuple to apply the filter",
+		    defaultValue = ""
+		)
+	protected static final String PROP_FILTER_FIELD = "tupleFilterField";
 	//--------------------------------------------------------------------------------------------
 
-	String KEY_FIELD_TUPLE;
+	Pattern pattern = null;
+	String FILTER_FIELD;
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
 	{	
-		KEY_FIELD_TUPLE = ccp.getProperty(PROP_FILTER_FIELD).trim();
-		if (KEY_FIELD_TUPLE.length() == 0) {
+		FILTER_FIELD = ccp.getProperty(PROP_FILTER_FIELD).trim();
+		if (FILTER_FIELD.length() == 0) {
 			throw new ComponentContextException("Property not set " + PROP_FILTER_FIELD);
+		}
+		
+		String regex = ccp.getProperty(PROP_FILTER_REGEX).trim();
+		if (regex.length() > 0) {
+			pattern = Pattern.compile(regex);
 		}
 	}
 
@@ -121,69 +131,34 @@ public class TupleValueFrequencyCounter  extends AbstractExecutableComponent {
 		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
 		
 		
-		int KEY_FIELD_IDX = inPeer.getIndexForFieldName(KEY_FIELD_TUPLE);
-		console.info("FIELD " + KEY_FIELD_TUPLE);
-		console.info("META " + fields);
-		console.info("key field index " + KEY_FIELD_IDX);
+		int FILTER_FIELD_IDX = inPeer.getIndexForFieldName(FILTER_FIELD);
+		console.info("filter FIELD " + FILTER_FIELD);
+		console.info("filter field index " + FILTER_FIELD_IDX);
 		
 		
 		Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
 		String[] tuples = DataTypeParser.parseAsString(input);
 		DynamicTuple tuple = inPeer.createTuple();
 		
-		Map<String, Integer> tokenToCountMap = new HashMap<String,Integer>();
+		List<String> output = new ArrayList<String>();
 		for (int i = 0; i < tuples.length; i++) {
 			
 			tuple.setValues(tuples[i]);	
-			String key = tuple.getValue(KEY_FIELD_IDX);
+			String fieldValue = tuple.getValue(FILTER_FIELD_IDX);
 			
-			Integer value  = tokenToCountMap.get(key);
-			if (value == null) {
-				value = new Integer(0);
-				tokenToCountMap.put(key,value);
+			if (pattern == null || pattern.matcher(fieldValue).matches())
+			{
+				output.add(tuple.toString());
+				console.info(tuple.toString());
 			}
-			tokenToCountMap.put(key,value+1);
 		}
-		
-		//
-		// sort the map based on the frequency of the values
-		//
-		List<Map.Entry<String, Integer>> sortedEntries 
-		     = new ArrayList<Map.Entry<String, Integer>>(tokenToCountMap.entrySet());
-
-	    // Sort the list using an annonymous inner class
-	    java.util.Collections.sort(sortedEntries, new Comparator<Map.Entry<String, Integer>>(){
-	         public int compare(Map.Entry<String, Integer> entry0, 
-	        		            Map.Entry<String, Integer> entry1)
-	         {
-	        	 int v0 = entry0.getValue();
-	        	 int v1 = entry1.getValue();
-	        	 return v1 - v0; // descending
-	          }
-	      });
-	    
-	       
-	    DynamicTuplePeer outPeer = new DynamicTuplePeer(new String[]{"count", "token"});
-	    DynamicTuple outTuple = outPeer.createTuple();
-	    
-	    List<String> output = new ArrayList<String>();
-	    
-	    for (Map.Entry<String,Integer> v : sortedEntries) {
-	    	outTuple.setValue("count", v.getValue().toString());
-	    	outTuple.setValue("token", v.getKey());
-	    	String result = outTuple.toString();
-	    	output.add(result);
-	    }
-	    		
-		 String[] results = new String[output.size()];
-		 output.toArray(results);
-		 Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
-		 cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+				
+		String[] results = new String[output.size()];
+		output.toArray(results);
+		Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
+		cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 		 
-		 // tuple meta data
-		 Strings metaData;
-		 metaData = BasicDataTypesTools.stringToStrings(outPeer.getFieldNames());
-		 cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
+		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
 		 
 	}
 
