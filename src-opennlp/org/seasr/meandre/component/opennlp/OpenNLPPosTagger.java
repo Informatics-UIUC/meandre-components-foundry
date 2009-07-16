@@ -48,8 +48,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import opennlp.tools.lang.english.PosTagger;
-import opennlp.tools.ngram.Dictionary;
 import opennlp.tools.postag.POSDictionary;
+import opennlp.tools.ngram.Dictionary;
+// NEW way: opennlp.tools.dictionary.Dictionary
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
