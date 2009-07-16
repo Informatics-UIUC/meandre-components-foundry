@@ -34,14 +34,13 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 
 
 /**
- * This component perform POS tagging on the text passed using OpenNLP.
  *
  * @author Mike Haberman;
  *
  */
 
 //
-// General Path:   PosTagger -->PosTokenFrequencyCounter
+// General Path:   PosTagger -->PosTokenFrequencyCounter --> TokenConceptLabler
 //
 
 
@@ -62,19 +61,19 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 	
 	@ComponentInput(
-			name = "tokenCountTuples",
+			name = Names.PORT_TUPLES,
 			description = "set of token tuples sorted by frequency: (count, token)"
 	)
-	protected static final String IN_FREQ_TUPLES = "tokenCountTuples";
+	protected static final String IN_FREQ_TUPLES = Names.PORT_TUPLES;
 	
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 	
    @ComponentOutput(
-			name = "tokenCountTuplesLabeled",
+			name = Names.PORT_TUPLES,
 			description = "set of token tuples (count, token, label)"
 	)
-	protected static final String OUT_FREQ_TUPLES = "tokenCountTuplesLabeled";
+	protected static final String OUT_FREQ_TUPLES = Names.PORT_TUPLES;
 	
 	
 	
@@ -84,54 +83,17 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+	{
 	}
 
-	//
-	// this could come from properties
-	// 
-	// this is the ONLY dependency on TokenCountTuple
-	//
-	// int KEY_FIELD_IDX = TokenCountTuple.TUPLE_FIELDS.token.ordinal();
-	
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
 		
-		/*
-		int idx = StringTuple.findIndex("token");
-		
-		Strings input = (Strings) cc.getDataComponentFromInput(IN_FREQ_TUPLES);
-		String[] tuples = DataTypeParser.parseAsString(input);
-		List<StringTuple> output = new ArrayList<StringTuple>();
-		
-		
-		
-		for (int i = 0; i < tuples.length; i++) {
-			
-			StringTuple t = new StringTuple(tuples[i]);
-			int labelIndex = t.fieldCount();
-			
-			StringTuple tupleWithLabel = new StringTuple(t, 1);
-			tupleWithLabel.setValue(labelIndex, "");
-			
-			
-			String token = tupleWithLabel.getValue(KEY_FIELD_IDX);
-			
-			
-		}
-		*/
-		
-		
-		
-		/*
-		for (TokenCountTuple t:output) {
-			console.info(t.toString());
-		}
-		*/
-		
 	}
 
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
         
     }
 }
