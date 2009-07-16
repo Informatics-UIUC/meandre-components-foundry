@@ -90,7 +90,7 @@ public abstract class Names {
 	public static final String PROP_DEFAULT = "default_value";
 	public static final String PROP_BOTTOM_N = "bottom_n";
 	public static final String PROP_OUTPUT_HTML = "output_html";
-	public static final String PROP_POS_FILTER_REGEX  = "pos_filter_regex";
+	public static final String PROP_FILTER_REGEX  = "filter_regex";
 	
 
 	public static final String PORT_LOCATION = "location";

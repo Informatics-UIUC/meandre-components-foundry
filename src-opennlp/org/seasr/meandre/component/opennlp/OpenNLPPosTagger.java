@@ -118,11 +118,11 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
 	@ComponentProperty(
-			name = Names.PROP_POS_FILTER_REGEX,
+			name = Names.PROP_FILTER_REGEX,
 			description = "optional regular expression to inline filter POS (e.g. JJ|RB)",
 		    defaultValue = ""
 		)
-	protected static final String PROP_POS_FILTER_REGEX = Names.PROP_POS_FILTER_REGEX;
+	protected static final String PROP_POS_FILTER_REGEX = Names.PROP_FILTER_REGEX;
 
 	//--------------------------------------------------------------------------------------------
 
