@@ -146,18 +146,21 @@ public class DFRQuery extends AbstractExecutableComponent {
 
         console.fine("Available records: " + nRecords);
 
-        if (_maxRecords == -1)
-            _maxRecords = nRecords;
+        if (nRecords > 0) {
+            if (_maxRecords == -1)
+                _maxRecords = nRecords;
 
-        queryURL = new URL(sQuery + Math.min(nRecords, _maxRecords));
+            queryURL = new URL(sQuery + Math.min(nRecords, _maxRecords));
 
-        console.fine("Query URL set to: " + queryURL);
+            console.fine("Query URL set to: " + queryURL);
 
-        String xml = IOUtils.getTextFromReader(new InputStreamReader(queryURL.openStream()));
+            String xml = IOUtils.getTextFromReader(new InputStreamReader(queryURL.openStream()));
 
-        console.finest(xml);
+            console.finest(xml);
 
-        cc.pushDataComponentToOutput(OUT_RESPONSE_XML, xml);
+            cc.pushDataComponentToOutput(OUT_RESPONSE_XML, xml);
+        } else
+            cc.pushDataComponentToOutput(OUT_ERROR, "Your query did not return any results");
     }
 
     @Override
