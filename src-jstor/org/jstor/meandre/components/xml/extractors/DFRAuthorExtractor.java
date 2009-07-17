@@ -42,18 +42,14 @@
 
 package org.jstor.meandre.components.xml.extractors;
 
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
 import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.meandre.annotations.Component;
@@ -66,14 +62,9 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.io.DOMUtils;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
-import de.schlichtherle.io.FileInputStream;
-import de.schlichtherle.io.FileOutputStream;
 
 /**
  * Extracts the set of authors from an XML result returned from a JSTOR DFR query
@@ -125,17 +116,6 @@ public class DFRAuthorExtractor extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_DFR_XML));
 
-        OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream("/tmp/data2.xml"),"UTF-8");
-        out.write(DOMUtils.getString(doc, null));
-        out.close();
-
-        NodeList records = processDocument(doc);
-
-        console.fine("Found " + records.getLength() + " records");
-    }
-
-    public static NodeList processDocument(Document doc) throws XPathExpressionException {
-
         XPath xpath = XPathFactory.newInstance().newXPath();
         xpath.setNamespaceContext(new NamespaceContext() {
 
@@ -149,7 +129,10 @@ public class DFRAuthorExtractor extends AbstractExecutableComponent {
                     return "dc";
 
                 if (namespaceURI.equals("http://www.loc.gov/zing/srw/"))
-                    return "boris";
+                    return "ns1";
+
+                if (namespaceURI.equals("info:srw/schema/1/dc-v1.1"))
+                    return "srw_dc";
 
                 return null;
             }
@@ -158,37 +141,47 @@ public class DFRAuthorExtractor extends AbstractExecutableComponent {
                 if (prefix.equals("dc"))
                     return "http://purl.org/dc/elements/1.1/";
 
-                if (prefix.equals("boris"))
+                if (prefix.equals("ns1"))
                     return "http://www.loc.gov/zing/srw/";
+
+                if (prefix.equals("srw_dc"))
+                    return "info:srw/schema/1/dc-v1.1";
 
                 return null;
             }
         });
 
-        XPathExpression exprRecords = xpath.compile("/boris:searchRetrieveResponse/boris:records/boris:record");
-        NodeList records = (NodeList) exprRecords.evaluate(doc, XPathConstants.NODESET);
+        XPathExpression exprRecords = xpath.compile("//ns1:record");
+        XPathExpression exprAuthors = xpath.compile("descendant::dc:creator/text()");
 
-        return records;
+        NodeList nodesRecords = (NodeList) exprRecords.evaluate(doc, XPathConstants.NODESET);
+        console.fine("Found " + nodesRecords.getLength() + " records");
+
+        List<Vector<String>> authorGroups = new Vector<Vector<String>>();
+
+        for (int i = 0, lenRec = nodesRecords.getLength(); i < lenRec; i++) {
+            NodeList nodesAuthors = (NodeList) exprAuthors.evaluate(nodesRecords.item(i), XPathConstants.NODESET);
+            int nAuthors = nodesAuthors.getLength();
+
+            console.fine("Extracted " + nAuthors + " authors");
+
+            Vector<String> authors = new Vector<String>(nAuthors);
+
+            for (int j = 0; j < nAuthors; j++) {
+                String authorName = nodesAuthors.item(j).getNodeValue();
+                console.finest("author: " + authorName);
+                authors.add(authorName);
+            }
+
+            if (authors.size() > 0)
+                authorGroups.add(authors);
+        }
+
+        cc.pushDataComponentToOutput(OUT_AUTHOR_LIST, authorGroups);
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 
     }
-
-    public static void main(String[] args) throws Exception{
-
-        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-        domFactory.setNamespaceAware(true);
-        DocumentBuilder builder = domFactory.newDocumentBuilder();
-        Document doc = builder.parse(new InputSource(new InputStreamReader(new FileInputStream("/tmp/data2.xml"), Charset.forName("UTF-8"))));
-
-        System.out.println(DOMUtils.getString(doc, null) + "\n");
-
-        NodeList records = processDocument(doc);
-
-        System.out.println("Found " + records.getLength() + " records");
-
-    }
-
 }

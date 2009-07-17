@@ -44,6 +44,7 @@ package org.jstor.meandre.components.io;
 
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentOutput;
@@ -97,7 +98,7 @@ public class DFRQuery extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-    protected static final String JSTOR_DFR_QUERY_URL = "http://dfr.jstor.org/sru/?operation=searchRetrieve&query=";
+    protected static final String JSTOR_DFR_QUERY_URL = "http://dfr.jstor.org/sru/?operation=searchRetrieve&version=1.1&query=";
 
     private String _query;
 
@@ -105,7 +106,7 @@ public class DFRQuery extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _query = ccp.getProperty(PROP_QUERY).trim();
+        _query = URLEncoder.encode(ccp.getProperty(PROP_QUERY).trim(), "UTF-8");
 
         if (_query.length() == 0)
             throw new ComponentContextException(
