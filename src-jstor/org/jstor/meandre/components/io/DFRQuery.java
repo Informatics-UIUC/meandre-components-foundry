@@ -46,6 +46,11 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
@@ -57,7 +62,10 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.io.DOMUtils;
 import org.seasr.meandre.support.io.IOUtils;
+import org.seasr.meandre.support.jstor.DFRNamespaceContext;
+import org.w3c.dom.Document;
 
 /**
  * Performs a query against the JSTOR 'Data For Research' data
@@ -96,11 +104,19 @@ public class DFRQuery extends AbstractExecutableComponent {
     )
     protected static final String PROP_QUERY = Names.PROP_QUERY;
 
+    @ComponentProperty(
+            defaultValue = "100",
+            description = "Maximum number of records to retrieve (set to -1 to retrieve all records)",
+            name = Names.PROP_MAX_SIZE
+    )
+    protected static final String PROP_MAX_RECORDS = Names.PROP_MAX_SIZE;
+
     //--------------------------------------------------------------------------------------------
 
     protected static final String JSTOR_DFR_QUERY_URL = "http://dfr.jstor.org/sru/?operation=searchRetrieve&version=1.1&query=";
 
     private String _query;
+    private int _maxRecords;
 
     //--------------------------------------------------------------------------------------------
 
@@ -111,15 +127,37 @@ public class DFRQuery extends AbstractExecutableComponent {
         if (_query.length() == 0)
             throw new ComponentContextException(
                     String.format("The query string cannot be empty - please set the '%s' property to a valid query!", PROP_QUERY));
+
+        _maxRecords = Integer.parseInt(ccp.getProperty(PROP_MAX_RECORDS));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+        String sQuery = String.format("%s%s&maximumRecords=", JSTOR_DFR_QUERY_URL, _query);
 
-        String xml = IOUtils.getTextFromReader(new InputStreamReader(new URL(JSTOR_DFR_QUERY_URL + _query).openStream()));
+        URL queryURL = new URL(sQuery + "1");
+        Document doc = DOMUtils.createDocument(queryURL.openStream());
+
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        xpath.setNamespaceContext(new DFRNamespaceContext());
+
+        XPathExpression exprNRecords = xpath.compile("/ns1:searchRetrieveResponse/ns1:numberOfRecords/text()");
+        int nRecords = ((Double) exprNRecords.evaluate(doc, XPathConstants.NUMBER)).intValue();
+
+        console.fine("Available records: " + nRecords);
+
+        if (_maxRecords == -1)
+            _maxRecords = nRecords;
+
+        queryURL = new URL(sQuery + Math.min(nRecords, _maxRecords));
+
+        console.fine("Query URL set to: " + queryURL);
+
+        String xml = IOUtils.getTextFromReader(new InputStreamReader(queryURL.openStream()));
+
         console.finest(xml);
-        cc.pushDataComponentToOutput(OUT_RESPONSE_XML, xml);
 
+        cc.pushDataComponentToOutput(OUT_RESPONSE_XML, xml);
     }
 
     @Override

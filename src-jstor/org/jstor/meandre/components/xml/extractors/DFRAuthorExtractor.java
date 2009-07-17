@@ -42,11 +42,9 @@
 
 package org.jstor.meandre.components.xml.extractors;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -62,6 +60,7 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.jstor.DFRNamespaceContext;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -117,39 +116,7 @@ public class DFRAuthorExtractor extends AbstractExecutableComponent {
         Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_DFR_XML));
 
         XPath xpath = XPathFactory.newInstance().newXPath();
-        xpath.setNamespaceContext(new NamespaceContext() {
-
-            public Iterator getPrefixes(String namespaceURI) {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public String getPrefix(String namespaceURI) {
-                if (namespaceURI.equals("http://purl.org/dc/elements/1.1/"))
-                    return "dc";
-
-                if (namespaceURI.equals("http://www.loc.gov/zing/srw/"))
-                    return "ns1";
-
-                if (namespaceURI.equals("info:srw/schema/1/dc-v1.1"))
-                    return "srw_dc";
-
-                return null;
-            }
-
-            public String getNamespaceURI(String prefix) {
-                if (prefix.equals("dc"))
-                    return "http://purl.org/dc/elements/1.1/";
-
-                if (prefix.equals("ns1"))
-                    return "http://www.loc.gov/zing/srw/";
-
-                if (prefix.equals("srw_dc"))
-                    return "info:srw/schema/1/dc-v1.1";
-
-                return null;
-            }
-        });
+        xpath.setNamespaceContext(new DFRNamespaceContext());
 
         XPathExpression exprRecords = xpath.compile("//ns1:record");
         XPathExpression exprAuthors = xpath.compile("descendant::dc:creator/text()");
