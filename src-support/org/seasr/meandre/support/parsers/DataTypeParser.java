@@ -53,6 +53,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.ByteMap;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
+import org.seasr.datatypes.BasicDataTypes.Integers;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.support.exceptions.UnsupportedDataTypeException;
@@ -104,6 +105,38 @@ public abstract class DataTypeParser {
             text = new String[] { data.toString() };
 
         return text;
+    }
+    
+    public static Integer parseAsInteger(Object data) throws UnsupportedDataTypeException {
+    	Integer value;
+    	
+    	if (data == null)
+    		value = null;
+    	
+    	else
+    		
+    	if (data instanceof Integer)
+    		value = (Integer)data;
+    	
+    	else
+    		
+    	if (data instanceof Integers)
+    		value = BasicDataTypesTools.integersToIntegerArray((Integers)data)[0];
+    		
+    	else
+    		
+    	if (data instanceof String)
+    		value = Integer.parseInt((String)data);
+    	
+    	else
+    		
+    	if (data instanceof Strings)
+    		value = Integer.parseInt(parseAsString(data)[0]);
+    	
+    	else
+    		throw new UnsupportedDataTypeException(data.getClass().getName());
+    	
+    	return value;
     }
 
     /**

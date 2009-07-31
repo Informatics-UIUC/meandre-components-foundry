@@ -51,6 +51,7 @@ import java.util.Map.Entry;
 
 import org.seasr.datatypes.BasicDataTypes.ByteMap;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
+import org.seasr.datatypes.BasicDataTypes.Integers;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
@@ -65,6 +66,30 @@ import com.google.protobuf.ByteString;
  *
  */
 public abstract class BasicDataTypesTools {
+	
+	/**
+	 * Creates a Integers object out of a regular Integer.
+	 * 
+	 * @param i The integer to use
+	 * @return THe new object produced
+	 */
+	public static Integers integerToIntegers( Integer i ) {
+		org.seasr.datatypes.BasicDataTypes.Integers.Builder res = BasicDataTypes.Integers.newBuilder();
+		res.addValue(i);
+		return res.build();
+	}
+	
+	/**
+	 * Create a integer array out of the Integers contents.
+	 *
+	 * @param i The integers to process
+	 * @return The array of integers
+	 */
+	public static Integer[] integersToIntegerArray( Integers i ) {
+		Integer[] iaRes = new Integer[i.getValueCount()];
+		iaRes = i.getValueList().toArray(iaRes);
+		return iaRes;
+	}
 
 	/**
 	 * Creates a Strings object out of a regular String.
