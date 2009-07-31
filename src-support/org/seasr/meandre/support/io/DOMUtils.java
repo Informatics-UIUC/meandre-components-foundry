@@ -42,13 +42,15 @@
 
 package org.seasr.meandre.support.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -79,19 +81,23 @@ public abstract class DOMUtils {
     }
 
     public static String getString(Document document, Properties outputProperties)
-        throws TransformerException {
+        throws TransformerException, UnsupportedEncodingException {
 
         TransformerFactory transfac = TransformerFactory.newInstance();
         Transformer trans = transfac.newTransformer();
 
-        if (outputProperties != null)
-            trans.setOutputProperties(outputProperties);
+        String encoding = null;
 
-        StringWriter sw = new StringWriter();
-        StreamResult result = new StreamResult(sw);
+        if (outputProperties != null) {
+            trans.setOutputProperties(outputProperties);
+            encoding = trans.getOutputProperty(OutputKeys.ENCODING);
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        StreamResult result = new StreamResult(baos);
         DOMSource source = new DOMSource(document);
         trans.transform(source, result);
 
-        return sw.toString();
+        return (encoding != null) ? baos.toString(encoding) : baos.toString();
     }
 }

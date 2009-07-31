@@ -56,6 +56,7 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
@@ -119,7 +120,7 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
         URLConnection connection = location.openConnection();
         String mimeType = connection.getContentType();
 
-        console.fine("Content type: " + mimeType);
+        console.finest("Content type: " + mimeType);
 
         String text;
 
@@ -134,13 +135,16 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
             if (handler == null)
                 throw new UnsupportedOperationException("Do not know how to handle MIME type: " + mimeType);
 
-            console.fine("Content handler set to: " + handler.getClass().getSimpleName());
+            console.finest("Content handler set to: " + handler.getClass().getSimpleName());
             try {
                 text = (String)handler.getContent(connection);
             }
             catch (FileNotFoundException e) {
                 outputError(String.format("The location '%s' is no longer available", location.toString()), Level.WARNING);
                 return;
+            }
+            catch (Exception e) {
+                throw new ComponentExecutionException(location.toString(), e);
             }
         }
 

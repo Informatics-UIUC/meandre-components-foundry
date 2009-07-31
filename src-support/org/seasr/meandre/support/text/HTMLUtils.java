@@ -42,6 +42,10 @@
 
 package org.seasr.meandre.support.text;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Properties;
+
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerException;
 
 import org.htmlparser.Parser;
@@ -65,6 +69,7 @@ public abstract class HTMLUtils {
     public static String extractText(String html) throws ParserException {
         StringBean textScraper = new StringBean();
         Parser parser = new Parser();
+        parser.setEncoding("UTF-8");
         parser.setInputHTML(html);
         parser.visitAllNodesWith(textScraper);
 
@@ -78,10 +83,14 @@ public abstract class HTMLUtils {
      * @return The extracted text
      * @throws ParserException
      * @throws TransformerException
+     * @throws UnsupportedEncodingException
      */
     public static String extractText(Document document)
-        throws ParserException, TransformerException {
+        throws ParserException, TransformerException, UnsupportedEncodingException {
 
-        return extractText(DOMUtils.getString(document, null));
+        Properties outputProperties = new Properties();
+        outputProperties.setProperty(OutputKeys.ENCODING, "UTF-8");
+
+        return extractText(DOMUtils.getString(document, outputProperties));
     }
 }
