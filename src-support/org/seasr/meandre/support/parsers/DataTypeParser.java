@@ -106,36 +106,47 @@ public abstract class DataTypeParser {
 
         return text;
     }
-    
-    public static Integer parseAsInteger(Object data) throws UnsupportedDataTypeException {
-    	Integer value;
-    	
+
+    /**
+     * Attempts to convert the given data to a Integer array
+     *
+     * @param data
+     * @return
+     * @throws UnsupportedDataTypeException
+     */
+    public static Integer[] parseAsInteger(Object data) throws UnsupportedDataTypeException {
+    	Integer[] value;
+
     	if (data == null)
     		value = null;
-    	
+
     	else
-    		
+
     	if (data instanceof Integer)
-    		value = (Integer)data;
-    	
+    		value = new Integer[] { (Integer)data };
+
     	else
-    		
+
     	if (data instanceof Integers)
-    		value = BasicDataTypesTools.integersToIntegerArray((Integers)data)[0];
-    		
+    		value = BasicDataTypesTools.integersToIntegerArray((Integers)data);
+
     	else
-    		
+
     	if (data instanceof String)
-    		value = Integer.parseInt((String)data);
-    	
+    		value = new Integer[] { Integer.parseInt((String)data) };
+
     	else
-    		
-    	if (data instanceof Strings)
-    		value = Integer.parseInt(parseAsString(data)[0]);
-    	
+
+    	if (data instanceof Strings) {
+    	    String[] strings = parseAsString(data);
+    		value = new Integer[strings.length];
+    		for (int i = 0, len = strings.length; i < len; i++)
+    		    value[i] = Integer.parseInt(strings[i]);
+    	}
+
     	else
     		throw new UnsupportedDataTypeException(data.getClass().getName());
-    	
+
     	return value;
     }
 
