@@ -110,6 +110,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _templateName = ccp.getProperty(PROP_TEMPLATE);
 
@@ -124,6 +125,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
         }
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         for (String html : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HTML))) {
             _html = html;
@@ -152,7 +154,20 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
         }
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        // ignore initiators
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        // ignore terminators
     }
 
     //--------------------------------------------------------------------------------------------
