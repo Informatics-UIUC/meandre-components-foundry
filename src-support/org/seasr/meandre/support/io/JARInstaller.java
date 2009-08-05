@@ -94,7 +94,8 @@ public class JARInstaller {
 			JarInputStream jar = new JarInputStream(jarStream);
 			JarEntry je = null;
 			while ( (je=jar.getNextJarEntry())!=null ) {
-	            File fileTarget = new File(sDestDir+File.separator+je.getName().replaceAll("/", File.separator));
+			    String target = sDestDir+File.separator+je.getName();
+	            File fileTarget = new File(new File(target).toURI());
 				if ( je.isDirectory() ) {
 					fileTarget.mkdirs();
 				} else {
@@ -108,6 +109,7 @@ public class JARInstaller {
 	            }
 	        }
 		} catch (Throwable t) {
+		    t.printStackTrace();
 			deleteDir(new File(sDestDir));
 			return InstallStatus.FAILED;
 		}
