@@ -28,12 +28,50 @@
 
         var tl;
 
-        function onLoad() {
+        function onLoad(view) {
+        	var band0Unit;
+			var band1Unit;
+			var band2Unit;
+
+			var fday = document.getElementById("fday");
+			var fmonth = document.getElementById("fmonth");
+			var fyear = document.getElementById("fyear");
+
+			var color = "red";
+
+			if (view == 'DAY') {
+	    		band0Unit = Timeline.DateTime.DAY;
+	    		band1Unit = Timeline.DateTime.MONTH;
+	    		band2Unit = Timeline.DateTime.YEAR;
+
+				fday.setAttribute("color",color);
+				fmonth.setAttribute("color","");
+				fyear.setAttribute("color","");
+			}
+			if (view == 'MONTH') {
+	    		band0Unit = Timeline.DateTime.MONTH;
+	    		band1Unit = Timeline.DateTime.YEAR;
+	    		band2Unit = Timeline.DateTime.DECADE;
+
+				fday.setAttribute("color","");
+				fmonth.setAttribute("color",color);
+				fyear.setAttribute("color","");
+			}
+			if (view == 'YEAR') {
+	   			band0Unit = Timeline.DateTime.YEAR;
+	    		band1Unit = Timeline.DateTime.DECADE;
+				band2Unit = Timeline.DateTime.CENTURY;
+
+				fday.setAttribute("color","");
+				fmonth.setAttribute("color","");
+				fyear.setAttribute("color",color);
+			}
+
 	        var eventSource = new Timeline.DefaultEventSource();
 
 	        var theme = Timeline.ClassicTheme.create();
-	        theme.event.bubble.width = 450;
-	        theme.event.bubble.height = 350;
+	        theme.event.bubble.width = 600;
+	        theme.event.bubble.height = 500;
 
 	        #set ($nrYears = $maxYear - $minYear)
 	        #set ($index = 0)
@@ -51,7 +89,7 @@
 		            eventSource:    eventSource,
 		            date:           "Jan 01 $minYear 00:00:00 GMT",
 		            width:          "70%",
-		            intervalUnit:   Timeline.DateTime.${units.get($index)},
+		            intervalUnit:   band0Unit, //Timeline.DateTime.${units.get($index)},
 		            intervalPixels: 100,
 		            theme:          theme
 		        }),
@@ -63,7 +101,7 @@
 		            date:           "Jan 01 $minYear 00:00:00 GMT",
 		            width:          "20%",
 		                            #set ($index = $index + 1)
-		            intervalUnit:   Timeline.DateTime.${units.get($index)},
+		            intervalUnit:   band1Unit, //Timeline.DateTime.${units.get($index)},
 		            intervalPixels: 200
 		        }),
 		        Timeline.createBandInfo({
@@ -74,8 +112,8 @@
 		            date:           "Jan 01 $minYear 00:00:00 GMT",
 		            width:          "10%",
 		                            #set ($index = $index + 1)
-		            intervalUnit:   Timeline.DateTime.${units.get($index)},
-		            intervalPixels: 500
+		            intervalUnit:   band2Unit, //Timeline.DateTime.${units.get($index)},
+		            intervalPixels: 300 //500
 		            })
 	        ];
 
@@ -109,9 +147,16 @@
     </script>
 </head>
 
-<body onload="onLoad();" onresize="onResize();">
+<body onload="onLoad('MONTH');" onresize="onResize();">
     <iframe src="data:text/xml;base64,$simileXmlBase64" id="__simileXml" tabIndex='-1'
         style="position:absolute;width:0;height:0;border:0"></iframe>
+
+	<div align="right"> <table cellspacing="5"><tr>
+		<td onmouseover="onLoad('DAY');"><font id="fday" color=""> DAY</font></td>
+	 	<td onmouseover="onLoad('MONTH');"> <font id="fmonth"  color="">MONTH</font></td>
+	 	<td onmouseover="onLoad('YEAR');"> <font id="fyear" color="">YEAR</font></td>
+	 	</td></table>
+	</div>
 
 	<div id="my-timeline" style="height: 450px; border: 1px solid #aaa"></div>
 
@@ -154,7 +199,8 @@
 
 		<label>(mm/dd/yyyy)</label>
 
-		<a href="#" onClick="submit(); return false;">select</a>
+		<button onClick="submit()">Select</button>
+
 	</div>
 </body>
 </html>
