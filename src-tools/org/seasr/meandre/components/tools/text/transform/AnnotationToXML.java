@@ -155,6 +155,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 		if (!_gotInitiator) {
 		    String xmlString = DOMUtils.getString(_simileDocs.get(0), _xmlProperties);
 		    cc.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
+		    _simileDocs.clear();
 		}
 	}
 
