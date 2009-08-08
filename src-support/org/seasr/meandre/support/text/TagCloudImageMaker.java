@@ -50,6 +50,7 @@ import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
 import java.util.Map;
+import java.util.Random;
 import java.util.Map.Entry;
 
 /**
@@ -62,6 +63,7 @@ public class TagCloudImageMaker {
     private float _maxFontSize, _minFontSize;
     private String _fontName;
     private boolean _showCounts;
+    private Random _rand;
 
     public TagCloudImageMaker(int canvasWidth, int canvasHeight,
             String fontName, float minFontSize, float maxFontSize, boolean showCounts) {
@@ -141,6 +143,8 @@ public class TagCloudImageMaker {
 
         if (wordCounts == null || wordCounts.size() == 0) return null;
 
+        _rand = new Random(_canvasHeight);
+
         int length = wordCounts.size();
         String[] text = new String[length];
         int[] fontSize = new int[length];
@@ -213,8 +217,8 @@ public class TagCloudImageMaker {
             int w = (int)layout.getVisibleAdvance(),
                 h = (int)(layout.getAscent()+layout.getDescent());
 
-            int textWidth = ((w+2*margin)/margin)*margin,
-                textHeight = ((h+2*margin)/margin)*margin;
+            int textWidth = w+2*margin,
+                textHeight = h+2*margin;
 
             int xCoord = (textWidth-w)/2,
                 yCoord = (int)layout.getAscent()+(textHeight-h)/2;
@@ -275,9 +279,10 @@ public class TagCloudImageMaker {
                 }//i
             }//j
 
-            double a = Math.random() * Math.PI;
-            double d = Math.random() * (Math.max(textWidth, textHeight)/4);
-            double da = (Math.random()-0.5) / 2;
+
+            double a = _rand.nextDouble() * Math.PI;
+            double d = _rand.nextDouble() * (Math.max(textWidth, textHeight)/4);
+            double da = (_rand.nextDouble()-0.5) / 2;
             double dd = 0.05;
             int x, y;
             int nr = 0;
