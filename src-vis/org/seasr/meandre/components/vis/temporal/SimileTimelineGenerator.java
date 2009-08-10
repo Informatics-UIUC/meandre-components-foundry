@@ -165,8 +165,8 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         String webUiUrl = cc.getWebUIUrl(true).toString();
         Date now = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        String htmlFileName = "myhtml" + formatter.format(now) + ".html",
-               xmlFileName = "myxml" + formatter.format(now) + ".xml";
+        String htmlFileName = "my" + formatter.format(now) + ".html",
+               xmlFileName = "my" + formatter.format(now) + ".xml";
         String htmlLocation = webUiUrl + "public/resources/timeline/" + htmlFileName,
                xmlLocation  = webUiUrl + "public/resources/timeline/" + xmlFileName;
 
