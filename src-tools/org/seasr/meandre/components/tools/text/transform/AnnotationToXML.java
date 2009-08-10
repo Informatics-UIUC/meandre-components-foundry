@@ -67,6 +67,7 @@ import org.seasr.components.text.datatype.corpora.Document;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.io.DOMUtils;
+import org.seasr.meandre.support.text.XMLUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -141,7 +142,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
         _xmlProperties = new Properties();
         _xmlProperties.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
         _xmlProperties.put(OutputKeys.INDENT, "yes");
-        _xmlProperties.put(OutputKeys.ENCODING, "UTF-8");
+        _xmlProperties.put(OutputKeys.ENCODING, "iso-8859-1"); //"UTF-8");
 
         _gotInitiator = false;
     }
@@ -154,6 +155,9 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 
 		if (!_gotInitiator) {
 		    String xmlString = DOMUtils.getString(_simileDocs.get(0), _xmlProperties);
+
+		    xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
+
 		    cc.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
 		    _simileDocs.clear();
 		}
