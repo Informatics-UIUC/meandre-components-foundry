@@ -142,7 +142,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
         _xmlProperties = new Properties();
         _xmlProperties.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
         _xmlProperties.put(OutputKeys.INDENT, "yes");
-        _xmlProperties.put(OutputKeys.ENCODING, "iso-8859-1"); //"UTF-8");
+        _xmlProperties.put(OutputKeys.ENCODING, "UTF-8");
 
         _gotInitiator = false;
     }

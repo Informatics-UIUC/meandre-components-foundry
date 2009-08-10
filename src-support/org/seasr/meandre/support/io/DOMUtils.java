@@ -45,59 +45,157 @@ package org.seasr.meandre.support.io;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.tools.ant.filters.StringInputStream;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
+ * Utility class for manipulating DOM documents
+ *
  * @author Boris Capitanu
  */
 public abstract class DOMUtils {
+
+    /** Factory for generating transformers. */
+    public static final TransformerFactory TRANS_FACT = TransformerFactory.newInstance();
+
+    /** Factory for generating document builders. */
+    public static final DocumentBuilderFactory DOC_FACT = DocumentBuilderFactory.newInstance();
+
+    /** Factory for generating SAX parsers. */
+    public static final SAXParserFactory SAX_FACT = SAXParserFactory.newInstance();
+
+    static {
+        DOC_FACT.setNamespaceAware(true);
+    }
+
+
+    /**
+     * Creates a DOM Document from a string representation of an XML document
+     *
+     * @param xml The XML string
+     * @return The DOM Document
+     * @throws SAXException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     */
     public static Document createDocument(String xml)
         throws SAXException, IOException, ParserConfigurationException {
 
         return createDocument(new StringInputStream(xml));
     }
 
+    /**
+     * Creates a DOM Document from an InputStream
+     *
+     * @param inputStream The InputStream
+     * @return The DOM Document
+     * @throws SAXException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     */
     public static Document createDocument(InputStream inputStream)
         throws SAXException, IOException, ParserConfigurationException {
 
-        DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-        dbfac.setNamespaceAware(true); // never forget this!
-
-        return dbfac.newDocumentBuilder().parse(inputStream);
+        return DOC_FACT.newDocumentBuilder().parse(inputStream);
     }
 
+    /**
+     * Obtains the string serialization of a DOM document
+     *
+     * @param document The DOM Document
+     * @param outputProperties The transformation properties
+     * @return The String representation of the DOM Document
+     * @throws TransformerException
+     * @throws UnsupportedEncodingException
+     */
     public static String getString(Document document, Properties outputProperties)
         throws TransformerException, UnsupportedEncodingException {
 
-        TransformerFactory transfac = TransformerFactory.newInstance();
-        Transformer trans = transfac.newTransformer();
-
         String encoding = null;
 
-        if (outputProperties != null) {
-            trans.setOutputProperties(outputProperties);
-            encoding = trans.getOutputProperty(OutputKeys.ENCODING);
-        }
+        if (outputProperties != null)
+            encoding = outputProperties.getProperty(OutputKeys.ENCODING);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        StreamResult result = new StreamResult(baos);
-        DOMSource source = new DOMSource(document);
-        trans.transform(source, result);
+        writeXML(document, baos, outputProperties);
 
         return (encoding != null) ? baos.toString(encoding) : baos.toString();
+    }
+
+    /**
+     * Writes the specified DOM to the given output stream.
+     *
+     * @param document The DOM Document
+     * @param outputStream The output stream
+     * @param outputProperties The transformation properties
+     * @throws TransformerException
+     */
+    public static void writeXML(Document document, OutputStream outputStream, Properties outputProperties) throws TransformerException
+    {
+        Transformer transformer = TRANS_FACT.newTransformer();
+
+        if (outputProperties != null)
+            transformer.setOutputProperties(outputProperties);
+
+        Source input = new DOMSource(document);
+        Result output = new StreamResult(outputStream);
+
+        transformer.transform(input, output);
+    }
+
+    /**
+     * Transforms the given XML input stream using the specified XSLT stylesheet.
+     *
+     * @param source The XML input source
+     * @param xsltStream The XSLT stream
+     * @return The transformed Document
+     * @throws ParserConfigurationException
+     * @throws TransformerException
+     */
+    public static Document transform(Source source, InputStream xsltStream) throws ParserConfigurationException, TransformerException {
+        Templates xslt = TRANS_FACT.newTemplates(new StreamSource(xsltStream));
+
+        return transform(source, xslt);
+    }
+
+    /**
+     * Transforms the given XML input stream using the specified cached XSLT stylesheet.
+     *
+     * @param source The XML input source
+     * @param xslt The cached XSLT template
+     * @return The transformed Document
+     * @throws ParserConfigurationException
+     * @throws TransformerException
+     */
+    public static Document transform(Source source, Templates xslt) throws ParserConfigurationException, TransformerException {
+        DocumentBuilder builder = DOC_FACT.newDocumentBuilder();
+        Document document = builder.newDocument();
+        Result result = new DOMResult(document);
+
+        Transformer trans = xslt.newTransformer();
+        trans.transform(source, result);
+
+        return document;
     }
 }
