@@ -64,8 +64,9 @@ public class TagCloudImageMaker {
     private String _fontName;
     private boolean _showCounts;
     private Random _rand;
+    private long _seed;
 
-    public TagCloudImageMaker(int canvasWidth, int canvasHeight,
+    public TagCloudImageMaker(long seed, int canvasWidth, int canvasHeight,
             String fontName, float minFontSize, float maxFontSize, boolean showCounts) {
         _canvasWidth = canvasWidth;
         _canvasHeight = canvasHeight;
@@ -73,6 +74,8 @@ public class TagCloudImageMaker {
         _maxFontSize = maxFontSize;
         _minFontSize = minFontSize;
         _showCounts = showCounts;
+    	_seed = seed;
+
     }
 
     public void setCanvasWidth(int canvasWidth) {
@@ -140,10 +143,10 @@ public class TagCloudImageMaker {
 
     public TagCloudImage createTagCloudImage(Map<String, Integer> wordCounts)
         throws InterruptedException {
-
+    	
         if (wordCounts == null || wordCounts.size() == 0) return null;
 
-        _rand = new Random(_canvasHeight);
+        _rand = new Random(_seed);
 
         int length = wordCounts.size();
         String[] text = new String[length];

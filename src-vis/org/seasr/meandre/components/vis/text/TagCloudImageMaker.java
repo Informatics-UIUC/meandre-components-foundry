@@ -143,6 +143,15 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
 	)
     protected static final String PROP_SHOW_COUNT = Names.PROP_SHOW_COUNT;
 
+	@ComponentProperty(
+	        defaultValue = "",
+    		description = "Set a random seed value to be used to " +
+    		              "initiate randomness for each tag cloud generated. "+
+    		              "If no value is given, then the current time will be used.",
+    		name = Names.PROP_SEED
+	)
+    protected static final String PROP_SEED = Names.PROP_SEED;
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -163,8 +172,14 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
         float fontSizeMax = Float.parseFloat(ccp.getProperty(PROP_FONT_MAX_SIZE));
 
         boolean showCounts = Boolean.parseBoolean(ccp.getProperty(PROP_SHOW_COUNT));
-
-        _tagCloudImageMaker = new org.seasr.meandre.support.text.TagCloudImageMaker(
+        
+        long seed;
+        String seedString = ccp.getProperty(PROP_SEED);
+		if (seedString.equals("")) 
+			seed = System.currentTimeMillis();
+		else
+			seed = Integer.parseInt(seedString);
+        _tagCloudImageMaker = new org.seasr.meandre.support.text.TagCloudImageMaker(seed,
                 canvasWidth, canvasHeight, fontName, fontSizeMin, fontSizeMax, showCounts);
     }
 
