@@ -139,7 +139,6 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     private VelocityContext _context;
 
-
     //--------------------------------------------------------------------------------------------
 
     @Override
@@ -175,8 +174,8 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         console.finest("htmlLocation=" + htmlLocation);
         console.finest("xmlLocation=" + xmlLocation);
 
-        URI xmlURI = DataTypeParser.parseAsURI(dirName + xmlFileName);
-        URI htmlURI = DataTypeParser.parseAsURI(dirName + htmlFileName);
+        URI xmlURI = DataTypeParser.parseAsURI(new File(dirName + xmlFileName).toURI());
+        URI htmlURI = DataTypeParser.parseAsURI(new  File(dirName + htmlFileName).toURI());
 
         String simileXml = generateXML(doc);
 
