@@ -78,7 +78,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "semantic, io, read, text",
-		description = "This component write text into a file. The component outputs the test. " +
+		description = "This component write text into a file. The component outputs the text. " +
 				      "A property allows to control " +
 				      "the behaviour of the component in front of an IO error, allowing to continue " +
 				      "pushing and empty model or throwing and exception forcing the finalization of " +
@@ -111,7 +111,7 @@ public class WriteText extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "The text wroten"
+			description = "The text written"
 	)
 	protected static final String OUT_TEXT= Names.PORT_TEXT;
 
