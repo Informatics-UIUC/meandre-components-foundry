@@ -149,10 +149,10 @@ public class TupleFilter  extends AbstractExecutableComponent {
 			if (pattern == null || pattern.matcher(fieldValue).matches())
 			{
 				output.add(tuple.toString());
-				console.info(tuple.toString());
 			}
 		}
 				
+		
 		String[] results = new String[output.size()];
 		output.toArray(results);
 		Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
