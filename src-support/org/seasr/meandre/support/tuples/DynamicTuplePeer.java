@@ -53,7 +53,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-
 /*
  * component.properties .. 
  * FrequencyCounter.tupleIn  = "pos,sentenceId,startIdx,token"
@@ -94,11 +93,7 @@ public class DynamicTuplePeer  {
 	
 	public DynamicTuplePeer(String[] fieldNames)
 	{
-		this.fieldNames = fieldNames;
-		fieldMap = new HashMap<String,Integer>();
-		for (int i = 0; i < fieldNames.length; i++) {
-			fieldMap.put(fieldNames[i], i);
-		}
+		init(fieldNames);
 	}
 	
 	public DynamicTuplePeer(String toParse)  // csv of fieldNames
@@ -117,6 +112,22 @@ public class DynamicTuplePeer  {
 		for (int i = 0; i < additionalFields.length; i++) {
 			fields[idx++] = additionalFields[i];
 		}
+		
+		init(fields);
+	}
+	
+	private void init(String[] fieldNames) 
+	{
+		this.fieldNames = fieldNames;
+		fieldMap = new HashMap<String,Integer>();
+		for (int i = 0; i < fieldNames.length; i++) {
+			fieldMap.put(fieldNames[i], i);
+		}
+	}
+	
+	public int size()
+	{
+		return fieldNames.length;
 	}
 	
 	
