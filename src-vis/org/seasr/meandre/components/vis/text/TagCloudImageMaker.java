@@ -160,29 +160,28 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         int canvasWidth = Integer.parseInt(ccp.getProperty(PROP_CANVAS_WIDTH));
         int canvasHeight = Integer.parseInt(ccp.getProperty(PROP_CANVAS_HEIGHT));
 
-        String fontName = ccp.getProperty(PROP_FONT_NAME);
-        if (fontName.trim().length() == 0)
+        String fontName = ccp.getProperty(PROP_FONT_NAME).trim();
+        if (fontName.length() == 0)
             fontName = null;
 
         float fontSizeMin = Float.parseFloat(ccp.getProperty(PROP_FONT_MIN_SIZE));
         float fontSizeMax = Float.parseFloat(ccp.getProperty(PROP_FONT_MAX_SIZE));
 
         boolean showCounts = Boolean.parseBoolean(ccp.getProperty(PROP_SHOW_COUNT));
-        
-        long seed;
-        String seedString = ccp.getProperty(PROP_SEED);
-		if (seedString.equals("")) 
-			seed = System.currentTimeMillis();
-		else
-			seed = Integer.parseInt(seedString);
+
+        String seedString = ccp.getProperty(PROP_SEED).trim();
+        long seed = seedString.equals("") ? System.currentTimeMillis() : Long.parseLong(seedString);
+
         _tagCloudImageMaker = new org.seasr.meandre.support.text.TagCloudImageMaker(seed,
                 canvasWidth, canvasHeight, fontName, fontSizeMin, fontSizeMax, showCounts);
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Map<String, Integer> table = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
@@ -214,6 +213,7 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
  		cc.pushDataComponentToOutput(OUT_IMAGE_RAW, baos.toByteArray());
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }
