@@ -184,6 +184,9 @@ public class AnnotationToXML extends AbstractExecutableComponent {
             throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
         String xmlString = DOMUtils.getString(mergeXmlDocuments(), _xmlProperties);
+
+        xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
+
         componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, new StreamInitiator());
         componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
         componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, new StreamTerminator());
