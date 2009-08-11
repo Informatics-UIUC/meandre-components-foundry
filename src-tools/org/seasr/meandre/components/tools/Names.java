@@ -92,9 +92,10 @@ public abstract class Names {
 	public static final String PROP_OUTPUT_HTML = "output_html";
 	public static final String PROP_FILTER_REGEX  = "filter_regex";
 	public static final String PROP_QUERY = "query";
-	public static final String PROP_URL_CONTEXT_PATH = "url_context_path";
-	public static final String PROP_SEED = "seed";
+	public static final String PROP_LOCATION = "location";
+
 	
+
 
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";
