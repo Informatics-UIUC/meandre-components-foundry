@@ -102,8 +102,6 @@ public class PosTuple extends DynamicTuple {
 		return getValue(field.ordinal());
 	}
 	
-
-	
 	public static String toString(String pos, 
 			                      int sentenceId, 
 			                      int tokenStart, 
@@ -117,9 +115,6 @@ public class PosTuple extends DynamicTuple {
 		return sb.toString();
 	}
 }
-
-
-
 
 /*
 for (TUPLE_FIELDS tf : TUPLE_FIELDS.values()) {
