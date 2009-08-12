@@ -134,7 +134,7 @@ public class TupleValueFrequencyCounter  extends AbstractExecutableComponent {
 		Map<String, Integer> tokenToCountMap = new HashMap<String,Integer>();
 		for (int i = 0; i < tuples.length; i++) {
 			
-			tuple.setValues(tuples[i]);	
+			tuple.setValues(tuples[i]);
 			String key = tuple.getValue(KEY_FIELD_IDX);
 			
 			Integer value  = tokenToCountMap.get(key);
