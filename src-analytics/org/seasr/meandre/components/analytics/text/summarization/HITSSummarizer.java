@@ -250,7 +250,7 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 	 *
 	 * @param score The score
 	 * @param sm The sentences
-	 * @throws ComponentContextException Something went wrong while pusshing
+	 * @throws ComponentContextException Something went wrong while pushing
 	 */
 	private void pushTokens(DoubleMatrix1D doubleMatrix1D, Map<String, Integer> mapTokenToPos)
 	throws ComponentContextException {
