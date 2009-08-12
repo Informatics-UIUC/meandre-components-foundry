@@ -42,8 +42,8 @@
 
 package org.seasr.meandre.components.analytics.text.statistics;
 
+import java.util.Hashtable;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -54,6 +54,9 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
+import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 
@@ -105,6 +108,7 @@ public class TokenizedSentencesReducer extends AbstractExecutableComponent {
 
 
     private boolean _gotInitiator;
+    private Map<String, String[]> _tokenizedSentences;
 
 
     //--------------------------------------------------------------------------------------------
@@ -112,17 +116,19 @@ public class TokenizedSentencesReducer extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _gotInitiator = false;
+        _tokenizedSentences = new Hashtable<String, String[]>();
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Map<String, String[]> tokenizedSentences =
-            DataTypeParser.parseAsStringStringArrayMap(cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+        Object input = cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES);
 
-        for (Entry<String, String[]> entry : tokenizedSentences.entrySet())
-            console.fine(String.format("key: '%s' ->  value: '%s'", entry.getKey(), entry.getValue()));
+        if (!_gotInitiator) {
+            cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, input);
+            return;
+        }
 
-        cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+        _tokenizedSentences.putAll(DataTypeParser.parseAsStringStringArrayMap(input));
     }
 
 
@@ -135,10 +141,24 @@ public class TokenizedSentencesReducer extends AbstractExecutableComponent {
 
     @Override
     protected void handleStreamInitiators() throws Exception {
+        if (_gotInitiator)
+            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
+
+        _gotInitiator = true;
+        _tokenizedSentences.clear();
     }
 
     @Override
     protected void handleStreamTerminators() throws Exception {
+        if (!_gotInitiator)
+            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
+
+        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamInitiator());
+        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, BasicDataTypesTools.mapToStringMap(_tokenizedSentences));
+        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamTerminator());
+
+        _gotInitiator = false;
+        _tokenizedSentences.clear();
     }
 
     //--------------------------------------------------------------------------------------------
