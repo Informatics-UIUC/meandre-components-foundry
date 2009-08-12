@@ -25,7 +25,6 @@ public class PathMetricFinder {
 	// "http://localhost:8080/path/lovely/blue?format=json";
 	String host = "http://localhost:8080/";
 	
-
 	protected PathMetricFinder()
     {
     }
@@ -207,7 +206,8 @@ public class PathMetricFinder {
 		try {
 
 			StringBuffer site = new StringBuffer();
-			site.append(host).append("path/").append(word1).append("/").append(word2).append("?format=json");
+			site.append(host).append("path/").append(word1).append("/");
+			site.append(word2).append("?format=json");
 			URL url = new URL(site.toString());
 			BufferedReader in =
 				new BufferedReader(new InputStreamReader(url.openStream()));
