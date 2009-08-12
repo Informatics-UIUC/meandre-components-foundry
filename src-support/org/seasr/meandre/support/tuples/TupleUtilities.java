@@ -50,15 +50,16 @@ package org.seasr.meandre.support.tuples;
 
 
 
-import java.util.StringTokenizer;
-
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.support.parsers.DataTypeParser;
 
 public class TupleUtilities 
 {
-	public static final String TOKEN_DELIM = ",";
+	// for this to work for generic text processing, 
+	// choose a token that is NOT a regEx and is not a simple 
+	// token (e.g. , ) 
+	public static final String TOKEN_DELIM = "<##>";
 	
 	
 	//
@@ -80,16 +81,24 @@ public class TupleUtilities
 	   return metaData;
 	}
 	
-	
-	
-	
 	public static String[] parseMe(String toParse)
 	{
 		return parseMe(null, toParse);
 	}
 	
+	
 	public static String[] parseMe(String[] values, String toParse)
 	{
+		String[] parts = toParse.split(TOKEN_DELIM);
+		if (values == null || values.length != parts.length) {
+			values = new String[parts.length];
+		}
+		for (int i = 0; i < parts.length; i++) {
+			values[i] = parts[i];
+		}
+		return values;
+		
+		/*
 		StringTokenizer tokens = new StringTokenizer(toParse, TOKEN_DELIM);
 		int size = tokens.countTokens();
 		if (values == null || values.length != size) {
@@ -101,6 +110,7 @@ public class TupleUtilities
 			values[i++] = tokens.nextToken();
 		}
 		return values;
+		*/
 	}
 	
 	public static String toString(String[] values) {
