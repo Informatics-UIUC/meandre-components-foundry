@@ -106,7 +106,7 @@ public class TupleLogger  extends AbstractExecutableComponent {
 		String[] meta = DataTypeParser.parseAsString(inputMeta);
 		String fields = meta[0];
 		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
-		
+		console.info(fields);
 		
 		Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
 		String[] tuples = DataTypeParser.parseAsString(input);
