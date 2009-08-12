@@ -42,42 +42,29 @@
 
 package org.seasr.meandre.support.text;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * @author Lily Dong
- * @author Boris Capitanu
  */
 public abstract class XMLUtils {
 	/**
 	 * Removes invalid XML characters
 	 *
 	 * @param in The XML document
-	 * @return The XML document without invalid characters
-	 * @see http://www.w3.org/TR/2006/REC-xml11-20060816/#charsets
-	 * @see http://cse-mjmcl.cse.bris.ac.uk/blog/2007/02/14/1171465494443.html
+	 * @return The XML document without invalid characters,
 	 */
-	public static String stripNonValidXMLCharacters(String s) {
-	    StringBuilder out = new StringBuilder();                // Used to hold the output.
-        int codePoint;                                          // Used to reference the current character.
+	public static String stripNonValidXMLCharacters(String in) {
+		String regex = "&#[1-8];|&#x[1-8];"; //remove #1-#8
+		regex += "|";
+		regex += "&#1[1|2];|&#x(?i)[b|c];"; //remove #11-#12
+		regex += "|";
+		regex += "&#1[4|5];|&#x(?i)[e|f];"; //remove #14-#15
 
-        int i=0;
+		Pattern pattern = Pattern.compile(regex);
+    	Matcher matcher =  pattern.matcher(in);
 
-        while(i < s.length()) {
-            codePoint = s.codePointAt(i);                       // This is the unicode code of the character.
-
-            if ((codePoint == 0x9) ||                           // Consider testing larger ranges first to improve speed.
-                    (codePoint == 0xA) ||
-                    (codePoint == 0xD) ||
-                    ((codePoint >= 0x20) && (codePoint <= 0xD7FF)) ||
-                    ((codePoint >= 0xE000) && (codePoint <= 0xFFFD)) ||
-                    ((codePoint >= 0x10000) && (codePoint <= 0x10FFFF))) {
-
-                out.append(Character.toChars(codePoint));
-            }
-
-            i += Character.charCount(codePoint);                 // Increment with the number of code units(java chars) needed to represent a Unicode char.
-        }
-
-        return out.toString();
+		return matcher.replaceAll("");
 	}
 }
