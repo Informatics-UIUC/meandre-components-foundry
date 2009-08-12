@@ -66,6 +66,7 @@ public class PosTuple extends DynamicTuple {
 	public static final String SENTENCE_ID_FIELD = "sentenceId";
 	public static final String TOKEN_START_FIELD = "tokenStart";
 	public static final String TOKEN_FIELD       = "token";
+
 	
 	// token must be last, since there will be no ambiguity 
 	// to find the token
@@ -101,7 +102,12 @@ public class PosTuple extends DynamicTuple {
 		return getValue(field.ordinal());
 	}
 	
-	public static String toString(String pos, int sentenceId, int tokenStart, String token)
+
+	
+	public static String toString(String pos, 
+			                      int sentenceId, 
+			                      int tokenStart, 
+			                      String token)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append(pos).append(TupleUtilities.TOKEN_DELIM);
