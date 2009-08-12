@@ -232,8 +232,8 @@ public abstract class DataTypeParser {
      * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
      */
     @SuppressWarnings("unchecked")
-    public static Map<String, String> parseAsStringStringMap(Object data) throws UnsupportedDataTypeException {
-        Map<String, String> map;
+    public static Map<String, String[]> parseAsStringStringArrayMap(Object data) throws UnsupportedDataTypeException {
+        Map<String, String[]> map;
 
         if (data == null)
             map = null;
@@ -246,8 +246,8 @@ public abstract class DataTypeParser {
         else
 
         if (data instanceof Map) {
-            map = (Map<String, String>)data;
-            if (!(map.values().iterator().next() instanceof String))
+            map = (Map<String, String[]>)data;
+            if (!(map.values().iterator().next() instanceof String[]))
                 throw new UnsupportedDataTypeException("The given map is not in the correct format!");
         }
 

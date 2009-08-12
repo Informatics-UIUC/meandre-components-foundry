@@ -207,11 +207,11 @@ public abstract class BasicDataTypesTools {
 	 * @param htSentences The tokenized sentences
 	 * @return The StringsMap
 	 */
-	public static StringsMap mapToStringMap(Map<String, String> htSentences) {
+	public static StringsMap mapToStringMap(Map<String, String[]> htSentences) {
 	    org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
-	    for (Entry<String, String> entry : htSentences.entrySet()) {
+	    for (Entry<String, String[]> entry : htSentences.entrySet()) {
 	        res.addKey(entry.getKey());
-	        res.addValue(BasicDataTypes.Strings.newBuilder().addValue(entry.getValue()));
+	        res.addValue(stringToStrings(entry.getValue()));
 	    }
 	    return res.build();
 	}
@@ -222,11 +222,11 @@ public abstract class BasicDataTypesTools {
 	 * @param sm The string map to convert
 	 * @return The converted map
 	 */
-	public static Map<String, String> StringMapToMap ( StringsMap sm ) {
-	    Hashtable<String, String> ht = new Hashtable<String, String>(sm.getValueCount());
+	public static Map<String, String[]> StringMapToMap ( StringsMap sm ) {
+	    Hashtable<String, String[]> ht = new Hashtable<String, String[]>(sm.getValueCount());
 
 	    for ( int i = 0, iMax = sm.getValueCount(); i < iMax; i++ )
-	        ht.put(sm.getKey(i), sm.getValue(i).getValue(0));
+	        ht.put(sm.getKey(i), stringsToStringArray(sm.getValue(i)));
 
 	    return ht;
 	}

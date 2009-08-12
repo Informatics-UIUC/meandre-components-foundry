@@ -116,10 +116,10 @@ public class TokenizedSentencesReducer extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Map<String, String> tokenizedSentences =
-            DataTypeParser.parseAsStringStringMap(cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+        Map<String, String[]> tokenizedSentences =
+            DataTypeParser.parseAsStringStringArrayMap(cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 
-        for (Entry<String, String> entry : tokenizedSentences.entrySet())
+        for (Entry<String, String[]> entry : tokenizedSentences.entrySet())
             console.fine(String.format("key: '%s' ->  value: '%s'", entry.getKey(), entry.getValue()));
 
         cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
