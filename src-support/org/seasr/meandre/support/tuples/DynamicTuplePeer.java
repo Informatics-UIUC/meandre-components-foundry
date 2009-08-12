@@ -96,7 +96,7 @@ public class DynamicTuplePeer  {
 		init(fieldNames);
 	}
 	
-	public DynamicTuplePeer(String toParse)  // csv of fieldNames
+	public DynamicTuplePeer(String toParse)
 	{
 		this(TupleUtilities.parseMe(null, toParse));
 	}
@@ -118,6 +118,10 @@ public class DynamicTuplePeer  {
 	
 	private void init(String[] fieldNames) 
 	{
+		if (fieldNames == null || fieldNames.length == 0) {
+			throw new RuntimeException("invalid peer, no fieldnames");
+		}
+		
 		this.fieldNames = fieldNames;
 		fieldMap = new HashMap<String,Integer>();
 		for (int i = 0; i < fieldNames.length; i++) {
@@ -133,7 +137,12 @@ public class DynamicTuplePeer  {
 	
 	public int getIndexForFieldName(String fn)
 	{
-		return fieldMap.get(fn);
+		try {
+			return fieldMap.get(fn);
+		}
+		catch (NullPointerException npe) {
+			return -1;
+		}
 	}
 	
 	public String getFieldNames()
