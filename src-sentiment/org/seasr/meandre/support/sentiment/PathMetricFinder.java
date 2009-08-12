@@ -23,9 +23,19 @@ import org.json.JSONObject;
 public class PathMetricFinder {
 
 	// "http://localhost:8080/path/lovely/blue?format=json";
-	static String host = "http://localhost:8080/";
+	String host = "http://localhost:8080/";
+	
 
-    public static String encodeParameter(String name, List<String> list)
+	protected PathMetricFinder()
+    {
+    }
+    
+	public PathMetricFinder(String host)
+	{
+		this.host = host;
+	}
+
+    public  String encodeParameter(String name, List<String> list)
     throws UnsupportedEncodingException
     {
     	StringBuffer sb = new StringBuffer();
@@ -46,7 +56,7 @@ public class PathMetricFinder {
         */
     }
 
-    public static PathMetric getBestMetric(List<PathMetric> list)
+    public  PathMetric getBestMetric(List<PathMetric> list)
 	{
 		Iterator<PathMetric> it = list.iterator();
 		PathMetric minMetric = null;
@@ -61,7 +71,7 @@ public class PathMetricFinder {
 		return minMetric;
 	}
 
-	public static List<PathMetric> getAllMetric(String word, List<String> targets)
+	public  List<PathMetric> getAllMetric(String word, List<String> targets)
 	{
 		List<String> words = new ArrayList<String>();
 		words.add(word);
@@ -69,7 +79,7 @@ public class PathMetricFinder {
 	}
 
 
-	public static List<PathMetric> getAllMetrics(List<String> words, List<String> targets)
+	public  List<PathMetric> getAllMetrics(List<String> words, List<String> targets)
 	{
 
 		// /paths/
@@ -140,7 +150,7 @@ public class PathMetricFinder {
 
 	}
 
-	private static List<PathMetric> parseJson(String toParse) throws JSONException
+	private  List<PathMetric> parseJson(String toParse) throws JSONException
 	{
 		JSONArray json = new JSONArray(toParse);
 		int size = json.length();
@@ -189,7 +199,7 @@ public class PathMetricFinder {
 		return list;
 	}
 
-	public static PathMetric getMetric(String word1, String word2)
+	public  PathMetric getMetric(String word1, String word2)
 	{
 
 		PathMetric metric = new PathMetric();
