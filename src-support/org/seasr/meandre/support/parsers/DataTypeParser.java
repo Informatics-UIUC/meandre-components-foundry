@@ -56,6 +56,7 @@ import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.datatypes.BasicDataTypes.Integers;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.support.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.support.io.DOMUtils;
 import org.seasr.meandre.support.io.ModelUtils;
@@ -214,6 +215,39 @@ public abstract class DataTypeParser {
         if (data instanceof Map) {
             map = (Map<String, Integer>)data;
             if (!(map.values().iterator().next() instanceof Integer))
+                throw new UnsupportedDataTypeException("The given map is not in the correct format!");
+        }
+
+        else
+            throw new UnsupportedDataTypeException(data.getClass().getName());
+
+        return map;
+    }
+
+    /**
+     * Attempts to convert the given data to a Map<String, String>
+     *
+     * @param data The data
+     * @return The Map<String, String>
+     * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, String> parseAsStringStringMap(Object data) throws UnsupportedDataTypeException {
+        Map<String, String> map;
+
+        if (data == null)
+            map = null;
+
+        else
+
+        if (data instanceof StringsMap)
+            map = BasicDataTypesTools.StringMapToMap((StringsMap)data);
+
+        else
+
+        if (data instanceof Map) {
+            map = (Map<String, String>)data;
+            if (!(map.values().iterator().next() instanceof String))
                 throw new UnsupportedDataTypeException("The given map is not in the correct format!");
         }
 

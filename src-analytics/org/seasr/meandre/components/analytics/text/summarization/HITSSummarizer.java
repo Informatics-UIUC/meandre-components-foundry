@@ -156,22 +156,25 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.iNTopSentences = Integer.parseInt(ccp.getProperty(PROP_N_TOP_SENTENCES));
 		this.iNTopTokens = Integer.parseInt(ccp.getProperty(PROP_N_TOP_TOKENS));
 		this.iIterations = Integer.parseInt(ccp.getProperty(PROP_ITERATIONS));
 		this.alg = new Algebra();
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		StringsMap sm = (StringsMap) cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES);
 		Map<String, Integer> mapTokenToPos = new Hashtable<String,Integer>();
 		SparseDoubleMatrix2D sdm = convertTokenizedSentencesToSparseMatrix(sm, mapTokenToPos);
 		DoubleMatrix1D[] scores = hits(sdm);
-		pushSentence(scores[0],sm,cc);
-		pushTokens(scores[1], mapTokenToPos,cc);
+		pushSentence(scores[0], sm);
+		pushTokens(scores[1], mapTokenToPos);
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.iNTopSentences = this.iNTopTokens = this.iIterations = -1;
         this.alg = null;
@@ -207,7 +210,8 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 			dScore = d;
 		}
 
-		public String toString () {
+		@Override
+        public String toString () {
 			return "<"+sText+", "+dScore+">";
 		}
 	}
@@ -217,10 +221,9 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 	 *
 	 * @param score The score
 	 * @param sm The sentences
-	 * @param cc The component context
 	 * @throws ComponentContextException Something went wrong while pushing
 	 */
-	private void pushSentence(DoubleMatrix1D score, StringsMap sm, ComponentContext cc)
+	private void pushSentence(DoubleMatrix1D score, StringsMap sm)
 	throws ComponentContextException {
 		// Prepare the list of sentence
 		int iSent = sm.getKeyCount();
@@ -240,18 +243,16 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 		for ( int i=0 ; i<iMax ; i++ )
 			res.addValue(ea[i].sText);
 
-		cc.pushDataComponentToOutput(OUT_SENTENCES, res.build());
+		componentContext.pushDataComponentToOutput(OUT_SENTENCES, res.build());
 	}
 
 	/** Push the ranked tokens.
 	 *
 	 * @param score The score
 	 * @param sm The sentences
-	 * @param cc The component context
 	 * @throws ComponentContextException Something went wrong while pusshing
 	 */
-	private void pushTokens(DoubleMatrix1D doubleMatrix1D,
-			Map<String, Integer> mapTokenToPos, ComponentContext cc)
+	private void pushTokens(DoubleMatrix1D doubleMatrix1D, Map<String, Integer> mapTokenToPos)
 	throws ComponentContextException {
 
 		// Create the proper list of tokens
@@ -278,7 +279,7 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 		for ( int i=0 ; i<iMax ; i++ )
 			res.addValue(ea[i].sText);
 
-		cc.pushDataComponentToOutput(OUT_TOKENS, res.build());
+		componentContext.pushDataComponentToOutput(OUT_TOKENS, res.build());
 	}
 
 
@@ -288,7 +289,7 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 	 */
 	@SuppressWarnings("static-access")
 	private DoubleMatrix1D[] hits(SparseDoubleMatrix2D w) {
-		/* My veryfied implementation of hits in python using numpy
+		/* My verified implementation of hits in python using numpy
 
 		   def hits ( W, K=10 ) :
 		     '''Computes the hits score for a weight matrix'''

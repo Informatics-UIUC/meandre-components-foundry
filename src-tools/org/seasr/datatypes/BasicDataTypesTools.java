@@ -66,10 +66,10 @@ import com.google.protobuf.ByteString;
  *
  */
 public abstract class BasicDataTypesTools {
-	
+
 	/**
 	 * Creates a Integers object out of a regular Integer.
-	 * 
+	 *
 	 * @param i The integer to use
 	 * @return THe new object produced
 	 */
@@ -78,7 +78,7 @@ public abstract class BasicDataTypesTools {
 		res.addValue(i);
 		return res.build();
 	}
-	
+
 	/**
 	 * Create a integer array out of the Integers contents.
 	 *
@@ -199,6 +199,36 @@ public abstract class BasicDataTypesTools {
 			ht.put(im.getKey(i), im.getValue(i).getValue(0));
 
 		return ht;
+	}
+
+	/**
+	 * Builds a strings map
+	 *
+	 * @param htSentences The tokenized sentences
+	 * @return The StringsMap
+	 */
+	public static StringsMap mapToStringMap(Map<String, String> htSentences) {
+	    org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
+	    for (Entry<String, String> entry : htSentences.entrySet()) {
+	        res.addKey(entry.getKey());
+	        res.addValue(BasicDataTypes.Strings.newBuilder().addValue(entry.getValue()));
+	    }
+	    return res.build();
+	}
+
+	/**
+	 * Converts a protocol buffer string string map to the equivalent java map
+	 *
+	 * @param sm The string map to convert
+	 * @return The converted map
+	 */
+	public static Map<String, String> StringMapToMap ( StringsMap sm ) {
+	    Hashtable<String, String> ht = new Hashtable<String, String>(sm.getValueCount());
+
+	    for ( int i = 0, iMax = sm.getValueCount(); i < iMax; i++ )
+	        ht.put(sm.getKey(i), sm.getValue(i).getValue(0));
+
+	    return ht;
 	}
 
 	/**
