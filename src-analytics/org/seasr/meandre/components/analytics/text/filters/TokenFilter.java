@@ -175,7 +175,8 @@ public class TokenFilter extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.bReplace = Boolean.parseBoolean(ccp.getProperty(PROP_REPLACE));
 		this.queues[PORT_TOKENS] = new LinkedList<Object>();
 		this.queues[PORT_TOKEN_COUNTS] = new LinkedList<Object>();
@@ -184,7 +185,8 @@ public class TokenFilter extends AbstractExecutableComponent {
 		this.setBlacklist = null;
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		if ( this.setBlacklist == null && !cc.isInputAvailable(IN_TOKEN_BLACKLIST) ) {
 			// No blacklist received yet, so queue the objects
 			queueObjects();
@@ -199,6 +201,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 		}
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.bReplace = false;
         this.queues[PORT_TOKENS] = this.queues[PORT_TOKEN_COUNTS] = this.queues[PORT_TOKENIZED_SENTENCES] = null;
@@ -212,7 +215,7 @@ public class TokenFilter extends AbstractExecutableComponent {
     @Override
     protected void handleStreamInitiators() throws Exception {
         if (inputPortsWithInitiators.contains(IN_TOKENIZED_SENTENCES))
-            componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
+            componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES,
                     componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 
         if (inputPortsWithInitiators.contains(IN_TOKEN_COUNTS))
@@ -227,7 +230,7 @@ public class TokenFilter extends AbstractExecutableComponent {
     @Override
     protected void handleStreamTerminators() throws Exception {
         if (inputPortsWithTerminators.contains(IN_TOKENIZED_SENTENCES))
-            componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
+            componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES,
                     componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 
         if (inputPortsWithTerminators.contains(IN_TOKEN_COUNTS))
