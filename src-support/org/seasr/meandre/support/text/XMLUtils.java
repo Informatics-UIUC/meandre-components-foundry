@@ -54,6 +54,7 @@ public abstract class XMLUtils {
 	 *
 	 * @param in The XML document
 	 * @return The XML document without invalid characters,
+	 * @see http://www.w3.org/TR/2006/REC-xml11-20060816/#charsets
 	 */
 	public static String stripNonValidXMLCharacters(String in) {
 		String regex = "&#[1-8];|&#x[1-8];"; //remove #1-#8
