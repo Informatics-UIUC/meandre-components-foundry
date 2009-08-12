@@ -53,8 +53,11 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.meandre.components.tools.Names;
 
 /**
@@ -141,12 +144,14 @@ public class ForkX2 extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         fn = ccp.getProperty(PROP_REPLICATION_MODE);
         if (fn == null || fn.length() == 0)
             throw new RuntimeException("No replication mode given.");
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         int repMode = Integer.parseInt(fn);
         Object data = cc.getDataComponentFromInput(IN_OBJECT);
@@ -193,8 +198,25 @@ public class ForkX2 extends AbstractExecutableComponent {
         }
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_OBJECT);
+        componentContext.pushDataComponentToOutput(OUT_OBJECT, si);
+        componentContext.pushDataComponentToOutput(OUT_OBJECT_2, ComponentUtils.cloneStreamDelimiter(si));
+    };
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_OBJECT);
+        componentContext.pushDataComponentToOutput(OUT_OBJECT, st);
+        componentContext.pushDataComponentToOutput(OUT_OBJECT_2, ComponentUtils.cloneStreamDelimiter(st));
+    };
 
     //--------------------------------------------------------------------------------------------
 
