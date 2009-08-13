@@ -48,6 +48,7 @@ import java.io.Writer;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,7 +58,6 @@ import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
@@ -105,6 +105,14 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 	)
     protected static final String IN_XML = Names.PORT_XML;
 
+	@ComponentInput(
+	        description = "The subdirectory under public resources to " +
+	        		"store HTML and XML files. " +
+	        		"The path name must be specified as subdir1/subdir2/.",
+	        name = Names.PORT_DIRECTORY
+	)
+    protected static final String IN_DIRECTORY = Names.PORT_DIRECTORY;
+
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
@@ -113,14 +121,6 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_HTML = Names.PORT_HTML;
 
-    //------------------------------ PROPERTIES --------------------------------------------------
-
-	@ComponentProperty(
-	        defaultValue = "10",
-            description = "The number of time slices desired",
-            name = Names.PROP_N_SLICES
-	)
-    protected static final String DATA_PROPERTY = Names.PROP_N_SLICES;
 
     //--------------------------------------------------------------------------------------------
 
@@ -139,6 +139,8 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     private VelocityContext _context;
 
+    private static String delimiter = "/";
+
     //--------------------------------------------------------------------------------------------
 
     @Override
@@ -149,14 +151,27 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+    	String path = DataTypeParser.parseAsString(
+    			cc.getDataComponentFromInput(IN_DIRECTORY))[0];
+    	path = path.trim();
+    	if(path.startsWith(delimiter)) //remove the first delimiter
+    		path = path.substring(1);
+    	if(path.endsWith(delimiter)) //remove the last delimiter
+    		path = path.substring(0, path.length()-1);
+
         Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
 
         String dirName = cc.getPublicResourcesDirectory() + File.separator;
-        dirName += "timeline" + File.separator;
+        StringBuffer sb = new StringBuffer();
+        StringTokenizer st = new StringTokenizer(path, delimiter);
+        while(st.hasMoreTokens()) {
+        	sb.append(st.nextToken()).append(File.separator);
+        }
+        dirName += sb.toString();
 
         File dir = new File(dirName);
         if (!dir.exists())
-            if (!dir.mkdir())
+            if (!dir.mkdirs())
                 throw new IOException("The directory '" + dirName + "' could not be created!");
 
         console.finest("Set storage location to " + dirName);
@@ -166,8 +181,12 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String htmlFileName = "my" + formatter.format(now) + ".html",
                xmlFileName = "my" + formatter.format(now) + ".xml";
-        String htmlLocation = webUiUrl + "public/resources/timeline/" + htmlFileName,
-               xmlLocation  = webUiUrl + "public/resources/timeline/" + xmlFileName;
+        String str = webUiUrl +
+        	"public" + delimiter +
+        	"resources" + delimiter +
+        	path + delimiter;
+        String htmlLocation = str + htmlFileName,
+               xmlLocation  = str + xmlFileName;
 
         console.finest("htmlFileName=" + htmlFileName);
         console.finest("xmlFileName=" + xmlFileName);
