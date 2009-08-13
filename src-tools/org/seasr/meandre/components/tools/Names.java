@@ -98,7 +98,7 @@ public abstract class Names {
 
 
 
-
+	public static final String PORT_DIRECTORY = "directory";
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";
 	public static final String PORT_DOC_TITLE = "document_title";
