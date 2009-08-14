@@ -44,6 +44,7 @@ package org.seasr.meandre.components.vis.temporal;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -52,6 +53,13 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.velocity.VelocityContext;
@@ -237,26 +245,32 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         return velocity.generateOutput(_context, simileVelocityTemplate);
     }
 
-    private String generateXML(Document doc) {
+    private String generateXML(Document doc)
+    throws javax.xml.parsers.ParserConfigurationException,
+    javax.xml.transform.TransformerConfigurationException,
+    javax.xml.transform.TransformerException{
     	minYear = Integer.MAX_VALUE;
     	maxYear = Integer.MIN_VALUE;
 
-//TODO: StringBuffer buf needs to be replaced with the XML document object
+    	DocumentBuilderFactory documentBuilderFactory =
+    		DocumentBuilderFactory.newInstance();
+    	DocumentBuilder documentBuilder =
+    		documentBuilderFactory.newDocumentBuilder();
+    	Document document = documentBuilder.newDocument();
 
-    	StringBuffer buf = new StringBuffer(); //Store XML
-    	buf.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n").append("<data>\n");
+    	Element rootElement = document.createElement("data");
+    	document.appendChild(rootElement);
 
 		doc.getDocumentElement().normalize();
 		docTitle = doc.getDocumentElement().getAttribute("docID");
 		console.finest("Root element : " + docTitle);
 		NodeList dateNodes = doc.getElementsByTagName("date");
-		//getConsoleOut().println("Information of date");
+
 		for (int i = 0, iMax = dateNodes.getLength(); i < iMax; i++) {
 			Element elEntity = (Element)dateNodes.item(i);
 			String aDate = elEntity.getAttribute("value");
 
 			//standardize date
-			//getConsoleOut().println("time : " + aDate);
 
 			String month = null,
 				   day   = null,
@@ -329,7 +343,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
                     sbHtml.append("</b><span style='display: ' align='left'><table><tr><td>").append(theSentence).append("</td></tr></table></span></div>");
 			    }
 
-		        String sentence = StringEscapeUtils.escapeXml(sbHtml.toString());
+			    String sentence = sbHtml.toString();
 
 				year = dateMatcher.group(1);
 				minYear = Math.min(minYear, Integer.parseInt(year));
@@ -339,12 +353,18 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 				if(day == null)
 					if(month == null) { //season year
 						if(startMonth != null) {//spring or summer or fall or winter year
-							buf.append("<event start=\"").append(startMonth + " " + year).append("\" end=\"").append(endMonth + " " + year).append("\" title=\"").append(aDate+"("+nr+")").append("\">\n").append(sentence).append("\n");
-							buf.append("</event>\n");
+							Element em = document.createElement("event");
+							em.setAttribute("start", startMonth + " " + year);
+							em.setAttribute("end", endMonth + " " + year);
+							em.setAttribute("title", aDate+"("+nr+")");
+							em.appendChild(document.createTextNode(sentence));
+							rootElement.appendChild(em);
 						} else { //year
-							//if(Integer.parseInt(year) != 1832) {
-							buf.append("<event start=\"").append(year).append("\" title=\"").append(aDate+"("+nr+")").append("\">\n").append(sentence).append("\n");
-							buf.append("</event>\n");//}
+							Element em = document.createElement("event");
+							em.setAttribute("start", year);
+							em.setAttribute("title", aDate+"("+nr+")");
+							em.appendChild(document.createTextNode(sentence));
+							rootElement.appendChild(em);
 						}
 					} else { //month year
 						String startDay = month + " 01";
@@ -383,22 +403,36 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 								numberOfDays = 28;
 						}
 						String endDay = month + " " + Integer.toString(numberOfDays);
-						buf.append("<event start=\"").append(startDay + " " + year).append("\" end=\"").append(endDay + " " + year).append("\" title=\"").append(aDate+"("+nr+")").append("\">\n").append(sentence).append("\n");
-				    	buf.append("</event>\n");
+						Element em = document.createElement("event");
+						em.setAttribute("start", startDay + " " + year);
+						em.setAttribute("end", endDay + " " + year);
+						em.setAttribute("title", aDate+"("+nr+")");
+						em.appendChild(document.createTextNode(sentence));
+						rootElement.appendChild(em);
 					}
 				else {
 					if(month == null) {//year
-						buf.append("<event start=\"").append(year).append("\" title=\"").append(aDate+"("+nr+")").append("\">\n").append(sentence).append("\n");
-						buf.append("</event>\n");
+						Element em = document.createElement("event");
+						em.setAttribute("start", year);
+						em.setAttribute("title", aDate+"("+nr+")");
+						em.appendChild(document.createTextNode(sentence));
+						rootElement.appendChild(em);
 					} else { //month day year
-						buf.append("<event start=\"").append(month + " " + day + " " + year).append("\" title=\"").append(aDate+"("+nr+")").append("\">\n").append(sentence).append("\n");
-						buf.append("</event>\n");
+						Element em = document.createElement("event");
+						em.setAttribute("start", month + " " + day + " " + year);
+						em.setAttribute("title", aDate+"("+nr+")");
+						em.appendChild(document.createTextNode(sentence));
+						rootElement.appendChild(em);
 					}
 				}
 			}
 		}
-		buf.append("</data>");
 
-    	return buf.toString();
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+	    Transformer transformer = transformerFactory.newTransformer();
+	    DOMSource source = new DOMSource(document);
+	    StreamResult result =  new StreamResult(new StringWriter());
+	    transformer.transform(source, result);
+	    return result.getWriter().toString();
     }
 }
