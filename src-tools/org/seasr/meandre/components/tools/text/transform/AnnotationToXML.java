@@ -158,6 +158,8 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 
 		    xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
 
+		    xmlString = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" + xmlString;
+
 		    cc.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
 		    _simileDocs.clear();
 		}
@@ -186,6 +188,8 @@ public class AnnotationToXML extends AbstractExecutableComponent {
         String xmlString = DOMUtils.getString(mergeXmlDocuments(), _xmlProperties);
 
         xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
+
+        xmlString = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" + xmlString;
 
         componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, new StreamInitiator());
         componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
