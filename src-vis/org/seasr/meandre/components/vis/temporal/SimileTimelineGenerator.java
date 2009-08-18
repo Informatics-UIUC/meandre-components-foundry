@@ -306,19 +306,15 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 				}
 			}
 
-			datePattern = Pattern.compile("(\\b\\d{1}\\b)"); //look for day	like 5
-			dateMatcher = datePattern.matcher(aDate);
+			datePattern = Pattern.compile("(\\b\\d{1,2}((st)?|(nd)?|(rd)?|(th)?)\\b)");
+			dateMatcher = datePattern.matcher(aDate); //look for 1 or 1st or 22 or 22nd or 3rd or 4th
 			if(dateMatcher.find()) {
-				day = dateMatcher.group(1);
-			} else {
-				datePattern = Pattern.compile("(\\b\\d{2}\\b)"); //look for day	like 21
-				dateMatcher = datePattern.matcher(aDate);
-				if(dateMatcher.find()) {
+				datePattern = Pattern.compile("(\\d{1,2})"); //look for 1 or 22 only
+				dateMatcher = datePattern.matcher(dateMatcher.group(1));
+				if(dateMatcher.find());
 					day = dateMatcher.group(1);
-				}
 			}
 
-			//datePattern = Pattern.compile("(\\d{4})"); //look for year
 			datePattern = Pattern.compile("(\\d{3,4})"); //look for year with 3 or 4 digits
 			dateMatcher = datePattern.matcher(aDate);
 			if(dateMatcher.find()) { //look for year
