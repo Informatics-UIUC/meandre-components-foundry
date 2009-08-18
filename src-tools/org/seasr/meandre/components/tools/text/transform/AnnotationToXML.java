@@ -128,6 +128,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 	private Vector<org.w3c.dom.Document> _simileDocs = new Vector<org.w3c.dom.Document>();
 	private boolean _gotInitiator;
 
+	private static String encoding = "ISO-8859-1";
 
     //--------------------------------------------------------------------------------------------
 
@@ -142,7 +143,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
         _xmlProperties = new Properties();
         _xmlProperties.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
         _xmlProperties.put(OutputKeys.INDENT, "yes");
-        _xmlProperties.put(OutputKeys.ENCODING, "UTF-8");
+        _xmlProperties.put(OutputKeys.ENCODING, encoding);
 
         _gotInitiator = false;
     }
@@ -158,7 +159,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 
 		    xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
 
-		    xmlString = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" + xmlString;
+		    xmlString = "<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>" + xmlString;
 
 		    cc.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
 		    _simileDocs.clear();
@@ -189,7 +190,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 
         xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
 
-        xmlString = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" + xmlString;
+        xmlString = "<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>" + xmlString;
 
         componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, new StreamInitiator());
         componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
