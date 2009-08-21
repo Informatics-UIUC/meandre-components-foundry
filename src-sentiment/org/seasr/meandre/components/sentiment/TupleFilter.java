@@ -42,10 +42,6 @@ import org.seasr.meandre.support.tuples.DynamicTuplePeer;
  *
  */
 
-//
-// General Path:   PosTagger -->TupleValueFrequencyCounter
-//
-
 
 @Component(
 		name = "tuple value filter",
@@ -55,7 +51,7 @@ import org.seasr.meandre.support.tuples.DynamicTuplePeer;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "tuple, tools, text, filter",
-		description = "This component filters the incoming set of tuples " ,
+		description = "This component filters the incoming set of tuples based on a regular expression" ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar"}
 )
 public class TupleFilter  extends AbstractExecutableComponent {
