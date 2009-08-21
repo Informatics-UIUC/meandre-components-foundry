@@ -119,10 +119,21 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
     protected static final String DATA_PROPERTY_CONCEPTS = "concepts";
       
    
-   @ComponentProperty(description = "cache filename of concepts to write/read",
+   @ComponentProperty(description = "filename of cache concepts to write/read",
            name = "conceptCacheFile",
            defaultValue = "posConceptCache.csv")
     protected static final String DATA_PROPERTY_CACHE = "conceptCacheFile";
+   
+   @ComponentProperty(description = "filename of tokens to ignore",
+           name = "ignoreTokensFile",
+           defaultValue = "ignore.csv")
+    protected static final String DATA_PROPERTY_IGNORE = "ignoreTokensFile";
+   
+
+   @ComponentProperty(description = "filename of tokens to remap",
+           name = "remapFile",
+           defaultValue = "remap.csv")
+    protected static final String DATA_PROPERTY_WORDMAP = "remapFile";
   
    
    static String NO_VALUE = "N.A.";
@@ -133,10 +144,15 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
     HashMap<String,List<String>> conceptMap;
 	HashMap<String,String> reverseMap;
 	List<String> allLabels;
+	
 	String cacheFileName;
-	String noConceptFileName = "ignorePos.csv";
+	String noConceptFileName;
+	String wordMapFileName;
+	
 	Map<String,String> wordToConceptMap;
 	Map<String,String> noConceptMap;
+	Map<String,String> wordMap;
+
 	
 	PathMetricFinder finder;
 	
@@ -145,14 +161,19 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 		//
 		// init the synNet host
 		//
-		String host   = ccp.getProperty(DATA_PROPERTY_CACHE);
+		String host   = ccp.getProperty(DATA_PROPERTY_HOST);
 		this.finder = new PathMetricFinder(host);
 		
 		
 		// create/build the cache file name
-		this.cacheFileName    = ccp.getProperty(DATA_PROPERTY_CACHE);
+		this.cacheFileName     = ccp.getProperty(DATA_PROPERTY_CACHE);
+		this.wordMapFileName   = ccp.getProperty(DATA_PROPERTY_WORDMAP);
+		this.noConceptFileName = ccp.getProperty(DATA_PROPERTY_IGNORE);
 		this.wordToConceptMap = readFromFile(cacheFileName);
 		this.noConceptMap     = readFromFile(noConceptFileName);
+		this.wordMap          = readFromFile(wordMapFileName);
+		
+		
 		
 		//
 		// build the map for concepts
@@ -184,6 +205,15 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
         }
         
 	}
+	
+	// change things like hau'ted to haunted
+	protected String reMap(String word)
+	{
+		String replace = wordMap.get(word);
+		if (replace != null)
+		   return replace;
+		return word;
+	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
@@ -212,6 +242,8 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 			
 			tuple.setValues(tuples[i]);	
 			String token = tuple.getValue(TOKEN_IDX);
+			
+			token = reMap(token);
 			
 			String concept = wordToConceptMap.get(token);
 			if (concept == null) {
