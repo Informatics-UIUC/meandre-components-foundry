@@ -46,10 +46,6 @@ import org.seasr.meandre.support.tuples.DynamicTuplePeer;
  *
  */
 
-//
-// General Path:   PosTagger -->TupleValueFrequencyCounter
-//
-
 
 @Component(
 		name = "tuple value frequency counter",
@@ -59,7 +55,7 @@ import org.seasr.meandre.support.tuples.DynamicTuplePeer;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
-		description = "This component counts the incoming set of tuples " ,
+		description = "This component counts the incoming set of tuples, based on a unique field value" ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar"}
 )
 public class TupleValueFrequencyCounter  extends AbstractExecutableComponent {
