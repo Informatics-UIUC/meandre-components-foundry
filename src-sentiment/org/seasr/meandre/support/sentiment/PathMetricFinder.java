@@ -112,15 +112,13 @@ public class PathMetricFinder {
 	        out.close ();
 	        */
 
-	        System.out.println("write params");
 	        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
 	        wr.write(data);
 	        wr.flush();
 	        // wr.close();
 
 			// read response from server
-	        System.out.println("read back");
-			BufferedReader in
+	        BufferedReader in
 			   = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
 			String inputLine;
