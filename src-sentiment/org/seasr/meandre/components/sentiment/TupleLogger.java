@@ -42,10 +42,6 @@ import org.seasr.meandre.support.tuples.DynamicTuplePeer;
  *
  */
 
-//
-// General Path:   PosTagger -->TupleValueFrequencyCounter
-//
-
 
 @Component(
 		name = "tuple logger",
@@ -55,7 +51,7 @@ import org.seasr.meandre.support.tuples.DynamicTuplePeer;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "tuple, tools, text, filter",
-		description = "This component prints the incoming set of tuples " ,
+		description = "This component prints the incoming set of tuples to the console (level info) " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar"}
 )
 public class TupleLogger  extends AbstractExecutableComponent {
@@ -80,7 +76,7 @@ public class TupleLogger  extends AbstractExecutableComponent {
 	
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of filtered tuples"
+			description = "set of tuples (same as input)"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 	
@@ -96,7 +92,6 @@ public class TupleLogger  extends AbstractExecutableComponent {
 	
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
 	{	
-		
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception 
@@ -112,13 +107,11 @@ public class TupleLogger  extends AbstractExecutableComponent {
 		String[] tuples = DataTypeParser.parseAsString(input);
 		DynamicTuple tuple = inPeer.createTuple();
 		
-		List<String> output = new ArrayList<String>();
 		for (int i = 0; i < tuples.length; i++) {
 			tuple.setValues(tuples[i]);	
 			console.info(tuple.toString());
 		}
 				
-		
 		cc.pushDataComponentToOutput(OUT_TUPLES, input);
 		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
 		 
