@@ -100,9 +100,10 @@ public class StringsToJavaString extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        cc.pushDataComponentToOutput(OUT_JAVA_STRING,
-                BasicDataTypesTools.stringsToStringArray(
-                        (Strings)cc.getDataComponentFromInput(IN_TEXT))[0]);
+        String[] sa = BasicDataTypesTools.stringsToStringArray((Strings)cc.getDataComponentFromInput(IN_TEXT));
+        if (sa.length > 1)
+            console.warning("Detected multiple packed strings in the Google structure. Only the first one is returned...");
+        cc.pushDataComponentToOutput(OUT_JAVA_STRING, sa[0]);
     }
 
     @Override
