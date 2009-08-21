@@ -55,10 +55,6 @@ import org.seasr.meandre.support.sentiment.PathMetricFinder;
  *
  */
 
-//
-// General Path:   PosTagger -->PosTokenFrequencyCounter --> TokenConceptLabler
-//
-
 
 @Component(
 		name = "Token Concept Labeler",
@@ -68,7 +64,7 @@ import org.seasr.meandre.support.sentiment.PathMetricFinder;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
-		description = "This component counts the incoming set of pos tuples " ,
+		description = "This component labels a tuple field value with a concept " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar"}
 )
 public class TokenConceptLabeler  extends AbstractExecutableComponent {
@@ -119,18 +115,18 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
     protected static final String DATA_PROPERTY_CONCEPTS = "concepts";
       
    
-   @ComponentProperty(description = "filename of cache concepts to write/read",
+   @ComponentProperty(description = "filename of cached concepts to use instead of synNet host",
            name = "conceptCacheFile",
            defaultValue = "posConceptCache.csv")
     protected static final String DATA_PROPERTY_CACHE = "conceptCacheFile";
    
-   @ComponentProperty(description = "filename of tokens to ignore",
+   @ComponentProperty(description = "filename of tokens to ignore, words with no concepts",
            name = "ignoreTokensFile",
            defaultValue = "ignore.csv")
     protected static final String DATA_PROPERTY_IGNORE = "ignoreTokensFile";
    
 
-   @ComponentProperty(description = "filename of tokens to remap",
+   @ComponentProperty(description = "filename of tokens to remap, use to change spellings, etc",
            name = "remapFile",
            defaultValue = "remap.csv")
     protected static final String DATA_PROPERTY_WORDMAP = "remapFile";
