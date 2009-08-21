@@ -86,6 +86,16 @@ public class DynamicTuple
 		values[idx] = v;
 	}
 	
+	public void setValue(int idx, int v) 
+	{
+		values[idx] = Integer.toString(v);
+	}
+	
+	public void setValue(int idx, double v) 
+	{
+		values[idx] = Double.toString(v);
+	}
+	
     public void setValue(DynamicTuple copyMe) {
     	int sz = copyMe.peer.size();
     	for (int i = 0; i < sz; i++ ) {
