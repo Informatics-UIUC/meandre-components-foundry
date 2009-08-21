@@ -53,6 +53,7 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 
 /**
@@ -129,7 +130,8 @@ public class InputText extends GenericTemplate {
 	@Override
 	protected boolean processRequest(HttpServletRequest request) throws IOException {
 	    try {
-            componentContext.pushDataComponentToOutput(OUT_TEXT, request.getParameter("context"));
+            componentContext.pushDataComponentToOutput(OUT_TEXT,
+                    BasicDataTypesTools.stringToStrings(request.getParameter("context")));
         }
         catch (ComponentContextException e) {
             throw new IOException(e.toString());
