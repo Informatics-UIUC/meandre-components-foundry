@@ -196,7 +196,7 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
 	 */
 	private boolean pushLocations(File fileLoc) throws Exception {
 		if ( fileLoc.isDirectory() ) {
-            String[] children = fileLoc.list();
+            String[] children  = fileLoc.list();
             for (int i=0; bRecursive && i<children.length ; i++) {
                 boolean success = pushLocations(new File(fileLoc, children[i]));
                 if (!success) {
@@ -205,7 +205,8 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
             }
         }
 		else {
-			String sLoc = fileLoc.toString();
+			String sLoc = fileLoc.toURI().toString();//fileLoc.toString();
+
 			if ( sLoc.matches(sExpression) ) {
 			    console.fine(String.format("Pushing filename %s", sLoc));
 				componentContext.pushDataComponentToOutput(OUT_LOCATION,

@@ -153,7 +153,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _context = VelocityTemplateService.getInstance().getNewContext();
+    	_context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
     }
 
@@ -237,6 +237,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     private String generateHTML(String simileXml, String simileXmlUrl) throws Exception {
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
+
         _context.put("maxYear", maxYear);
         _context.put("minYear", minYear);
         _context.put("simileXmlBase64", new BASE64Encoder().encode(simileXml.getBytes()));
