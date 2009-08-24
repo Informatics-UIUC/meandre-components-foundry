@@ -175,6 +175,7 @@ public class PathMetricFinder {
 			    fields = jo.getJSONObject("fields");
 
 				boolean isSym  = fields.getBoolean("isSymmetric");
+				// pathLength is the same for ALL paths
 				pathLength     = fields.getInt("pathLength");
 				//String csv     = fields.getString("csvPath");
 				if (isSym) symCount++;
@@ -182,7 +183,8 @@ public class PathMetricFinder {
 			metric.setPaths(count, symCount);
 			metric.depthFound = pathLength;
 
-			if (count > 0) {
+			//e.g. with/lovable have count == 1 but pathlength == 0
+			if (count > 0 && pathLength > 0) {
 			   list.add(metric);
 			}
 
