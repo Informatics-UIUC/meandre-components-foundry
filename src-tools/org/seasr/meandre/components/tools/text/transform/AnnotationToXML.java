@@ -192,9 +192,9 @@ public class AnnotationToXML extends AbstractExecutableComponent {
 
         xmlString = "<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>" + xmlString;
 
-        //componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, new StreamInitiator());
+        componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, new StreamInitiator());
         componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, BasicDataTypesTools.stringToStrings(xmlString));
-        //componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, new StreamTerminator());
+        componentContext.pushDataComponentToOutput(OUT_XML_ANNOTATIONS, new StreamTerminator());
 
         _gotInitiator = false;
         _simileDocs.clear();
