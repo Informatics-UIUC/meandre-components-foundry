@@ -134,6 +134,11 @@ public class DynamicTuplePeer  {
 		return fieldNames.length;
 	}
 	
+	public String getFieldNameForIndex(int i)
+	{
+		return fieldNames[i];
+	}
+	
 	
 	public int getIndexForFieldName(String fn)
 	{
