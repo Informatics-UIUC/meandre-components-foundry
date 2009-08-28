@@ -145,25 +145,27 @@ public class StackedAreaViewer extends GenericTemplate {
 	
 	
 	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+	{
 	    super.initializeCallBack(ccp);
+	    
+	    //
+	    // get the swf from jar to public resources
+	    //
+	    String destination = ccp.getPublicResourcesDirectory();
+	    String path = unjarFlashSWF(destination);
 
 	    String url = ccp.getProperty(PROP_DATA_URL).trim();
 	    if (url.length() == 0) {
 	    	throw new RuntimeException(PROP_DATA_URL + " needs to be specified");
 	    }
 	    
-	    context.put(PROP_DATA_URL, url);
-	    context.put(PROP_TITLE, ccp.getProperty(PROP_TITLE));
-	    context.put(PROP_FIELD_X, ccp.getProperty(PROP_FIELD_X));
-	    context.put(PROP_FIELD_Y, ccp.getProperty(PROP_FIELD_Y));
+	    context.put("swf",           path);
+	    context.put(PROP_DATA_URL,   url);
+	    context.put(PROP_TITLE,      ccp.getProperty(PROP_TITLE));
+	    context.put(PROP_FIELD_X,    ccp.getProperty(PROP_FIELD_X));
+	    context.put(PROP_FIELD_Y,    ccp.getProperty(PROP_FIELD_Y));
 	    context.put(PROP_NODE_NAMES, ccp.getProperty(PROP_NODE_NAMES));
-	    
-	    String dir = ccp.getPublicResourcesDirectory();
-	    String path = unjarFlashSWF(dir);
-	    
-	    context.put("swf", path);
-	   
 	}
 
 	@Override
