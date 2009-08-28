@@ -9,6 +9,13 @@
 <img src="public/resources/system/logo-meandre.gif">
 <br/>
 
+
+<!-- TODO
+
+  still need to migrate a few variables from here to the controlling meandre component
+  
+-->
+
 <OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
   codebase="http://macromedia.com/cabs/swflash.cab#version=4,0,0,0"   
   ID=flaMovie WIDTH=600 HEIGHT=400>
