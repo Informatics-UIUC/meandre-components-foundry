@@ -283,6 +283,13 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
             response.getWriter().println(html);
 
         } catch (Exception e) {
+        	
+        	try {
+        		response.getWriter().println("An exception occurred, check the logs<br/>" + e.toString());
+        	}
+        	catch (Exception ee) {
+        	}
+        	
             throw new WebUIException(e);
         }
     }
