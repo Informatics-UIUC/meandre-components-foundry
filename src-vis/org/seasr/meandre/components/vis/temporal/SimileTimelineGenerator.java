@@ -49,6 +49,7 @@ import java.io.Writer;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -237,6 +238,24 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     private String generateHTML(String simileXml, String simileXmlUrl) throws Exception {
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
+
+        int range = maxYear-minYear;
+        int interval;
+        ArrayList<Integer> list = new ArrayList<Integer>();
+
+        if(range<=20)  //for every single year
+        	interval = 1;
+        else  if(range>20 && range<=100) //for every decade
+        	interval = 10;
+        else { //for every century
+        	interval = 100;
+        }
+
+        for(int year=minYear; year<=maxYear; year+=interval)
+    		list.add(new Integer(year));
+
+        _context.put("interval",  (int)Math.ceil((float)range/interval));
+        _context.put("items", list);
 
         _context.put("maxYear", maxYear);
         _context.put("minYear", minYear);

@@ -26,9 +26,34 @@
 	        	child.style.display='none';
         }
 
+		function getViewportWidth() {
+			var viewportwidth;
+ 			var viewportheight;
+
+ 			if (typeof window.innerWidth != 'undefined') {
+      				viewportwidth = window.innerWidth,
+      				viewportheight = window.innerHeight
+ 			} else
+			if (typeof document.documentElement != 'undefined'
+     		    && typeof document.documentElement.clientWidth !='undefined' &&
+				document.documentElement.clientWidth != 0) {
+       				viewportwidth = document.documentElement.clientWidth,
+       				viewportheight = document.documentElement.clientHeight
+ 			} else {
+ 					viewportwidth = document.getElementsByTagName('body')[0].clientWidth,
+       				viewportheight = document.getElementsByTagName('body')[0].clientHeight
+ 			}
+			return viewportwidth;
+		}
+
         var tl;
 
+		var pixels = parseInt(getViewportWidth()/$interval);
+
+        var selection;
+
         function onLoad(view) {
+
         	var band0Unit;
 			var band1Unit;
 			var band2Unit;
@@ -47,6 +72,8 @@
 				fday.setAttribute("color",color);
 				fmonth.setAttribute("color","");
 				fyear.setAttribute("color","");
+
+				selection = "DAY";
 			}
 			if (view == 'MONTH') {
 	    		band0Unit = Timeline.DateTime.MONTH;
@@ -56,6 +83,8 @@
 				fday.setAttribute("color","");
 				fmonth.setAttribute("color",color);
 				fyear.setAttribute("color","");
+
+				selection = "MONTH";
 			}
 			if (view == 'YEAR') {
 	   			band0Unit = Timeline.DateTime.YEAR;
@@ -65,6 +94,8 @@
 				fday.setAttribute("color","");
 				fmonth.setAttribute("color","");
 				fyear.setAttribute("color",color);
+
+				selection = "YEAR";
 			}
 
 	        var eventSource = new Timeline.DefaultEventSource();
@@ -113,7 +144,7 @@
 		            width:          "10%",
 		                            #set ($index = $index + 1)
 		            intervalUnit:   band2Unit, //Timeline.DateTime.${units.get($index)},
-		            intervalPixels: 300 //500
+		            intervalPixels: pixels
 		            })
 	        ];
 
@@ -142,12 +173,15 @@
                    resizeTimerID = null;
                    tl.layout();
                }, 500);
+               pixels = parseInt(getViewportWidth()/$interval);
+           	   onLoad(selection);
            }
+
         }
     </script>
 </head>
 
-<body onload="onLoad('MONTH');" onresize="onResize();">
+<body onload="onLoad('YEAR');" onresize="onResize();">
     <iframe src="data:text/xml;base64,$simileXmlBase64" id="__simileXml" tabIndex='-1'
         style="position:absolute;width:0;height:0;border:0"></iframe>
 
@@ -190,10 +224,8 @@
 		<label>/</label>
 
 		<select id="year">
-			<option selected="yes">$minYear</option>
-			#set ($startYear = $minYear + 1)
-			#foreach ($i in [$startYear..$maxYear])
-            <option>$i</option>
+			#foreach ($item in $items)
+            <option>$item</option>
 			#end
 		</select>
 
