@@ -179,6 +179,8 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
         String webUIUrl = cc.getWebUIUrl(true).toString();
         if (webUIUrl.endsWith("/")) webUIUrl = webUIUrl.substring(0, webUIUrl.length()-1);
         context.put("webUIUrl", webUIUrl);
+        
+        console.info("webUIUrl " + webUIUrl);
 
         done = false;
 
