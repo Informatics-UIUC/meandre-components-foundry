@@ -111,11 +111,25 @@ public class StackedAreaViewer extends GenericTemplate {
 	protected static final String PROP_NODE_NAMES = "nodeNames";
 
 	@ComponentProperty(
-	        description = "data set url",
-	        name = "dataSetUrl",
+	        description = "data url",
+	        name = "dataUrl",
 	        defaultValue = ""
 	)
-	protected static final String PROP_DATA_URL= "dataSetUrl";
+	protected static final String PROP_DATA_URL= "dataUrl";
+	
+	@ComponentProperty(
+	        description = "x axis column",
+	        name = "fieldX",
+	        defaultValue = "windowId"
+	)
+	protected static final String PROP_FIELD_X= "fieldX";
+	
+	@ComponentProperty(
+	        description = "y axis column",
+	        name = "fieldY",
+	        defaultValue = "frequency"
+	)
+	protected static final String PROP_FIELD_Y= "fieldY";
 
 	
 	@ComponentProperty(
@@ -139,9 +153,11 @@ public class StackedAreaViewer extends GenericTemplate {
 	    	throw new RuntimeException(PROP_DATA_URL + " needs to be specified");
 	    }
 	    
-	    context.put("dataUrl", url);
-	    context.put("title", ccp.getProperty(PROP_TITLE));
-	    context.put("nodeNames", ccp.getProperty(PROP_NODE_NAMES));
+	    context.put(PROP_DATA_URL, url);
+	    context.put(PROP_TITLE, ccp.getProperty(PROP_TITLE));
+	    context.put(PROP_FIELD_X, ccp.getProperty(PROP_FIELD_X));
+	    context.put(PROP_FIELD_Y, ccp.getProperty(PROP_FIELD_Y));
+	    context.put(PROP_NODE_NAMES, ccp.getProperty(PROP_NODE_NAMES));
 	    
 	    String dir = ccp.getPublicResourcesDirectory();
 	    String path = unjarFlashSWF(dir);
@@ -184,7 +200,6 @@ public class StackedAreaViewer extends GenericTemplate {
             in = this.getClass().getResourceAsStream(SWF_FILE);
 		    out = new FileOutputStream(dest);
             
-            //copy the input stream to the output stream
             byte[] buf = new byte[4096];
             int len;
             while ((len = in.read(buf)) != -1){

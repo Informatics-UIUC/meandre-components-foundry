@@ -17,8 +17,8 @@
   <PARAM NAME=bgcolor VALUE=#99CC33>
   <EMBED SRC="/public/resources/$swf" 
     FLASHVARS="url=$dataUrl
-            &fieldX=windowId
-            &fieldY=frequency
+            &fieldX=$fieldX
+            &fieldY=$fieldY
             &nodeNameField=concept
             &nodeNames=$nodeNames
             &defaultValue=0
