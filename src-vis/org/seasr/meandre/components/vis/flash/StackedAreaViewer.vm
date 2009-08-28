@@ -7,6 +7,7 @@
 <body>
 
 <img src="public/resources/system/logo-meandre.gif">
+<br/>
 
 <OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
   codebase="http://macromedia.com/cabs/swflash.cab#version=4,0,0,0"   
@@ -15,11 +16,11 @@
   <PARAM NAME=quality VALUE=medium>
   <PARAM NAME=bgcolor VALUE=#99CC33>
   <EMBED SRC="/public/resources/$swf" 
-    FLASHVARS="url=/public/resources/data/tos.csv
+    FLASHVARS="url=$dataUrl
             &fieldX=windowId
             &fieldY=frequency
             &nodeNameField=concept
-            &nodeNames=anger,fear,joy,love,sadness,surprise
+            &nodeNames=$nodeNames
             &defaultValue=0
             &visTitle=$title
             &titleX=Paragraph Number

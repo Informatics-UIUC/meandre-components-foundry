@@ -104,19 +104,20 @@ public class StackedAreaViewer extends GenericTemplate {
 	protected static final String PROP_TITLE = Names.PROP_TITLE;
 
 	@ComponentProperty(
-	        description = "The message to present to the user",
-	        name = Names.PROP_MESSAGE,
-	        defaultValue = "Please input a string"
+	        description = "names for the values",
+	        name = "nodeNames",
+	        defaultValue = "anger,fear,joy,love,sadness,surprise"
 	)
-	protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
+	protected static final String PROP_NODE_NAMES = "nodeNames";
 
 	@ComponentProperty(
-	        description = "Default value to use for the input",
-	        name = Names.PROP_DEFAULT,
+	        description = "data set url",
+	        name = "dataSetUrl",
 	        defaultValue = ""
 	)
-	protected static final String PROP_DEFAULT = Names.PROP_DEFAULT;
+	protected static final String PROP_DATA_URL= "dataSetUrl";
 
+	
 	@ComponentProperty(
 	        description = "The template name",
 	        name = GenericTemplate.PROP_TEMPLATE,
@@ -126,6 +127,37 @@ public class StackedAreaViewer extends GenericTemplate {
 
     //--------------------------------------------------------------------------------------------
 
+
+	
+	
+	@Override
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
+	    String url = ccp.getProperty(PROP_DATA_URL).trim();
+	    if (url.length() == 0) {
+	    	throw new RuntimeException(PROP_DATA_URL + " needs to be specified");
+	    }
+	    
+	    context.put("dataUrl", url);
+	    context.put("title", ccp.getProperty(PROP_TITLE));
+	    context.put("nodeNames", ccp.getProperty(PROP_NODE_NAMES));
+	    
+	    String dir = ccp.getPublicResourcesDirectory();
+	    String path = unjarFlashSWF(dir);
+	    
+	    context.put("swf", path);
+	   
+	}
+
+	@Override
+	protected boolean processRequest(HttpServletRequest request) throws IOException 
+	{   
+	    return true;
+	}
+	
+	
+	
 	protected String unjarFlashSWF(String dir) 
 	{
 	    dir = dir + File.separator + SWF_DIR;
@@ -175,26 +207,4 @@ public class StackedAreaViewer extends GenericTemplate {
 		 return SWF_DIR + File.separator + SWF_FILE;
 	}
 	
-	
-	
-	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    super.initializeCallBack(ccp);
-
-	    context.put("title", ccp.getProperty(PROP_TITLE));
-	    context.put("message", ccp.getProperty(PROP_MESSAGE));
-	    context.put("defaultValue", ccp.getProperty(PROP_DEFAULT));
-	    
-	    String dir = ccp.getPublicResourcesDirectory();
-	    String path = unjarFlashSWF(dir);
-	    
-	    context.put("swf", path);
-	   
-	}
-
-	@Override
-	protected boolean processRequest(HttpServletRequest request) throws IOException 
-	{   
-	    return true;
-	}
 }
