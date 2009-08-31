@@ -32,16 +32,16 @@
 <body>
 
 	<div id="uploader-contents">
-	
+
 	  <form method="POST" enctype="multipart/form-data" class="fl-progressive-enhanceable">
 	   <p>Browse to upload a file.</p>
 	   <input name="fileData" type="file" />
 	   <div><input type="submit" value="Save"/>
 	   </div>
 	  </form>
-	
+
 	  <form class="fl-uploader fl-progressive-enhancer" method="GET" enctype="multipart/form-data">
-	
+
 	   <div class="fl-uploader-queue-wrapper">
 	     <div class="fl-scroller-table-head">
 	       <table cellspacing="0" cellpadding="0" summary="Headers for the file queue.">
@@ -74,11 +74,11 @@
 	            </div>
 	         </div>
 	      </div>
-	
+
 	      <div class="fl-uploader-browse-instructions"> Choose
 	        <em>Browse files</em> to add files to the upload queue
 	      </div>
-	
+
 	      <div class="fl-scroller-table-foot">
 	       <table cellspacing="0" cellpadding="0" summary="Status of file queue.">
 	       <tr>
@@ -93,13 +93,13 @@
 	          <div class="total-progress">&nbsp;</div>
 	     </div>
 	    </div>
-	
+
 	    <div class="fl-uploader-btns">
 	      <button type="button" class="fl-uploader-pause hidden">Stop Upload</button>     <button type="button" class="fl-uploader-upload default dim"
 	        disabled="disabled">Upload</button>
 	    </div>
 	   </form>
-	
+
 	   <div class="fluid-templates">
 	     <table id="fluid-uploader"
 	           summary="Invisible placeholder for Uploader templates.">
@@ -108,35 +108,45 @@
 	     </tr>
 	     </table>
 	   </div>
-	
+
 	</div>
-	
+
 	<script>
-	  	var myUploader = fluid.progressiveEnhanceableUploader(".fl-uploader", ".fl-progressive-enhanceable", { 
-		  uploadManager: { 
+	  	var myUploader = fluid.progressiveEnhanceableUploader(".fl-uploader", ".fl-progressive-enhanceable", {
+		  uploadManager: {
 		    	type: "fluid.swfUploadManager",
-		      	options: { 
+		      	options: {
 		      		flashURL: "${FPath}/flash/swfupload.swf",
-		          	uploadURL: "/$sInstanceId"
+		          	uploadURL: "/$sInstanceId",
+					debug: true
 		        }
 		     },
-		     
-		     decorators: { 
+
+		  listeners: {
+		    	 onFileSuccess: function (file, serverData){
+		    	 	myUploader.container.append('<input type="hidden" name="imageIds" value="' +
+		    	 			serverData + '"/>');
+                 }
+             },
+
+		  decorators: {
 		     	type: "fluid.swfUploadSetupDecorator",
-		        options: { 
-		        	flashButtonImageURL: "${FPath}/images/uploader/browse.png" 
+		        options: {
+		        	flashButtonImageURL: "${FPath}/images/uploader/browse.png"
 		        }
 		     }
 		   }
 	 	);
 	</script>
-	
+
 	<br />
-	<br />
-	
+
 	<div style="margin-left:30px; margin-right:auto; text-align:left;">
 	    <button type="button" onClick="location.href='/$sInstanceId/?done=true'">NEXT</button>
 	</div>
+
+	<br />
+	<br />
 
 </body>
 </html>
