@@ -114,14 +114,6 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 	)
     protected static final String IN_XML = Names.PORT_XML;
 
-	@ComponentInput(
-	        description = "The subdirectory under public resources to " +
-	        		"store HTML and XML files. " +
-	        		"The path name must be specified as subdir1/subdir2/.",
-	        name = Names.PORT_DIRECTORY
-	)
-    protected static final String IN_DIRECTORY = Names.PORT_DIRECTORY;
-
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
@@ -160,9 +152,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	String path = DataTypeParser.parseAsString(
-    			cc.getDataComponentFromInput(IN_DIRECTORY))[0];
-    	path = path.trim();
+    	String path = "simile";
     	if(path.startsWith(delimiter)) //remove the first delimiter
     		path = path.substring(1);
     	if(path.endsWith(delimiter)) //remove the last delimiter
