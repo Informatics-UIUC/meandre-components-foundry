@@ -55,6 +55,7 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Integers;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
@@ -67,6 +68,7 @@ import org.seasr.meandre.support.parsers.DataTypeParser;
  *
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
+ * @author Lily Dong
  */
 @Component(
 		name = "Print To Console",
@@ -127,27 +129,39 @@ public class PrintToConsole extends AbstractExecutableComponent {
 
 		if (data instanceof StringsMap) {
 		    StringsMap sm = (StringsMap)data;
-		    outputConsole.println("--- Strings Map ---");
             for (int i = 0; i < sm.getValueCount(); i++) {
                 String key = sm.getKey(i);
-                Strings values = sm.getValue(i);
+                //Strings values = sm.getValue(i);
 
-                outputConsole.println(String.format("key: \"%s\"%nvalues:%n%s", key, values));
+                String[] values =
+                	BasicDataTypesTools.stringsToStringArray(sm.getValue(i));
+                StringBuffer buf = new StringBuffer();
+                for(int j=0; j<values.length; j++)
+                	buf.append(values[j]).append("\n");
+
+                outputConsole.println(String.format("key:\n%s\nvalues:\n%s", key, buf.toString()));//values));
             }
-            outputConsole.println("-------------------");
 		}
 
 		else
 
 		if (data instanceof IntegersMap) {
 		    IntegersMap im = (IntegersMap)data;
-		    outputConsole.println("--- Integers Map ---");
+
+		    int maxLength = 0;
+			for (int i = 0; i < im.getValueCount(); i++) {
+				String key = im.getKey(i);
+				maxLength = (key.length()>maxLength)? key.length(): maxLength;
+		    }
+
+			String pattern = "%-"+maxLength+"s %s%n";
+		    outputConsole.println(String.format(pattern, "key", "value"));
+		    pattern = "%-"+maxLength+"s %d";
 		    for (int i = 0; i < im.getValueCount(); i++) {
 		        String key = im.getKey(i);
 		        Integers values = im.getValue(i);
-                outputConsole.println(String.format("key: %s%nvalues: %s%n", key, values));
+                outputConsole.println(String.format(pattern,  key, values.getValue(0)));
 		    }
-		    outputConsole.println("--------------------");
 		}
 
 		else {
