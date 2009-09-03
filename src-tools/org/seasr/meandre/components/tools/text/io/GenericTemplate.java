@@ -230,6 +230,7 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
                 // TODO: put the request parameters or a wrapper in the context
                context.put("hasErrors", new Boolean(true));
                generateContent(request, response);
+               console.exiting(getClass().getName(), "handle/hasErrors");
                return;
             }
         } catch(IOException ioe) {
@@ -241,6 +242,7 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
         // releasing the semaphore,
         if (expectMoreRequests(request)) {
             console.finest("Expecting more requests");
+            console.exiting(getClass().getName(), "handle/expecting more requests");
             return;
         }
 
