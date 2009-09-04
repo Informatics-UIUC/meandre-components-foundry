@@ -135,24 +135,30 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		sExpression = ccp.getProperty(PROP_EXPRESSION);
 		bRecursive = Boolean.parseBoolean(ccp.getProperty(PROP_RECURSIVE));
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		for (String sLoc : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION))) {
-    		if ( bWrapped )
-    			pushInitiator(sLoc);
-
-    		pushLocations(new File(sLoc));
+		    File dir = (sLoc.trim().toLowerCase().startsWith("file:/")) ?
+		        new File(DataTypeParser.parseAsURI(sLoc)) : new File(sLoc);
 
     		if ( bWrapped )
-    			pushTerminator(sLoc);
+    			pushInitiator(dir.toURI().toString());
+
+    		pushLocations(dir);
+
+    		if ( bWrapped )
+    			pushTerminator(dir.toURI().toString());
 		}
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         sExpression = null;
         bWrapped = bRecursive = false;
