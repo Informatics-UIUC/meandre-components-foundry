@@ -70,7 +70,8 @@ import org.seasr.meandre.components.tools.text.io.GenericTemplate;
  * 
  * If a flow is used to serve data that will be fetched via a Flash client, then that client
  * will request a crossdomain.xml file.  This component can be used to register the correct 
- * context path and deliver that file.
+ * context path and deliver that file.  Note this is ONLY needed when the data and the client (Flash) 
+ * are served via different domains.
  * 
  */
 
@@ -108,13 +109,12 @@ public class CrossDomainPolicyServer extends GenericTemplate
 	{
 	    super.initializeCallBack(ccp);
 	    
-	    console.info("Service location: " + ccp.getWebUIUrl(true) + ccp.getExecutionInstanceID());
+	    // console.info("Service location: " + ccp.getWebUIUrl(true) + ccp.getExecutionInstanceID());
 	}
    
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException
     {
-    	
-       console.info("request made for crossdomain file");
+    	console.info("request made for crossdomain file");
 	   
 	   super.emptyRequest(response);
 	   
