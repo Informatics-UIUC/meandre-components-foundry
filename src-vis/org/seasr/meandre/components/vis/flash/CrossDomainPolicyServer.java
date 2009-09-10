@@ -108,13 +108,12 @@ public class CrossDomainPolicyServer extends GenericTemplate
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
 	{
 	    super.initializeCallBack(ccp);
-	    
 	    // console.info("Service location: " + ccp.getWebUIUrl(true) + ccp.getExecutionInstanceID());
 	}
    
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException
     {
-    	console.info("request made for crossdomain file");
+       console.info("request made for crossdomain file");
 	   
 	   super.emptyRequest(response);
 	   
