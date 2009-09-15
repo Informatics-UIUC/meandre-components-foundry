@@ -104,8 +104,7 @@ public class AnnotationToXML extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-	        description = "Extracted annotations as XML document." +
-	                      "<br>TYPE: org.w3c.dom.Document",
+	        description = "Extracted annotations as XML document.",
 	        name = Names.PORT_XML
 	)
 	protected static final String OUT_XML_ANNOTATIONS = Names.PORT_XML;
