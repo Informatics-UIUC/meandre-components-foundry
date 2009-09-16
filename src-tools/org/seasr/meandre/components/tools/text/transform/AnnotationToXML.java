@@ -66,8 +66,8 @@ import org.seasr.components.text.datatype.corpora.AnnotationSet;
 import org.seasr.components.text.datatype.corpora.Document;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.io.DOMUtils;
-import org.seasr.meandre.support.text.XMLUtils;
+import org.seasr.meandre.support.generic.io.DOMUtils;
+import org.seasr.meandre.support.generic.text.XMLUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 

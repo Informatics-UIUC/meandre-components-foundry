@@ -54,8 +54,8 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.io.ModelUtils;
-import org.seasr.meandre.support.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.io.ModelUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;

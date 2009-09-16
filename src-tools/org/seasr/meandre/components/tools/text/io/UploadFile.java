@@ -61,8 +61,8 @@ import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.io.JARInstaller;
-import org.seasr.meandre.support.io.JARInstaller.InstallStatus;
+import org.seasr.meandre.support.generic.io.JARInstaller;
+import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;

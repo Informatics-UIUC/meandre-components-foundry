@@ -54,7 +54,7 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 /**
  * @author Lily Dong
@@ -141,7 +141,7 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
 
         if (_mimeType.startsWith("text")) {
             for (String text : DataTypeParser.parseAsString(data)) {
-                String htmlTextFragment = org.seasr.meandre.support.html.HTMLFragmentMaker.makeHtmlTextFragment(text, _id, _css);
+                String htmlTextFragment = org.seasr.meandre.support.generic.html.HTMLFragmentMaker.makeHtmlTextFragment(text, _id, _css);
                 console.fine("Pushing out text fragment: " + htmlTextFragment);
                 cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlTextFragment));
             }
@@ -150,7 +150,7 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
         else
 
         if (_mimeType.startsWith("image")) {
-            String htmlImageFragment = org.seasr.meandre.support.html.HTMLFragmentMaker.makeHtmlImageFragment((byte[])data, _mimeType, _id, _css);
+            String htmlImageFragment = org.seasr.meandre.support.generic.html.HTMLFragmentMaker.makeHtmlImageFragment((byte[])data, _mimeType, _id, _css);
             console.fine("Pushing out image fragment: " + htmlImageFragment);
             cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlImageFragment));
         }

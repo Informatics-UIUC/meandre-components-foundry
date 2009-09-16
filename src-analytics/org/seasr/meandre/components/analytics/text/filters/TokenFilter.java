@@ -68,8 +68,8 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.exceptions.UnsupportedDataTypeException;
-import org.seasr.meandre.support.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeException;
 
 /** This component tokenizes the text contained in the input model using OpenNLP.
  *

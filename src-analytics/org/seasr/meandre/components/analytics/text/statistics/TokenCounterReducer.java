@@ -61,7 +61,7 @@ import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 /**
  * This class reads all the token counts inputed and accumulates the counts

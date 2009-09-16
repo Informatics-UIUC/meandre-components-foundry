@@ -60,9 +60,9 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.io.ModelUtils;
-import org.seasr.meandre.support.parsers.DataTypeParser;
-import org.seasr.meandre.support.zotero.ZoteroUtils;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.io.ModelUtils;
+import org.seasr.meandre.support.generic.zotero.ZoteroUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 

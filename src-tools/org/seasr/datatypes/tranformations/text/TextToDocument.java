@@ -57,7 +57,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.components.text.datatype.corpora.Document;
 import org.seasr.components.text.util.Factory;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 /**
  * @author Boris Capitanu

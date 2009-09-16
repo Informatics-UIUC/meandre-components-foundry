@@ -19,9 +19,9 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.io.IOUtils;
-import org.seasr.meandre.support.io.StreamUtils;
-import org.seasr.meandre.support.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.io.IOUtils;
+import org.seasr.meandre.support.generic.io.StreamUtils;
 
 @Component(
         creator = "Boris Capitanu",

@@ -48,17 +48,17 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -73,10 +73,10 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.html.VelocityTemplateService;
-import org.seasr.meandre.support.io.DOMUtils;
-import org.seasr.meandre.support.io.IOUtils;
-import org.seasr.meandre.support.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.html.VelocityTemplateService;
+import org.seasr.meandre.support.generic.io.DOMUtils;
+import org.seasr.meandre.support.generic.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -101,7 +101,7 @@ import sun.misc.BASE64Encoder;
         tags = "simile, timeline",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/tools/",
-        dependency = {"protobuf-java-2.0.3.jar", "velocity-1.6.1-dep.jar"},
+        dependency = {"protobuf-java-2.0.3.jar"},
         resources = {"SimileTimelineGenerator.vm"}
 )
 public class SimileTimelineGenerator extends AbstractExecutableComponent {

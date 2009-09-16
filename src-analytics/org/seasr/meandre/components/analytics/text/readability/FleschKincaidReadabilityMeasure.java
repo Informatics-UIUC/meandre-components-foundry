@@ -60,9 +60,9 @@ import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.html.VelocityTemplateService;
-import org.seasr.meandre.support.parsers.DataTypeParser;
-import org.seasr.meandre.support.text.analytics.ReadabilityMeasure;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.html.VelocityTemplateService;
+import org.seasr.meandre.support.generic.text.analytics.ReadabilityMeasure;
 
 /**
  * This class implements the Flesch Kincaid Readability measure as explained
@@ -84,7 +84,7 @@ import org.seasr.meandre.support.text.analytics.ReadabilityMeasure;
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
 		baseURL = "meandre://seasr.org/components/zotero/",
-		dependency = {"protobuf-java-2.0.3.jar", "velocity-1.6.1-dep.jar"},
+		dependency = {"protobuf-java-2.0.3.jar"},
 		resources = {"FleschKincaidReadabilityMeasure.vm"}
 )
 public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent {

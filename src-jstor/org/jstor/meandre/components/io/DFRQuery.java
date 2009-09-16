@@ -62,9 +62,9 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.io.DOMUtils;
-import org.seasr.meandre.support.io.IOUtils;
-import org.seasr.meandre.support.jstor.DFRNamespaceContext;
+import org.seasr.meandre.support.generic.io.DOMUtils;
+import org.seasr.meandre.support.generic.io.IOUtils;
+import org.seasr.meandre.support.generic.jstor.DFRNamespaceContext;
 import org.w3c.dom.Document;
 
 /**

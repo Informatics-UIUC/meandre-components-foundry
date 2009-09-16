@@ -57,8 +57,8 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.parsers.DataTypeParser;
-import org.seasr.meandre.support.text.TagCloudImage;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.text.TagCloudImage;
 
 /**
  * @author Lily Dong
@@ -155,7 +155,7 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-	private org.seasr.meandre.support.text.TagCloudImageMaker _tagCloudImageMaker;
+	private org.seasr.meandre.support.generic.text.TagCloudImageMaker _tagCloudImageMaker;
 
 
     //--------------------------------------------------------------------------------------------
@@ -177,7 +177,7 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
         String seedString = ccp.getProperty(PROP_SEED).trim();
         long seed = seedString.equals("") ? System.currentTimeMillis() : Long.parseLong(seedString);
 
-        _tagCloudImageMaker = new org.seasr.meandre.support.text.TagCloudImageMaker(seed,
+        _tagCloudImageMaker = new org.seasr.meandre.support.generic.text.TagCloudImageMaker(seed,
                 canvasWidth, canvasHeight, fontName, fontSizeMin, fontSizeMax, showCounts);
     }
 

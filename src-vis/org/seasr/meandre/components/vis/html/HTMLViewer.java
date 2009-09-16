@@ -42,7 +42,9 @@
 
 package org.seasr.meandre.components.vis.html;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -59,10 +61,10 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.WebUIException;
 import org.meandre.webui.WebUIFragmentCallback;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.html.VelocityTemplateService;
-import org.seasr.meandre.support.parsers.DataTypeParser;
-
-import sun.misc.BASE64Encoder;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.crypto.Crypto;
+import org.seasr.meandre.support.generic.html.VelocityTemplateService;
+import org.seasr.meandre.support.generic.io.IOUtils;
 
 /**
  * @author Loretta Auvil
@@ -77,7 +79,7 @@ import sun.misc.BASE64Encoder;
         mode = Mode.webui,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/",
-        dependency = {"protobuf-java-2.0.3.jar", "velocity-1.6.1-dep.jar"},
+        dependency = {"protobuf-java-2.0.3.jar"},
         resources = {"HTMLViewer.vm"}
 )
 public class HTMLViewer extends AbstractExecutableComponent implements WebUIFragmentCallback {
@@ -132,9 +134,21 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
 
             // Check whether Velocity should be used
             if (_templateName != null) {
+                String fName = Crypto.getHexString(Crypto.createMD5Checksum(_html.getBytes())) + ".html";
+                String baseDir = cc.getPublicResourcesDirectory() + File.separator + "html_viewer";
+                new File(baseDir).mkdirs();
+
+                File htmlFile = new File(baseDir, fName);
+                if (!htmlFile.exists()) {
+                    console.finer("Creating HTML file: " + htmlFile.toString());
+                    Writer writer = IOUtils.getWriterForResource(htmlFile.toURI());
+                    writer.write(_html);
+                    writer.close();
+                } else
+                    console.finer("HTML file already exists - moving on...");
+
                 VelocityTemplateService velocity = VelocityTemplateService.getInstance();
-                _context.put("rawHtml", _html);
-                _context.put("base64Html", new BASE64Encoder().encode(_html.getBytes()));
+                _context.put("htmlLocation", "/public/resources/html_viewer/" + fName);
 
                 console.finest("Applying the Velocity template");
                 _html = velocity.generateOutput(_context, _templateName);
@@ -201,6 +215,11 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
         console.entering(getClass().getName(), "handle", response);
 
+        if (request.getParameterMap().isEmpty())
+            emptyRequest(response);
+
+        else
+
         if (request.getParameter("done") != null) {
             _done = true;
             try {
@@ -210,8 +229,6 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
                 throw new WebUIException(e);
             }
         }
-        else
-            emptyRequest(response);
 
         console.exiting(getClass().getName(), "handle");
     }

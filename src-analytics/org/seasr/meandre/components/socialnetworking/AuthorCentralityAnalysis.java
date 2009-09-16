@@ -58,8 +58,8 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.html.VelocityTemplateService;
-import org.seasr.meandre.support.text.analytics.AnalyticsUtils;
+import org.seasr.meandre.support.generic.html.VelocityTemplateService;
+import org.seasr.meandre.support.generic.text.analytics.AnalyticsUtils;
 
 import edu.uci.ics.jung.algorithms.importance.AbstractRanker;
 import edu.uci.ics.jung.algorithms.importance.NodeRanking;
@@ -85,7 +85,7 @@ import edu.uci.ics.jung.graph.Graph;
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
 		baseURL = "meandre://seasr.org/components/zotero/",
-		dependency = {"protobuf-java-2.0.3.jar", "velocity-1.6.1-dep.jar"},
+		dependency = {"protobuf-java-2.0.3.jar"},
         resources = {"AuthorCentralityAnalysis.vm"}
 )
 public class AuthorCentralityAnalysis extends AbstractExecutableComponent {
@@ -150,14 +150,16 @@ public class AuthorCentralityAnalysis extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    _template = ccp.getProperty(PROP_TEMPLATE);
 
         _context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
+    @SuppressWarnings("unchecked")
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		List<Vector<String>> listAuthors =
 		    (List<Vector<String>>) cc.getDataComponentFromInput(IN_AUTHOR_LIST);
@@ -176,7 +178,8 @@ public class AuthorCentralityAnalysis extends AbstractExecutableComponent {
 		        BasicDataTypesTools.stringToStrings(generateReport(rankings)));
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
     //--------------------------------------------------------------------------------------------

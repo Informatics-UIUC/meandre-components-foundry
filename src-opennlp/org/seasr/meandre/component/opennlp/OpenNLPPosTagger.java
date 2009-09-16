@@ -67,10 +67,10 @@ import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 
-import org.seasr.meandre.support.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.tuples.DynamicTuple;
+import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 
-import org.seasr.meandre.support.tuples.DynamicTuplePeer;
-import org.seasr.meandre.support.tuples.DynamicTuple;
 
 
 /**

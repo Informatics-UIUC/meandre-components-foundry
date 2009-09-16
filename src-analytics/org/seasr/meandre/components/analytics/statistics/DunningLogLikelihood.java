@@ -61,7 +61,7 @@ import org.monkproject.utils.corpuslinguistics.Frequency;
 import org.monkproject.utils.math.ArithUtils;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 
 /**

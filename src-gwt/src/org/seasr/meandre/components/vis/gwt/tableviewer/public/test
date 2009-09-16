@@ -1,0 +1,24 @@
+{
+    response: {
+       status: 0,
+       startRow: 0,
+       endRow: 3,
+       totalRows: 3,
+       data: [
+            {
+                "col1": 2.3,
+                "col2": "Yahoo"
+            },
+
+            {
+                "col1": 1.2,
+                "col2": "Google"
+            },
+
+            {
+                "col1": 2.321,
+                "col2": "Microsoft"
+            }
+       ]
+    }
+}

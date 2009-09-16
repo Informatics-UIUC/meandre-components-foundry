@@ -52,17 +52,11 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-
-
-
 import org.seasr.meandre.components.tools.text.io.GenericTemplate;
 
 
@@ -78,16 +72,15 @@ import org.seasr.meandre.components.tools.text.io.GenericTemplate;
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/",
-        dependency = { "velocity-1.6.1-dep.jar" },
         resources = { "StackedAreaViewer.vm", "StackedAreaViewer.swf"}
 )
 
 public class StackedAreaViewer extends GenericTemplate {
-	
+
     // the swf file will be unjar'ed and written to public_resources/SWF_DIR/SWF_FILE
 	protected static String SWF_DIR = "flash";
 	protected static String SWF_FILE = "StackedAreaViewer.swf";
-	
+
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -116,14 +109,14 @@ public class StackedAreaViewer extends GenericTemplate {
 	        defaultValue = ""
 	)
 	protected static final String PROP_DATA_URL= "dataUrl";
-	
+
 	@ComponentProperty(
 	        description = "x axis column",
 	        name = "fieldX",
 	        defaultValue = "windowId"
 	)
 	protected static final String PROP_FIELD_X= "fieldX";
-	
+
 	@ComponentProperty(
 	        description = "y axis column",
 	        name = "fieldY",
@@ -131,7 +124,7 @@ public class StackedAreaViewer extends GenericTemplate {
 	)
 	protected static final String PROP_FIELD_Y= "fieldY";
 
-	
+
 	@ComponentProperty(
 	        description = "The template name",
 	        name = GenericTemplate.PROP_TEMPLATE,
@@ -142,13 +135,13 @@ public class StackedAreaViewer extends GenericTemplate {
     //--------------------------------------------------------------------------------------------
 
 
-	
-	
+
+
 	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception
 	{
 	    super.initializeCallBack(ccp);
-	    
+
 	    //
 	    // get the swf from jar to public resources
 	    //
@@ -159,7 +152,7 @@ public class StackedAreaViewer extends GenericTemplate {
 	    if (url.length() == 0) {
 	    	throw new RuntimeException(PROP_DATA_URL + " needs to be specified");
 	    }
-	    
+
 	    context.put("swf",           path);
 	    context.put(PROP_DATA_URL,   url);
 	    context.put(PROP_TITLE,      ccp.getProperty(PROP_TITLE));
@@ -169,59 +162,59 @@ public class StackedAreaViewer extends GenericTemplate {
 	}
 
 	@Override
-	protected boolean processRequest(HttpServletRequest request) throws IOException 
-	{   
+	protected boolean processRequest(HttpServletRequest request) throws IOException
+	{
 	    return true;
 	}
-	
-	
-	
-	protected String unjarFlashSWF(String dir) 
+
+
+
+	protected String unjarFlashSWF(String dir)
 	{
 	    dir = dir + File.separator + SWF_DIR;
-	    
+
 	    File swfDir = new File(dir);
 	    if (! swfDir.exists()) {
-	    	
+
 	    	if (! swfDir.mkdir() ) {
 	    		String msg = "Unable to create " + dir;
 	    		console.info(msg);
 	    		throw new RuntimeException(msg);
 	    	}
-	    	
+
 	    }
-	    
+
 	    // unjar the swf and write to dir + SWF_FILE
 	    String dest = dir + File.separator + SWF_FILE;
 	    console.info("Writing " + dest);
-	    
+
 	    InputStream  in = null;
 	    OutputStream out = null;
-	    
+
 	    try{
             in = this.getClass().getResourceAsStream(SWF_FILE);
 		    out = new FileOutputStream(dest);
-            
+
             byte[] buf = new byte[4096];
             int len;
             while ((len = in.read(buf)) != -1){
                 out.write(buf, 0, len);
             }
-            
+
 		 }catch (IOException e){
 			 throw new RuntimeException(e);
 		 }
 		 finally {
-			 
+
 			 try {
 				 in.close();
 		         out.close();
 			 }
 			 catch (Exception ignore){}
 		 }
-		 
-		 
+
+
 		 return SWF_DIR + File.separator + SWF_FILE;
 	}
-	
+
 }

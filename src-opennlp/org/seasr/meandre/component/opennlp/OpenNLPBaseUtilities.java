@@ -50,8 +50,8 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.io.JARInstaller;
-import org.seasr.meandre.support.io.JARInstaller.InstallStatus;
+import org.seasr.meandre.support.generic.io.JARInstaller;
+import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 /**
  * Provides basic utilities for the OpenNLP components.

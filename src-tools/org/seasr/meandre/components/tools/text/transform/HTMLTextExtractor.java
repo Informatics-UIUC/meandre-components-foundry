@@ -51,9 +51,9 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.io.DOMUtils;
-import org.seasr.meandre.support.parsers.DataTypeParser;
-import org.seasr.meandre.support.text.HTMLUtils;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.io.DOMUtils;
+import org.seasr.meandre.support.generic.text.HTMLUtils;
 import org.w3c.dom.Document;
 
 /**

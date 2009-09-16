@@ -61,7 +61,7 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.WebUIException;
 import org.meandre.webui.WebUIFragmentCallback;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.html.VelocityTemplateService;
+import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
 /**
  * template loading notes:

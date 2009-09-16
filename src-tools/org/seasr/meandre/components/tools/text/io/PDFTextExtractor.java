@@ -15,9 +15,9 @@ import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.io.StreamUtils;
-import org.seasr.meandre.support.parsers.DataTypeParser;
-import org.seasr.meandre.support.text.PDFUtils;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.io.StreamUtils;
+import org.seasr.meandre.support.generic.text.PDFUtils;
 
 /**
  * This class provides methods related to text extraction from PDF files

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-    Generic Build script for a Meandre Components repository. 
+<!--
+    Generic Build script for a Meandre Components repository.
 
     This build.xml provides targets useful in dealing with a repository of
     Meandre Components. These targets do things like generating rdf descriptors
@@ -14,17 +14,17 @@
     ======================
     REPOSITORY SPECIFIC INFO
     ======================
-    These are the only properties that should vary from repository to 
+    These are the only properties that should vary from repository to
     repository.
     -->
 
     <!-- used in jar file name, error messages, etc. -->
     <property name="project.name" value="foundry"/>
 
-    <!-- 
+    <!--
     =================================
     ENVIRONMENT CHECKS
-    ==================================== 
+    ====================================
     -->
 
     <!-- Check whether Java 1.5+ is being used -->
@@ -35,7 +35,7 @@
         </or>
     </condition>
 
-    <!-- Check whether Ant 1.7 is being used. 1.7 is needed for junit4 
+    <!-- Check whether Ant 1.7 is being used. 1.7 is needed for junit4
     support (junit4 allows annotations to declare test cases). -->
     <condition property="using.ant.1.7">
         <contains string="${ant.version}" substring="1.7"/>
@@ -46,10 +46,10 @@
     <fail message="This package requires at least Java 5. Please set JAVA_HOME to point to where JDK 1.5 or higher is installed."
           unless="using.java.1.5"/>
 
-    <!-- 
+    <!--
     =================================
     DIRECTORY STRUCTURE DEFINITION
-    ==================================== 
+    ====================================
     -->
 
     <!-- Project structure -->
@@ -58,6 +58,9 @@
     <property name="build.dir" value="${basedir}/build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="dist.dir" value="${basedir}/dist"/>
+	<property name="gwt.base.dir" value="${basedir}/src-gwt"/>
+	<property name="gwt.src.dir" value="${gwt.base.dir}/src"/>
+	<property name="gwt.modules.list" value="org.seasr.meandre.components.vis.gwt.helloworld.HelloWorld,org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer"/>
 
 
     <!-- Default settings for the 'upload-components' task -->
@@ -74,12 +77,12 @@
     <property name="test.output.dir" value="${test.root.dir}/output"/>
 
     <!-- Generated JAR location -->
-    <property name="components.jar.file" value="${project.name}-components.jar"/>    
+    <property name="components.jar.file" value="${project.name}-components.jar"/>
 
-    
+
     <!-- Code locations -->
     <path id="src.code.dirs">
-        <dirset dir="${basedir}" includes="src-*" excludes="src-test"/>
+        <dirset dir="${basedir}" includes="src-*" excludes="src-test, src-gwt"/>
     </path>
 
     <!-- Test locations -->
@@ -91,7 +94,7 @@
     =================
     WIKI UPLOAD PROPERTIES
     =================
-    -->  
+    -->
     <!-- Confluence settings (for update-wiki task) -->
     <!-- These need to be handled differently - they should probably be set in $HOME/.SEASR/WikiCreateComponentPages.conf or specified via command line -->
     <!--
@@ -99,6 +102,12 @@
     <property name="confluence.space" value="seasrD"/>
     <property name="confluence.title" value="Available Components"/>
     -->
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+	  <classpath>
+	    <pathelement location="${lib.dir}/ant-contrib.jar"/>
+	  </classpath>
+	</taskdef>
 
 
     <!--
@@ -117,8 +126,8 @@
         <path refid="classpath.build"/>
         <pathelement path="${java.class.path}"/>
         <fileset dir="${dist.dir}" includes="*.jar"/>
-    </path>   
-     
+    </path>
+
     <!-- Runtime class path for component installer (alpha)-->
     <path id="classpath.devkit">
         <path refid="classpath.build"/>
@@ -126,7 +135,16 @@
         <path location="${classes.dir}"/>
         <pathelement path="${java.class.path}"/>
         <fileset dir="${dist.dir}" includes="*.jar"/>
-    </path>   
+    </path>
+
+	<!-- GWT class path -->
+	<path id="gwt.class.path">
+	    <pathelement location="${gwt.base.dir}/war/WEB-INF/classes"/>
+	    <pathelement location="${lib.dir}/gwt-user.jar"/>
+	    <fileset dir="${lib.dir}" includes="gwt-dev*.jar"/>
+	    <!-- Add any additional non-server libs (such as JUnit) -->
+	    <fileset dir="${gwt.base.dir}/war/WEB-INF/lib" includes="**/*.jar"/>
+	</path>
 
     <!--
     =================
@@ -147,7 +165,13 @@
         <mkdir dir="${test.classes.dir}"/>
         <mkdir dir="${test.logs.dir}"/>
         <mkdir dir="${test.output.dir}"/>
-    </target>    
+    </target>
+
+	<target name="init-gwt">
+	    <mkdir dir="${gwt.base.dir}/war/WEB-INF/lib" />
+	    <copy todir="${gwt.base.dir}/war/WEB-INF/lib" file="${lib.dir}/gwt-servlet.jar" />
+	    <!-- Add any additional server libs that need to be copied -->
+	</target>
 
     <!--
         Performs cleanup
@@ -194,6 +218,38 @@
 				-->
         </copy>
     </target>
+
+	<target name="compile-gwt" depends="init-gwt" description="-> compiles the GWT code">
+		<mkdir dir="${gwt.base.dir}/war/WEB-INF/classes"/>
+	    <javac srcdir="${gwt.src.dir}" includes="**" encoding="utf-8"
+	        destdir="${gwt.base.dir}/war/WEB-INF/classes"
+	        source="1.5" target="1.5" nowarn="true"
+	        debug="true" debuglevel="lines,vars,source">
+	      <classpath refid="gwt.class.path"/>
+	    </javac>
+	    <copy todir="${gwt.base.dir}/war/WEB-INF/classes">
+	      <fileset dir="${gwt.base.dir}/src" excludes="**/*.java"/>
+	    </copy>
+
+		<foreach list="${gwt.modules.list}" target="gwtc" param="gwtmodule"/>
+	</target>
+
+	<target name="gwtc">
+		<delete dir="${gwt.base.dir}/war/${gwtmodule}"/>
+	    <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+	        <classpath>
+	            <pathelement location="${gwt.base.dir}/src"/>
+	            <path refid="gwt.class.path"/>
+	        </classpath>
+	        <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
+	        <jvmarg value="-Xmx256M"/>
+	        <jvmarg value="-XstartOnFirstThread"/>
+	        <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+	    	<arg line="-war ${gwt.base.dir}/war"/>
+	        <arg value="${gwtmodule}"/>
+	    </java>
+		<jar destfile="${lib.dir}/${gwtmodule}.jar" basedir="${gwt.base.dir}/war/${gwtmodule}"/>
+	</target>
 
     <!--
         Packages all components into one jar file
@@ -269,7 +325,7 @@
             </fileset>
             <report format="noframes" todir="${test.root.dir}"/>
         </junitreport>
-        <echo message="Report generated at: 
+        <echo message="Report generated at:
             file://${test.root.dir}/junit-noframes.html"/>
     </target>
 
@@ -282,7 +338,7 @@
 
 
     <!--
-      installs all components (descriptors and java contexts) to a 
+      installs all components (descriptors and java contexts) to a
       meandre-infrastructure server
     -->
     <target name="upload-components"
@@ -342,8 +398,8 @@
         </java>
     </target>
 
-    <!-- 
-        CLOVER targets 
+    <!--
+        CLOVER targets
     -->
     <target name="check.clover">
         <taskdef resource="cloverlib.xml"/>

@@ -2,11 +2,11 @@
 <html>
 <head></head>
 <body>
-    <iframe id="htmlFrame" src="data:text/html;base64,$base64Html" width="100%" frameborder="1" marginheight="0" marginwidth="0">
+    <iframe id="htmlFrame" src="$htmlLocation" width="100%" frameborder="1" marginheight="0" marginwidth="0">
         Your browser does not support frames!
     </iframe>
 
-    <br />
+    <br>
 
     <div style="margin-left:auto; margin-right:auto; text-align:center;">
         <button type="button" onClick="location.href='/$ccp.getExecutionInstanceID()/?done=true'">DONE</button>
