@@ -70,6 +70,14 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
  *
  */
 
+/* 
+ * NOTES  USE TokenizerME instead of the english one
+   model = new SuffixSensitiveGISModelReader(new File(name))).getModel());
+   setAlphaNumericOptimization(true);
+*
+*/
+
+
 @Component(
 		name = "OpenNLP Sentence Tokenizer",
 		creator = "Xavier Llora",

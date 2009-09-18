@@ -68,6 +68,11 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
  *
  */
 
+//
+// NOTE: this needs to be changed to use SentenceDetctorME 
+// and NOT lang.english.SentenceDetctor
+// model = SuffixSensitiveGISModelReader(new File(modelName))).getModel())
+
 @Component(
 		name = "OpenNLP Sentence Detector",
 		creator = "Xavier Llora",
@@ -122,13 +127,20 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
+		/*
+		String rawText = (String) cc.getDataComponentFromInput(IN_TEXT);
+		console.info("Converting " + rawText);
+		*/
+		
 		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 		StringBuilder sb = new StringBuilder();
 
 		for (String text : inputs)
 		    sb.append(text).append(" ");
-
+		
+		console.finer("sentence conversion start");
 		String[] sa = sdetector.sentDetect(sb.toString());
+		console.finer("sentence conversion finish");
 		cc.pushDataComponentToOutput(OUT_SENTENCES, BasicDataTypesTools.stringToStrings(sa));
 	}
 

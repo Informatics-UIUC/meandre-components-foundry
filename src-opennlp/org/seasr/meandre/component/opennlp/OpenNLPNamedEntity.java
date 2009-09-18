@@ -1,3 +1,5 @@
+package org.seasr.meandre.component.opennlp;
+
 /**
 *
 * University of Illinois/NCSA
@@ -40,19 +42,21 @@
 *
 */
 
-package org.seasr.meandre.component.opennlp;
+
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 
-import opennlp.tools.lang.english.PosTagger;
-import opennlp.tools.postag.POSDictionary;
-import opennlp.tools.dictionary.Dictionary;
+
+
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.maxent.io.BinaryGISModelReader;
+import opennlp.tools.util.Span;
+
+
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -69,10 +73,10 @@ import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 
+
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.tuples.DynamicTuple;
 import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
-
 
 
 /**
@@ -87,7 +91,7 @@ import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 //
 
 @Component(
-		name = "OpenNLP POS Tagger",
+		name = "OpenNLP Named Entity",
 		creator = "Mike Haberman",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -98,7 +102,7 @@ import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 				      "unsing OpenNLP pos facilities.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar", "maxent-models.jar"}
 )
-public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
+public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -134,11 +138,12 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 	//--------------------------------------------------------------------------------------------
 
 
-	/** The OpenNLP tokenizer to use */
-	private PosTagger tagger = null;
 	Pattern pattern = null;
    
-
+	// money, percentage, time
+	String[] finderTypes = {"person", "location", "date", "organization"};
+	
+    NameFinderME[] finders = null;
 
 	//--------------------------------------------------------------------------------------------
 
@@ -153,53 +158,23 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 		}
 
 		try {
-			// from maxent-models.jar
-			String tagPath          = // e.g.  /opennlp/models/English/parser/tag.bin.gz
-			    sOpenNLPDir + "parser" + File.separator+"tag.bin.gz";
-
-			String dictionaryPath    = // e.g. /opennlp/models/English/parser/dict.bin.gz
-				sOpenNLPDir + "parser"+ File.separator+"dict.bin.gz";
-
-			String tagDictionaryPath = // e.g. /opennlp/models/English/parser/tagdict
-				sOpenNLPDir + "parser"+ File.separator+"tagdict";
-
-			File tagFile     = new File(tagPath);
-			File dictFile    = new File(dictionaryPath);
-			File tagDictFile = new File(tagDictionaryPath);
-
-			if (! tagFile.canRead()) {
-				console.severe("Failed to open tag file for " + tagPath);
-				throw new ComponentExecutionException();
-			}
 			
-			if (! tagDictFile.canRead()) {
-				console.severe("Failed to open tag dictionary model for " + tagDictionaryPath);
-				throw new ComponentExecutionException();
+			finders = new NameFinderME[finderTypes.length];
+			for (int i = 0; i < finderTypes.length; i++) {
+				String tagPath          = // e.g.  /opennlp/models/English/namefind/location.bin.gz
+				    sOpenNLPDir + "namefind" + File.separator + finderTypes[i] + ".bin.gz";
+				File tagFile     = new File(tagPath);
+				if (! tagFile.canRead()) {
+					console.severe("Failed to open tag file for " + tagPath);
+					throw new ComponentExecutionException();
+				}
+				
+				console.info("loading model " + finderTypes[i]);
+				BinaryGISModelReader reader = new BinaryGISModelReader(tagFile);
+				NameFinderME finder = new NameFinderME(reader.getModel());
+				finders[i] = finder;
+				
 			}
-			
-			/*
-			if (! dictFile.canRead()) {
-				console.severe("Failed to open dictionary model for " + dictionaryPath);
-				throw new ComponentExecutionException();
-			}
-			InputStream dIs  = new FileInputStream(dictFile);
-			*/
-
-
-			/*  NEW WAY, untested */
-			
-			tagger = new PosTagger(tagPath,
-					               // new Dictionary(dIs),
-					               new POSDictionary(tagDictionaryPath, true));
-
-		   
-
-			/* OLD WAY  using the ngram Dictionary (which no longer exists)
-			tagger = new PosTagger(tagPath,
-					               new Dictionary(dictionaryPath),
-					               new POSDictionary(tagDictionaryPath, true));
-		     */
-
 		}
 		catch ( Throwable t ) {
 			console.severe("Failed to open tokenizer model for " + sLanguage);
@@ -224,7 +199,13 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
 	{
-
+		
+		int POS_IDX         = tuple.getPeer().getIndexForFieldName(POS_FIELD);
+		int SENTENCE_ID_IDX = tuple.getPeer().getIndexForFieldName(SENTENCE_ID_FIELD);
+		int TOKEN_START_IDX = tuple.getPeer().getIndexForFieldName(TOKEN_START_FIELD);
+		int TOKEN_IDX       = tuple.getPeer().getIndexForFieldName(TOKEN_FIELD);
+		
+		
 		List<String> output = new ArrayList<String>();
 
 
@@ -237,64 +218,66 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 		//
 		StringsMap input = (StringsMap) cc.getDataComponentFromInput(IN_TOKENS);
 
-        int globalOffset = 0;
 		int count = input.getKeyCount();
 		console.fine("processing " + count);
+		int globalOffset = 0;
 
-		int POS_IDX         = tuple.getPeer().getIndexForFieldName(POS_FIELD);
-		int SENTENCE_ID_IDX = tuple.getPeer().getIndexForFieldName(SENTENCE_ID_FIELD);
-		int TOKEN_START_IDX = tuple.getPeer().getIndexForFieldName(TOKEN_START_FIELD);
-		int TOKEN_IDX       = tuple.getPeer().getIndexForFieldName(TOKEN_FIELD);
-		
+		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < count; i++) {
 			String key    = input.getKey(i);    // this is the entire sentence
 			Strings value = input.getValue(i);  // this is the set of tokens for that sentence
 
 			String[] tokens = DataTypeParser.parseAsString(value);
-			String[] tags   = tagger.tag(tokens);
-
-			int withinSentenceOffset = 0;
-			for (int j = 0; j < tags.length; j++) {
-
-				if ( pattern == null || pattern.matcher(tags[j]).matches())
-				{
-				   // find where the token is in the sentence
-				   int tokenStart = key.indexOf(tokens[j], withinSentenceOffset);
-				   // add in the global offset
-				   tokenStart += globalOffset;
-
-				   
-				   tuple.setValue(POS_IDX, tags[j]);
-				   tuple.setValue(SENTENCE_ID_IDX, i);
-				   tuple.setValue(TOKEN_START_IDX, tokenStart);
-				   tuple.setValue(TOKEN_IDX, tokens[j]);
-				   String result = tuple.toString();
-				   
-				   //
-				   // we have a choice at this point:
-				   // we can push out each result
-				   // or we can collect all the results
-				   // and push out an array of results
-				   //
-				   // console.fine("pos pushing tuple " + result);
-            
-				   output.add(result);
-
-					/*
-					cc.pushDataComponentToOutput(OUT_POS_TUPLE,  // note a SINGLE tuple
-							BasicDataTypesTools.stringToStrings(result));
-							// you would need to push the meta data as well here
+			// console.info("Tokens " + tokens.length + " .. " + tokens[0]);
+			
+			for (int j = 0; j < finders.length; j++) {
+				
+				String type = finderTypes[j];
+				Span[] span = finders[j].find(tokens);
+				
+				
+				for (int k = 0; k < span.length; k++) {
+					int s = span[k].getStart();
+					int e = span[k].getEnd();
+					
+					String first = tokens[s];
+					String last = first;
+					if (e != s) {
+				       last = tokens[e-1];
+					}					
+					int beginIndex = key.indexOf(first);
+					// always go from where the first token was found
+					int endIndex   = key.indexOf(last, beginIndex) + last.length();
+					String textSpan = key.substring(beginIndex, endIndex);
+					textSpan = textSpan.replace("\n", " ").trim();
+					
+					
+					sb.setLength(0);
+					sb.append(type).append(",");
+					sb.append(beginIndex + globalOffset).append(",");
+					sb.append(endIndex + globalOffset).append(",");
+					sb.append(textSpan);
+					console.info(sb.toString());
+					
+					
+					/* 
+					 // another way to derive text span
+					sb.setLength(0);
+					sb.append(type).append(":");
+					sb.append(textSpan).append(":");
+					for (int ti = s; ti < e; ti++) {
+						sb.append(tokens[ti]);
+						if (ti + 1 < e)sb.append(" ");
+					}
+					sb.append(":");
+					console.info(sb.toString());
 					*/
-
+					
 				}
-
-				withinSentenceOffset += tokens[j].length();
-
 			}
-			// add the key's length, not the offset
-			// since the key will contain white space
-			// we need a true index
 			globalOffset += key.length();
+			
+			
 		}
 
 		// push the whole collection, protocol safe
@@ -315,6 +298,5 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         super.disposeCallBack(ccp);
-        this.tagger = null;
     }
 }
