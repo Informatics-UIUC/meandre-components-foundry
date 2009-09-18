@@ -48,16 +48,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
-import java.util.regex.Pattern;
-
-
 
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.maxent.io.BinaryGISModelReader;
 import opennlp.tools.util.Span;
-
-
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -81,14 +76,14 @@ import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 
 
 /**
- * This component perform POS tagging on the text passed using OpenNLP.
+ * This component perform Named Entity Extraction via OpenNLP.
  *
  * @author Mike Haberman;
  *
  */
 
 //
-// General Path:  Text -> SentenceDetector -> SentenceTokenizer -> PosTagger
+// General Path:  Text -> SentenceDetector -> SentenceTokenizer -> NETagger
 //
 
 @Component(
@@ -100,7 +95,7 @@ import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 		rights = Licenses.UofINCSA,
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
 		description = "This component tags the incoming set of tokenized sentences " +
-				      "unsing OpenNLP pos facilities.",
+				      "unsing OpenNLP named entity facilities.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar", "maxent-models.jar"}
 )
 public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
