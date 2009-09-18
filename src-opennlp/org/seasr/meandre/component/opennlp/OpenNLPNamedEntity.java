@@ -47,6 +47,7 @@ package org.seasr.meandre.component.opennlp;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 import java.util.regex.Pattern;
 
 
@@ -196,6 +197,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 	public static final String TOKEN_START_FIELD = "tokenStart";
 	public static final String TOKEN_FIELD       = "token";
 
+	@SuppressWarnings("unchecked")
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
 	{
@@ -222,7 +224,8 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		console.fine("processing " + count);
 		int globalOffset = 0;
 
-		StringBuffer sb = new StringBuffer();
+		List<NEData> list = new ArrayList<NEData>();
+		
 		for (int i = 0; i < count; i++) {
 			String key    = input.getKey(i);    // this is the entire sentence
 			Strings value = input.getValue(i);  // this is the set of tokens for that sentence
@@ -230,6 +233,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			String[] tokens = DataTypeParser.parseAsString(value);
 			// console.info("Tokens " + tokens.length + " .. " + tokens[0]);
 			
+			list.clear();
 			for (int j = 0; j < finders.length; j++) {
 				
 				String type = finderTypes[j];
@@ -252,29 +256,43 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 					textSpan = textSpan.replace("\n", " ").trim();
 					
 					
-					sb.setLength(0);
-					sb.append(type).append(",");
-					sb.append(beginIndex + globalOffset).append(",");
-					sb.append(endIndex + globalOffset).append(",");
-					sb.append(textSpan);
-					console.info(sb.toString());
+					NEData data = new NEData();
+					data.beginIdx   = beginIndex + globalOffset;
+					data.endIdx     = endIndex + globalOffset;
+					data.sentenceId = i;
+					data.span       = textSpan;
+					data.type       = type;
+					
+					list.add(data);
 					
 					
 					/* 
 					 // another way to derive text span
-					sb.setLength(0);
-					sb.append(type).append(":");
-					sb.append(textSpan).append(":");
+					 // but needs to be smarter about 
+					 // processing punctuation, spaces, etc
+					StringBuffer sb = new StringBuffer();
 					for (int ti = s; ti < e; ti++) {
 						sb.append(tokens[ti]);
 						if (ti + 1 < e)sb.append(" ");
 					}
-					sb.append(":");
 					console.info(sb.toString());
 					*/
 					
 				}
 			}
+			
+			
+			//
+			// at this point, sort all the tuples based
+			// on their beginIndex
+			// then add them to the output
+			Collections.sort(list);
+			for (NEData d : list) {
+				console.info(d.toString());
+			}
+			
+			
+			
 			globalOffset += key.length();
 			
 			
@@ -299,4 +317,31 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         super.disposeCallBack(ccp);
     }
+    
+    
+    class NEData extends Object implements Comparable {
+    	
+    	public int sentenceId;
+    	public int beginIdx;
+    	public int endIdx;
+    	public String span;
+    	public String type;
+    	
+    	public String toString() {
+    		StringBuffer sb = new StringBuffer();
+			sb.append(sentenceId).append(",");
+			sb.append(type).append(",");
+			sb.append(beginIdx).append(",");
+			sb.append(endIdx).append(",");
+			sb.append(span);
+			return sb.toString();
+    	}
+    	
+    	public int compareTo(Object obj) {
+    		NEData b = (NEData)obj;
+    		return this.beginIdx - b.beginIdx;
+    	}
+    	
+    }
+    
 }
