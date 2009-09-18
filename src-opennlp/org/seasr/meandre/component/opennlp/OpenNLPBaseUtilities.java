@@ -58,8 +58,21 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
  *
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
- *
+ * @author Mike Haberman
  */
+
+ /*  
+  *  NOTES:
+  *  this class will unjar the maxent-models.jar file IFF it exists
+  *  in the <public resources directory>/contexts/java/ directory
+  *  if openNLPdir is set, it is assumed that it has already been unjared in that location
+  *  Note:  as a potential improvement, we could pull the maxent-models.jar file from
+  *  the classpath, copy it to public resources, and then unjar
+  *  
+  *  TODO:  if openNLPdir/maxent-models.jar exists BUT it has not been unjarred there,
+  *  we should unjar it.
+  *  
+  */
 public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
