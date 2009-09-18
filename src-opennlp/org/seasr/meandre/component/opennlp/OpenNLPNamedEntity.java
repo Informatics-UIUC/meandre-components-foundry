@@ -130,16 +130,14 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
 	@ComponentProperty(
-			name = Names.PROP_FILTER_REGEX,
-			description = "optional regular expression to inline filter POS (e.g. JJ|RB)",
-		    defaultValue = ""
+			name = "NETypes",
+			description = "Named Entties types (e.g person,location,data)",
+		    defaultValue = "person,location,date,organization"
 		)
-	protected static final String PROP_POS_FILTER_REGEX = Names.PROP_FILTER_REGEX;
+	protected static final String PROP_NE_TYPES = "NETypes";
 
 	//--------------------------------------------------------------------------------------------
 
-
-	Pattern pattern = null;
    
 	// money, percentage, time
 	String[] finderTypes = {"person", "location", "date", "organization"};
@@ -153,10 +151,9 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 		super.initializeCallBack(ccp);
 
-		String regex = ccp.getProperty(PROP_POS_FILTER_REGEX).trim();
-		if (regex.length() > 0) {
-			pattern = Pattern.compile(regex);
-		}
+		String types = ccp.getProperty(PROP_NE_TYPES).trim();
+		// TODO parse this and replace finderTypes
+		//
 
 		try {
 			
@@ -184,7 +181,8 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 		
 		String[] fields = 
-			new String[] {POS_FIELD, SENTENCE_ID_FIELD, TOKEN_START_FIELD, TOKEN_FIELD};
+			new String[] {SENTENCE_ID_FIELD, TYPE_FIELD,
+				          TEXT_START_FIELD, TEXT_END_FIELD, TEXT_FIELD};
 		
 		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
 		tuple = inPeer.createTuple();
@@ -192,20 +190,22 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 	}
 		
 	DynamicTuple tuple;
-	public static final String POS_FIELD         = "pos";
+	public static final String TYPE_FIELD        = "type";
 	public static final String SENTENCE_ID_FIELD = "sentenceId";
-	public static final String TOKEN_START_FIELD = "tokenStart";
-	public static final String TOKEN_FIELD       = "token";
+	public static final String TEXT_START_FIELD  = "textStart";
+	public static final String TEXT_END_FIELD    = "textEnd";
+	public static final String TEXT_FIELD        = "text";
 
 	@SuppressWarnings("unchecked")
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
 	{
 		
-		int POS_IDX         = tuple.getPeer().getIndexForFieldName(POS_FIELD);
+		int TYPE_IDX        = tuple.getPeer().getIndexForFieldName(TYPE_FIELD);
 		int SENTENCE_ID_IDX = tuple.getPeer().getIndexForFieldName(SENTENCE_ID_FIELD);
-		int TOKEN_START_IDX = tuple.getPeer().getIndexForFieldName(TOKEN_START_FIELD);
-		int TOKEN_IDX       = tuple.getPeer().getIndexForFieldName(TOKEN_FIELD);
+		int TEXT_START_IDX  = tuple.getPeer().getIndexForFieldName(TEXT_START_FIELD);
+		int TEXT_END_IDX    = tuple.getPeer().getIndexForFieldName(TEXT_END_FIELD);
+		int TEXT_IDX        = tuple.getPeer().getIndexForFieldName(TEXT_FIELD);
 		
 		
 		List<String> output = new ArrayList<String>();
@@ -258,7 +258,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 					
 					NEData data = new NEData();
 					data.beginIdx   = beginIndex + globalOffset;
-					data.endIdx     = endIndex + globalOffset;
+					data.endIdx     = endIndex   + globalOffset;
 					data.sentenceId = i;
 					data.span       = textSpan;
 					data.type       = type;
@@ -289,6 +289,15 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			Collections.sort(list);
 			for (NEData d : list) {
 				console.info(d.toString());
+				
+				/*
+				tuple.setValue(POS_IDX, d.type);
+				tuple.setValue(SENTENCE_ID_IDX, d.sentenceId);
+				tuple.setValue(TOKEN_START_IDX, d.beginIdx);
+				tuple.setValue(TOKEN_IDX, d.span);
+				String result = tuple.toString();
+				output.add(result);
+				*/
 			}
 			
 			
