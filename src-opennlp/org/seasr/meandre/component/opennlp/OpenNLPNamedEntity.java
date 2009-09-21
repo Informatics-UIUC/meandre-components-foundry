@@ -46,6 +46,7 @@ package org.seasr.meandre.component.opennlp;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Collections;
 
@@ -93,7 +94,7 @@ import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
+		tags = "semantic, tools, text, opennlp, tokenizer, sentences, tagging",
 		description = "This component tags the incoming set of tokenized sentences " +
 				      "unsing OpenNLP named entity facilities.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar", "maxent-models.jar"}
@@ -112,13 +113,13 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples: (pos,sentenceId,offset,token)"
+			description = "set of tuples: (sentenceId,type,textStart,textEnd,text)"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples: (pos,sentenceId,offset,token)"
+			description = "meta data for tuples: (sentenceId,type,textStart,textEnd,text)"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
@@ -126,7 +127,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	@ComponentProperty(
 			name = "NETypes",
-			description = "Named Entties types (e.g person,location,data)",
+			description = "Named Entties types (e.g person,location,date)",
 		    defaultValue = "person,location,date,organization"
 		)
 	protected static final String PROP_NE_TYPES = "NETypes";
@@ -174,38 +175,43 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			throw new ComponentExecutionException(t);
 		}
 
-		
+		//
+		// build the tuple (output) data
+		//
 		String[] fields = 
 			new String[] {SENTENCE_ID_FIELD, TYPE_FIELD,
 				          TEXT_START_FIELD, TEXT_END_FIELD, TEXT_FIELD};
 		
-		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
-		tuple = inPeer.createTuple();
+		tuplePeer = new DynamicTuplePeer(fields);
+		
+		TYPE_IDX        = tuplePeer.getIndexForFieldName(TYPE_FIELD);
+		SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
+		TEXT_START_IDX  = tuplePeer.getIndexForFieldName(TEXT_START_FIELD);
+		TEXT_END_IDX    = tuplePeer.getIndexForFieldName(TEXT_END_FIELD);
+		TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
+		
 		
 	}
 		
-	DynamicTuple tuple;
+	DynamicTuplePeer tuplePeer;
 	public static final String TYPE_FIELD        = "type";
 	public static final String SENTENCE_ID_FIELD = "sentenceId";
 	public static final String TEXT_START_FIELD  = "textStart";
 	public static final String TEXT_END_FIELD    = "textEnd";
 	public static final String TEXT_FIELD        = "text";
+	
+	int TYPE_IDX        ;
+	int SENTENCE_ID_IDX ;
+	int TEXT_START_IDX  ;
+	int TEXT_END_IDX    ;
+	int TEXT_IDX        ;
 
 	@SuppressWarnings("unchecked")
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
 	{
-		
-		int TYPE_IDX        = tuple.getPeer().getIndexForFieldName(TYPE_FIELD);
-		int SENTENCE_ID_IDX = tuple.getPeer().getIndexForFieldName(SENTENCE_ID_FIELD);
-		int TEXT_START_IDX  = tuple.getPeer().getIndexForFieldName(TEXT_START_FIELD);
-		int TEXT_END_IDX    = tuple.getPeer().getIndexForFieldName(TEXT_END_FIELD);
-		int TEXT_IDX        = tuple.getPeer().getIndexForFieldName(TEXT_FIELD);
-		
-		
 		List<String> output = new ArrayList<String>();
-
-
+		
 		// input was encoded via :
 		// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
 		//
@@ -219,7 +225,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		console.fine("processing " + count);
 		int globalOffset = 0;
 
-		List<NEData> list = new ArrayList<NEData>();
+		List<DynamicTuple> list = new ArrayList<DynamicTuple>();
 		
 		for (int i = 0; i < count; i++) {
 			String key    = input.getKey(i);    // this is the entire sentence
@@ -251,14 +257,14 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 					textSpan = textSpan.replace("\n", " ").trim();
 					
 					
-					NEData data = new NEData();
-					data.beginIdx   = beginIndex + globalOffset;
-					data.endIdx     = endIndex   + globalOffset;
-					data.sentenceId = i;
-					data.span       = textSpan;
-					data.type       = type;
+					DynamicTuple tuple = tuplePeer.createTuple();
+					tuple.setValue(TYPE_IDX, type);
+					tuple.setValue(SENTENCE_ID_IDX, i);
+					tuple.setValue(TEXT_START_IDX, beginIndex + globalOffset);
+					tuple.setValue(TEXT_END_IDX, endIndex + globalOffset);
+					tuple.setValue(TEXT_IDX, textSpan);
 					
-					list.add(data);
+					list.add(tuple);
 					
 					
 					/* 
@@ -281,21 +287,22 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			// at this point, sort all the tuples based
 			// on their beginIndex
 			// then add them to the output
-			Collections.sort(list);
-			for (NEData d : list) {
-				console.info(d.toString());
+			Collections.sort(list, new Comparator() {
 				
-				/*
-				tuple.setValue(POS_IDX, d.type);
-				tuple.setValue(SENTENCE_ID_IDX, d.sentenceId);
-				tuple.setValue(TOKEN_START_IDX, d.beginIdx);
-				tuple.setValue(TOKEN_IDX, d.span);
-				String result = tuple.toString();
-				output.add(result);
-				*/
+				       public int compare(Object a, Object b) {
+				    	   DynamicTuple at = (DynamicTuple)a;
+				    	   DynamicTuple bt = (DynamicTuple)b;
+				    	   int v = Integer.parseInt(at.getValue(TEXT_START_IDX));
+				    	   int u = Integer.parseInt(bt.getValue(TEXT_START_IDX));
+				    	   return v-u;
+				       }
+				       
+					}
+             );
+			
+			for (DynamicTuple t:list) {
+				output.add(t.toString());
 			}
-			
-			
 			
 			globalOffset += key.length();
 			
@@ -313,7 +320,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		// metaData for this tuple producer
 		//
 	    Strings metaData;
-		metaData = BasicDataTypesTools.stringToStrings(tuple.getPeer().getFieldNames());
+		metaData = BasicDataTypesTools.stringToStrings(tuplePeer.getFieldNames());
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
 	}
 
@@ -323,29 +330,5 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     }
     
     
-    class NEData extends Object implements Comparable {
-    	
-    	public int sentenceId;
-    	public int beginIdx;
-    	public int endIdx;
-    	public String span;
-    	public String type;
-    	
-    	public String toString() {
-    		StringBuffer sb = new StringBuffer();
-			sb.append(sentenceId).append(",");
-			sb.append(type).append(",");
-			sb.append(beginIdx).append(",");
-			sb.append(endIdx).append(",");
-			sb.append(span);
-			return sb.toString();
-    	}
-    	
-    	public int compareTo(Object obj) {
-    		NEData b = (NEData)obj;
-    		return this.beginIdx - b.beginIdx;
-    	}
-    	
-    }
     
 }
