@@ -43,6 +43,7 @@
 package org.seasr.meandre.support.generic.html;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.seasr.meandre.support.generic.encoding.Base64;
 
 /**
  *
@@ -86,7 +87,7 @@ public abstract class HTMLFragmentMaker {
      * @return The HTML img fragment
      */
     public static String makeHtmlImageFragment(byte[] imageRaw, String mimeType, String id, String css) {
-        String imgBase64 = new sun.misc.BASE64Encoder().encode(imageRaw);
+        String imgBase64 = new String(Base64.encode(imageRaw));
         StringBuilder sb = new StringBuilder();
         sb.append("<img");
         if (id != null)

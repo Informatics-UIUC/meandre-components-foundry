@@ -64,12 +64,11 @@ import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.encoding.Base64;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.seasr.meandre.support.generic.io.IOUtils;
 import org.w3c.dom.Document;
-
-import sun.misc.BASE64Encoder;
 
 /**
  * @author Lily Dong
@@ -246,7 +245,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
         _context.put("maxYear", maxYear);
         _context.put("minYear", minYear);
-        _context.put("simileXmlBase64", new BASE64Encoder().encode(simileXml.getBytes()));
+        _context.put("simileXmlBase64", Base64.encodeString(simileXml));
         _context.put("simileXmlUrl", simileXmlUrl);
 
         return velocity.generateOutput(_context, simileVelocityTemplate);

@@ -197,6 +197,7 @@
                destdir="${classes.dir}">
             <src refid="src.code.dirs"/>
             <classpath refid="classpath.build"/>
+            <!-- <compilerarg value="-Xlint:deprecation"/> -->
         </javac>
 
         <!-- include other files that should be available to runtime classpath-->
