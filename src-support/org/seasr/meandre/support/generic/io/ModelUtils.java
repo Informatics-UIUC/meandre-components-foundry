@@ -235,4 +235,15 @@ public abstract class ModelUtils {
 
        return sbBuffer.toString();
    }
+
+   /**
+    * Get an InputStream for a Model
+    *
+    * @param model The model
+    * @param dialect The dialect
+    * @return The InputStream for reading from the model
+    */
+   public static InputStream getInputStreamForModel(Model model, String dialect) {
+       return new ByteArrayInputStream(modelToDialect(model, dialect).getBytes());
+   }
 }
