@@ -52,6 +52,8 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypes;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
@@ -170,6 +172,9 @@ public class Stem extends AbstractExecutableComponent {
 
 		for (String sToken : tokens ) {
 			String stem = _stemmer.normalizeTerm(sToken);
+
+			console.info("--> " + sToken);
+
 			res.addValue(stem);
 		}
 
@@ -200,5 +205,19 @@ public class Stem extends AbstractExecutableComponent {
 		}
 
 		componentContext.pushDataComponentToOutput(OUT_OBJECT, res.build());
+	}
+
+	@Override
+	protected void handleStreamInitiators() throws Exception {
+		StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(
+				IN_OBJECT );
+	    componentContext.pushDataComponentToOutput(OUT_OBJECT, si);
+	}
+
+	@Override
+	protected void handleStreamTerminators() throws Exception {
+		StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(
+				IN_OBJECT);
+	    componentContext.pushDataComponentToOutput(OUT_OBJECT, st);
 	}
 }
