@@ -173,8 +173,6 @@ public class Stem extends AbstractExecutableComponent {
 		for (String sToken : tokens ) {
 			String stem = _stemmer.normalizeTerm(sToken);
 
-			console.info("--> " + sToken);
-
 			res.addValue(stem);
 		}
 
