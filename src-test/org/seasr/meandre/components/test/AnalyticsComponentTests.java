@@ -46,11 +46,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.meandre.components.test.framework.ComponentTesterBase;
+import org.seasr.meandre.support.generic.io.IOUtils;
 
 /** The base class for performing component testing.
  *
@@ -101,7 +105,7 @@ public class AnalyticsComponentTests {
 
 	/** Test token counter on a sample text and then convert the text to text.  */
 	@Test
-	public void testFileterdTokenCounterToText() {
+	public void testFilteredTokenCounterToText() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
@@ -116,7 +120,7 @@ public class AnalyticsComponentTests {
 
 	/** Test token counter on a sample text and then convert the text to text.  */
 	@Test
-	public void testFileterdAfterTokenCounterToText() {
+	public void testFilteredAfterTokenCounterToText() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
@@ -125,33 +129,28 @@ public class AnalyticsComponentTests {
 		String [] sa = out.toString().split(ComponentTesterBase.NEW_LINE);
 		assertEquals(9,sa.length);
 		assertTrue(sa[0].startsWith("Available token counts in the model (ordered by count)"));
-		assertTrue(sa[8].startsWith(",: 1"));
+		assertTrue(sa[7].startsWith(",: 1"));
 	}
 
-	/** Test tokenized sentences on a sample text and then convert the text to text.  */
+	/** Test tokenized sentences on a sample text and then convert the text to text. */
 	@Test
-	public void testFileterdTokenizedSentencesToText() {
+	public void testFilteredTokenizedSentencesToText() throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
 		ctb.runZigZag(ctb.getZigZag("text-sentence-tokenizer-with-filter.zz"),out,err);
 
-		String [] sa = out.toString().split(ComponentTesterBase.NEW_LINE);
-		assertEquals(18,sa.length);
-		assertTrue(sa[0].startsWith("key"));
-		assertTrue(sa[1].startsWith("key"));
-		assertTrue(sa[2].startsWith("key"));
-		assertTrue(sa[3].startsWith("value {"));
-		assertTrue(sa[4].startsWith("}"));
-		assertTrue(sa[5].startsWith("value {"));
-		assertTrue(sa[9].startsWith("}"));
-		assertTrue(sa[10].startsWith("value {"));
-		assertTrue(sa[17].startsWith("}"));
+		String expected = IOUtils.getTextFromReader(new FileReader(
+		        "test/flows/analytics/text-sentence-tokenizer-with-filter.zz.out".replaceAll("/", File.separator)))
+		        .replaceAll("\r|\n", "");
+		String actual = out.toString().replaceAll("\r|\n", "");
+
+		assertEquals(expected, actual);
 	}
 
 	/** Test tokenized sentences and HITS summarization.  */
 	@Test
-	public void testFileterdTokenizedSentencesAndHits() {
+	public void testFilteredTokenizedSentencesAndHits() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 

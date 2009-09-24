@@ -46,6 +46,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.URI;
 
 import org.seasr.meandre.components.tools.ModelVocabulary;
@@ -150,15 +152,15 @@ public abstract class ModelUtils {
         String uri = (baseURI.length == 1) ? baseURI[0] : null;
 
         try {
-            model.read(sModel, uri, "RDF/XML");
+            model.read(new StringReader(sModel), uri, "RDF/XML");
         }
         catch (Exception eRDF) {
             try {
-                model.read(sModel, uri, "TTL");
+                model.read(new StringReader(sModel), uri, "TTL");
             }
             catch (Exception eTTL) {
                 try {
-                    model.read(sModel, uri, "N-TRIPLE");
+                    model.read(new StringReader(sModel), uri, "N-TRIPLE");
                 }
                 catch (Exception eNT) {
                     IOException ioe = new IOException("Cannot read model in any dialect!");
@@ -180,29 +182,7 @@ public abstract class ModelUtils {
     public static void readModelFromStream(Model model, InputStream modelStream, String... baseURI)
         throws IOException {
 
-        if (baseURI.length > 1)
-            throw new IllegalArgumentException("baseURI can only be specified once");
-
-        String uri = (baseURI != null && baseURI.length == 1) ? baseURI[0] : null;
-
-        try {
-            model.read(modelStream, uri, "RDF/XML");
-        }
-        catch (Exception eRDF) {
-            try {
-                model.read(modelStream, uri, "TTL");
-            }
-            catch (Exception eTTL) {
-                try {
-                    model.read(modelStream, uri, "N-TRIPLE");
-                }
-                catch (Exception eNT) {
-                    IOException ioe = new IOException("Cannot read model in any dialect!");
-                    ioe.setStackTrace(eRDF.getStackTrace());
-                    throw ioe;
-                }
-            }
-        }
+        readModelFromString(model, IOUtils.getTextFromReader(new InputStreamReader(modelStream)), baseURI);
     }
 
    /**

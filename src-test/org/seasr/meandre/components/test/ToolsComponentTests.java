@@ -229,7 +229,7 @@ public class ToolsComponentTests {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
-		ctb.runZigZag(ctb.getZigZag("read-write-xml-to-text-multiple.zz"),out,err);
+		ctb.runZigZag(ctb.getZigZag("read-write-XML-to-text-multiple.zz"),out,err);
 
 		try {
 			StringBuffer sb = new StringBuffer();

@@ -44,12 +44,14 @@ package org.seasr.meandre.component.opennlp;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URL;
 
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.generic.io.ClasspathUtils;
 import org.seasr.meandre.support.generic.io.JARInstaller;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
@@ -61,17 +63,17 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
  * @author Mike Haberman
  */
 
- /*  
+ /*
   *  NOTES:
   *  this class will unjar the maxent-models.jar file IFF it exists
   *  in the <public resources directory>/contexts/java/ directory
   *  if openNLPdir is set, it is assumed that it has already been unjared in that location
   *  Note:  as a potential improvement, we could pull the maxent-models.jar file from
   *  the classpath, copy it to public resources, and then unjar
-  *  
+  *
   *  TODO:  if openNLPdir/maxent-models.jar exists BUT it has not been unjarred there,
   *  we should unjar it.
-  *  
+  *
   */
 public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 
@@ -106,19 +108,22 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 
+	    File modelsJar = null;
+	    URL modelsDepURL = ClasspathUtils.findDependencyInClasspath("maxent-models.jar", getClass());
+	    if (modelsDepURL != null)
+	        modelsJar = new File(modelsDepURL.toURI());
+
 		this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
 
 		sOpenNLPDir = ccp.getProperty(PROP_OPENNLP_DIR).trim();
 		if (sOpenNLPDir.length() == 0)
 		    sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
 
-		File modelsJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
-		        "contexts" + File.separator + "java" + File.separator + "maxent-models.jar");
-		if (!modelsJar.exists())
+		if (modelsJar == null || !modelsJar.exists())
 		    modelsJar = new File(sOpenNLPDir + File.separator + "maxent-models.jar");
 
 		if (!modelsJar.exists())
-		    throw new ComponentContextException("Could not find dependency: " + modelsJar.toString());
+		    throw new ComponentContextException("Could not find maxent-models.jar");
 
 		console.fine("Installing " + sLanguage + " models from: " + modelsJar.toString());
 
@@ -134,6 +139,7 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 		sOpenNLPDir += (sOpenNLPDir.endsWith(File.separator) ? "" : File.separator) + "models" + File.separator
 		                + sLanguage.substring(0,1).toUpperCase() + sLanguage.substring(1) + File.separator;
 	}
+
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

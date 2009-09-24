@@ -46,11 +46,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.meandre.components.test.framework.ComponentTesterBase;
+import org.seasr.meandre.support.generic.io.IOUtils;
 
 /** The base class for performing component testing.
  *
@@ -115,24 +119,19 @@ public class OpenNLPComponentTests {
 	}
 
 
-	/** Test the sentence detection on dummy text components. */
+	/** Test the sentence detection on dummy text components.  */
 	@Test
-	public void testSentenceTokenizer() {
+	public void testSentenceTokenizer() throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
 		ctb.runZigZag(ctb.getZigZag("text-sentence-tokenizer.zz"),out,err);
 
-		String [] sa = out.toString().split(ComponentTesterBase.NEW_LINE);
-		assertTrue(sa.length==38);
-		assertTrue(sa[0].startsWith("key"));
-		assertTrue(sa[1].startsWith("key"));
-		assertTrue(sa[2].startsWith("key"));
-		assertTrue(sa[3].startsWith("value {"));
-		assertTrue(sa[20].startsWith("}"));
-		assertTrue(sa[21].startsWith("value {"));
-		assertTrue(sa[27].startsWith("}"));
-		assertTrue(sa[28].startsWith("value {"));
-		assertTrue(sa[37].startsWith("}"));
+		String expected = IOUtils.getTextFromReader(new FileReader(
+                "test/flows/opennlp/text-sentence-tokenizer.zz.out".replaceAll("/", File.separator)))
+                .replaceAll("\r|\n", "");
+        String actual = out.toString().replaceAll("\r|\n", "");
+
+        assertEquals(expected, actual);
 	}
 }
