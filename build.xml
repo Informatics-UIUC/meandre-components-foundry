@@ -54,6 +54,7 @@
 
     <!-- Project structure -->
     <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="lib.gwt.dir" value="${lib.dir}/gwt"/>
     <property name="lib.devkit.dir" value="${basedir}/devkit"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
@@ -140,8 +141,8 @@
 	<!-- GWT class path -->
 	<path id="gwt.class.path">
 	    <pathelement location="${gwt.base.dir}/war/WEB-INF/classes"/>
-	    <pathelement location="${lib.dir}/gwt-user.jar"/>
-	    <fileset dir="${lib.dir}" includes="gwt-dev*.jar"/>
+	    <pathelement location="${lib.gwt.dir}/gwt-user.jar"/>
+	    <fileset dir="${lib.gwt.dir}" includes="gwt-dev*.jar"/>
 	    <!-- Add any additional non-server libs (such as JUnit) -->
 	    <fileset dir="${gwt.base.dir}/war/WEB-INF/lib" includes="**/*.jar"/>
 	</path>
@@ -169,7 +170,7 @@
 
 	<target name="init-gwt">
 	    <mkdir dir="${gwt.base.dir}/war/WEB-INF/lib" />
-	    <copy todir="${gwt.base.dir}/war/WEB-INF/lib" file="${lib.dir}/gwt-servlet.jar" />
+	    <copy todir="${gwt.base.dir}/war/WEB-INF/lib" file="${lib.gwt.dir}/gwt-servlet.jar" />
 	    <!-- Add any additional server libs that need to be copied -->
 	</target>
 
