@@ -73,7 +73,7 @@
 
     <!-- JUnit elements -->
     <property name="test.classes.dir" value="${build.dir}/classes-test/"/>
-    <property name="test.root.dir" value="${basedir}/test/"/>
+    <property name="test.root.dir" value="${basedir}/test"/>
     <property name="test.logs.dir" value="${test.root.dir}/log"/>
     <property name="test.output.dir" value="${test.root.dir}/output"/>
 
