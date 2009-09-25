@@ -94,6 +94,8 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
 	 */
 	Map<String, String> map;
 
+	private boolean _gotInitiator;
+
 	// ================
 	// Public Methods
 	// ================
@@ -101,6 +103,7 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
 	public void initializeCallBack(ComponentContextProperties ccp)
     throws Exception {
 		map = new HashMap<String, String>();
+		_gotInitiator = false;
 	}
 
 	public void disposeCallBack(ComponentContextProperties ccp)
@@ -136,14 +139,36 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
         	} else
         		map.put(key, theValue);
         }
+
+        if (!_gotInitiator) {
+        	org.seasr.datatypes.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
+            Set<String> set = map.keySet();
+            for (String s : set ) {
+            	org.seasr.datatypes.BasicDataTypes.Strings.Builder sres = BasicDataTypes.Strings.newBuilder();
+            	sres.addValue(map.get(s));
+            	mres.addKey(s);
+    			mres.addValue(sres.build());
+            }
+
+            componentContext.pushDataComponentToOutput(OUT_WORDS, mres.build());
+
+            map.clear();
+        }
 	}
 
 	@Override
 	protected void handleStreamInitiators() throws Exception {
+		if (_gotInitiator)
+	            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
+
+		_gotInitiator = true;
 	}
 
 	@Override
 	protected void handleStreamTerminators() throws Exception {
+		if (!_gotInitiator)
+	            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
+
 		org.seasr.datatypes.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
         Set<String> set = map.keySet();
         for (String s : set ) {
@@ -156,5 +181,8 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_WORDS, new StreamInitiator());
         componentContext.pushDataComponentToOutput(OUT_WORDS, mres.build());
         componentContext.pushDataComponentToOutput(OUT_WORDS, new StreamTerminator());
+
+        map.clear();
+        _gotInitiator = false;
 	}
 }
