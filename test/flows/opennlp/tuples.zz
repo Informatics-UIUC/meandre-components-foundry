@@ -1,0 +1,60 @@
+
+#
+# this flow reads Tom Sawyer from project Gutenberg, does Named Entity extraction (using OpenNLP 
+# and filters out only locations
+#
+
+
+import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/sentiment/URLToTuple.rdf>
+alias <meandre://seasr.org/components/tools/url-to-tuple> as Reader
+
+import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/sentiment/TupleLogger.rdf>
+alias <meandre://seasr.org/components/tools/tuple-logger> as Printer
+
+import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPSentenceDetector.rdf>
+alias <meandre://seasr.org/components/tools/opennlp-sentence-detector> as Sentence
+
+import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPSentenceTokenizer.rdf>
+alias <meandre://seasr.org/components/tools/opennlp-sentence-tokenizer> as Tokens
+
+import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPNamedEntity.rdf>
+alias <meandre://seasr.org/components/tools/opennlp-named-entity> as Ne
+
+import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/sentiment/TupleFilter.rdf>
+alias <meandre://seasr.org/components/tools/tuple-value-filter> as Filter
+
+
+reader    = Reader()
+sentence  = Sentence()
+tokens    = Tokens()
+ne        = Ne()
+printer   = Printer()
+filter    = Filter()
+
+
+reader.title    = "Tom Sawyer"
+reader.location = "file:///tmp/file.txt"
+reader.location = "http://www.gutenberg.org/files/74/74.txt"
+
+ne.NETypes = "location,person,time,organization,money,date"
+
+
+sentence.openNLPdir = "/tmp/opennlp"
+tokens.openNLPdir   = "/tmp/opennlp"
+ne.openNLPdir       = "/tmp/opennlp"
+
+
+filter.tupleFilterField = "type"
+filter.filter_regex     = "location"
+
+
+
+@iReader  = reader()
+@iSentence  = sentence(text:iReader.text)
+
+
+@iTokens    = tokens(sentences:iSentence.sentences)
+@iNe        = ne(tokens:iTokens.tokenized_sentences)
+@iFilter    = filter(tuples:iNe.tuples meta_tuple:iNe.meta_tuple)
+@iPrinter   = printer(tuples:iFilter.tuples meta_tuple:iFilter.meta_tuple)
+

@@ -1,0 +1,47 @@
+
+#
+# this flow does part of speech tagging using OpenNLP
+#
+
+import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/tools/basic/PushText.rdf>
+alias <meandre://seasr.org/components/tools/push-text> as Push
+
+import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/sentiment/TupleLogger.rdf>
+alias <meandre://seasr.org/components/tools/tuple-logger> as Printer
+
+import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPSentenceDetector.rdf>
+alias <meandre://seasr.org/components/tools/opennlp-sentence-detector> as Sentence
+
+import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPSentenceTokenizer.rdf>
+alias <meandre://seasr.org/components/tools/opennlp-sentence-tokenizer> as Tokens
+
+import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPPosTagger.rdf>
+alias <meandre://seasr.org/components/tools/opennlp-pos-tagger> as Pos
+
+
+push      = Push()
+sentence  = Sentence()
+tokens    = Tokens()
+pos       = Pos()
+printer   = Printer()
+
+
+push.message    = "Mike was enjoying his walk last Friday night at 10:00 pm in Copenhagen. However, around midnight he saw Hans Christian Anderson, a member of the Ugly Duckling Foundation, asking for $2.00 (two dollars) so he could take the bus to the city centre."
+
+
+sentence.openNLPdir = "/tmp/opennlp"
+tokens.openNLPdir   = "/tmp/opennlp"
+pos.openNLPdir      = "/tmp/opennlp"
+
+pos.filter_regex    = "RB|JJ|JJR|JJS|NN|NNS|NNP|NNPS"
+
+
+# openNLP
+@iPush  = push()
+@iSentence  = sentence(text:iPush.text)
+
+@iTokens    = tokens(sentences:iSentence.sentences)
+@iPos       = pos(tokens:iTokens.tokenized_sentences)
+@iPrinter   = printer(tuples:iPos.tuples meta_tuple:iPos.meta_tuple)
+
+
