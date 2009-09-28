@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Collections;
+import java.util.StringTokenizer;
 
 
 import opennlp.tools.namefind.NameFinderME;
@@ -147,9 +148,17 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 		super.initializeCallBack(ccp);
 
+		
+		// parse up the Named Entity types
 		String types = ccp.getProperty(PROP_NE_TYPES).trim();
-		// TODO parse this and replace finderTypes
-		//
+		StringTokenizer tokens = new StringTokenizer(types,",");
+		int count = tokens.countTokens();
+		finderTypes = new String[count];
+		for (int i = 0; i < count; i++) {
+			finderTypes[i] = tokens.nextToken();
+			console.info("added type " + finderTypes[i]);
+		}
+		
 
 		try {
 			
