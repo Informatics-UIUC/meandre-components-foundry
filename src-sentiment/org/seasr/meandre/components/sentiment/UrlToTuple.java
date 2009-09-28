@@ -71,20 +71,20 @@ public class UrlToTuple extends AbstractExecutableComponent {
 	
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "tuples"
+			description = "tuples (one tuple: title, location, content/text)"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 	
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuple"
+			description = "meta data for the tuple (title, location, content)"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 	
 	
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "text of the tuple field"
+			description = "text from the URL fetch, for convenience.  Same as the other input."
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 	
