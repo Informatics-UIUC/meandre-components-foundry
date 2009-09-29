@@ -1,26 +1,26 @@
 
 #
-# this flow reads Tom Sawyer from project Gutenberg, does Named Entity extraction (using OpenNLP 
+# this flow reads Tom Sawyer from project Gutenberg, does Named Entity extraction (using OpenNLP
 # and filters out only locations
 #
 
 
-import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/sentiment/URLToTuple.rdf>
+#import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/sentiment/URLToTuple.rdf>
 alias <meandre://seasr.org/components/tools/url-to-tuple> as Reader
 
-import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/sentiment/TupleLogger.rdf>
+#import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/sentiment/TupleLogger.rdf>
 alias <meandre://seasr.org/components/tools/tuple-logger> as Printer
 
-import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPSentenceDetector.rdf>
+#import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPSentenceDetector.rdf>
 alias <meandre://seasr.org/components/tools/opennlp-sentence-detector> as Sentence
 
-import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPSentenceTokenizer.rdf>
+#import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPSentenceTokenizer.rdf>
 alias <meandre://seasr.org/components/tools/opennlp-sentence-tokenizer> as Tokens
 
-import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPNamedEntity.rdf>
+#import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPNamedEntity.rdf>
 alias <meandre://seasr.org/components/tools/opennlp-named-entity> as Ne
 
-import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/sentiment/TupleFilter.rdf>
+#import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/sentiment/TupleFilter.rdf>
 alias <meandre://seasr.org/components/tools/tuple-value-filter> as Filter
 
 

@@ -74,7 +74,7 @@ public class OpenNLPComponentTests {
 		ctb.setFlowsFolder("./test/flows/opennlp");
 		ctb.setTempDescriptorFolder("./tmp");
 		ctb.setTempDescriptorFolder("./tmp/desc/opennlp");
-		ctb.setSourceFolders(new String [] { "./src-opennlp", "./src-tools"} );
+		ctb.setSourceFolders(new String [] { "./src-opennlp", "./src-tools", "./src-sentiment"} );
 		ctb.initialize();
 	}
 

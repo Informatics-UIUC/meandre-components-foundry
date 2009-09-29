@@ -129,7 +129,7 @@ public class AnalyticsComponentTests {
 		String [] sa = out.toString().split(ComponentTesterBase.NEW_LINE);
 		assertEquals(9,sa.length);
 		assertTrue(sa[0].startsWith("Available token counts in the model (ordered by count)"));
-		assertTrue(sa[7].startsWith(",: 1"));
+		assertTrue(sa[8].startsWith(",: 1"));
 	}
 
 	/** Test tokenized sentences on a sample text and then convert the text to text. */

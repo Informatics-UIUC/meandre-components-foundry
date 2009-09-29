@@ -103,7 +103,7 @@ public class ToolsComponentTests {
 		ctb.runZigZag(ctb.getZigZag("component-tester-base.zz"),out,err);
 
 		assertEquals(1,out.toString().split(ComponentTesterBase.NEW_LINE).length);
-		assertEquals(3,err.toString().split(ComponentTesterBase.NEW_LINE).length);
+		assertTrue(err.toString().split(ComponentTesterBase.NEW_LINE).length>=2);
 
 		assertEquals(0,out.toString().indexOf("Hello World!"));
 
