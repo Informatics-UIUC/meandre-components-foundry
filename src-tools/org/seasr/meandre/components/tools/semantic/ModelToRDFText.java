@@ -77,7 +77,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 		tags = "semantic, io, transform, model, text",
 		description = "This component takes the input semantic model and converts it into " +
 				      "a text form. Properties allow to specify the dialect to use",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ModelToRDFText extends AbstractExecutableComponent {
 

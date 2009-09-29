@@ -73,7 +73,7 @@ import org.seasr.meandre.components.tools.Names;
 		tags = "tools, tokenizer, counting, transformations",
 		description = "Given a collection of token counts, this component converts them " +
 				      "to a Java map.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TokenCountsToMap extends AbstractExecutableComponent {
 

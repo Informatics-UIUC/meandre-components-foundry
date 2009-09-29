@@ -76,7 +76,7 @@ import org.w3c.dom.NodeList;
         tags = "simile, xml, convert",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/tools/",
-        dependency = {"protobuf-java-2.0.3.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 
 public class DocumentToXML extends AbstractExecutableComponent {

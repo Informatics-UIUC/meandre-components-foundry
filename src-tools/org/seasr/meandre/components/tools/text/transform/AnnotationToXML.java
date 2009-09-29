@@ -88,7 +88,7 @@ import org.w3c.dom.NodeList;
         tags = "text, document, annotation",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/tools/",
-        dependency = {"protobuf-java-2.0.3.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 
 public class AnnotationToXML extends AbstractExecutableComponent {

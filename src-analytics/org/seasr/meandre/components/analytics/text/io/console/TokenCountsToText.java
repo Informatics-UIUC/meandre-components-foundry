@@ -74,7 +74,7 @@ import org.seasr.meandre.components.tools.Names;
 		tags = "semantic, tools, text, tokenizer, counting",
 		description = "Given a collection of token counts, this component converts it " +
 				      "into text.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TokenCountsToText extends AnalysisToText {
 

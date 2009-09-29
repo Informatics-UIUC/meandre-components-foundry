@@ -65,7 +65,7 @@ import org.seasr.meandre.support.sentiment.PathMetricFinder;
 		rights = Licenses.UofINCSA,
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
 		description = "This component labels a tuple field value with a concept " ,
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar"}
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class TokenConceptLabeler  extends AbstractExecutableComponent {
 	

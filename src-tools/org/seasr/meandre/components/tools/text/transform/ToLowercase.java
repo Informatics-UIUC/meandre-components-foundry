@@ -67,7 +67,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         tags = "lowercase, text, transform",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/tools/",
-        dependency = {"protobuf-java-2.0.3.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ToLowercase extends AbstractExecutableComponent {
 

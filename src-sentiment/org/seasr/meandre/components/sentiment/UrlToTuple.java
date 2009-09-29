@@ -60,7 +60,7 @@ import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 		rights = Licenses.UofINCSA,
 		tags = "tuple, tools, text, filter",
 		description = "This component reads a text resources via file or http (no authentication required)",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar"}
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class UrlToTuple extends AbstractExecutableComponent {
 	

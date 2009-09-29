@@ -74,7 +74,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         rights = Licenses.UofINCSA,
         tags = "io, string, concatenate",
         description = "Concatenates text from multiple inputs",
-        dependency = {"protobuf-java-2.0.3.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ConcatenateText extends AbstractExecutableComponent {
 

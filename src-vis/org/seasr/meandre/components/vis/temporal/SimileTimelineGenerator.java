@@ -86,7 +86,7 @@ import org.w3c.dom.Document;
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/tools/",
         firingPolicy = FiringPolicy.all,
-        dependency = {"protobuf-java-2.0.3.jar"},
+        dependency = {"protobuf-java-2.2.0.jar"},
         resources = {"SimileTimelineGenerator.vm"}
 )
 public class SimileTimelineGenerator extends AbstractExecutableComponent {

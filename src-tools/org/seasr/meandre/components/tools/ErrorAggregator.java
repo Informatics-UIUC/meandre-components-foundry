@@ -68,7 +68,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         rights = Licenses.UofINCSA,
         tags = "error",
         description = "This component aggregates all errors for a stream",
-        dependency = {"protobuf-java-2.0.3.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ErrorAggregator extends AbstractExecutableComponent {
 

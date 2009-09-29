@@ -51,7 +51,7 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.ByteMap;
+import org.seasr.datatypes.BasicDataTypes.BytesMap;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.datatypes.BasicDataTypes.Integers;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
@@ -273,8 +273,8 @@ public abstract class DataTypeParser {
 
         else
 
-        if (data instanceof ByteMap)
-            map = BasicDataTypesTools.ByteMapToMap((ByteMap)data);
+        if (data instanceof BytesMap)
+            map = BasicDataTypesTools.ByteMapToMap((BytesMap)data);
 
         else
 

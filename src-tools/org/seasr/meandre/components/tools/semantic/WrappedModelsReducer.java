@@ -79,7 +79,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 				      "Given a sequence of wrapped models, it will create a new model that " +
 				      "accumulates/reduces all the information and then push them the resulting model. " +
 				      "If no wrapped model is provided it will act as a simple pass through. ",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class WrappedModelsReducer extends AbstractExecutableComponent {
 

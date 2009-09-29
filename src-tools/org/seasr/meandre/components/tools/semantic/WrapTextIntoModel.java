@@ -76,7 +76,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 		tags = "semantic, tools, text",
 		description = "Given the text provided in the input, this component generates a " +
 				      "new semantic wrapper model containing the this text.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class WrapTextIntoModel extends AbstractExecutableComponent {
 

@@ -74,7 +74,7 @@ import org.seasr.meandre.components.tools.Names;
 		description = "Pushes the value of the text message property to the output. It provides " +
 				      "a couple of properties to control how many times it needs to be pushed, " +
 				      "and if it needs to be wrapped with terminators ",
-        dependency = {"protobuf-java-2.0.3.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class PushText extends AbstractExecutableComponent {
 

@@ -77,7 +77,7 @@ import org.seasr.meandre.support.generic.text.handlers.TextContentHandlerFactory
         name = "Universal Text Extractor",
         rights = Licenses.UofINCSA,
         tags = "text, converter, pdf, html, xml",
-        dependency = {"protobuf-java-2.0.3.jar", "htmlparser.jar", "jPod.jar", "iscwt.jar", "isrt.jar", "jbig2.jar"},
+        dependency = {"protobuf-java-2.2.0.jar", "htmlparser.jar", "jPod.jar", "iscwt.jar", "isrt.jar", "jbig2.jar"},
         baseURL = "meandre://seasr.org/components/tools/"
 )
 public class UniversalTextExtractor extends AbstractExecutableComponent {

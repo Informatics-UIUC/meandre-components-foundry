@@ -88,7 +88,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         mode = Mode.webui,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/",
-        dependency = {"protobuf-java-2.0.3.jar", "org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer.jar"},
+        dependency = {"protobuf-java-2.2.0.jar", "org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer.jar"},
         resources = {"TableViewer.vm"}
 )
 public class TableViewer extends AbstractGWTWebUIComponent {

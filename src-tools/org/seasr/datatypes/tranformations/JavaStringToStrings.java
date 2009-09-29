@@ -71,7 +71,7 @@ import org.seasr.meandre.components.tools.Names;
 		rights = Licenses.UofINCSA,
 		tags = "tools, tokenizer, counting, transformations",
 		description = "Converts a Java string into an equivalent string protocol buffer wrapper.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class JavaStringToStrings extends AbstractExecutableComponent {
 

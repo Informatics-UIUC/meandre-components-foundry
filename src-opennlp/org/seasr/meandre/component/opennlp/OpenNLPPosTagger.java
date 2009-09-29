@@ -96,7 +96,7 @@ import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
 		description = "This component tags the incoming set of tokenized sentences " +
 				      "unsing OpenNLP pos facilities.",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.0.3.jar", "maxent-models.jar"}
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar"}
 )
 public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 
@@ -285,7 +285,22 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 							BasicDataTypesTools.stringToStrings(result));
 							// you would need to push the meta data as well here
 					*/
+				   
+				   
+				   /*
+				    * String[] tuple = new String[4];
+				    * tuple[0] = tags[j];
+				    * tuple[1] = new String(i);
+				    * tuple[2] = new String(tokenStart);
+				    * tuple[3] = tokens[j];
+				    * Strings t = BasicDataTypesTools.stringToStrings(tuple);
+				    * cc.pushDataComponentToOutput(OUT_POS_TUPLE,t);
+				    * 
+				    * ALSO push the meta data here as well
+				    * 
+				    */
 
+				
 				}
 
 				withinSentenceOffset += tokens[j].length();
@@ -310,6 +325,14 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 	    Strings metaData;
 		metaData = BasicDataTypesTools.stringToStrings(tuple.getPeer().getFieldNames());
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
+	    
+	    
+	    /* FIX ME
+	    String[] fieldnames = {"a", "b" , "c"};
+	    Strings meta = BasicDataTypesTools.stringToStrings(fieldnames);
+	    cc.pushDataComponentToOutput(OUT_META_TUPLE, meta);
+	    
+	    */
 	}
 
     @Override

@@ -79,7 +79,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		rights = Licenses.UofINCSA,
 		tags = "io, print, console",
 		description = "This component takes the input and prints it to the console. ",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class PrintToConsole extends AbstractExecutableComponent {
 

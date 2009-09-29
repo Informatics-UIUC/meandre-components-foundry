@@ -91,7 +91,7 @@ import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeExcept
 				      "filter are provide they either replace the current ones " +
 				      "or add them to the black list. The component outputs the " +
 				      "filtered tokens.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 @SuppressWarnings("unchecked")
 public class TokenFilter extends AbstractExecutableComponent {

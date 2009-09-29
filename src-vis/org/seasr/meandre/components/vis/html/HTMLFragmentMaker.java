@@ -71,7 +71,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         rights = Licenses.UofINCSA,
         tags = "multipurpose, internet, mail, extensions, visualization",
         baseURL = "meandre://seasr.org/components/",
-        dependency = {"protobuf-java-2.0.3.jar","commons-lang-2.4.jar"}
+        dependency = {"protobuf-java-2.2.0.jar","commons-lang-2.4.jar"}
 )
 public class HTMLFragmentMaker extends AbstractExecutableComponent {
 

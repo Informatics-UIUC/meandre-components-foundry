@@ -83,7 +83,7 @@ import org.w3c.dom.Document;
         mode = Mode.compute,
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/jstor/",
-        dependency = {"protobuf-java-2.0.3.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class DFRQuery extends AbstractExecutableComponent {
 

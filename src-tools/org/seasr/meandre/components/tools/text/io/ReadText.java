@@ -82,7 +82,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
 				      "read. A property controls the behavior of the component in " +
 				      "the event of an IO error, allowing it to ignore the error and continue, or " +
 				      "throw an exception, forcing the finalization of the flow execution.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ReadText extends AbstractExecutableComponent {
 

@@ -74,7 +74,7 @@ import org.w3c.dom.NodeList;
 		rights = Licenses.UofINCSA,
 		tags = "jstor, xml, extractor, text",
 		description = "Extract the text of the pages in an XML JSTOR document.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class PageTextExtractor extends AbstractExecutableComponent {
 

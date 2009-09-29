@@ -71,7 +71,7 @@ import org.seasr.meandre.components.tools.Names;
         rights = Licenses.UofINCSA,
         tags = "tools, convert, transform",
         description = "Converts a Google string into an equivalent Java string",
-        dependency = {"protobuf-java-2.0.3.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class StringsToJavaString extends AbstractExecutableComponent {
 

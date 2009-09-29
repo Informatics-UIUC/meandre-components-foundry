@@ -79,7 +79,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
         mode = Mode.webui,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/",
-        dependency = {"protobuf-java-2.0.3.jar"},
+        dependency = {"protobuf-java-2.2.0.jar"},
         resources = {"HTMLViewer.vm"}
 )
 public class HTMLViewer extends AbstractExecutableComponent implements WebUIFragmentCallback {

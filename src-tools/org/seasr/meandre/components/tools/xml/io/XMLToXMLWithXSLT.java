@@ -74,7 +74,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		tags = "xml, xsl, filter",
 		description = "This component reads a XML and a XSL. It filters XML with XSL "+
 		"and outputs the filtered XML.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 
 public class XMLToXMLWithXSLT extends AbstractExecutableComponent {

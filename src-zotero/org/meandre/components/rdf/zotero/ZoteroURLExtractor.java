@@ -85,7 +85,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
 		baseURL = "meandre://seasr.org/components/zotero/",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ZoteroURLExtractor extends AbstractExecutableComponent {
 

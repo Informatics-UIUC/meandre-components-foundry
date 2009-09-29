@@ -72,7 +72,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        dependency = {"protobuf-java-2.0.3.jar"},
+        dependency = {"protobuf-java-2.2.0.jar"},
         tags = "text, document, transformation"
 )
 public class TextToDocument extends AbstractExecutableComponent {

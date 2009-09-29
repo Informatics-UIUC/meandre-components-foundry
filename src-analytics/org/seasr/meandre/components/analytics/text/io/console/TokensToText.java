@@ -74,7 +74,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		tags = "semantic, tools, text, tokenizer, counting",
 		description = "Given a collection of tokens, this component converts it " +
 				      "into text.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TokensToText extends AnalysisToText {
 

@@ -77,7 +77,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		tags = "io, string",
 		description = "Given a directory pushes all the file name available that " +
 				      "match a certain regular expression given in the properties.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ListDirectoryFiles extends AbstractExecutableComponent {
 

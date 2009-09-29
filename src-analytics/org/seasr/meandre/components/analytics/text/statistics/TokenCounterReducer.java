@@ -84,7 +84,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 				      "accumulates/reduces the token counts and then pushes them the resulting model. " +
 				      "If no wrapped model is provided it will act as a simple pass through. This " +
 				      "component is based on Wrapped models reducer.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TokenCounterReducer extends AbstractExecutableComponent {
 

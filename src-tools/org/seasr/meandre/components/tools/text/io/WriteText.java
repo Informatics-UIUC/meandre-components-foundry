@@ -83,7 +83,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
 				      "the behaviour of the component in front of an IO error, allowing to continue " +
 				      "pushing and empty model or throwing and exception forcing the finalization of " +
 				      "the flow execution.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class WriteText extends AbstractExecutableComponent {
 

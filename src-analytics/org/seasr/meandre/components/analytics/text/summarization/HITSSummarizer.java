@@ -89,7 +89,7 @@ import cern.jet.math.Functions;
 		tags = "tools, text, tokenizer, sentences, summarization",
 		description = "This component ranks and sorts the tokenized input sentences " +
 				      "providing a simple summarization by sentence seletion.",
-		dependency = {"colt.jar","protobuf-java-2.0.3.jar"}
+		dependency = {"colt.jar","protobuf-java-2.2.0.jar"}
 )
 public class HITSSummarizer extends AbstractExecutableComponent {
 

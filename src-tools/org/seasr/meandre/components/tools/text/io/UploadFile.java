@@ -96,7 +96,7 @@ import com.oreilly.servlet.multipart.Part;
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/",
-        dependency={ "velocity-1.6.1-dep.jar", "protobuf-java-2.0.3.jar", "fluid-components-0.8.jar" },
+        dependency={ "velocity-1.6.1-dep.jar", "protobuf-java-2.2.0.jar", "fluid-components-0.8.jar" },
         resources={ "FluidUploadFile.vm" }
 )
 public class UploadFile extends GenericTemplate {

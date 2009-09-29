@@ -78,7 +78,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 				      "this component counts all the different occurences of the " +
 				      "tokens. If the document contains multiple token sequences, the " +
 				      "component aggregate all the sequences providing a cummulative count.",
-		dependency = {"protobuf-java-2.0.3.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TokenCounter extends AbstractExecutableComponent {
 

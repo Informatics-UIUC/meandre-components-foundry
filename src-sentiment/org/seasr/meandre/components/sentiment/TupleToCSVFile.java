@@ -1,13 +1,9 @@
 package org.seasr.meandre.components.sentiment;
 
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.regex.Pattern;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 import org.meandre.annotations.Component;
@@ -43,17 +39,17 @@ import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 
 
 @Component(
-		name = "tuple value filter",
+		name = "tuple to csv file",
 		creator = "Mike Haberman",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "tuple, tools, text, filter",
-		description = "This component filters the incoming set of tuples based on a regular expression" ,
+		description = "This component writes the incoming set of tuples to a file (CSV, default)" ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class TupleFilter  extends AbstractExecutableComponent {
+public class TupleToCSVFile  extends AbstractExecutableComponent {
 	
 
     //------------------------------ INPUTS ------------------------------------------------------
@@ -75,7 +71,7 @@ public class TupleFilter  extends AbstractExecutableComponent {
 	
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of filtered tuples"
+			description = "set of tuples (same as input)"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 	
@@ -85,79 +81,90 @@ public class TupleFilter  extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 	
+	
 	//----------------------------- PROPERTIES ---------------------------------------------------
-
 	@ComponentProperty(
-			name = Names.PROP_FILTER_REGEX,
-			description = "regular expression to filter tuples",
-		    defaultValue = "*"
+			name = "tokenSeparator",
+			description = "token to use to separate field values",
+		    defaultValue = ","
 		)
-	protected static final String PROP_FILTER_REGEX = Names.PROP_FILTER_REGEX;
+	protected static final String PROP_TOKEN_SEPARATOR = "tokenSeparator";
+	
 	
 	@ComponentProperty(
-			name = "tupleFilterField",
-			description = "to which field of the tuple to apply the filter",
+			name = Names.PORT_FILENAME,
+			description  = "filename to write to",
 		    defaultValue = ""
 		)
-	protected static final String PROP_FILTER_FIELD = "tupleFilterField";
-	//--------------------------------------------------------------------------------------------
+	protected static final String PROP_FILENAME = Names.PORT_FILENAME;
+	
+    //--------------------------------------------------------------------------------------------
 
-	Pattern pattern = null;
-	String FILTER_FIELD;
+	BufferedWriter output;
+	String tokenSep;
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
 	{	
-		FILTER_FIELD = ccp.getProperty(PROP_FILTER_FIELD).trim();
-		if (FILTER_FIELD.length() == 0) {
-			throw new ComponentContextException("Property not set " + PROP_FILTER_FIELD);
+		String filename = ccp.getProperty(PROP_FILENAME).trim();
+		if (filename.length() == 0) {
+			throw new ComponentContextException("Property not set " + PROP_FILENAME);
 		}
 		
-		String regex = ccp.getProperty(PROP_FILTER_REGEX).trim();
-		if (regex.length() > 0) {
-			pattern = Pattern.compile(regex);
-		}
+		try {
+	         output = new BufferedWriter(new FileWriter(filename));
+	    } catch (IOException e) {
+	    	throw new ComponentContextException("Unable to write to" + filename);
+	    }
+	    
+	    tokenSep= ccp.getProperty(PROP_TOKEN_SEPARATOR).trim();
+		
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
-		
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 		String[] meta = DataTypeParser.parseAsString(inputMeta);
 		String fields = meta[0];
 		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
 		
-		
-		int FILTER_FIELD_IDX = inPeer.getIndexForFieldName(FILTER_FIELD);
-		console.info("filter FIELD " + FILTER_FIELD);
-		console.info("filter field index " + FILTER_FIELD_IDX);
+		//
+		// write out the fieldnames as the first row
+		//
+		int size = inPeer.size();
+		for (int i = 0; i < size; i++) {
+			output.write(inPeer.getFieldNameForIndex(i));
+			if (i + 1 < size) {
+				output.write(tokenSep);
+			}
+		}
+		output.write("\n");
 		
 		
 		Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
 		String[] tuples = DataTypeParser.parseAsString(input);
 		DynamicTuple tuple = inPeer.createTuple();
 		
-		List<String> output = new ArrayList<String>();
 		for (int i = 0; i < tuples.length; i++) {
 			
 			tuple.setValues(tuples[i]);	
-			String fieldValue = tuple.getValue(FILTER_FIELD_IDX);
 			
-			if (pattern == null || pattern.matcher(fieldValue).matches())
-			{
-				output.add(tuple.toString());
+			for (int j = 0; j < size; j++) {
+				output.write(tuple.getValue(j));
+				if (j + 1 < size) {
+					output.write(tokenSep);
+				}
 			}
+			output.write("\n");
 		}
 				
 		
-		String[] results = new String[output.size()];
-		output.toArray(results);
-		Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
-		cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
-		 
+		cc.pushDataComponentToOutput(OUT_TUPLES, input);
 		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
 		 
 	}
 
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
+        output.close();
     }
 }
+

@@ -1,14 +1,6 @@
 package org.seasr.meandre.components.sentiment;
 
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.regex.Pattern;
-
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -19,7 +11,6 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypes;
@@ -33,9 +24,7 @@ import org.seasr.meandre.support.components.tuples.DynamicTuple;
 import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 
 
-
 /**
- * This component perform POS tagging on the text passed using OpenNLP.
  *
  * @author Mike Haberman;
  *
@@ -43,17 +32,17 @@ import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 
 
 @Component(
-		name = "tuple logger",
+		name = "Tuple Value To String",
 		creator = "Mike Haberman",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tuple, tools, text, filter",
-		description = "This component prints the incoming set of tuples to the console (level info) " ,
+		tags = "tools, text,",
+		description = "This component converts a tuple field/value to a string" ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class TupleLogger  extends AbstractExecutableComponent {
+public class TupleValueToString extends AbstractExecutableComponent {
 	
 
     //------------------------------ INPUTS ------------------------------------------------------
@@ -74,25 +63,29 @@ public class TupleLogger  extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 	
 	@ComponentOutput(
-			name = Names.PORT_TUPLES,
-			description = "set of tuples (same as input)"
+			name = Names.PORT_TEXT,
+			description = "text of the tuple value"
 	)
-	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+	protected static final String OUT_TEXT = Names.PORT_TEXT;
 	
-	@ComponentOutput(
-			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuples (same as input)"
-	)
-	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
+		
+	
 	
 	//----------------------------- PROPERTIES ---------------------------------------------------
-    //--------------------------------------------------------------------------------------------
+   @ComponentProperty(description = "the field whose value will be written to the output",
+		   name = "fieldname",
+		   defaultValue = "")
+    protected static final String DATA_PROPERTY_FIELD = "fieldname";
+   	//--------------------------------------------------------------------------------------------
 
-	
+    
+    
+    String fieldname;
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
-	{	
+	{
+		this.fieldname = ccp.getProperty(DATA_PROPERTY_FIELD).trim(); 
 	}
-
+	
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
 		
@@ -100,23 +93,31 @@ public class TupleLogger  extends AbstractExecutableComponent {
 		String[] meta = DataTypeParser.parseAsString(inputMeta);
 		String fields = meta[0];
 		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
-		console.info(fields);
 		
 		Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
 		String[] tuples = DataTypeParser.parseAsString(input);
 		DynamicTuple tuple = inPeer.createTuple();
 		
-		for (int i = 0; i < tuples.length; i++) {
-			tuple.setValues(tuples[i]);	
-			console.info(tuple.toString());
+		
+		int FIELD_IDX = inPeer.getIndexForFieldName(fieldname);
+		if (FIELD_IDX == -1) {
+			throw new RuntimeException("tuple has no field named " + fieldname);
 		}
-				
-		cc.pushDataComponentToOutput(OUT_TUPLES, input);
-		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
-		 
+		console.info("Tuple peer " + inPeer.toString());
+		for (int i = 0; i < tuples.length; i++) {
+			
+			tuple.setValues(tuples[i]);	
+			String value = tuple.getValue(FIELD_IDX);
+			
+			//cc.pushDataComponentToOutput(OUT_TEXT, value);
+			
+		    Strings outputSafe = BasicDataTypesTools.stringToStrings(value);
+		    cc.pushDataComponentToOutput(OUT_TEXT, outputSafe);
+		}
 	}
 
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
     }
+    	
 }

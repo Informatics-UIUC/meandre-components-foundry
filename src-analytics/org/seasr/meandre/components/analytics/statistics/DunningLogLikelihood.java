@@ -83,7 +83,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		name = "Dunning Log Likelihood",
 		tags = "dunning, likelihood, loglikelihood, monk, comparison, statistics",
 		baseURL = "meandre://seasr.org/components/tools/",
-	    dependency = {"protobuf-java-2.0.3.jar"}
+	    dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class DunningLogLikelihood extends AbstractExecutableComponent {
 
