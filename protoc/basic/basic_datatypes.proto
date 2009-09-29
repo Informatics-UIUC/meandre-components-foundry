@@ -45,31 +45,31 @@ message Strings {
 
 // Maps
 
-message ByteMap {
+message BytesMap {
 	repeated string key = 1 ; // The keys
 	repeated Bytes  value = 2 ; // The values
 	extensions 8 to max;
 }
 
-message IntegerMap {
+message IntegersMap {
 	repeated string key = 1 ; // The keys
 	repeated Integers value = 2 ; // The values
 	extensions 8 to max;
 }
 
-message LongMap {
+message LongsMap {
 	repeated string key = 1 ; // The keys
 	repeated Longs  value = 2 ; // The values
 	extensions 8 to max;
 }
 
-message FloatMap {
+message FloatsMap {
 	repeated string key = 1 ; // The keys
 	repeated Floats  value = 2 ; // The values
 	extensions 8 to max;
 }
 
-message DoubleMap {
+message DoublesMap {
 	repeated string key = 1 ; // The keys
 	repeated Doubles  value = 2 ; // The values
 	extensions 8 to max;
@@ -84,27 +84,27 @@ message StringsMap {
 
 // Arrays (arrays of "arrays")
 
-message ByteArray {
+message BytesArray {
 	repeated Bytes  value = 1 ; // The values
 	extensions 8 to max;
 }
 
-message IntegerArray {
+message IntegersArray {
 	repeated Integers value = 1 ; // The values
 	extensions 8 to max;
 }
 
-message LongArray {
+message LongsArray {
 	repeated Longs  value = 1 ; // The values
 	extensions 8 to max;
 }
 
-message FloatArray {
+message FloatsArray {
 	repeated Floats  value = 1 ; // The values
 	extensions 8 to max;
 }
 
-message DoubleArray {
+message DoublesArray {
 	repeated Doubles  value = 1 ; // The values
 	extensions 8 to max;
 }
