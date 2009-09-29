@@ -64,15 +64,19 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Strings;
-import org.seasr.datatypes.BasicDataTypes.StringsMap;
+
 import org.seasr.meandre.components.tools.Names;
 
-import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.components.tuples.DynamicTuple;
-import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+
+
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.datatypes.BasicDataTypesTools;
+import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.BasicDataTypes.StringsMap;
 
 
 /**
@@ -210,12 +214,13 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 		String[] fields = 
 			new String[] {POS_FIELD, SENTENCE_ID_FIELD, TOKEN_START_FIELD, TOKEN_FIELD};
 		
-		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
-		tuple = inPeer.createTuple();
+		this.tuplePeer = new SimpleTuplePeer(fields);
 		
 	}
-		
-	DynamicTuple tuple;
+	
+	
+	SimpleTuplePeer tuplePeer;
+	
 	public static final String POS_FIELD         = "pos";
 	public static final String SENTENCE_ID_FIELD = "sentenceId";
 	public static final String TOKEN_START_FIELD = "tokenStart";
@@ -225,7 +230,7 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
     public void executeCallBack(ComponentContext cc) throws Exception
 	{
 
-		List<String> output = new ArrayList<String>();
+		List<Strings> output = new ArrayList<Strings>();
 
 
 		// input was encoded via :
@@ -241,11 +246,13 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 		int count = input.getKeyCount();
 		console.fine("processing " + count);
 
-		int POS_IDX         = tuple.getPeer().getIndexForFieldName(POS_FIELD);
-		int SENTENCE_ID_IDX = tuple.getPeer().getIndexForFieldName(SENTENCE_ID_FIELD);
-		int TOKEN_START_IDX = tuple.getPeer().getIndexForFieldName(TOKEN_START_FIELD);
-		int TOKEN_IDX       = tuple.getPeer().getIndexForFieldName(TOKEN_FIELD);
+		int POS_IDX         = tuplePeer.getIndexForFieldName(POS_FIELD);
+		int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
+		int TOKEN_START_IDX = tuplePeer.getIndexForFieldName(TOKEN_START_FIELD);
+		int TOKEN_IDX       = tuplePeer.getIndexForFieldName(TOKEN_FIELD);
 		
+		SimpleTuple tuple = tuplePeer.createTuple();
+		 
 		for (int i = 0; i < count; i++) {
 			String key    = input.getKey(i);    // this is the entire sentence
 			Strings value = input.getValue(i);  // this is the set of tokens for that sentence
@@ -263,12 +270,11 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 				   // add in the global offset
 				   tokenStart += globalOffset;
 
-				   
-				   tuple.setValue(POS_IDX, tags[j]);
+				  
+				   tuple.setValue(POS_IDX,         tags[j]);
 				   tuple.setValue(SENTENCE_ID_IDX, i);
 				   tuple.setValue(TOKEN_START_IDX, tokenStart);
-				   tuple.setValue(TOKEN_IDX, tokens[j]);
-				   String result = tuple.toString();
+				   tuple.setValue(TOKEN_IDX,       tokens[j]);
 				   
 				   //
 				   // we have a choice at this point:
@@ -276,25 +282,13 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 				   // or we can collect all the results
 				   // and push out an array of results
 				   //
-				   // console.fine("pos pushing tuple " + result);
+				   // console.fine("pos pushing tuple " + tuple.toString());
             
-				   output.add(result);
-
-					/*
-					cc.pushDataComponentToOutput(OUT_POS_TUPLE,  // note a SINGLE tuple
-							BasicDataTypesTools.stringToStrings(result));
-							// you would need to push the meta data as well here
-					*/
+				   output.add(tuple.convert());
 				   
 				   
 				   /*
-				    * String[] tuple = new String[4];
-				    * tuple[0] = tags[j];
-				    * tuple[1] = new String(i);
-				    * tuple[2] = new String(tokenStart);
-				    * tuple[3] = tokens[j];
-				    * Strings t = BasicDataTypesTools.stringToStrings(tuple);
-				    * cc.pushDataComponentToOutput(OUT_POS_TUPLE,t);
+				    * cc.pushDataComponentToOutput(OUT_POS_TUPLE,tuple.convert());
 				    * 
 				    * ALSO push the meta data here as well
 				    * 
@@ -312,27 +306,19 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 			globalOffset += key.length();
 		}
 
+		
 		// push the whole collection, protocol safe
-	    String[] results = new String[output.size()];
+	    Strings[] results = new Strings[output.size()];
 	    output.toArray(results);
-	    Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
+	    
+	    StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
 	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 
-	    
 	    //
 		// metaData for this tuple producer
 		//
-	    Strings metaData;
-		metaData = BasicDataTypesTools.stringToStrings(tuple.getPeer().getFieldNames());
+	    Strings metaData = tuplePeer.convert();
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
-	    
-	    
-	    /* FIX ME
-	    String[] fieldnames = {"a", "b" , "c"};
-	    Strings meta = BasicDataTypesTools.stringToStrings(fieldnames);
-	    cc.pushDataComponentToOutput(OUT_META_TUPLE, meta);
-	    
-	    */
 	}
 
     @Override

@@ -68,13 +68,14 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 
 
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.components.tuples.DynamicTuple;
-import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 
 /**
@@ -191,7 +192,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			new String[] {SENTENCE_ID_FIELD, TYPE_FIELD,
 				          TEXT_START_FIELD, TEXT_END_FIELD, TEXT_FIELD};
 		
-		tuplePeer = new DynamicTuplePeer(fields);
+		tuplePeer = new SimpleTuplePeer(fields);
 		
 		TYPE_IDX        = tuplePeer.getIndexForFieldName(TYPE_FIELD);
 		SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
@@ -202,7 +203,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		
 	}
 		
-	DynamicTuplePeer tuplePeer;
+	SimpleTuplePeer tuplePeer;
 	public static final String TYPE_FIELD        = "type";
 	public static final String SENTENCE_ID_FIELD = "sentenceId";
 	public static final String TEXT_START_FIELD  = "textStart";
@@ -219,7 +220,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
 	{
-		List<String> output = new ArrayList<String>();
+		List<Strings> output = new ArrayList<Strings>();
 		
 		// input was encoded via :
 		// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
@@ -234,7 +235,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		console.fine("processing " + count);
 		int globalOffset = 0;
 
-		List<DynamicTuple> list = new ArrayList<DynamicTuple>();
+		List<SimpleTuple> list = new ArrayList<SimpleTuple>();
 		
 		for (int i = 0; i < count; i++) {
 			String key    = input.getKey(i);    // this is the entire sentence
@@ -266,12 +267,12 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 					textSpan = textSpan.replace("\n", " ").trim();
 					
 					
-					DynamicTuple tuple = tuplePeer.createTuple();
-					tuple.setValue(TYPE_IDX, type);
+					SimpleTuple tuple = tuplePeer.createTuple();
+					tuple.setValue(TYPE_IDX,        type);
 					tuple.setValue(SENTENCE_ID_IDX, i);
-					tuple.setValue(TEXT_START_IDX, beginIndex + globalOffset);
-					tuple.setValue(TEXT_END_IDX, endIndex + globalOffset);
-					tuple.setValue(TEXT_IDX, textSpan);
+					tuple.setValue(TEXT_START_IDX,  beginIndex + globalOffset);
+					tuple.setValue(TEXT_END_IDX,    endIndex + globalOffset);
+					tuple.setValue(TEXT_IDX,        textSpan);
 					
 					list.add(tuple);
 					
@@ -299,8 +300,8 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			Collections.sort(list, new Comparator() {
 				
 				       public int compare(Object a, Object b) {
-				    	   DynamicTuple at = (DynamicTuple)a;
-				    	   DynamicTuple bt = (DynamicTuple)b;
+				    	   SimpleTuple at = (SimpleTuple)a;
+				    	   SimpleTuple bt = (SimpleTuple)b;
 				    	   int v = Integer.parseInt(at.getValue(TEXT_START_IDX));
 				    	   int u = Integer.parseInt(bt.getValue(TEXT_START_IDX));
 				    	   return v-u;
@@ -309,28 +310,28 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 					}
              );
 			
-			for (DynamicTuple t:list) {
-				output.add(t.toString());
+			// add the sorted tuples to the output buffer
+			for (SimpleTuple t:list) {
+				output.add(t.convert());
 			}
 			
 			globalOffset += key.length();
 			
 			
 		}
+		
 
-		// push the whole collection, protocol safe
-	    String[] results = new String[output.size()];
+		// push the whole collection, protocol safe   
+	    Strings[] results = new Strings[output.size()];
 	    output.toArray(results);
-	    Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
+	    
+	    StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
 	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 
-	    
 	    //
 		// metaData for this tuple producer
 		//
-	    Strings metaData;
-		metaData = BasicDataTypesTools.stringToStrings(tuplePeer.getFieldNames());
-	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
+	    cc.pushDataComponentToOutput(OUT_META_TUPLE, tuplePeer.convert());
 	}
 
     @Override
