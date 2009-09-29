@@ -1,3 +1,10 @@
+//
+// input to the protocol buffer compiler 
+// e.g. src/protoc --proto_path input --java_out=output input/basic_datatypes.proto
+// where input is the directory in which this file resides
+// output is the directory where the .java output will be written
+//
+
 option java_package = "org.seasr.datatypes";
 option java_outer_classname = "BasicDataTypes";
 
@@ -73,6 +80,42 @@ message StringsMap {
 	repeated Strings  value = 2 ; // The values
 	extensions 8 to max;
 }
+
+
+// Arrays (arrays of "arrays")
+
+message ByteArray {
+	repeated Bytes  value = 1 ; // The values
+	extensions 8 to max;
+}
+
+message IntegerArray {
+	repeated Integers value = 1 ; // The values
+	extensions 8 to max;
+}
+
+message LongArray {
+	repeated Longs  value = 1 ; // The values
+	extensions 8 to max;
+}
+
+message FloatArray {
+	repeated Floats  value = 1 ; // The values
+	extensions 8 to max;
+}
+
+message DoubleArray {
+	repeated Doubles  value = 1 ; // The values
+	extensions 8 to max;
+}
+
+message StringsArray {
+	repeated Strings  value = 1 ; // The values
+	extensions 8 to max;
+}
+
+
+
 
 // Dense data frames
 
