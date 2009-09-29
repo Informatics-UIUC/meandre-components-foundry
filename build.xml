@@ -305,21 +305,24 @@
             description= "-> runs the unit tests and generates xml logs and html reports">
         <mkdir dir="${test.logs.dir}/xml"/>
         <junit printsummary="yes"
-               forkmode="once"
                errorProperty="test.failed"
                failureProperty="test.failed"
-               fork="yes"
                showoutput="yes">
             <jvmarg value="-Duser.language=en"/>
             <classpath>
-                <path refid="classpath.runtime"/>
+                <path refid="classpath.build"/>
                 <pathelement location="${test.classes.dir}"/>
+                <pathelement location="${classes.dir}"/>
             </classpath>
             <formatter type="xml"/>
             <formatter type="brief" usefile="false"/>
             <batchtest todir="${test.logs.dir}/xml">
-                <fileset dir="${test.classes.dir}" includes="**/*Tests.class"/>
-            </batchtest>
+                                <fileset dir="src-test">
+                                        <include name="**/*.java"/>
+                                </fileset>
+
+    </batchtest>
+
         </junit>
         <junitreport todir="${test.logs.dir}/xml">
             <fileset dir="${test.logs.dir}/xml">
