@@ -59,9 +59,9 @@
     <property name="build.dir" value="${basedir}/build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="dist.dir" value="${basedir}/dist"/>
-	<property name="gwt.base.dir" value="${basedir}/src-gwt"/>
-	<property name="gwt.src.dir" value="${gwt.base.dir}/src"/>
-	<property name="gwt.modules.list" value="org.seasr.meandre.components.vis.gwt.helloworld.HelloWorld,org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer"/>
+    <property name="gwt.base.dir" value="${basedir}/src-gwt"/>
+    <property name="gwt.src.dir" value="${gwt.base.dir}/src"/>
+    <property name="gwt.modules.list" value="org.seasr.meandre.components.vis.gwt.helloworld.HelloWorld,org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer"/>
 
 
     <!-- Default settings for the 'upload-components' task -->
@@ -104,11 +104,11 @@
     <property name="confluence.title" value="Available Components"/>
     -->
 
-	<taskdef resource="net/sf/antcontrib/antlib.xml">
-	  <classpath>
-	    <pathelement location="${lib.dir}/ant-contrib.jar"/>
-	  </classpath>
-	</taskdef>
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+      <classpath>
+        <pathelement location="${lib.dir}/ant-contrib.jar"/>
+      </classpath>
+    </taskdef>
 
 
     <!--
@@ -138,14 +138,14 @@
         <fileset dir="${dist.dir}" includes="*.jar"/>
     </path>
 
-	<!-- GWT class path -->
-	<path id="gwt.class.path">
-	    <pathelement location="${gwt.base.dir}/war/WEB-INF/classes"/>
-	    <pathelement location="${lib.gwt.dir}/gwt-user.jar"/>
-	    <fileset dir="${lib.gwt.dir}" includes="gwt-dev*.jar"/>
-	    <!-- Add any additional non-server libs (such as JUnit) -->
-	    <fileset dir="${gwt.base.dir}/war/WEB-INF/lib" includes="**/*.jar"/>
-	</path>
+    <!-- GWT class path -->
+    <path id="gwt.class.path">
+        <pathelement location="${gwt.base.dir}/war/WEB-INF/classes"/>
+        <pathelement location="${lib.gwt.dir}/gwt-user.jar"/>
+        <fileset dir="${lib.gwt.dir}" includes="gwt-dev*.jar"/>
+        <!-- Add any additional non-server libs (such as JUnit) -->
+        <fileset dir="${gwt.base.dir}/war/WEB-INF/lib" includes="**/*.jar"/>
+    </path>
 
     <!--
     =================
@@ -168,11 +168,11 @@
         <mkdir dir="${test.output.dir}"/>
     </target>
 
-	<target name="init-gwt">
-	    <mkdir dir="${gwt.base.dir}/war/WEB-INF/lib" />
-	    <copy todir="${gwt.base.dir}/war/WEB-INF/lib" file="${lib.gwt.dir}/gwt-servlet.jar" />
-	    <!-- Add any additional server libs that need to be copied -->
-	</target>
+    <target name="init-gwt">
+        <mkdir dir="${gwt.base.dir}/war/WEB-INF/lib" />
+        <copy todir="${gwt.base.dir}/war/WEB-INF/lib" file="${lib.gwt.dir}/gwt-servlet.jar" />
+        <!-- Add any additional server libs that need to be copied -->
+    </target>
 
     <!--
         Performs cleanup
@@ -213,45 +213,45 @@
                 <include name="src-*/**/*.jar"/>
             </fileset>
 
-				<regexpmapper from="^src-[^/]+/(.+)$" to="\1"/>
+                <regexpmapper from="^src-[^/]+/(.+)$" to="\1"/>
 
-				<!--
+                <!--
             <regexpmapper from="^src-.+/.+/(.+)$" to="\1"/>
-				-->
+                -->
         </copy>
     </target>
 
-	<target name="compile-gwt" depends="init-gwt" description="-> compiles the GWT code">
-		<mkdir dir="${gwt.base.dir}/war/WEB-INF/classes"/>
-	    <javac srcdir="${gwt.src.dir}" includes="**" encoding="utf-8"
-	        destdir="${gwt.base.dir}/war/WEB-INF/classes"
-	        source="1.5" target="1.5" nowarn="true"
-	        debug="true" debuglevel="lines,vars,source">
-	      <classpath refid="gwt.class.path"/>
-	    </javac>
-	    <copy todir="${gwt.base.dir}/war/WEB-INF/classes">
-	      <fileset dir="${gwt.base.dir}/src" excludes="**/*.java"/>
-	    </copy>
+    <target name="compile-gwt" depends="init-gwt" description="-> compiles the GWT code">
+        <mkdir dir="${gwt.base.dir}/war/WEB-INF/classes"/>
+        <javac srcdir="${gwt.src.dir}" includes="**" encoding="utf-8"
+            destdir="${gwt.base.dir}/war/WEB-INF/classes"
+            source="1.5" target="1.5" nowarn="true"
+            debug="true" debuglevel="lines,vars,source">
+          <classpath refid="gwt.class.path"/>
+        </javac>
+        <copy todir="${gwt.base.dir}/war/WEB-INF/classes">
+          <fileset dir="${gwt.base.dir}/src" excludes="**/*.java"/>
+        </copy>
 
-		<foreach list="${gwt.modules.list}" target="gwtc" param="gwtmodule"/>
-	</target>
+        <foreach list="${gwt.modules.list}" target="gwtc" param="gwtmodule"/>
+    </target>
 
-	<target name="gwtc">
-		<delete dir="${gwt.base.dir}/war/${gwtmodule}"/>
-	    <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
-	        <classpath>
-	            <pathelement location="${gwt.base.dir}/src"/>
-	            <path refid="gwt.class.path"/>
-	        </classpath>
-	        <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
-	        <jvmarg value="-Xmx256M"/>
-	        <jvmarg value="-XstartOnFirstThread"/>
-	        <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
-	    	<arg line="-war ${gwt.base.dir}/war"/>
-	        <arg value="${gwtmodule}"/>
-	    </java>
-		<jar destfile="${lib.dir}/${gwtmodule}.jar" basedir="${gwt.base.dir}/war/${gwtmodule}"/>
-	</target>
+    <target name="gwtc">
+        <delete dir="${gwt.base.dir}/war/${gwtmodule}"/>
+        <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+            <classpath>
+                <pathelement location="${gwt.base.dir}/src"/>
+                <path refid="gwt.class.path"/>
+            </classpath>
+            <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
+            <jvmarg value="-Xmx256M"/>
+            <jvmarg value="-XstartOnFirstThread"/>
+            <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+            <arg line="-war ${gwt.base.dir}/war"/>
+            <arg value="${gwtmodule}"/>
+        </java>
+        <jar destfile="${lib.dir}/${gwtmodule}.jar" basedir="${gwt.base.dir}/war/${gwtmodule}"/>
+    </target>
 
     <!--
         Packages all components into one jar file
@@ -310,19 +310,14 @@
                showoutput="yes">
             <jvmarg value="-Duser.language=en"/>
             <classpath>
-                <path refid="classpath.build"/>
+                <path refid="classpath.runtime"/>
                 <pathelement location="${test.classes.dir}"/>
-                <pathelement location="${classes.dir}"/>
             </classpath>
             <formatter type="xml"/>
             <formatter type="brief" usefile="false"/>
             <batchtest todir="${test.logs.dir}/xml">
-                                <fileset dir="src-test">
-                                        <include name="**/*.java"/>
-                                </fileset>
-
-    </batchtest>
-
+                <fileset dir="${test.classes.dir}" includes="**/*Tests.class"/>
+            </batchtest>
         </junit>
         <junitreport todir="${test.logs.dir}/xml">
             <fileset dir="${test.logs.dir}/xml">
