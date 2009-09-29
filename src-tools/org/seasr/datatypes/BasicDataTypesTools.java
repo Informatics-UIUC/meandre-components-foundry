@@ -49,7 +49,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.seasr.datatypes.BasicDataTypes.ByteMap;
+import org.seasr.datatypes.BasicDataTypes.BytesMap;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
 import org.seasr.datatypes.BasicDataTypes.Integers;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
@@ -263,7 +263,7 @@ public abstract class BasicDataTypesTools {
      * @param bm The byte map to convert
      * @return The converted map
      */
-    public static Map<String,byte[]> ByteMapToMap ( ByteMap bm ) {
+    public static Map<String,byte[]> ByteMapToMap ( BytesMap bm ) {
         Map<String,byte[]> ht = new Hashtable<String,byte[]>(bm.getValueCount());
 
         for ( int i=0,iMax=bm.getValueCount() ; i<iMax ; i++ )
@@ -279,8 +279,8 @@ public abstract class BasicDataTypesTools {
      * @param bOrdered Should the counts be ordered?
      * @return The IntegerMap
      */
-    public static ByteMap mapToByteMap(Map<String, byte[]> htBytes) {
-        org.seasr.datatypes.BasicDataTypes.ByteMap.Builder res = BasicDataTypes.ByteMap.newBuilder();
+    public static BytesMap mapToByteMap(Map<String, byte[]> htBytes) {
+        org.seasr.datatypes.BasicDataTypes.BytesMap.Builder res = BasicDataTypes.BytesMap.newBuilder();
         for ( Entry<String, byte[]> entry:htBytes.entrySet() ) {
             res.addKey(entry.getKey());
             res.addValue(byteArrayToBytes(entry.getValue()));
