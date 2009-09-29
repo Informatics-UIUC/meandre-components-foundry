@@ -56,6 +56,8 @@ import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 
+import org.seasr.datatypes.BasicDataTypes.StringsArray;
+
 import com.google.protobuf.ByteString;
 
 /**
@@ -63,6 +65,7 @@ import com.google.protobuf.ByteString;
  *
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
+ * @author Mike Haberman
  *
  */
 public abstract class BasicDataTypesTools {
@@ -126,6 +129,38 @@ public abstract class BasicDataTypesTools {
 		saRes = s.getValueList().toArray(saRes);
 		return saRes;
 	}
+	
+	
+	//
+	// Array Types
+	//
+	/**
+	 * Create a StringsArray out of the Strings[] contents.
+	 *
+	 * @param  The strings to process
+	 * @return The StringsArray
+	 */
+	public static StringsArray javaArrayToStringsArray(Strings[] sa)
+	{
+		org.seasr.datatypes.BasicDataTypes.StringsArray.Builder res = BasicDataTypes.StringsArray.newBuilder();
+		for(Strings s: sa) res.addValue(s);
+		return res.build();
+	}
+	
+	/**
+	 * Create a Strings[] from a StringsArray content.
+	 *
+	 * @param  The StringsArray to process
+	 * @return The Strings[] array
+	 */
+	public static Strings[] stringsArrayToJavaArray(StringsArray sa)
+	{
+		Strings[] out = new Strings[sa.getValueCount()];
+		out = sa.getValueList().toArray(out);
+		return out;
+	}
+	
+	
 
 	/**
 	 * Creates an empty string map.
