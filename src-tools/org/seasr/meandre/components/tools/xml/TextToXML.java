@@ -42,10 +42,11 @@
 
 package org.seasr.meandre.components.tools.xml;
 
+import java.io.ByteArrayInputStream;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.tools.ant.filters.StringInputStream;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -138,7 +139,7 @@ public class TextToXML extends AbstractExecutableComponent {
     		Document doc;
 
     		try {
-    			doc = parser.parse(new StringInputStream(sText));
+    			doc = parser.parse(new ByteArrayInputStream(sText.getBytes("UTF-8")));
     		}
     		catch (Throwable t) {
     			String sMessage = "Could not read XML from text " +

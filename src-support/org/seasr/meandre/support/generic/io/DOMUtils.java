@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.support.generic.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,7 +66,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.tools.ant.filters.StringInputStream;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -102,7 +102,7 @@ public abstract class DOMUtils {
     public static Document createDocument(String xml)
         throws SAXException, IOException, ParserConfigurationException {
 
-        return createDocument(new StringInputStream(xml));
+        return createDocument(new ByteArrayInputStream(xml.getBytes("UTF-8")));
     }
 
     /**
