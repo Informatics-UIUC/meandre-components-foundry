@@ -19,6 +19,7 @@ import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypes;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 
@@ -38,9 +39,8 @@ import java.io.InputStreamReader;
 import java.io.DataOutputStream;
 import java.io.OutputStreamWriter;
 
-import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.components.tuples.DynamicTuple;
-import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 
 /**
@@ -107,7 +107,7 @@ public class UrlToTuple extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	DynamicTuple outTuple;
+	SimpleTuple outTuple;
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
 	{	
 	    String location = ccp.getProperty(PROP_LOCATION).trim();
@@ -124,29 +124,26 @@ public class UrlToTuple extends AbstractExecutableComponent {
 			sb.append(inputLine).append("\n");
 		in.close();
 		
-		DynamicTuplePeer outPeer = new DynamicTuplePeer(new String[]{"title", "location", "content"});
+		SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[]{"title", "location", "content"});
 		outTuple = outPeer.createTuple();
 		outTuple.setValue(0, title);
 		outTuple.setValue(1, location);
 		outTuple.setValue(2, sb.toString()); // actual content
-		
-		//console.info(sb.toString());
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception 
-	{
-		String[] results = new String[]{outTuple.toString()};
-		Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
+	{	
+		// push the meta data
+		cc.pushDataComponentToOutput(OUT_META_TUPLE, outTuple.getPeer().convert());
+	    	
+		// this array only has one element/tuple in it
+		Strings[] results = new Strings[]{outTuple.convert()};
+		StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
 		cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 		 
-		Strings metaData;
-		metaData = BasicDataTypesTools.stringToStrings(outTuple.getPeer().getFieldNames());
-	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
-	    
 	    // convenience
 	    Strings content = BasicDataTypesTools.stringToStrings(outTuple.getValue("content"));
 		cc.pushDataComponentToOutput(OUT_TEXT, content);
-		
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

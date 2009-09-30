@@ -6,10 +6,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -24,12 +20,13 @@ import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypes;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 
-import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.components.tuples.DynamicTuple;
-import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
+
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 
 
@@ -147,17 +144,16 @@ public class TupleValueCleaner  extends AbstractExecutableComponent {
 
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
-		String newField = fieldname + "Org";
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		String[] meta = DataTypeParser.parseAsString(inputMeta);
-		String fields = meta[0];
-		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
-		DynamicTuplePeer outPeer = new DynamicTuplePeer(inPeer, new String[]{newField});		
+		SimpleTuplePeer inPeer = new SimpleTuplePeer(inputMeta);
+		SimpleTuple tuple = inPeer.createTuple();
 		
-		Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
-		String[] tuples = DataTypeParser.parseAsString(input);
-		DynamicTuple tuple = inPeer.createTuple();
+		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 		
+		String newField = fieldname + "Org";
+		SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[]{newField});		
+				
 		
 		int FIELD_IDX = inPeer.getIndexForFieldName(fieldname);
 		if (FIELD_IDX == -1) {
@@ -166,12 +162,12 @@ public class TupleValueCleaner  extends AbstractExecutableComponent {
 		
 		int NEW_IDX  = outPeer.getIndexForFieldName(newField);
 		
-		DynamicTuple outTuple = outPeer.createTuple();
+		SimpleTuple outTuple = outPeer.createTuple();
 		
-		List<String> output = new ArrayList<String>();
-		for (int i = 0; i < tuples.length; i++) {
+		List<Strings> output = new ArrayList<Strings>();
+		for (int i = 0; i < in.length; i++) {
 			
-			tuple.setValues(tuples[i]);	
+			tuple.setValues(in[i]);	
 			String value = tuple.getValue(FIELD_IDX);
 			String cleanValue = clean(value);
 			
@@ -179,24 +175,23 @@ public class TupleValueCleaner  extends AbstractExecutableComponent {
 			outTuple.setValue(NEW_IDX, value);        // new field is the original value
 			outTuple.setValue(FIELD_IDX, cleanValue); // org field is the cleaned value
 			
-		    output.add(outTuple.toString());
+		    output.add(outTuple.convert());
 		}
 		
 		//
 		// push the whole collection, protocol safe
 		//
-	    String[] results = new String[output.size()];
-	    output.toArray(results);
-	    Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
-	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+		Strings[] results = new Strings[output.size()];
+		output.toArray(results);
+		    
+		StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
+		cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 
 	    
 	    //
 		// metaData for this tuple producer
 		//
-	    Strings metaData;
-		metaData = BasicDataTypesTools.stringToStrings(outPeer.getFieldNames());
-	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
+	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
 		
 	}
 

@@ -22,16 +22,18 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
+
 import org.seasr.datatypes.BasicDataTypes;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.components.tuples.DynamicTuple;
-import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
 
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
 
 
 /**
@@ -97,11 +99,19 @@ public class TupleLogger  extends AbstractExecutableComponent {
 	{
 		
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		String[] meta = DataTypeParser.parseAsString(inputMeta);
-		String fields = meta[0];
-		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
-		console.info(fields);
+		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
+		console.info(tuplePeer.toString());
 		
+		SimpleTuple tuple = tuplePeer.createTuple();
+		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
+		for (int i = 0; i < in.length; i++) {
+			tuple.setValues(in[i]);	
+			console.info(tuple.toString());
+		}
+		
+		
+		/*
 		Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
 		String[] tuples = DataTypeParser.parseAsString(input);
 		DynamicTuple tuple = inPeer.createTuple();
@@ -110,6 +120,7 @@ public class TupleLogger  extends AbstractExecutableComponent {
 			tuple.setValues(tuples[i]);	
 			console.info(tuple.toString());
 		}
+		*/
 				
 		cc.pushDataComponentToOutput(OUT_TUPLES, input);
 		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);

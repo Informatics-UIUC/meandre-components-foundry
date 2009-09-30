@@ -21,12 +21,13 @@ import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypes;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.components.tuples.DynamicTuple;
-import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 
 
@@ -122,16 +123,18 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		String[] meta = DataTypeParser.parseAsString(inputMeta);
-		String fields = meta[0];
-		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
+		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
+		SimpleTuple tuple = tuplePeer.createTuple();
+		
+		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 		
 		//
 		// write out the fieldnames as the first row
 		//
-		int size = inPeer.size();
+		int size = tuplePeer.size();
 		for (int i = 0; i < size; i++) {
-			output.write(inPeer.getFieldNameForIndex(i));
+			output.write(tuplePeer.getFieldNameForIndex(i));
 			if (i + 1 < size) {
 				output.write(tokenSep);
 			}
@@ -139,13 +142,9 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 		output.write("\n");
 		
 		
-		Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
-		String[] tuples = DataTypeParser.parseAsString(input);
-		DynamicTuple tuple = inPeer.createTuple();
-		
-		for (int i = 0; i < tuples.length; i++) {
+		for (int i = 0; i < in.length; i++) {
 			
-			tuple.setValues(tuples[i]);	
+			tuple.setValues(in[i]);	
 			
 			for (int j = 0; j < size; j++) {
 				output.write(tuple.getValue(j));

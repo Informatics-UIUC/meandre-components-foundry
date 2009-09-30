@@ -29,12 +29,13 @@ import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypes;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.components.tuples.DynamicTuple;
-import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 
 
@@ -111,25 +112,21 @@ public class TupleValueFrequencyCounter  extends AbstractExecutableComponent {
 	{
 		
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		String[] meta = DataTypeParser.parseAsString(inputMeta);
-		String fields = meta[0];
-		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
+		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
+		SimpleTuple tuple = tuplePeer.createTuple();
+		
+		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 		
 		
-		int KEY_FIELD_IDX = inPeer.getIndexForFieldName(KEY_FIELD_TUPLE);
+		int KEY_FIELD_IDX = tuplePeer.getIndexForFieldName(KEY_FIELD_TUPLE);
 		console.info("FIELD " + KEY_FIELD_TUPLE);
-		console.info("META " + fields);
 		console.info("key field index " + KEY_FIELD_IDX);
 		
-		
-		Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
-		String[] tuples = DataTypeParser.parseAsString(input);
-		DynamicTuple tuple = inPeer.createTuple();
-		
 		Map<String, Integer> tokenToCountMap = new HashMap<String,Integer>();
-		for (int i = 0; i < tuples.length; i++) {
+		for (int i = 0; i < in.length; i++) {
 			
-			tuple.setValues(tuples[i]);
+			tuple.setValues(in[i]);
 			String key = tuple.getValue(KEY_FIELD_IDX);
 			
 			Integer value  = tokenToCountMap.get(key);
@@ -158,27 +155,25 @@ public class TupleValueFrequencyCounter  extends AbstractExecutableComponent {
 	      });
 	    
 	       
-	    DynamicTuplePeer outPeer = new DynamicTuplePeer(new String[]{"count", "token"});
-	    DynamicTuple outTuple = outPeer.createTuple();
+	    SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[]{"count", "token"});
+	    SimpleTuple outTuple = outPeer.createTuple();
 	    
-	    List<String> output = new ArrayList<String>();
+	    List<Strings> output = new ArrayList<Strings>();
 	    
 	    for (Map.Entry<String,Integer> v : sortedEntries) {
 	    	outTuple.setValue("count", v.getValue().toString());
 	    	outTuple.setValue("token", v.getKey());
-	    	String result = outTuple.toString();
-	    	output.add(result);
+	    	output.add(outTuple.convert());
 	    }
 	    		
-		 String[] results = new String[output.size()];
-		 output.toArray(results);
-		 Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
-		 cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+	    Strings[] results = new Strings[output.size()];
+	    output.toArray(results);
+	    
+	    StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
+	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 		 
-		 // tuple meta data
-		 Strings metaData;
-		 metaData = BasicDataTypesTools.stringToStrings(outPeer.getFieldNames());
-		 cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
+		// tuple meta data
+		cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
 		 
 	}
 
