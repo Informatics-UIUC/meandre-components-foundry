@@ -71,14 +71,14 @@ public class TransformTokenFromDictionary extends AbstractExecutableComponent
 	//------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			name = Names.PORT_OBJECT,
-			description = "The object to be transformed"
+			name = Names.PORT_TOKEN_COUNTS,
+			description = "The token counts to be transformed"
 	)
-	protected static final String IN_OBJECT = Names.PORT_OBJECT;
+	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
 	@ComponentInput(
 			name = Names.PORT_WORDS,
-			description = "The dictionary between token and actual word"
+			description = "Mapping from token to actual word"
 	)
 	protected static final String IN_WORDS = Names.PORT_WORDS;
 
@@ -111,29 +111,19 @@ public class TransformTokenFromDictionary extends AbstractExecutableComponent
 		for(int i=0; i<sm.getValueCount(); i++) //convert sm to hm for the following comparison
 			hm.put(sm.getKey(i), sm.getValue(i));
 
-		Object data = cc.getDataComponentFromInput(IN_OBJECT);
-		if (data instanceof IntegersMap) {
-			IntegersMap im = (IntegersMap)data;
-			for (int i = 0; i < im.getValueCount(); i++) {
-		        String key = im.getKey(i);
-		        Integers values = im.getValue(i);
-		        if(hm.get(key) != null) {
-		        	res.put(
-		        		BasicDataTypesTools.stringsToStringArray(hm.get(key))[0],
+		Object data = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
+		IntegersMap im = (IntegersMap)data;
+		for (int i = 0; i < im.getValueCount(); i++) {
+			String key = im.getKey(i);
+		    Integers values = im.getValue(i);
+		    if(hm.get(key) != null) {
+		    	res.put(
+		    			BasicDataTypesTools.stringsToStringArray(hm.get(key))[0],
 		        		Integer.valueOf(values.getValue(0)));
-		        } else
-		        	res.put(key, Integer.valueOf(values.getValue(0)));
-		    }
-			componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
-			        BasicDataTypesTools.mapToIntegerMap(res, false));
+		    } else
+		        res.put(key, Integer.valueOf(values.getValue(0)));
 		}
-	}
-
-	@Override
-	protected void handleStreamInitiators() throws Exception {
-	}
-
-	@Override
-	protected void handleStreamTerminators() throws Exception {
+		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
+				BasicDataTypesTools.mapToIntegerMap(res, false));
 	}
 }
