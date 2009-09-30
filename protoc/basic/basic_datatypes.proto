@@ -4,6 +4,11 @@
 // where input is the directory in which this file resides
 // output is the directory where the .java output will be written
 //
+// if you use the latest version of protocol buffers, be sure to build the jar file
+// using maven: mvn package
+//
+// cp target/protobuf-java-x.y.z.jar into the lib dir
+//
 
 option java_package = "org.seasr.datatypes";
 option java_outer_classname = "BasicDataTypes";
