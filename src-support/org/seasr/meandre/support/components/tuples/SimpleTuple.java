@@ -74,6 +74,14 @@ public class SimpleTuple {
 		this.values = va;
 	}
 	
+	 public void setValue(SimpleTuple copyMe) 
+	 {
+	    int sz = copyMe.peer.size();
+	    for (int i = 0; i < sz; i++ ) {
+	       setValue(i, copyMe.getValue(i));
+	    }
+    }
+	
 	
 	public void setValue(int idx, String v) 
 	{

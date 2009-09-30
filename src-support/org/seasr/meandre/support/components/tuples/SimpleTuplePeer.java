@@ -78,6 +78,23 @@ public class SimpleTuplePeer
 		this.init(fn);
 	}
 	
+	public SimpleTuplePeer(SimpleTuplePeer subset, String[] additionalFields)
+	{
+		int size = subset.fieldNames.length + additionalFields.length;
+		String[] fields = new String[size];
+		int idx = 0;
+		for (int i = 0; i < subset.fieldNames.length; i++) {
+			fields[idx++] = subset.fieldNames[i];
+		}
+		for (int i = 0; i < additionalFields.length; i++) {
+			fields[idx++] = additionalFields[i];
+		}
+		
+		this.init(fields);
+	}
+	
+	
+	
 	public Strings convert() 
 	{
 		return BasicDataTypesTools.stringToStrings(fieldNames);
