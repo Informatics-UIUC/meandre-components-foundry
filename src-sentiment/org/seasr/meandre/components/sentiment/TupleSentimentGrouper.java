@@ -25,14 +25,13 @@ import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypes;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
-import org.seasr.datatypes.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.tools.Names;
 
 
 import org.seasr.meandre.support.sentiment.SentimentSupport;
-import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.components.tuples.DynamicTuple;
-import org.seasr.meandre.support.components.tuples.DynamicTuplePeer;
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 
 
@@ -119,20 +118,28 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
+		/*
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 		String[] meta = DataTypeParser.parseAsString(inputMeta);
 		String fields = meta[0];
 		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
-
-		DynamicTuplePeer outPeer = 
-			new DynamicTuplePeer(
-					new String[]{WINDOW_FIELD, START_FIELD, POS_FIELD,
-							     CONCEPT_FIELD, COUNT_FIELD, FREQ_FIELD});	
 		
 		Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
 		String[] tuples = DataTypeParser.parseAsString(input);
-		DynamicTuple tuple = inPeer.createTuple();
-		DynamicTuple outTuple = outPeer.createTuple();
+		*/
+		
+		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+		SimpleTuplePeer inPeer  = new SimpleTuplePeer(inputMeta);
+		SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[]{
+				                 WINDOW_FIELD, START_FIELD, POS_FIELD,
+							     CONCEPT_FIELD, COUNT_FIELD, FREQ_FIELD});	
+		
+		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
+		
+		
+		SimpleTuple tuple    = inPeer.createTuple();
+		SimpleTuple outTuple = outPeer.createTuple();
 		
 		int CONCEPT_IDX = inPeer.getIndexForFieldName(conceptLabel);
 		int START_IDX   = inPeer.getIndexForFieldName(startLabel);
@@ -146,16 +153,16 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 		int window = 1;
 		
 		// the last tuple has the last idx
-		tuple.setValues(tuples[ tuples.length - 1]);
+		tuple.setValues(in[in.length - 1]);
 		long end = Long.parseLong(tuple.getValue(START_IDX));
 		windowSize = (int) (end/maxWindows);
 		
 		Map<String,Integer> freqMap = new HashMap<String,Integer>();
 		
-		List<String> output = new ArrayList<String>();
-		for (int i = 0; i < tuples.length; i++) {
+		List<Strings> output = new ArrayList<Strings>();
+		for (int i = 0; i < in.length; i++) {
 			
-			tuple.setValues(tuples[i]);	
+			tuple.setValues(in[i]);	
 			String concept = tuple.getValue(CONCEPT_IDX);
 			String pos     = tuple.getValue(POS_IDX);
 			long start     = Long.parseLong(tuple.getValue(START_IDX));
@@ -175,7 +182,7 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 			//
 			// check to see if we have a window's worth of data
 			//
-			if (start - currentPosition > windowSize || (i + 1 == tuples.length)) {
+			if (start - currentPosition > windowSize || (i + 1 == in.length)) {
 				
 				List<Map.Entry<String, Integer>> sortedEntries;
 				sortedEntries = SentimentSupport.sortHashMap(freqMap);
@@ -198,7 +205,7 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 					outTuple.setValue(CONCEPT_FIELD, key);
 					outTuple.setValue(COUNT_FIELD,   Integer.toString(count));
 					outTuple.setValue(FREQ_FIELD,    Integer.toString(rf));
-					output.add(outTuple.toString());
+					output.add(outTuple.convert());
 				}
 				
 				freqMap.clear();  
@@ -213,18 +220,15 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 		//
 		// push the whole collection, protocol safe
 		//
-	    String[] results = new String[output.size()];
-	    output.toArray(results);
-	    Strings outputSafe = BasicDataTypesTools.stringToStrings(results);
-	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+		Strings[] results = new Strings[output.size()];
+		output.toArray(results);
+		StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
+		cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 
-	    
 	    //
 		// metaData for this tuple producer
 		//
-	    Strings metaData;
-		metaData = BasicDataTypesTools.stringToStrings(outPeer.getFieldNames());
-	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
+	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
 		
 	}
 
