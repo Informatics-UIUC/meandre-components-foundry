@@ -145,12 +145,13 @@ public class TupleFilter  extends AbstractExecutableComponent {
 			
 		}
 		
+		// push out the data, protocol safe
 		Strings[] results = new Strings[output.size()];
 		output.toArray(results);
-		    
 		StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
 		cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 		 
+		// push out the meta data
 		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
 		 
 	}
