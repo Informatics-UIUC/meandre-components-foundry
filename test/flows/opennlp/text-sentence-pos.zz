@@ -6,7 +6,7 @@
 #import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/tools/basic/PushText.rdf>
 alias <meandre://seasr.org/components/tools/push-text> as Push
 
-#import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/sentiment/TupleLogger.rdf>
+#import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/tools/tuples/TupleLogger.rdf>
 alias <meandre://seasr.org/components/tools/tuple-logger> as Printer
 
 #import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPSentenceDetector.rdf>
