@@ -68,6 +68,12 @@ public class TupleValueToString extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 	
+	@ComponentOutput(
+			name = Names.PORT_META_TUPLE,
+			description = "meta data for tuple (the fieldname) "
+	)
+	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
+	
 		
 	
 	
@@ -101,12 +107,20 @@ public class TupleValueToString extends AbstractExecutableComponent {
 			throw new RuntimeException("tuple has no field named " + fieldname);
 		}
 		
+		SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] {fieldname});
+		
 		for (int i = 0; i < in.length; i++) {
 			tuple.setValues(in[i]);	
 			String value = tuple.getValue(FIELD_IDX);
 			
 		    Strings outputSafe = BasicDataTypesTools.stringToStrings(value);
 		    cc.pushDataComponentToOutput(OUT_TEXT, outputSafe);
+		    
+		    //
+		    // Also push out the meta data here
+		    //
+		    
+		    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
 		}
 	}
 
