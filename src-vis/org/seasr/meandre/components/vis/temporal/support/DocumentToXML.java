@@ -135,8 +135,7 @@ public class DocumentToXML extends AbstractExecutableComponent {
     	document.appendChild(rootElement);
 
 		doc.getDocumentElement().normalize();
-		String theTitle = doc.getDocumentElement().getAttribute("docID");
-		console.finest("Root element : " + theTitle);
+
 		NodeList dateNodes = doc.getElementsByTagName("date");
 
 		for (int i = 0, iMax = dateNodes.getLength(); i < iMax; i++) {
@@ -200,7 +199,8 @@ public class DocumentToXML extends AbstractExecutableComponent {
 			        String docTitle = elSentence.getAttribute("docTitle");
 			        String theSentence = elSentence.getTextContent();
 
-			        int datePos = theSentence.toLowerCase().indexOf(aDate);
+			        int datePos = indexOf(theSentence.toLowerCase(), aDate.toLowerCase());
+
 			        String sentBefore = theSentence.substring(0, datePos);
 			        String sentAfter = theSentence.substring(datePos + aDate.length());
 			        theSentence = StringEscapeUtils.escapeHtml(sentBefore) +
@@ -311,4 +311,46 @@ public class DocumentToXML extends AbstractExecutableComponent {
 	    		OUT_XML, BasicDataTypesTools.stringToStrings(result.getWriter().toString()));
 
     }
+
+	/**
+	 *
+	 * @param str
+	 * @param str2
+	 * @return the index within this str of the first occurrence of
+	 * the specified substring str2.
+	 */
+	private int indexOf(String str, String str2) {
+		boolean foundIt = false;
+
+		int len = str.length();
+		int len2 = str2.length();
+		int max = len - len2;
+
+		int i,j,k;
+		for (i = 0; i<=max && !foundIt; i++) {
+
+			j = i;
+		    k = 0;
+
+		    while (true) {
+				char c = str.charAt(j++);
+				while(j<len && Character.isWhitespace(c))
+					c = str.charAt(j++);
+
+				char c2 = str2.charAt(k++);
+				while(k<len2 && Character.isWhitespace(c2))
+					c2 = str2.charAt(k++);
+
+		        if (c != c2)
+					break;
+
+				if(k>len2-1) {
+				  	foundIt = true;
+		            break;
+				}
+		    }
+		}
+
+		return i;
+	}
 }
