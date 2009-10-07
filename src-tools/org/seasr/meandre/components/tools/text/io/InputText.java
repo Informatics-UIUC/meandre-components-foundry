@@ -70,7 +70,7 @@ import org.seasr.meandre.components.tools.Names;
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/",
-        dependency = { "velocity-1.6.1-dep.jar" },
+        dependency = { "velocity-1.6.2-dep.jar" },
         resources = { "InputText.vm" }
 )
 public class InputText extends GenericTemplate {

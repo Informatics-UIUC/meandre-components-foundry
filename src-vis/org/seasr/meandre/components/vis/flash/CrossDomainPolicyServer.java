@@ -83,7 +83,7 @@ import org.seasr.meandre.components.tools.text.io.GenericTemplate;
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/",
-        dependency = { "velocity-1.6.1-dep.jar" },
+        dependency = { "velocity-1.6.2-dep.jar" },
         resources = {"CrossDomainPolicyServer.vm"}
 )
 
