@@ -106,10 +106,10 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			name = Names.PORT_TOKENS,
-			description = "The sequence of tokens"
+			name = Names.PORT_TOKENIZED_SENTENCES,
+			description = "The sequence of tokenized sentences"
 	)
-	protected static final String IN_TOKENS = Names.PORT_TOKENS;
+	protected static final String IN_TOKENS = Names.PORT_TOKENIZED_SENTENCES;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
