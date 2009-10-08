@@ -95,6 +95,9 @@ public abstract class Names {
 	public static final String PROP_URL_CONTEXT_PATH = "url_context_path";
 	public static final String PROP_SEED = "seed";
 	public static final String PROP_LOCATION = "location";
+	public static final String PROP_TABLE_FACTORY = "table_factory";
+	public static final String PROP_TABLE = "table";
+
 
 
 
