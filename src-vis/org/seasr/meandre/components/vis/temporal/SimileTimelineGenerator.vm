@@ -62,40 +62,39 @@
 			var fmonth = document.getElementById("fmonth");
 			var fyear = document.getElementById("fyear");
 
+            fday.setAttribute("color", "");
+            fmonth.setAttribute("color", "");
+            fyear.setAttribute("color", "");
+
 			var color = "red";
 
-			if (view == 'DAY') {
-	    		band0Unit = Timeline.DateTime.DAY;
-	    		band1Unit = Timeline.DateTime.MONTH;
-	    		band2Unit = Timeline.DateTime.YEAR;
+            switch (view) {
+    			 case 'DAY':
+    	    		band0Unit = Timeline.DateTime.DAY;
+    	    		band1Unit = Timeline.DateTime.MONTH;
+    	    		band2Unit = Timeline.DateTime.YEAR;
 
-				fday.setAttribute("color",color);
-				fmonth.setAttribute("color","");
-				fyear.setAttribute("color","");
+    				fday.setAttribute("color", color);
+    				selection = "DAY";
+    			    break;
 
-				selection = "DAY";
-			}
-			if (view == 'MONTH') {
-	    		band0Unit = Timeline.DateTime.MONTH;
-	    		band1Unit = Timeline.DateTime.YEAR;
-	    		band2Unit = Timeline.DateTime.DECADE;
+    			 case 'MONTH':
+    	    		band0Unit = Timeline.DateTime.MONTH;
+    	    		band1Unit = Timeline.DateTime.YEAR;
+    	    		band2Unit = Timeline.DateTime.DECADE;
 
-				fday.setAttribute("color","");
-				fmonth.setAttribute("color",color);
-				fyear.setAttribute("color","");
+    				fmonth.setAttribute("color",color);
+    				selection = "MONTH";
+    				break;
 
-				selection = "MONTH";
-			}
-			if (view == 'YEAR') {
-	   			band0Unit = Timeline.DateTime.YEAR;
-	    		band1Unit = Timeline.DateTime.DECADE;
-				band2Unit = Timeline.DateTime.CENTURY;
+                case 'YEAR':
+    	   			band0Unit = Timeline.DateTime.YEAR;
+    	    		band1Unit = Timeline.DateTime.DECADE;
+    				band2Unit = Timeline.DateTime.CENTURY;
 
-				fday.setAttribute("color","");
-				fmonth.setAttribute("color","");
-				fyear.setAttribute("color",color);
-
-				selection = "YEAR";
+    				fyear.setAttribute("color",color);
+    				selection = "YEAR";
+    		        break;
 			}
 
 	        var eventSource = new Timeline.DefaultEventSource();
@@ -104,23 +103,12 @@
 	        theme.event.bubble.width = 600;
 	        theme.event.bubble.height = 500;
 
-	        #set ($nrYears = $maxYear - $minYear)
-	        #set ($index = 0)
-
-	        #if ($nrYears > 0 && $nrYears < 101)
-	            #set ($index = 1)
-	        #else
-	            #set ($index = 2)
-	        #end
-
-	        #set ($units = ["DAY", "MONTH", "YEAR", "DECADE", "CENTURY"])
-
 	        var bandInfos = [
 		        Timeline.createBandInfo({
 		            eventSource:    eventSource,
 		            date:           "Jan 01 $minYear 00:00:00 GMT",
 		            width:          "70%",
-		            intervalUnit:   band0Unit, //Timeline.DateTime.${units.get($index)},
+		            intervalUnit:   band0Unit,
 		            intervalPixels: 100,
 		            theme:          theme
 		        }),
@@ -131,8 +119,7 @@
 		            eventSource:    eventSource,
 		            date:           "Jan 01 $minYear 00:00:00 GMT",
 		            width:          "20%",
-		                            #set ($index = $index + 1)
-		            intervalUnit:   band1Unit, //Timeline.DateTime.${units.get($index)},
+		            intervalUnit:   band1Unit,
 		            intervalPixels: 200
 		        }),
 		        Timeline.createBandInfo({
@@ -142,10 +129,9 @@
 		            eventSource:    eventSource,
 		            date:           "Jan 01 $minYear 00:00:00 GMT",
 		            width:          "10%",
-		                            #set ($index = $index + 1)
-		            intervalUnit:   band2Unit, //Timeline.DateTime.${units.get($index)},
+		            intervalUnit:   band2Unit,
 		            intervalPixels: pixels
-		            })
+		        })
 	        ];
 
 	        bandInfos[1].syncWith = 0;

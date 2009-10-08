@@ -43,13 +43,11 @@
 package org.seasr.meandre.components.vis.temporal;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import org.apache.velocity.VelocityContext;
@@ -92,6 +90,7 @@ import org.w3c.dom.Document;
 public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
+
 	@ComponentInput(
 	        description = "The minimum year in input document.",
 	        name = Names.PORT_MIN_VALUE
@@ -118,7 +117,6 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_HTML = Names.PORT_HTML;
 
-
     //--------------------------------------------------------------------------------------------
 
 
@@ -133,7 +131,6 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     private VelocityContext _context;
 
-    private static String delimiter = "/";
 
     //--------------------------------------------------------------------------------------------
 
@@ -152,24 +149,12 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     	maxYear = DataTypeParser.parseAsInteger(
     			cc.getDataComponentFromInput(IN_MAX_YEAR))[0].intValue();
 
-    	String path = "simile";
-    	if(path.startsWith(delimiter)) //remove the first delimiter
-    		path = path.substring(1);
-    	if(path.endsWith(delimiter)) //remove the last delimiter
-    		path = path.substring(0, path.length()-1);
 
         String dirName = cc.getPublicResourcesDirectory() + File.separator;
-        StringBuffer sb = new StringBuffer();
-        StringTokenizer st = new StringTokenizer(path, delimiter);
-        while(st.hasMoreTokens()) {
-        	sb.append(st.nextToken()).append(File.separator);
-        }
-        dirName += sb.toString();
+        dirName += "simile" + File.separator;
 
-        File dir = new File(dirName);
-        if (!dir.exists())
-            if (!dir.mkdirs())
-                throw new IOException("The directory '" + dirName + "' could not be created!");
+        // make sure the folder exists
+        new File(dirName).mkdirs();
 
         console.finest("Set storage location to " + dirName);
 
@@ -178,12 +163,8 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String htmlFileName = "my" + formatter.format(now) + ".html",
                xmlFileName = "my" + formatter.format(now) + ".xml";
-        String str = webUiUrl +
-        	"public" + delimiter +
-        	"resources" + delimiter +
-        	path + delimiter;
-        String htmlLocation = str + htmlFileName,
-               xmlLocation  = str + xmlFileName;
+        String htmlLocation = webUiUrl + "public/resources/simile/" + htmlFileName,
+               xmlLocation  = webUiUrl + "public/resources/simile/" + xmlFileName;
 
         console.finest("htmlFileName=" + htmlFileName);
         console.finest("xmlFileName=" + xmlFileName);
