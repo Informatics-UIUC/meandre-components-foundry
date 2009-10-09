@@ -48,6 +48,7 @@ import java.util.Map;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.components.datatype.table.ExampleTable;
@@ -65,6 +66,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         description = "Converts token count to table.",
         name = "Token Count To Table",
         tags = "token, count, table, convert",
+        firingPolicy = FiringPolicy.any,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/tools/",
         dependency = {"protobuf-java-2.2.0.jar"}
@@ -100,15 +102,18 @@ public class TokenCountToTable extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+
 		if (cc.isInputAvailable(IN_TABLE_FACTORY)) {
+
 			_fact = (TableFactory)cc.getDataComponentFromInput(
 					IN_TABLE_FACTORY);
 			_termTable = _fact.createTable().toExampleTable();
 
-			_termTable.addRows(2);
+			_termTable.addRows(2); //for table viewer using jQuery
 		}
 
 		if (cc.isInputAvailable(IN_TOKEN_COUNTS)) {
+
 			Map<String, Integer> map = DataTypeParser.parseAsStringIntegerMap(
 					cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
 			if(map.size() > 0) {
@@ -131,18 +136,16 @@ public class TokenCountToTable extends AbstractExecutableComponent {
 					// set the value in the table
 					_termTable.setInt(count.intValue(), row, col);
 
-					console.info(key + " -> " + row + " -> " + col);
-
 					if (flag) {
 						_termTable.setColumnLabel(key, col);
 					}
 				}
 			}
-		}
 
-		if (!_gotInitiator) {
-		    cc.pushDataComponentToOutput(OUT_TABLE, _termTable);
-		    m_gtm.clear();
+			if (!_gotInitiator) {
+			    cc.pushDataComponentToOutput(OUT_TABLE, _termTable);
+			    m_gtm.clear();
+			}
 		}
 	}
 
@@ -154,6 +157,7 @@ public class TokenCountToTable extends AbstractExecutableComponent {
 
 	@Override
 	protected void handleStreamInitiators() throws Exception {
+
 		if (_gotInitiator)
 			throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
 
@@ -163,6 +167,7 @@ public class TokenCountToTable extends AbstractExecutableComponent {
 
 	@Override
     protected void handleStreamTerminators() throws Exception {
+
 		if (!_gotInitiator)
 			throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
