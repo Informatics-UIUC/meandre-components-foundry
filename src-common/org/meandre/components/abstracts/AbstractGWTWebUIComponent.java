@@ -49,7 +49,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.VelocityContext;
-import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.ConfigurableWebUIFragmentCallback;
@@ -95,12 +94,6 @@ public abstract class AbstractGWTWebUIComponent extends AbstractExecutableCompon
         _context.put("contextPath", getContextPath());
         _context.put("gwt", "/public/resources/gwt/" + getClass().getName());
     }
-
-    @Override
-    public abstract void executeCallBack(ComponentContext cc) throws Exception;
-
-    @Override
-    public abstract void disposeCallBack(ComponentContextProperties ccp) throws Exception;
 
     //--------------------------------------------------------------------------------------------
 

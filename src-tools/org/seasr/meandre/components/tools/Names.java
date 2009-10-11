@@ -50,6 +50,7 @@ package org.seasr.meandre.components.tools;
  */
 public abstract class Names {
 
+    // PROPERTIES
     public static final String PROP_ERROR_HANDLING = "ignore_errors";
     public static final String PROP_BASE_URI = "base_uri";
     public static final String PROP_RDF_DIALECT = "rdf_dialect";
@@ -97,10 +98,11 @@ public abstract class Names {
 	public static final String PROP_LOCATION = "location";
 	public static final String PROP_TABLE_FACTORY = "table_factory";
 	public static final String PROP_TABLE = "table";
+	public static final String PROP_HAS_COLUMN_LABEL_HEADER = "has_column_label_header";
+	public static final String PROP_HAS_COLUMN_TYPE_HEADER = "has_column_type_header";
+	public static final String PROP_PAGE_SIZE = "page_size";
 
-
-
-
+	// PORTS
 	public static final String PORT_DIRECTORY = "directory";
 	public static final String PORT_LOCATION = "location";
 	public static final String PORT_DOCUMENT = "document";
@@ -140,7 +142,7 @@ public abstract class Names {
 	public static final String PORT_FILENAME = "file_name";
 	public static final String PORT_MIME_TYPE = "mime_type";
 	public static final String PORT_ERROR = "error";
-
+	public static final String PORT_TABLE = "table";
 	public static final String PORT_TUPLE  = "tuple";
 	public static final String PORT_TUPLES = "tuples";
 	public static final String PORT_META_TUPLE = "meta_tuple";

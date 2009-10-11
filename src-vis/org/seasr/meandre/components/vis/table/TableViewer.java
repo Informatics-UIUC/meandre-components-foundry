@@ -100,9 +100,9 @@ public class TableViewer extends AbstractGWTWebUIComponent {
                           "each attribute (column) stored as an object array, or stored as a table." +
                           "<br>TYPE: java.util.Vector<java.lang.Object[]>" +
                           "<br>      or org.meandre.components.datatype.table.Table",
-            name = "table"
+            name = Names.PORT_TABLE
     )
-    protected static final String IN_TABLE = "table";
+    protected static final String IN_TABLE = Names.PORT_TABLE;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -114,9 +114,9 @@ public class TableViewer extends AbstractGWTWebUIComponent {
 
     @ComponentOutput(
             description = "This output is the original content that is unchanged.",
-            name = "table"
+            name = Names.PORT_TABLE
     )
-    protected static final String OUT_TABLE = "table";
+    protected static final String OUT_TABLE = Names.PORT_TABLE;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -124,25 +124,25 @@ public class TableViewer extends AbstractGWTWebUIComponent {
             defaultValue = "true",
             description = "This property indicates whether a header exists " +
                           "that contains the attribute (column) labels in the first row of the file. ",
-            name = "has_column_label_header"
+            name = Names.PROP_HAS_COLUMN_LABEL_HEADER
     )
-    protected static final String PROP_HAS_LABEL_HEADER = "has_column_label_header";
+    protected static final String PROP_HAS_LABEL_HEADER = Names.PROP_HAS_COLUMN_LABEL_HEADER;
 
     @ComponentProperty(
             defaultValue = "true",
             description = "This property indicates whether a header exists " +
                           "that contains the attribute (column) types in the second row of the file. "+
                           "Attribute types such as integer, float, double or String.",
-            name = "has_column_type_header"
+            name = Names.PROP_HAS_COLUMN_TYPE_HEADER
     )
-    protected static final String PROP_HAS_TYPE_HEADER = "has_column_type_header";
+    protected static final String PROP_HAS_TYPE_HEADER = Names.PROP_HAS_COLUMN_TYPE_HEADER;
 
     @ComponentProperty(
             defaultValue = "50",
             description = "The number of rows to be retrieved dynamically at once",
-            name = "page_size"
+            name = Names.PROP_PAGE_SIZE
     )
-    protected static final String PROP_PAGE_SIZE = "page_size";
+    protected static final String PROP_PAGE_SIZE = Names.PROP_PAGE_SIZE;
 
     //--------------------------------------------------------------------------------------------
 
