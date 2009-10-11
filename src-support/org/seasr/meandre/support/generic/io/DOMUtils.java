@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -82,13 +83,31 @@ public abstract class DOMUtils {
     /** Factory for generating document builders. */
     public static final DocumentBuilderFactory DOC_FACT = DocumentBuilderFactory.newInstance();
 
+    /** Factory for generating documents */
+    public static DocumentBuilder DOC_BUILDER;
+
     /** Factory for generating SAX parsers. */
     public static final SAXParserFactory SAX_FACT = SAXParserFactory.newInstance();
 
     static {
         DOC_FACT.setNamespaceAware(true);
+
+        try {
+            DOC_BUILDER = DOC_FACT.newDocumentBuilder();
+        }
+        catch (ParserConfigurationException e) {
+            DOC_BUILDER = null;
+        }
     }
 
+    /**
+     * Create a new DOM document based on the default configuration (namespace aware: on)
+     *
+     * @return The new Document
+     */
+    public static Document createNewDocument() {
+        return DOC_BUILDER.newDocument();
+    }
 
     /**
      * Creates a DOM Document from a string representation of an XML document
@@ -160,6 +179,27 @@ public abstract class DOMUtils {
 
         Source input = new DOMSource(document);
         Result output = new StreamResult(outputStream);
+
+        transformer.transform(input, output);
+    }
+
+    /**
+     * Writes the specified DOM to the given writer.
+     *
+     * @param document The DOM Document
+     * @param writer The writer
+     * @param outputProperties The transformation properties
+     * @throws TransformerException
+     */
+    public static void writeXML(Document document, Writer writer, Properties outputProperties) throws TransformerException
+    {
+        Transformer transformer = TRANS_FACT.newTransformer();
+
+        if (outputProperties != null)
+            transformer.setOutputProperties(outputProperties);
+
+        Source input = new DOMSource(document);
+        Result output = new StreamResult(writer);
 
         transformer.transform(input, output);
     }

@@ -1,10 +1,50 @@
+/**
+ * University of Illinois/NCSA
+ * Open Source License
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
+ * All rights reserved.
+ *
+ * Developed by:
+ *
+ * Automated Learning Group
+ * National Center for Supercomputing Applications
+ * http://www.seasr.org
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal with the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimers.
+ *
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ *  * Neither the names of Automated Learning Group, The National Center for
+ *    Supercomputing Applications, or University of Illinois, nor the names of
+ *    its contributors may be used to endorse or promote products derived from
+ *    this Software without specific prior written permission.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * WITH THE SOFTWARE.
+ */
+
 package org.seasr.meandre.components.tools.text.transform;
 
 import java.util.Properties;
 import java.util.Vector;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 
 import org.meandre.annotations.Component;
@@ -23,12 +63,16 @@ import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.seasr.meandre.support.generic.text.XMLUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+/**
+ * @author Lily Dong
+ * @author Boris Capitanu
+ */
 
 @Component(
         creator = "Lily Dong",
@@ -42,10 +86,9 @@ import org.w3c.dom.NodeList;
         baseURL="meandre://seasr.org/components/tools/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
+public class TupleToXML extends AbstractExecutableComponent {
 
-public class TupleToXML  extends AbstractExecutableComponent {
-
-	//----------------------- INPUTS -----------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
@@ -71,8 +114,7 @@ public class TupleToXML  extends AbstractExecutableComponent {
 	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
-
-	//----------------------- OUTPUTS -----------------------
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 	        description = "XML document created from tuples.",
@@ -80,7 +122,7 @@ public class TupleToXML  extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_XML = Names.PORT_XML;
 
-    //----------------------- PROPERTIES -----------------------
+    //------------------------------ PROPERTIES --------------------------------------------------
 
 	@ComponentProperty(
 	        description = "Entity types (comma delimited list).",
@@ -89,24 +131,25 @@ public class TupleToXML  extends AbstractExecutableComponent {
 	)
 	protected static final String PROP_ENTITIES = Names.PROP_ENTITIES;
 
+    //--------------------------------------------------------------------------------------------
+
+
 	private String _entities;
-	private DocumentBuilder _docBuilder;
 	private Properties _xmlProperties;
 	private Vector<org.w3c.dom.Document> _simileDocs = new Vector<org.w3c.dom.Document>();
 	private boolean _gotInitiator;
 
 	private static String encoding = "UTF-8";
 
+
+    //--------------------------------------------------------------------------------------------
+
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _entities = ccp.getProperty(PROP_ENTITIES);
 
-        DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-        dbfac.setNamespaceAware(true);
-        _docBuilder = dbfac.newDocumentBuilder();
-
         _xmlProperties = new Properties();
-        _xmlProperties.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        _xmlProperties.put(OutputKeys.OMIT_XML_DECLARATION, "no");
         _xmlProperties.put(OutputKeys.INDENT, "yes");
         _xmlProperties.put(OutputKeys.ENCODING, encoding);
 
@@ -129,7 +172,7 @@ public class TupleToXML  extends AbstractExecutableComponent {
 
 		String docId = java.util.UUID.randomUUID().toString();
 
-	    org.w3c.dom.Document doc_out = _docBuilder.newDocument();
+	    org.w3c.dom.Document doc_out = DOMUtils.createNewDocument();
 	    Element root = doc_out.createElement("root");
 	    doc_out.appendChild(root);
         root.setAttribute("docID", docId);
@@ -162,75 +205,18 @@ public class TupleToXML  extends AbstractExecutableComponent {
 
 		if (!_gotInitiator) {
 		    String xmlString = DOMUtils.getString(_simileDocs.get(0), _xmlProperties);
-
 		    xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
-
-		    xmlString = "<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>" + xmlString;
 
 		    cc.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(xmlString));
 		    _simileDocs.clear();
 		}
 	}
 
-	private Element createSentenceNode(
-			org.w3c.dom.Document doc_out,
-			String sentence, String docId,
-			String docTitle) {
-        Element elSentence = doc_out.createElement("sentence");
-
-        if (docId != null)
-            elSentence.setAttribute("docId", docId);
-
-        if (docTitle != null)
-            elSentence.setAttribute("docTitle", docTitle);
-
-        elSentence.setTextContent(sentence);
-
-        return elSentence;
-    }
-
-	private org.w3c.dom.Document mergeXmlDocuments() {
-		if (_simileDocs.size() == 0) return null;
-	    if (_simileDocs.size() == 1) return _simileDocs.get(0);
-
-	    org.w3c.dom.Document doc = _docBuilder.newDocument();
-	    Element root = doc.createElement("root");
-	    doc.appendChild(root);
-
-	    for (org.w3c.dom.Document d : _simileDocs) {
-	    	NodeList nodes = d.getDocumentElement().getChildNodes();
-	        for (int i = 0, iMax = nodes.getLength(); i < iMax; i++) {
-	        	Element elEntity = (Element)nodes.item(i);
-	            String entityId = elEntity.getAttribute("id");
-
-	            Element element = doc.getElementById(entityId);
-	            if (element == null) {
-	            	element = doc.createElement(elEntity.getNodeName());
-	                element.setAttribute("value", elEntity.getAttribute("value"));
-	                element.setAttribute("id", elEntity.getAttribute("id"));
-	                element.setIdAttribute("id", true);
-	                root.appendChild(element);
-	            }
-
-	            NodeList entityChildren = elEntity.getElementsByTagName("sentence");
-	            for (int j = 0, jMax = entityChildren.getLength(); j < jMax; j++) {
-	                Element child = (Element)entityChildren.item(j);
-	                String docId = child.getAttribute("docId");
-	                String docTitle = child.getAttribute("docTitle");
-	                if (docId == null || docId.length() == 0) docId = null;
-	                if (docTitle == null || docTitle.length() == 0) docTitle = null;
-	                Element elSentence = createSentenceNode(doc, child.getTextContent(), docId, docTitle);
-	                element.appendChild(elSentence);
-	            }
-	        }
-	    }
-
-	    return doc;
-	}
-
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
+
+    //--------------------------------------------------------------------------------------------
 
 	@Override
 	protected void handleStreamInitiators() throws Exception {
@@ -247,10 +233,7 @@ public class TupleToXML  extends AbstractExecutableComponent {
             throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
         String xmlString = DOMUtils.getString(mergeXmlDocuments(), _xmlProperties);
-
         xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
-
-        xmlString = "<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>" + xmlString;
 
         componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
         componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(xmlString));
@@ -259,4 +242,60 @@ public class TupleToXML  extends AbstractExecutableComponent {
         _gotInitiator = false;
         _simileDocs.clear();
 	}
+
+    //--------------------------------------------------------------------------------------------
+
+    private Element createSentenceNode(org.w3c.dom.Document doc_out, String sentence, String docId, String docTitle) {
+        Element elSentence = doc_out.createElement("sentence");
+
+        if (docId != null)
+            elSentence.setAttribute("docId", docId);
+
+        if (docTitle != null)
+            elSentence.setAttribute("docTitle", docTitle);
+
+        elSentence.setTextContent(sentence);
+
+        return elSentence;
+    }
+
+    private org.w3c.dom.Document mergeXmlDocuments() {
+        if (_simileDocs.size() == 0) return null;
+        if (_simileDocs.size() == 1) return _simileDocs.get(0);
+
+        org.w3c.dom.Document doc = DOMUtils.createNewDocument();
+        Element root = doc.createElement("root");
+        doc.appendChild(root);
+
+        for (org.w3c.dom.Document d : _simileDocs) {
+            NodeList nodes = d.getDocumentElement().getChildNodes();
+            for (int i = 0, iMax = nodes.getLength(); i < iMax; i++) {
+                Element elEntity = (Element)nodes.item(i);
+                String entityId = elEntity.getAttribute("id");
+
+                Element element = doc.getElementById(entityId);
+                if (element == null) {
+                    element = doc.createElement(elEntity.getNodeName());
+                    element.setAttribute("value", elEntity.getAttribute("value"));
+                    element.setAttribute("id", elEntity.getAttribute("id"));
+                    element.setIdAttribute("id", true);
+                    root.appendChild(element);
+                }
+
+                NodeList entityChildren = elEntity.getElementsByTagName("sentence");
+                for (int j = 0, jMax = entityChildren.getLength(); j < jMax; j++) {
+                    Element child = (Element)entityChildren.item(j);
+                    String docId = child.getAttribute("docId");
+                    String docTitle = child.getAttribute("docTitle");
+                    if (docId == null || docId.length() == 0) docId = null;
+                    if (docTitle == null || docTitle.length() == 0) docTitle = null;
+                    Element elSentence = createSentenceNode(doc, child.getTextContent(), docId, docTitle);
+                    element.appendChild(elSentence);
+                }
+            }
+        }
+
+        return doc;
+    }
+
 }

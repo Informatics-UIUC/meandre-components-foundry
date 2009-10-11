@@ -40,19 +40,11 @@
  * WITH THE SOFTWARE.
  */
 
-
-package org.seasr.meandre.components.vis.temporal.support;
+package org.seasr.meandre.components.tools.xml.transform;
 
 import java.io.StringWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.meandre.annotations.Component;
@@ -65,21 +57,27 @@ import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+/**
+ * @author Lily Dong
+ * @author Boris Capitanu
+ */
+
 @Component(
         creator = "Lily Dong",
-        description = "Converts doucment to XML file for Simile Timeline.",
-        name = "Document To XML",
-        tags = "simile, xml, convert",
+        description = "Transforms the XML input for Simile Timeline.",
+        name = "Date-entity To Simile",
+        tags = "date entity, simile, xml, convert",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/tools/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
+public class DateEntityToSimile extends AbstractExecutableComponent {
 
-public class DocumentToXML extends AbstractExecutableComponent {
 	//------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
@@ -110,37 +108,32 @@ public class DocumentToXML extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
+
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
 	@Override
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-	}
-
-	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
+		Document doc_in = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
 
     	int minYear = Integer.MAX_VALUE;
     	int maxYear = Integer.MIN_VALUE;
 
-    	DocumentBuilderFactory documentBuilderFactory =
-    		DocumentBuilderFactory.newInstance();
-    	DocumentBuilder documentBuilder =
-    		documentBuilderFactory.newDocumentBuilder();
-    	Document document = documentBuilder.newDocument();
+    	Document doc_out = DOMUtils.createNewDocument();
 
-    	Element rootElement = document.createElement("data");
-    	document.appendChild(rootElement);
+    	Element rootElement = doc_out.createElement("data");
+    	doc_out.appendChild(rootElement);
 
-		doc.getDocumentElement().normalize();
+		doc_in.getDocumentElement().normalize();
 
-		NodeList dateNodes = doc.getElementsByTagName("date");
+		NodeList dateNodes = doc_in.getElementsByTagName("date");
 
 		for (int i = 0, iMax = dateNodes.getLength(); i < iMax; i++) {
 			Element elEntity = (Element)dateNodes.item(i);
 			String aDate = elEntity.getAttribute("value");
+
+			console.finest("aDate: '" + aDate + "'");
 
 			//standardize date
 
@@ -155,11 +148,13 @@ public class DocumentToXML extends AbstractExecutableComponent {
 					"april|apr|may|june|jun|july|jul|august|aug|september|sept|october|oct|"+
 					"november|nov|december|dec)");
 			Matcher dateMatcher = datePattern.matcher(aDate);
+
 			if(dateMatcher.find()) { //look for month
 				month = dateMatcher.group(1);
 			} else { //look for season
 				datePattern = Pattern.compile("(spring|summer|fall|winter)");
 				dateMatcher = datePattern.matcher(aDate);
+
 				if(dateMatcher.find()) {
 					String season = dateMatcher.group(1);
 					if(season.equalsIgnoreCase("spring")) {
@@ -199,7 +194,15 @@ public class DocumentToXML extends AbstractExecutableComponent {
 			        String docTitle = elSentence.getAttribute("docTitle");
 			        String theSentence = elSentence.getTextContent();
 
-			        int datePos = indexOf(theSentence.toLowerCase(), aDate.toLowerCase());
+			        String normalizedSentence = theSentence.replaceAll("\r|\n", " ").toLowerCase();
+			        String normalizedDate = aDate.replaceAll("\r|\n", " ").toLowerCase();
+
+			        int datePos = normalizedSentence.indexOf(normalizedDate);
+			        if (datePos < 0) {
+			            console.warning("Could not find the position of the date in the sentence! This should not happen!");
+			            console.warning("   sentence: '" + normalizedSentence + "'");
+			            console.warning("   date: '" + normalizedDate + "'");
+			        }
 
 			        String sentBefore = theSentence.substring(0, datePos);
 			        String sentAfter = theSentence.substring(datePos + aDate.length());
@@ -222,17 +225,17 @@ public class DocumentToXML extends AbstractExecutableComponent {
 				if(day == null)
 					if(month == null) { //season year
 						if(startMonth != null) {//spring or summer or fall or winter year
-							Element em = document.createElement("event");
+							Element em = doc_out.createElement("event");
 							em.setAttribute("start", startMonth + " " + year);
 							em.setAttribute("end", endMonth + " " + year);
 							em.setAttribute("title", aDate+"("+nr+")");
-							em.appendChild(document.createTextNode(sentence));
+							em.appendChild(doc_out.createTextNode(sentence));
 							rootElement.appendChild(em);
 						} else { //year
-							Element em = document.createElement("event");
+							Element em = doc_out.createElement("event");
 							em.setAttribute("start", year);
 							em.setAttribute("title", aDate+"("+nr+")");
-							em.appendChild(document.createTextNode(sentence));
+							em.appendChild(doc_out.createTextNode(sentence));
 							rootElement.appendChild(em);
 						}
 					} else { //month year
@@ -272,85 +275,43 @@ public class DocumentToXML extends AbstractExecutableComponent {
 								numberOfDays = 28;
 						}
 						String endDay = month + " " + Integer.toString(numberOfDays);
-						Element em = document.createElement("event");
+						Element em = doc_out.createElement("event");
 						em.setAttribute("start", startDay + " " + year);
 						em.setAttribute("end", endDay + " " + year);
 						em.setAttribute("title", aDate+"("+nr+")");
-						em.appendChild(document.createTextNode(sentence));
+						em.appendChild(doc_out.createTextNode(sentence));
 						rootElement.appendChild(em);
 					}
 				else {
 					if(month == null) {//year
-						Element em = document.createElement("event");
+						Element em = doc_out.createElement("event");
 						em.setAttribute("start", year);
 						em.setAttribute("title", aDate+"("+nr+")");
-						em.appendChild(document.createTextNode(sentence));
+						em.appendChild(doc_out.createTextNode(sentence));
 						rootElement.appendChild(em);
 					} else { //month day year
-						Element em = document.createElement("event");
+						Element em = doc_out.createElement("event");
 						em.setAttribute("start", month + " " + day + " " + year);
 						em.setAttribute("title", aDate+"("+nr+")");
-						em.appendChild(document.createTextNode(sentence));
+						em.appendChild(doc_out.createTextNode(sentence));
 						rootElement.appendChild(em);
 					}
 				}
 			}
 		}
 
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-	    Transformer transformer = transformerFactory.newTransformer();
-	    DOMSource source = new DOMSource(document);
-	    StreamResult result =  new StreamResult(new StringWriter());
-	    transformer.transform(source, result);
+		StringWriter writer = new StringWriter();
+		DOMUtils.writeXML(doc_out, writer, null);
 
-	    cc.pushDataComponentToOutput(
-	    		OUT_MIN_YEAR, BasicDataTypesTools.integerToIntegers(new Integer(minYear)));
-	    cc.pushDataComponentToOutput(
-	    		OUT_MAX_YEAR, BasicDataTypesTools.integerToIntegers(new Integer(maxYear)));
-	    cc.pushDataComponentToOutput(
-	    		OUT_XML, BasicDataTypesTools.stringToStrings(result.getWriter().toString()));
-
+	    cc.pushDataComponentToOutput(OUT_MIN_YEAR,
+	            BasicDataTypesTools.integerToIntegers(new Integer(minYear)));
+	    cc.pushDataComponentToOutput(OUT_MAX_YEAR,
+	            BasicDataTypesTools.integerToIntegers(new Integer(maxYear)));
+	    cc.pushDataComponentToOutput(OUT_XML,
+	            BasicDataTypesTools.stringToStrings(writer.toString()));
     }
 
-	/**
-	 *
-	 * @param str
-	 * @param str2
-	 * @return the index within this str of the first occurrence of
-	 * the specified substring str2.
-	 */
-	private int indexOf(String str, String str2) {
-		boolean foundIt = false;
-
-		int len = str.length();
-		int len2 = str2.length();
-		int max = len - len2;
-
-		int i,j,k;
-		for (i = 0; i<=max && !foundIt; i++) {
-
-			j = i;
-		    k = 0;
-
-		    while (true) {
-				char c = str.charAt(j++);
-				while(j<len && Character.isWhitespace(c))
-					c = str.charAt(j++);
-
-				char c2 = str2.charAt(k++);
-				while(k<len2 && Character.isWhitespace(c2))
-					c2 = str2.charAt(k++);
-
-		        if (c != c2)
-					break;
-
-				if(k>len2-1) {
-				  	foundIt = true;
-		            break;
-				}
-		    }
-		}
-
-		return i;
-	}
+    @Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
 }
