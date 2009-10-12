@@ -125,7 +125,6 @@
     <!-- Runtime class path -->
     <path id="classpath.runtime">
         <path refid="classpath.build"/>
-        <pathelement path="${java.class.path}"/>
         <fileset dir="${dist.dir}" includes="*.jar"/>
     </path>
 
@@ -304,13 +303,15 @@
             depends="compile-tests"
             description= "-> runs the unit tests and generates xml logs and html reports">
         <mkdir dir="${test.logs.dir}/xml"/>
+        <echo message="${java.class.path}"/>
         <junit printsummary="yes"
                errorProperty="test.failed"
                failureProperty="test.failed"
                showoutput="yes">
             <jvmarg value="-Duser.language=en"/>
             <classpath>
-                <path refid="classpath.runtime"/>
+                <path refid="classpath.build"/>
+                <pathelement location="${classes.dir}"/>
                 <pathelement location="${test.classes.dir}"/>
             </classpath>
             <formatter type="xml"/>
