@@ -50,6 +50,7 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
@@ -60,16 +61,22 @@ import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeException;
 
-@Component(creator = "Lily Dong",
-		description = "Maps the stemmed token back to " +
-		"the actual word in the original document.",
-		firingPolicy = FiringPolicy.all,
-		name = "Dictionary Of Stemming",
-		tags = "stem dictionary",
-		baseURL="meandre://seasr.org/components/tools/")
+/**
+ * @author Lily Dong
+ */
 
+@Component(creator = "Lily Dong",
+		   description = "Maps the stemmed token back to " +
+		                 "the actual word in the original document.",
+		   firingPolicy = FiringPolicy.all,
+		   name = "Dictionary Of Stemming",
+		   tags = "stem dictionary",
+		   rights = Licenses.UofINCSA,
+		   baseURL="meandre://seasr.org/components/tools/"
+)
 public class DictionaryOfStemming extends AbstractExecutableComponent {
-	// IO
+
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TOKENS,
@@ -83,46 +90,39 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
 	)
 	protected static final String IN_WORDS= Names.PORT_WORDS;
 
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
 	@ComponentOutput(
 			name = Names.PORT_WORDS,
 			description = "The mapped words"
 	)
 	protected static final String OUT_WORDS = Names.PORT_WORDS;
 
-	/**
-	 * Store mapping between token and word
-	 */
+    //--------------------------------------------------------------------------------------------
+
+
+	/** Store mapping between token and word */
 	Map<String, String> map;
 
 	private boolean _gotInitiator;
 
-	// ================
-	// Public Methods
-	// ================
+
+    //--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp)
-    throws Exception {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		map = new HashMap<String, String>();
 		_gotInitiator = false;
 	}
 
 	@Override
-    public void disposeCallBack(ComponentContextProperties ccp)
-    throws Exception {
-	}
-
-	@Override
-    public void executeCallBack(ComponentContext cc)
-	throws Exception {
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		String[] words = null;
 		String[] tokens = null;
 
 		try {
-			words = DataTypeParser.parseAsString(
-            		cc.getDataComponentFromInput(IN_WORDS));
-            tokens = DataTypeParser.parseAsString(
-            		cc.getDataComponentFromInput(IN_TOKENS));
+			words = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_WORDS));
+            tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
         }
         catch (UnsupportedDataTypeException e) {
             if (ignoreErrors)
@@ -134,7 +134,7 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
         for (int i=0; i<words.length; i++ ) {
         	String key = tokens[i];
         	String theValue = words[i];
-        	if(map.containsKey(key)) { //take the shorter one
+        	if (map.containsKey(key)) { //take the shorter one
         		String value = map.get(key);
         		value = (value.length()>theValue.length())?
         				theValue: value;
@@ -159,10 +159,16 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
         }
 	}
 
+    @Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
 	@Override
 	protected void handleStreamInitiators() throws Exception {
 		if (_gotInitiator)
-	            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
+		    throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
 
 		_gotInitiator = true;
 	}
