@@ -64,7 +64,7 @@ import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeExcept
 		description = "Maps the stemmed token back to " +
 		"the actual word in the original document.",
 		firingPolicy = FiringPolicy.all,
-		name = "dictionary of stemming",
+		name = "Dictionary Of Stemming",
 		tags = "stem dictionary",
 		baseURL="meandre://seasr.org/components/tools/")
 
@@ -100,17 +100,20 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
 	// Public Methods
 	// ================
 
-	public void initializeCallBack(ComponentContextProperties ccp)
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp)
     throws Exception {
 		map = new HashMap<String, String>();
 		_gotInitiator = false;
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp)
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp)
     throws Exception {
 	}
 
-	public void executeCallBack(ComponentContext cc)
+	@Override
+    public void executeCallBack(ComponentContext cc)
 	throws Exception {
 		String[] words = null;
 		String[] tokens = null;
