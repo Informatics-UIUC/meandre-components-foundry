@@ -82,7 +82,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 @Component(
 		name = "OpenNLP Kitchen Sink",
-		creator = "Xavier Llora",
+		creator = "Mike Haberman",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
@@ -172,6 +172,8 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
 			
 			String text = tuple.getValue(TEXT_IDX);
 			// console.info("==>" + text);
+			
+			// make it a bit easier for openNLP to tokenize
             text = text.replaceAll("[\\.\\?,;!]+", " .");
             
             String[] sentences = sdetector.sentDetect(text);
@@ -179,15 +181,21 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
             spans.clear();
             
             Boolean didPrint = false;
-            int numCount = 0;
+        
             for (String sentence : sentences) {
             	
             	// console.info("  ==>" + sentence);
             	String[] tokens = tokenizer.tokenize(sentence);
             	
+            	/*
             	for (String t : tokens) {
             		if (t.matches("[0-9]+")) {numCount++;}
+            		
+            		if (numCount == 2) {
+        		       console.info("PAIR " + text);
+        	         }
             	}
+            	*/
             	
             	
             	for (int j = 0; j < finders.length; j++) {
@@ -211,9 +219,7 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
             	
             } // end over sentences
             
-            if (numCount == 2) {
-        		console.info("PAIR " + text);
-        	}
+            
             
 		
 		} // end of tuples

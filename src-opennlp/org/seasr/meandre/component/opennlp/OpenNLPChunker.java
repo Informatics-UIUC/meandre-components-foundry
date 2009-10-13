@@ -55,6 +55,9 @@ import opennlp.tools.lang.english.PosTagger;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.postag.POSDictionary;
 import opennlp.tools.dictionary.Dictionary;
+import opennlp.tools.chunker.ChunkerME;
+import opennlp.tools.lang.english.TreebankChunker;
+
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -89,11 +92,11 @@ import org.seasr.datatypes.BasicDataTypes.StringsMap;
  */
 
 //
-// General Path:  Text -> SentenceDetector -> SentenceTokenizer -> PosTagger
+// General Path:  Text -> SentenceDetector -> SentenceTokenizer -> Chunker
 //
 
 @Component(
-		name = "OpenNLP POS Tagger",
+		name = "OpenNLP Chunker",
 		creator = "Mike Haberman",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -104,7 +107,7 @@ import org.seasr.datatypes.BasicDataTypes.StringsMap;
 				      "unsing OpenNLP pos facilities.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar"}
 )
-public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
+public class OpenNLPChunker extends OpenNLPBaseUtilities {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -142,59 +145,28 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 
 	/** The OpenNLP tokenizer to use */
 	private POSTaggerME tagger = null;
-	Pattern pattern = null;
-   
-   public static POSTaggerME build(String sOpenNLPDir, String sLanguage) throws IOException 
+	private ChunkerME chunker = null;
+	private Pattern pattern = null;   
+   public static ChunkerME build(String sOpenNLPDir, String sLanguage) throws IOException 
    {
 	   
 	    // from maxent-models.jar
-		String tagPath          = // e.g.  /opennlp/models/English/parser/tag.bin.gz
-		    sOpenNLPDir + "parser" + File.separator+"tag.bin.gz";
-
-		String dictionaryPath    = // e.g. /opennlp/models/English/parser/dict.bin.gz
-			sOpenNLPDir + "parser"+ File.separator+"dict.bin.gz";
-
-		String tagDictionaryPath = // e.g. /opennlp/models/English/parser/tagdict
-			sOpenNLPDir + "parser"+ File.separator+"tagdict";
-
-		File tagFile     = new File(tagPath);
-		File dictFile    = new File(dictionaryPath);
-		File tagDictFile = new File(tagDictionaryPath);
-
-		if (! tagFile.canRead()) {
-			throw new IOException("Failed to open tag file for " + tagPath);
-		}
-		
-		if (! tagDictFile.canRead()) {
-			throw new IOException("Failed to open tag dictionary model for " + tagDictionaryPath);
-		}
-		
-		/*
-		if (! dictFile.canRead()) {
-			console.severe("Failed to open dictionary model for " + dictionaryPath);
-			throw new ComponentExecutionException();
-		}
-		InputStream dIs  = new FileInputStream(dictFile);
-		*/
-
-
-		/*  NEW WAY, untested */
-		
-		POSTaggerME tagger = new PosTagger(tagPath,
-				               // new Dictionary(dIs),
-				               new POSDictionary(tagDictionaryPath, true));
-
+	    // ==> opennlp.1.4.3/models/English/chunker/EnglishChunk.bin.gz
+	    // NOT opennlp/models/English/parser/chunk.bin.gz
 	   
+		String chunkPath = 
+		    sOpenNLPDir + "chunker" + File.separator + "EnglishChunk.bin.gz";
+
+		
+		File chunkFile = new File(chunkPath);
+
+		if (! chunkFile.canRead()) {
+			throw new IOException("Failed to open chunk file for " + chunkPath);
+		}
+		
+		ChunkerME tagger = new TreebankChunker(chunkPath);
 		return tagger;
 		
-
-
-		/* OLD WAY  using the ngram Dictionary (which no longer exists)
-		tagger = new PosTagger(tagPath,
-				               new Dictionary(dictionaryPath),
-				               new POSDictionary(tagDictionaryPath, true));
-	     */
-
    }
 
 	//--------------------------------------------------------------------------------------------
@@ -211,7 +183,8 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 
 		
 		try {	
-			tagger = build(sOpenNLPDir, sLanguage);
+			tagger  = OpenNLPPosTagger.build(sOpenNLPDir, sLanguage);
+			chunker = build(sOpenNLPDir, sLanguage);
 		}
 		catch ( Throwable t ) {
 			console.severe("Failed to open tokenizer model for " + sLanguage);
@@ -241,13 +214,6 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 		List<Strings> output = new ArrayList<Strings>();
 
 
-		// input was encoded via :
-		// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
-		//
-
-		//
-		// NEED a parser here ? DataTypeParser.parseAsMap ???
-		//
 		StringsMap input = (StringsMap) cc.getDataComponentFromInput(IN_TOKENS);
 
         int globalOffset = 0;
@@ -267,54 +233,46 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 
 			String[] tokens = DataTypeParser.parseAsString(value);
 			String[] tags   = tagger.tag(tokens);
-
-			int withinSentenceOffset = 0;
-			for (int j = 0; j < tags.length; j++) {
-
-				if ( pattern == null || pattern.matcher(tags[j]).matches())
-				{
-				   // find where the token is in the sentence
-				   int tokenStart = key.indexOf(tokens[j], withinSentenceOffset);
-				   // add in the global offset
-				   tokenStart += globalOffset;
-
-				  
-				   tuple.setValue(POS_IDX,         tags[j]);
-				   tuple.setValue(SENTENCE_ID_IDX, i);
-				   tuple.setValue(TOKEN_START_IDX, tokenStart);
-				   tuple.setValue(TOKEN_IDX,       tokens[j]);
-				   
-				   //
-				   // we have a choice at this point:
-				   // we can push out each result
-				   // or we can collect all the results
-				   // and push out an array of results
-				   //
-				   // console.fine("pos pushing tuple " + tuple.toString());
-            
-				   output.add(tuple.convert());
-				   
-				   
-				   /*
-				    * cc.pushDataComponentToOutput(OUT_POS_TUPLE,tuple.convert());
-				    * 
-				    * ALSO push the meta data here as well
-				    * 
-				    */
-
-				
-				}
-
-				withinSentenceOffset += tokens[j].length();
-
+			String[] chunks = chunker.chunk(tokens, tags);
+			
+			/*
+			for (int j = 0; j < tokens.length; j++) {
+				console.info(tokens[j] +"/" + tags[j]);
 			}
-			// add the key's length, not the offset
-			// since the key will contain white space
-			// we need a true index
-			globalOffset += key.length();
-		}
+			*/
+			
+			console.info(key);
+			int k = 0;
+			for (String c : chunks) {
+				console.info(k++ + " " + c);
+			}
+			
+			
+			// see TreebankChunker.java 
+			// 0 marks the end of a sequence
+			// I marks an internal sequence (e.g. NP a soft and fluffy kitten )
+			// B marks an external sequence 
+			StringBuffer out = new StringBuffer();
+			for (int j=0; j < chunks.length; j++) {
+				if (j > 0 && !chunks[j].startsWith("I-") && !chunks[j-1].equals("O")) {
+					out.append(" ]");
+				}
+				if (chunks[j].startsWith("B-")) {
+					out.append(" ["+chunks[j].substring(2));
+				}
+				out.append(" "+tokens[j]+"/"+tags[j]);
+			}
+			if (!chunks[chunks.length-1].equals("O")) {
+				out.append(" ]");
+			}
+			console.info(out.toString());
+
 
 		
+
+		}
+
+		/*
 		// push the whole collection, protocol safe
 	    Strings[] results = new Strings[output.size()];
 	    output.toArray(results);
@@ -327,11 +285,13 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 		//
 	    Strings metaData = tuplePeer.convert();
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
+	    */
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         super.disposeCallBack(ccp);
         this.tagger = null;
+        this.chunker = null;
     }
 }
