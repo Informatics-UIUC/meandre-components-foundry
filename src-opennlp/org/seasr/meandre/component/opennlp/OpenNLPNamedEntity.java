@@ -45,6 +45,8 @@ package org.seasr.meandre.component.opennlp;
 
 
 import java.io.File;
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -143,6 +145,27 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     NameFinderME[] finders = null;
 
 	//--------------------------------------------------------------------------------------------
+    
+    
+    public static NameFinderME[] build(String sOpenNLPDir, String[] finderTypes)
+    throws IOException
+    {
+    	NameFinderME[] finders = new NameFinderME[finderTypes.length];
+		for (int i = 0; i < finderTypes.length; i++) {
+			String tagPath          = // e.g.  /opennlp/models/English/namefind/location.bin.gz
+			    sOpenNLPDir + "namefind" + File.separator + finderTypes[i] + ".bin.gz";
+			File tagFile     = new File(tagPath);
+			if (! tagFile.canRead()) {
+				throw new IOException("Failed to open tag file for " + tagPath);
+			}
+			
+			System.out.println("loaded " + tagPath);
+			BinaryGISModelReader reader = new BinaryGISModelReader(tagFile);
+			NameFinderME finder = new NameFinderME(reader.getModel());
+			finders[i] = finder;
+		}
+		return finders;
+    }
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -162,23 +185,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		
 
 		try {
-			
-			finders = new NameFinderME[finderTypes.length];
-			for (int i = 0; i < finderTypes.length; i++) {
-				String tagPath          = // e.g.  /opennlp/models/English/namefind/location.bin.gz
-				    sOpenNLPDir + "namefind" + File.separator + finderTypes[i] + ".bin.gz";
-				File tagFile     = new File(tagPath);
-				if (! tagFile.canRead()) {
-					console.severe("Failed to open tag file for " + tagPath);
-					throw new ComponentExecutionException();
-				}
-				
-				console.info("loading model " + finderTypes[i]);
-				BinaryGISModelReader reader = new BinaryGISModelReader(tagFile);
-				NameFinderME finder = new NameFinderME(reader.getModel());
-				finders[i] = finder;
-				
-			}
+			finders = build(sOpenNLPDir, finderTypes);
 		}
 		catch ( Throwable t ) {
 			console.severe("Failed to open tokenizer model for " + sLanguage);
@@ -215,6 +222,49 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 	int TEXT_START_IDX  ;
 	int TEXT_END_IDX    ;
 	int TEXT_IDX        ;
+	
+	public static TextSpan label(String sentence, String[] tokens, Span span) {
+		
+		TextSpan out = new TextSpan();
+		return label(sentence, tokens, span, out);
+	}
+	
+	public static TextSpan label(String sentence, String[] tokens, Span span, TextSpan out) 
+	{
+		
+		int s = span.getStart();
+		int e = span.getEnd();
+		
+		String first = tokens[s];
+		String last = first;
+		if (e != s) {
+	       last = tokens[e-1];
+		}					
+		int beginIndex = sentence.indexOf(first,out.getEnd());
+		// always go from where the first token was found
+		int endIndex   = sentence.indexOf(last, beginIndex) + last.length();
+	
+		
+		out.setStart(beginIndex);
+		out.setEnd(endIndex);
+		out.setSpan(sentence);
+		return out;
+		
+		
+		/* 
+		 // another way to derive text span
+		 // but needs to be smarter about 
+		 // processing punctuation, spaces, etc
+		StringBuffer sb = new StringBuffer();
+		for (int ti = s; ti < e; ti++) {
+			sb.append(tokens[ti]);
+			if (ti + 1 < e)sb.append(" ");
+		}
+		console.info(sb.toString());
+		*/
+		
+		
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -236,6 +286,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		int globalOffset = 0;
 
 		List<SimpleTuple> list = new ArrayList<SimpleTuple>();
+		TextSpan textSpan = new TextSpan();
 		
 		for (int i = 0; i < count; i++) {
 			String key    = input.getKey(i);    // this is the entire sentence
@@ -250,44 +301,22 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 				String type = finderTypes[j];
 				Span[] span = finders[j].find(tokens);
 				
-				
+				textSpan.reset();
 				for (int k = 0; k < span.length; k++) {
-					int s = span[k].getStart();
-					int e = span[k].getEnd();
 					
-					String first = tokens[s];
-					String last = first;
-					if (e != s) {
-				       last = tokens[e-1];
-					}					
-					int beginIndex = key.indexOf(first);
-					// always go from where the first token was found
-					int endIndex   = key.indexOf(last, beginIndex) + last.length();
-					String textSpan = key.substring(beginIndex, endIndex);
-					textSpan = textSpan.replace("\n", " ").trim();
-					
+					textSpan = label(key, tokens, span[k], textSpan);
+					int beginIndex = textSpan.getStart();
+					int endIndex   = textSpan.getEnd();
+					String text    = textSpan.getText();
 					
 					SimpleTuple tuple = tuplePeer.createTuple();
 					tuple.setValue(TYPE_IDX,        type);
 					tuple.setValue(SENTENCE_ID_IDX, i);
 					tuple.setValue(TEXT_START_IDX,  beginIndex + globalOffset);
 					tuple.setValue(TEXT_END_IDX,    endIndex + globalOffset);
-					tuple.setValue(TEXT_IDX,        textSpan);
+					tuple.setValue(TEXT_IDX,        text);
 					
 					list.add(tuple);
-					
-					
-					/* 
-					 // another way to derive text span
-					 // but needs to be smarter about 
-					 // processing punctuation, spaces, etc
-					StringBuffer sb = new StringBuffer();
-					for (int ti = s; ti < e; ti++) {
-						sb.append(tokens[ti]);
-						if (ti + 1 < e)sb.append(" ");
-					}
-					console.info(sb.toString());
-					*/
 					
 				}
 			}

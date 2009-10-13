@@ -1,3 +1,5 @@
+package org.seasr.meandre.component.opennlp;
+
 /**
 *
 * University of Illinois/NCSA
@@ -40,12 +42,18 @@
 *
 */
 
-package org.seasr.meandre.component.opennlp;
+
 
 import java.io.File;
 import java.util.logging.Level;
+import java.util.List;
+import java.util.ArrayList;
 
+import opennlp.tools.lang.english.SentenceDetector;
 import opennlp.tools.lang.english.Tokenizer;
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.sentdetect.SentenceDetectorME;
+import opennlp.tools.util.Span;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -57,8 +65,12 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
+import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 /**
  * This component tokenizes the text contained in the input model using OpenNLP.
@@ -69,7 +81,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
  */
 
 @Component(
-		name = "OpenNLP Tokenizer",
+		name = "OpenNLP Kitchen Sink",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -80,15 +92,23 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 				      "unsing OpenNLP tokenizing facilities.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar"}
 )
-public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 
-    //------------------------------ INPUTS ------------------------------------------------------
+public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
 
+  //------------------------------ INPUTS ------------------------------------------------------
+	
 	@ComponentInput(
-			name = Names.PORT_TEXT,
-			description = "The text to be tokenized"
+			name = Names.PORT_TUPLES,
+			description = "set of tuples"
 	)
-	protected static final String IN_TEXT = Names.PORT_TEXT;
+	protected static final String IN_TUPLES = Names.PORT_TUPLES;
+	
+	@ComponentInput(
+			name = Names.PORT_META_TUPLE,
+			description = "meta data for tuples"
+	)
+	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
+	
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -103,21 +123,28 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 
 	/** The OpenNLP tokenizer to use */
 	private Tokenizer tokenizer;
-
+	private SentenceDetectorME sdetector;
+	private NameFinderME[] finders;
 
 	//--------------------------------------------------------------------------------------------
-    public static Tokenizer build(String sOpenNLPDir, String sLanguage) throws Exception
-    {
-    	return new Tokenizer(sOpenNLPDir+"tokenize"+File.separator+
-				sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"Tok.bin.gz");
-    }
-    
+	String[] types = {"person", "location", "date", "organization"};
+	
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		super.initializeCallBack(ccp);
 
 		// Initialize the tokenizer
 		try {
-			tokenizer = build(sOpenNLPDir,sLanguage);
+			
+			console.info("loading OPENNlp");
+			
+			sdetector = OpenNLPSentenceDetector.build(sOpenNLPDir, sLanguage);
+			
+			tokenizer = OpenNLPTokenizer.build(sOpenNLPDir, sLanguage);
+			
+			finders   = OpenNLPNamedEntity.build(sOpenNLPDir, types);
+			
+			console.info("DONE OPENNlp");
+		    
 		}
 		catch ( Throwable t ) {
 			console.log(Level.SEVERE,"Failed to open tokenizer model for " + sLanguage, t);
@@ -125,17 +152,74 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 		}
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
-		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+	public void executeCallBack(ComponentContext cc) throws Exception 
+	{
+		
+		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
+		SimpleTuple tuple = tuplePeer.createTuple();
+		
+		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
+		
+		int TEXT_IDX = tuplePeer.getIndexForFieldName("text");
+		
+		TextSpan textSpan = new TextSpan();
+		List<TextSpan> spans = new ArrayList<TextSpan>();
+		
+		for (int i = 0; i < in.length; i++) {
+			tuple.setValues(in[i]);	
+			
+			String text = tuple.getValue(TEXT_IDX);
+			// console.info("==>" + text);
+            text = text.replaceAll("[\\.\\?,;!]+", " .");
+            
+            String[] sentences = sdetector.sentDetect(text);
+            
+            spans.clear();
+            
+            Boolean didPrint = false;
+            int numCount = 0;
+            for (String sentence : sentences) {
+            	
+            	// console.info("  ==>" + sentence);
+            	String[] tokens = tokenizer.tokenize(sentence);
+            	
+            	for (String t : tokens) {
+            		if (t.matches("[0-9]+")) {numCount++;}
+            	}
+            	
+            	
+            	for (int j = 0; j < finders.length; j++) {
+    				String type = types[j];
+    				Span[] span = finders[j].find(tokens);
+    				textSpan.reset();
+    				for (Span s : span) {
+    					
+    					/*
+    					if (!didPrint) {
+    						console.info(sentence);
+    						didPrint = true;
+    					}
+    					*/
+    					
+    					TextSpan tSpan = OpenNLPNamedEntity.label(sentence, tokens, s, textSpan);
+    					console.info(tSpan.getStart() + " " + tSpan.getEnd() + " " + type + " " + tSpan.getText());
+    					// tuple.setValue(text, type, textSpan.text, textSpan.start, textSpan.end, )
+    				}
+            	}
+            	
+            } // end over sentences
+            
+            if (numCount == 2) {
+        		console.info("PAIR " + text);
+        	}
+            
+		
+		} // end of tuples
+		
 
-		StringBuilder sb = new StringBuilder();
-
-		for (String text : inputs)
-		    sb.append(text).append(" ");
-
-		String[] ta = tokenizer.tokenize(sb.toString());
-
-		cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
+		// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -143,74 +227,7 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
         this.tokenizer = null;
     }
 
-	//--------------------------------------------------------------------------------------------
-
-//	public static void main ( String [] saArgs ) throws IOException {
-//		LineNumberReader lnr = new LineNumberReader(new FileReader("/Users/xavier/Desktop/1342.txt"));
-//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//		PrintStream ps = new PrintStream(baos);
-//		String sLine;
-//
-//		long longStart = System.currentTimeMillis();
-//		while ( (sLine=lnr.readLine())!=null ) ps.println(sLine);
-//		System.out.println(System.currentTimeMillis()-longStart);
-//
-//		longStart = System.currentTimeMillis();
-//		String paragraph  = baos.toString();
-//		System.out.println(System.currentTimeMillis()-longStart);
-//
-//		// the sentence detector and tokenizer constructors
-//		// take paths to their respective models
-//		longStart = System.currentTimeMillis();
-//		Tokenizer tokenizer = new Tokenizer("/Users/xavier/KK/english/tokenize/EnglishTok.bin.gz");
-//		System.out.println(System.currentTimeMillis()-longStart);
-//
-//
-//		longStart = System.currentTimeMillis();
-//		String[] taPB = tokenizer.tokenize(paragraph);
-//		System.out.print(System.currentTimeMillis()-longStart);
-//		System.out.println(" --> "+taPB.length);
-//
-//		for ( int i=1000, iMax=6000 ; i<=iMax ; i+=1000 ) {
-//			Strings res = addToProtocolBuffer(taPB, i);
-//			for ( int j=0 ; j<i ; j++ )
-//				if ( !taPB[j].equals(res.getValue(j)) )
-//					System.out.println("Oops");
-//		}
-//
-//		longStart = System.currentTimeMillis();
-//		String [] ta = tokenizer.tokenize(paragraph);
-//		System.out.print(System.currentTimeMillis()-longStart);
-//		System.out.println(" --> "+ta.length);
-//
-//		for ( int i=1000, iMax=6000 ; i<=iMax ; i+=1000 )
-//			addToSequence(ta, i);
-//
-//	}
-//
-//	private static Strings addToProtocolBuffer(String[] ta, int j) {
-//		long longStart = System.currentTimeMillis();
-//		Builder top = BasicDataTypes.Strings.newBuilder();
-//		for (int i=0 ; i<j ; i++ ) {
-//			top.addValue(ta[i]);
-//		}
-//		Strings res = top.build();
-//		System.out.println(System.currentTimeMillis()-longStart);
-//		return res;
-//	}
-//
-//	/**
-//	 * @param ta
-//	 * @param j
-//	 */
-//	private static void addToSequence(String[] ta, int j) {
-//		long longStart;
-//		Seq seqTokens;
-//		longStart = System.currentTimeMillis();
-//		seqTokens = ModelFactory.createDefaultModel().createSeq();
-//		for ( int i=0, iMax=j ; i<iMax ; i++ )
-//			seqTokens.add(ta[i]);
-//		System.out.println(System.currentTimeMillis()-longStart);
-//	}
+	
 
 }
+

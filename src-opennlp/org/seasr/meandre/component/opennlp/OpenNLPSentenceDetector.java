@@ -43,6 +43,7 @@
 package org.seasr.meandre.component.opennlp;
 
 import java.io.File;
+import java.io.IOException;
 
 import opennlp.tools.lang.english.SentenceDetector;
 import opennlp.tools.sentdetect.SentenceDetectorME;
@@ -109,19 +110,24 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	/** The OpenNLP tokenizer to use */
 	private SentenceDetectorME sdetector;
 
+	public static SentenceDetectorME build(String sOpenNLPDir, String sLanguage) 
+	   throws IOException
+	{
+	    String path = sOpenNLPDir+"sentdetect"+File.separator+
+	    sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"SD.bin.gz";
+	    return new SentenceDetector(path);
+	}
 
 	//--------------------------------------------------------------------------------------------
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		super.initializeCallBack(ccp);
 
-		String path = sOpenNLPDir+"sentdetect"+File.separator+
-		    sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"SD.bin.gz";
 		try {
-			sdetector = new SentenceDetector(path);
+			sdetector = build(sOpenNLPDir, sLanguage);
 		}
 		catch ( Throwable t ) {
-			console.severe("Failed to open tokenizer model for " + path);
+			console.severe("Failed to open tokenizer model");
 			throw new ComponentExecutionException(t);
 		}
 	}
