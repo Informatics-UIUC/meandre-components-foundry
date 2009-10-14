@@ -121,23 +121,6 @@ public class TableViewer extends AbstractGWTWebUIComponent {
     //------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
-            defaultValue = "true",
-            description = "This property indicates whether a header exists " +
-                          "that contains the attribute (column) labels in the first row of the file. ",
-            name = Names.PROP_HAS_COLUMN_LABEL_HEADER
-    )
-    protected static final String PROP_HAS_LABEL_HEADER = Names.PROP_HAS_COLUMN_LABEL_HEADER;
-
-    @ComponentProperty(
-            defaultValue = "true",
-            description = "This property indicates whether a header exists " +
-                          "that contains the attribute (column) types in the second row of the file. "+
-                          "Attribute types such as integer, float, double or String.",
-            name = Names.PROP_HAS_COLUMN_TYPE_HEADER
-    )
-    protected static final String PROP_HAS_TYPE_HEADER = Names.PROP_HAS_COLUMN_TYPE_HEADER;
-
-    @ComponentProperty(
             defaultValue = "50",
             description = "The number of rows to be retrieved dynamically at once",
             name = Names.PROP_PAGE_SIZE
@@ -154,11 +137,8 @@ public class TableViewer extends AbstractGWTWebUIComponent {
 
     private String _html;
     private boolean _done;
-    private boolean _hasLabelHeader;
-    private boolean _hasTypeHeader;
     private MutableTable _origTable;
     private MutableTable _table;
-    private int _shift;
 
 
     //--------------------------------------------------------------------------------------------
@@ -167,9 +147,6 @@ public class TableViewer extends AbstractGWTWebUIComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
 
-        _hasLabelHeader = Boolean.parseBoolean(ccp.getProperty(PROP_HAS_LABEL_HEADER));
-        _hasTypeHeader = Boolean.parseBoolean(ccp.getProperty(PROP_HAS_TYPE_HEADER));
-
         _context.put("pageSize", Integer.parseInt(ccp.getProperty(PROP_PAGE_SIZE)));
     }
 
@@ -177,14 +154,12 @@ public class TableViewer extends AbstractGWTWebUIComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         _origTable = (MutableTable)cc.getDataComponentFromInput(IN_TABLE);
 
-        _shift = 0;
-        if (_hasLabelHeader) _shift++;
-        if (_hasTypeHeader) _shift++;
-
         JSONArray jaColumnFormat = new JSONArray();
 
         for (int i = 0; i < _origTable.getNumColumns(); i++) {
-            String label = (_hasLabelHeader) ? _origTable.getColumnLabel(i) : ALPHABET.substring(i, i+1);
+            String label = _origTable.getColumnLabel(i);
+            if (label.trim().length() == 0)
+                label = ALPHABET.substring(i, i+1);
             int type = _origTable.getColumnType(i);
             JSONObject joColumnData = new JSONObject();
             joColumnData.put("id", "col" + i);
@@ -288,7 +263,7 @@ public class TableViewer extends AbstractGWTWebUIComponent {
 
                     if (filterColumns.size() > 0) {
                         Stack<Integer> rowsToRemove = new Stack<Integer>();
-                        for (int i = _shift, iMax = _table.getNumRows(); i < iMax; i++) {
+                        for (int i = 0, iMax = _table.getNumRows(); i < iMax; i++) {
                             int matches = 0;
                             for (Entry<Integer, String> entry : filterColumns.entrySet())
                                 if (matches(_table.getColumn(entry.getKey()).getRow(i), entry.getValue(), textMatchStyle))
@@ -302,7 +277,7 @@ public class TableViewer extends AbstractGWTWebUIComponent {
                             _table.removeRow(rowsToRemove.pop());
                     }
 
-                    int totalRows = _table.getNumRows() - _shift;
+                    int totalRows = _table.getNumRows();
 
                     String sortBy = request.getParameter("_sortBy");  // contains the name of the column to be sorted; if prefixed by "-" then descending sort is requested
                     if (sortBy != null) {
@@ -312,7 +287,7 @@ public class TableViewer extends AbstractGWTWebUIComponent {
                             sortBy = sortBy.substring(1);
                         }
                         int sortColumn = Integer.parseInt(sortBy.substring(3));  // sortBy = "col3" or "col2"...etc
-                        ((AbstractColumn)_table.getColumn(sortColumn)).sort(_table, _shift, _table.getNumRows(), sortMode);
+                        ((AbstractColumn)_table.getColumn(sortColumn)).sort(_table, 0, _table.getNumRows(), sortMode);
                     }
 
                     endRow = Math.min(endRow, totalRows);
@@ -321,7 +296,7 @@ public class TableViewer extends AbstractGWTWebUIComponent {
 
                     JSONArray joData = new JSONArray();
 
-                    for (int i = startRow + _shift, iMax = endRow + _shift; i < iMax; i++) {
+                    for (int i = startRow, iMax = endRow; i < iMax; i++) {
                         JSONObject joRow = new JSONObject();
                         for (int j = 0, jMax = _table.getNumColumns(); j < jMax; j++) {
                             // skip byte array columns because they can't be displayed

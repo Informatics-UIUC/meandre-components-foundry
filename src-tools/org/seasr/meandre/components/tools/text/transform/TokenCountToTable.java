@@ -44,6 +44,7 @@ package org.seasr.meandre.components.tools.text.transform;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -51,15 +52,20 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.datatypes.table.ExampleTable;
-import org.seasr.datatypes.table.TableFactory;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
+import org.seasr.datatypes.table.Column;
+import org.seasr.datatypes.table.ColumnTypes;
+import org.seasr.datatypes.table.MutableTable;
+import org.seasr.datatypes.table.TableFactory;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
+/**
+ * @author Lily Dong
+ */
 
 @Component(
         creator = "Lily Dong",
@@ -71,111 +77,123 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         baseURL = "meandre://seasr.org/components/tools/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-
 public class TokenCountToTable extends AbstractExecutableComponent {
-	@ComponentInput(
-			description = "The token counts",
-			name = Names.PORT_TOKEN_COUNTS)
-	public final static String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
-	@ComponentInput(
-			description = "The TableFactory object",
-			name = Names.PROP_TABLE_FACTORY)
-	public final static String IN_TABLE_FACTORY = Names.PROP_TABLE_FACTORY;
+    //------------------------------ INPUTS ------------------------------------------------------
 
-	@ComponentOutput(
-			description = "Output Table object.",
-			name = Names.PROP_TABLE)
-	public final static String OUT_TABLE = Names.PROP_TABLE;
+    @ComponentInput(
+            description = "The token counts",
+            name = Names.PORT_TOKEN_COUNTS
+    )
+    protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
-	private boolean _gotInitiator;
-	private TableFactory _fact;
-	private ExampleTable _termTable;
-	private HashMap<String, Integer> m_gtm = new HashMap<String, Integer>();
+    @ComponentInput(
+            description = "The TableFactory object",
+            name = Names.PROP_TABLE_FACTORY
+    )
+    protected static final String IN_TABLE_FACTORY = Names.PROP_TABLE_FACTORY;
 
-	@Override
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            description = "Output Table object.",
+            name = Names.PROP_TABLE
+    )
+    protected static final String OUT_TABLE = Names.PROP_TABLE;
+
+    //--------------------------------------------------------------------------------------------
+
+
+    private boolean _gotInitiator;
+    private TableFactory _fact;
+    private MutableTable _table;
+    private Map<String, Integer> _tokenColumnMap;
+
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		_gotInitiator = false;
-		_fact = null;
-		_termTable = null;
-	}
+        _gotInitiator = false;
+        _fact = null;
+        _table = null;
+        _tokenColumnMap = new HashMap<String, Integer>();
+    }
 
-	@Override
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
 
-		if (cc.isInputAvailable(IN_TABLE_FACTORY)) {
+        if (cc.isInputAvailable(IN_TOKEN_COUNTS))
+            componentInputCache.putCacheComponentInput(cc, IN_TOKEN_COUNTS);
 
-			_fact = (TableFactory)cc.getDataComponentFromInput(
-					IN_TABLE_FACTORY);
-			_termTable = _fact.createTable().toExampleTable();
+        if (cc.isInputAvailable(IN_TABLE_FACTORY)) {
+            _fact = (TableFactory)cc.getDataComponentFromInput(IN_TABLE_FACTORY);
+            _table = (MutableTable)_fact.createTable();
+        }
 
-			_termTable.addRows(2); //for table viewer using jQuery
-		}
+        if (_table != null) {
+            Object tokenCounts;
 
-		if (cc.isInputAvailable(IN_TOKEN_COUNTS)) {
+            while ((tokenCounts = componentInputCache.getCacheComponentInput(IN_TOKEN_COUNTS)) != null) {
+                Map<String, Integer> tokenCountsMap = DataTypeParser.parseAsStringIntegerMap(tokenCounts);
+                if (tokenCountsMap.size() == 0) continue;
 
-			Map<String, Integer> map = DataTypeParser.parseAsStringIntegerMap(
-					cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
-			if(map.size() > 0) {
-				int row = _termTable.getNumRows();
-				_termTable.addRows(1);
-				for(String key: map.keySet()) {
-					Integer count = map.get(key);
+                int row = _table.getNumRows();
+                _table.addRows(1);
 
-					Integer colobj = m_gtm.get(key);
-					int col = 0; //find the column
-					boolean flag = false;
-					if (colobj == null) {
-						col = _termTable.getNumColumns();
-						m_gtm.put(key, new Integer(col));
-						flag = true;
-					} else {
-						col = colobj.intValue();
-					}
+                for (Entry<String, Integer> entry : tokenCountsMap.entrySet()) {
+                    String token = entry.getKey();
+                    int count = entry.getValue();
 
-					// set the value in the table
-					_termTable.setInt(count.intValue(), row, col);
+                    int col;
 
-					if (flag) {
-						_termTable.setColumnLabel(key, col);
-					}
-				}
-			}
+                    if (!_tokenColumnMap.containsKey(token)) {
+                        col = _table.getNumColumns();
+                        Column column = _fact.createColumn(ColumnTypes.INTEGER);
+                        column.setLabel(token);
+                        _table.addColumn(column);
+                        _tokenColumnMap.put(token, col);
+                    } else
+                        col = _tokenColumnMap.get(token);
 
-			if (!_gotInitiator) {
-			    cc.pushDataComponentToOutput(OUT_TABLE, _termTable);
-			    m_gtm.clear();
-			}
-		}
-	}
+                    _table.setInt(count, row, col);
+                }
 
-	@Override
+                if (!_gotInitiator) {
+                    cc.pushDataComponentToOutput(OUT_TABLE, _table);
+                    _tokenColumnMap.clear();
+                }
+            }
+        }
+    }
+
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
     //--------------------------------------------------------------------------------------------
 
-	@Override
-	protected void handleStreamInitiators() throws Exception {
+    @Override
+    protected void handleStreamInitiators() throws Exception {
 
-		if (_gotInitiator)
-			throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
+        if (_gotInitiator)
+            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
 
-		m_gtm = new HashMap<String, Integer>();
-	    _gotInitiator = true;
-	}
+        _tokenColumnMap.clear();
+        _gotInitiator = true;
+    }
 
-	@Override
+    @Override
     protected void handleStreamTerminators() throws Exception {
 
-		if (!_gotInitiator)
-			throw new Exception("Received StreamTerminator without receiving StreamInitiator");
+        if (!_gotInitiator)
+            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
-		componentContext.pushDataComponentToOutput(OUT_TABLE, new StreamInitiator());
-	    componentContext.pushDataComponentToOutput(OUT_TABLE, _termTable);
-	    componentContext.pushDataComponentToOutput(OUT_TABLE, new StreamTerminator());
+        componentContext.pushDataComponentToOutput(OUT_TABLE, new StreamInitiator());
+        componentContext.pushDataComponentToOutput(OUT_TABLE, _table);
+        componentContext.pushDataComponentToOutput(OUT_TABLE, new StreamTerminator());
 
-		m_gtm.clear();
-		_gotInitiator = false;
-	}
+        _tokenColumnMap.clear();
+        _gotInitiator = false;
+    }
 }
