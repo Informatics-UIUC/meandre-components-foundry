@@ -113,9 +113,16 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	public static SentenceDetectorME build(String sOpenNLPDir, String sLanguage) 
 	   throws IOException
 	{
-	    String path = sOpenNLPDir+"sentdetect"+File.separator+
+		String path = sOpenNLPDir+"sentdetect"+File.separator+
 	    sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"SD.bin.gz";
-	    return new SentenceDetector(path);
+		
+		try {
+		    return new SentenceDetector(path);
+		}
+		catch (Throwable t) {
+			throw new IOException("unable to build sentence dectector using " + path);
+		}
+	    
 	}
 
 	//--------------------------------------------------------------------------------------------
