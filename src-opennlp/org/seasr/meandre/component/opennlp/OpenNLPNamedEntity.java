@@ -265,6 +265,38 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		
 		
 	}
+	
+	public static List<TextSpan> findURLS(String sentence) {
+		
+		List<TextSpan> list = new ArrayList<TextSpan>();
+		
+		StringTokenizer tokens = new StringTokenizer(sentence);
+		int sIdx = 0;
+		int eIdx = 0;
+		
+		while(tokens.hasMoreTokens()) {
+			String s = tokens.nextToken();
+			
+			int idx = s.toLowerCase().indexOf("http");
+			if ( idx >= 0) {
+			
+				String sub = s.substring(idx);
+				
+				sIdx = sentence.indexOf(sub, eIdx);
+				eIdx = sIdx + sub.length();
+				
+				TextSpan span = new TextSpan();
+				span.setStart(sIdx);
+				span.setEnd(eIdx);
+				span.setSpan(sentence);
+				
+				list.add(span);
+				
+			}
+			
+		}
+	    return list;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -319,6 +351,25 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 					list.add(tuple);
 					
 				}
+				
+				
+			} // end finders
+			
+			//
+			// bonus find the urls
+			//
+			
+			List<TextSpan> urls = findURLS(key);
+			for (TextSpan s : urls) {
+				
+				SimpleTuple tuple = tuplePeer.createTuple();
+				tuple.setValue(TYPE_IDX,        "URL");
+				tuple.setValue(SENTENCE_ID_IDX, i);
+				tuple.setValue(TEXT_START_IDX,  s.getStart() + globalOffset);
+				tuple.setValue(TEXT_END_IDX,    s.getEnd()   + globalOffset);
+				tuple.setValue(TEXT_IDX,        s.getText());
+				
+				list.add(tuple);
 			}
 			
 			
