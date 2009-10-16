@@ -46,12 +46,17 @@ package org.seasr.meandre.component.opennlp;
 
 import java.io.File;
 import java.util.logging.Level;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
+import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.lang.english.SentenceDetector;
 import opennlp.tools.lang.english.Tokenizer;
 import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.util.Span;
 
@@ -72,13 +77,23 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
+
+
+import java.net.HttpURLConnection;
+import java.net.URLConnection;
+import java.net.URL;
+
+
 /**
  * This component tokenizes the text contained in the input model using OpenNLP.
  *
- * @author Xavier Llor&agrave;
- * @author Boris Capitanu
+ * @author Mike Haberman
  *
  */
+
+//
+// DO NOT USE THIS, a work in progress
+//
 
 @Component(
 		name = "OpenNLP Kitchen Sink",
@@ -113,10 +128,18 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			name = Names.PORT_TOKENS,
-			description = "The sequence of tokens"
+			name = Names.PORT_TUPLES,
+			description = "The sequence of tuples"
 	)
-	protected static final String OUT_TOKENS = Names.PORT_TOKENS;
+	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+	
+
+	@ComponentOutput(
+			name = Names.PORT_META_TUPLE,
+			description = "meta data for tuples: (sentenceId,type,text)"
+	)
+	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
+	
 
 	//--------------------------------------------------------------------------------------------
 
@@ -125,6 +148,8 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
 	private Tokenizer tokenizer;
 	private SentenceDetectorME sdetector;
 	private NameFinderME[] finders;
+	private POSTaggerME tagger = null;
+	private ChunkerME chunker = null;
 
 	//--------------------------------------------------------------------------------------------
 	String[] types = {"person", "location", "date", "organization"};
@@ -143,6 +168,10 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
 			
 			finders   = OpenNLPNamedEntity.build(sOpenNLPDir, types);
 			
+			tagger    = OpenNLPPosTagger.build(sOpenNLPDir, sLanguage);
+			
+			chunker   = OpenNLPChunker.build(sOpenNLPDir, sLanguage);
+			
 			console.info("DONE OPENNlp");
 		    
 		}
@@ -150,7 +179,30 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
 			console.log(Level.SEVERE,"Failed to open tokenizer model for " + sLanguage, t);
 			throw new ComponentExecutionException(t);
 		}
+		
+		
+		
+		//
+		// build the tuple (output) data
+		//
+		String[] fields = 
+			new String[] {SENTENCE_ID_FIELD, TYPE_FIELD, TEXT_FIELD};
+		
+		tuplePeer = new SimpleTuplePeer(fields);
+		
+		TYPE_IDX        = tuplePeer.getIndexForFieldName(TYPE_FIELD);
+		SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
+		TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
 	}
+	
+	SimpleTuplePeer tuplePeer;
+	public static final String SENTENCE_ID_FIELD = "sentenceId";
+	public static final String TYPE_FIELD        = "type";
+	public static final String TEXT_FIELD        = "text";
+	
+	int TYPE_IDX        ;
+	int SENTENCE_ID_IDX ;
+	int TEXT_IDX        ;
 
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
@@ -162,19 +214,21 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 		
-		int TEXT_IDX = tuplePeer.getIndexForFieldName("text");
 		
 		TextSpan textSpan = new TextSpan();
 		List<TextSpan> spans = new ArrayList<TextSpan>();
+		
+		List<Strings> output = new ArrayList<Strings>();
+		SimpleTuple outTuple = tuplePeer.createTuple();
 		
 		for (int i = 0; i < in.length; i++) {
 			tuple.setValues(in[i]);	
 			
 			String text = tuple.getValue(TEXT_IDX);
-			// console.info("==>" + text);
+			console.info("==>" + text);
 			
 			// make it a bit easier for openNLP to tokenize
-            text = text.replaceAll("[\\.\\?,;!]+", " .");
+			text = text.replaceAll("-", " - ");
             
             String[] sentences = sdetector.sentDetect(text);
             
@@ -184,48 +238,82 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
         
             for (String sentence : sentences) {
             	
-            	// console.info("  ==>" + sentence);
+            	
             	String[] tokens = tokenizer.tokenize(sentence);
             	
-            	/*
-            	for (String t : tokens) {
-            		if (t.matches("[0-9]+")) {numCount++;}
-            		
-            		if (numCount == 2) {
-        		       console.info("PAIR " + text);
-        	         }
-            	}
-            	*/
-            	
-            	
+            	// Named Entities
             	for (int j = 0; j < finders.length; j++) {
     				String type = types[j];
     				Span[] span = finders[j].find(tokens);
     				textSpan.reset();
+    				
+
     				for (Span s : span) {
     					
-    					/*
-    					if (!didPrint) {
-    						console.info(sentence);
-    						didPrint = true;
-    					}
-    					*/
-    					
     					TextSpan tSpan = OpenNLPNamedEntity.label(sentence, tokens, s, textSpan);
-    					console.info(tSpan.getStart() + " " + tSpan.getEnd() + " " + type + " " + tSpan.getText());
-    					// tuple.setValue(text, type, textSpan.text, textSpan.start, textSpan.end, )
+    					outTuple.setValue(SENTENCE_ID_IDX, i);
+    					outTuple.setValue(TYPE_IDX, type);
+    					outTuple.setValue(TEXT_IDX, tSpan.getText());
+    					output.add(outTuple.convert());
+    					
+    					
+    					/*
+    					String out = tSpan.getStart() + "," + tSpan.getEnd() + "," + type + "," + tSpan.getText();
+    					System.out.println("## " + out);    					
+    					if (previous.equals(s)) {
+    						System.out.println("## WOW " + text);
+    						System.out.println("## WOW " + out);
+    					}
+    					previous = s;
+    					*/
     				}
             	}
             	
+            	// find URLS
+            	List<TextSpan> urls = OpenNLPNamedEntity.findURLS(sentence);
+    			for (TextSpan s : urls) {
+    				
+    				// String out = s.getStart() + "," + s.getEnd() + ",URL," + s.getText();
+    				
+    				outTuple.setValue(SENTENCE_ID_IDX, i);
+					outTuple.setValue(TYPE_IDX, "URL");
+					outTuple.setValue(TEXT_IDX, s.getText());
+					output.add(outTuple.convert());
+					
+    			}
+            	
+      
+            	
+            	//
+            	// chunking
+            	//
+            	
+            	/*
+            	String[] tags   = tagger.tag(tokens);
+    			String[] chunks = chunker.chunk(tokens, tags);
+    			console.info(OpenNLPChunker.toString(tokens,tags,chunks));
+    			 * 
+    			 */
+    
+            	
             } // end over sentences
-            
-            
             
 		
 		} // end of tuples
 		
+		
+		// push the whole collection, protocol safe   
+	    Strings[] results = new Strings[output.size()];
+	    output.toArray(results);
+	    
+	    StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
+	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 
-		// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
+	    //
+		// metaData for this tuple producer
+		//
+	    cc.pushDataComponentToOutput(OUT_META_TUPLE, tuplePeer.convert());
+	   
 	}
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
