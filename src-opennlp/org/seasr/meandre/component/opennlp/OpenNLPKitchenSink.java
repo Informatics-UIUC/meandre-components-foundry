@@ -53,7 +53,6 @@ import java.util.Map;
 import java.util.Set;
 
 import opennlp.tools.chunker.ChunkerME;
-import opennlp.tools.lang.english.SentenceDetector;
 import opennlp.tools.lang.english.Tokenizer;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.postag.POSTaggerME;
@@ -78,10 +77,6 @@ import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 
-
-import java.net.HttpURLConnection;
-import java.net.URLConnection;
-import java.net.URL;
 
 
 /**
@@ -186,34 +181,45 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
 		// build the tuple (output) data
 		//
 		String[] fields = 
-			new String[] {SENTENCE_ID_FIELD, TYPE_FIELD, TEXT_FIELD};
+			new String[] {TUPLE_ID_FIELD, SENTENCE_ID_FIELD, TYPE_FIELD, TEXT_FIELD, TEXTCLEAN_FIELD};
 		
 		tuplePeer = new SimpleTuplePeer(fields);
 		
-		TYPE_IDX        = tuplePeer.getIndexForFieldName(TYPE_FIELD);
+		TUPLE_ID_IDX    = tuplePeer.getIndexForFieldName(TUPLE_ID_FIELD);
 		SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
+		TYPE_IDX        = tuplePeer.getIndexForFieldName(TYPE_FIELD);
+		
 		TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
+		TEXTCLEAN_IDX   = tuplePeer.getIndexForFieldName(TEXTCLEAN_FIELD);
 	}
 	
 	SimpleTuplePeer tuplePeer;
+	public static final String TUPLE_ID_FIELD    = "tupleId";
 	public static final String SENTENCE_ID_FIELD = "sentenceId";
 	public static final String TYPE_FIELD        = "type";
 	public static final String TEXT_FIELD        = "text";
+	public static final String TEXTCLEAN_FIELD   = "textClean";
 	
+	int TUPLE_ID_IDX;
 	int TYPE_IDX        ;
 	int SENTENCE_ID_IDX ;
 	int TEXT_IDX        ;
+	int TEXTCLEAN_IDX;
 
+	static int ID = 1;
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
 		
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
-		SimpleTuple tuple = tuplePeer.createTuple();
+		SimpleTuplePeer inPeer = new SimpleTuplePeer(inputMeta);
+		SimpleTuple inTuple    = inPeer.createTuple();
+		
+		int IN_TEXT_IDX = inPeer.getIndexForFieldName("text");
 		
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 		
+		console.info("processing " + in.length);
 		
 		TextSpan textSpan = new TextSpan();
 		List<TextSpan> spans = new ArrayList<TextSpan>();
@@ -222,9 +228,9 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
 		SimpleTuple outTuple = tuplePeer.createTuple();
 		
 		for (int i = 0; i < in.length; i++) {
-			tuple.setValues(in[i]);	
+			inTuple.setValues(in[i]);	
 			
-			String text = tuple.getValue(TEXT_IDX);
+			String text = inTuple.getValue(IN_TEXT_IDX);
 			console.info("==>" + text);
 			
 			// make it a bit easier for openNLP to tokenize
@@ -234,8 +240,6 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
             
             spans.clear();
             
-            Boolean didPrint = false;
-        
             for (String sentence : sentences) {
             	
             	
@@ -251,9 +255,11 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
     				for (Span s : span) {
     					
     					TextSpan tSpan = OpenNLPNamedEntity.label(sentence, tokens, s, textSpan);
+    					outTuple.setValue(TUPLE_ID_IDX, ID++);
     					outTuple.setValue(SENTENCE_ID_IDX, i);
     					outTuple.setValue(TYPE_IDX, type);
     					outTuple.setValue(TEXT_IDX, tSpan.getText());
+    					outTuple.setValue(TEXTCLEAN_IDX, "");
     					output.add(outTuple.convert());
     					
     					
@@ -274,10 +280,11 @@ public class OpenNLPKitchenSink extends OpenNLPBaseUtilities {
     			for (TextSpan s : urls) {
     				
     				// String out = s.getStart() + "," + s.getEnd() + ",URL," + s.getText();
-    				
+    				outTuple.setValue(TUPLE_ID_IDX, ID++);
     				outTuple.setValue(SENTENCE_ID_IDX, i);
 					outTuple.setValue(TYPE_IDX, "URL");
 					outTuple.setValue(TEXT_IDX, s.getText());
+					outTuple.setValue(TEXTCLEAN_IDX, "");
 					output.add(outTuple.convert());
 					
     			}
