@@ -222,7 +222,7 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 	{
 
 		List<Strings> output = new ArrayList<Strings>();
-
+		SimpleTuple tuple = tuplePeer.createTuple();
 
 		StringsMap input = (StringsMap) cc.getDataComponentFromInput(IN_TOKENS);
 
@@ -232,7 +232,7 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 		int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
 		int TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
 		
-		SimpleTuple tuple = tuplePeer.createTuple();
+		
 		 
 		for (int i = 0; i < count; i++) {
 			String key    = input.getKey(i);    // this is the entire sentence
