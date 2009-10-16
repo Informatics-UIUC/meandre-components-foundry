@@ -358,6 +358,8 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			//
 			// bonus find the urls
 			//
+			// TODO: add a property to or finderTypes a URL type
+			//
 			
 			List<TextSpan> urls = findURLS(key);
 			for (TextSpan s : urls) {
