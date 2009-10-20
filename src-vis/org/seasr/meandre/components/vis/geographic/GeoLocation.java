@@ -9,6 +9,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
+
+
 public class GeoLocation {
 	
 	float latitude;
