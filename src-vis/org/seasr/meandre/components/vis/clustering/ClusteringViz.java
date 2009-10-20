@@ -42,9 +42,9 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
 
-import org.meandre.components.datatype.table.ExampleTable;
-import org.meandre.components.discovery.cluster.support.ClusterModel;
-import org.meandre.components.discovery.cluster.support.TableCluster;
+import org.seasr.datatypes.table.ExampleTable;
+import org.seasr.meandre.support.components.discovery.cluster.ClusterModel;
+import org.seasr.meandre.support.components.discovery.cluster.TableCluster;
 
 import com.sun.j3d.utils.geometry.Sphere;
 import com.sun.j3d.utils.universe.SimpleUniverse;
