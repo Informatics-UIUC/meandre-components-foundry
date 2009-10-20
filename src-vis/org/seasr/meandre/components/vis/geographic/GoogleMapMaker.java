@@ -44,7 +44,11 @@ package org.seasr.meandre.components.vis.geographic;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.IOException;
+
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -70,6 +74,8 @@ import org.w3c.dom.NodeList;
  * @author Boris Capitanu
  */
 
+
+
 @Component(
         creator = "Lily Dong",
         description = "Calculates latitude and longitude for an address contained in the input XML document.",
@@ -82,6 +88,7 @@ import org.w3c.dom.NodeList;
 public class GoogleMapMaker	extends AbstractExecutableComponent
 {
 
+	
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
@@ -118,8 +125,9 @@ public class GoogleMapMaker	extends AbstractExecutableComponent
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
+    static final String defaultAPIKey = "yFUeASDV34FRJWiaM8pxF0eJ7d2MizbUNVB2K6in0Ybwji5YB0D4ZODR2y3LqQ--";
     @ComponentProperty(
-            defaultValue = "yFUeASDV34FRJWiaM8pxF0eJ7d2MizbUNVB2K6in0Ybwji5YB0D4ZODR2y3LqQ--",
+            defaultValue = defaultAPIKey,
             description = "This property sets Yahoo API ID. The default value is applicable to all applications.",
             name = Names.PROP_YAHOO_API_KEY
     )
@@ -159,6 +167,9 @@ public class GoogleMapMaker	extends AbstractExecutableComponent
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
+    
+    
+
 
     //--------------------------------------------------------------------------------------------
 
