@@ -89,9 +89,9 @@ public class ClusteringViz extends AbstractExecutableComponent {
 			{true,  false, false}, //1, 0, 0
 			{false, false,  true}, //0, 1, 0
 			{false, true, false} , //0, 0, 1
-			{true,  true,  false}, //1, 1, 0
+			{true,  false,  true}, //1, 0, 1
 			{false, true,  true} , //0, 1, 1
-			{true,  false, true}}; //1, 0, 1
+			{true,  true, false}}; //1, 1, 0
 
 	//x and y coordinates
 	double[] x, y;
