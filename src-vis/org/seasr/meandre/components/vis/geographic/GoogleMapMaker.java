@@ -74,6 +74,10 @@ import org.w3c.dom.NodeList;
  * @author Boris Capitanu
  */
 
+//
+// NOTE: TODO: this component needs to be refactored to
+// use GeoLocation helper class
+//
 
 
 @Component(
