@@ -6,12 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 import javax.media.j3d.AmbientLight;
@@ -31,7 +25,6 @@ import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3f;
 
-import org.json.JSONObject;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -56,7 +49,7 @@ import com.sun.j3d.utils.universe.SimpleUniverse;
         name = "Clustering Viz",
         rights = Licenses.UofINCSA,
         tags = "clustering",
-        dependency = {"protobuf-java-2.2.0.jar"},
+        dependency = {"vecmath-1.3.1.jar", "j3d-core-1.3.1.jar", "protobuf-java-2.2.0.jar"},
         baseURL = "meandre://seasr.org/components/tools/"
 )
 
@@ -65,9 +58,9 @@ public class ClusteringViz extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			description = "The input model",
-			name = Names.PORT_OBJECT
+			name = Names.PORT_CLUSTER_MODEL
 	)
-	protected static final String IN_OBJECT = Names.PORT_OBJECT;
+	protected static final String IN_CLUSTER_MODEL = Names.PORT_CLUSTER_MODEL;
 
 	//------------------------------ OUTPUTS ------------------------------
 
@@ -78,20 +71,14 @@ public class ClusteringViz extends AbstractExecutableComponent {
     )
     protected final static String OUT_IMAGE_RAW = Names.PORT_RAW_DATA;
 
-
-	private ClusterModel _cmodel = null;
-
-	private Map<Integer, ClusteringViz.ClusterNode> _clustMap =
-		new HashMap<Integer, ClusteringViz.ClusterNode>();
-
 	//color pattern
 	private static final boolean[][] rgb = {
-			{true,  false, false}, //1, 0, 0
-			{false, false,  true}, //0, 1, 0
-			{false, true, false} , //0, 0, 1
-			{true,  false,  true}, //1, 0, 1
-			{false, true,  true} , //0, 1, 1
-			{true,  true, false}}; //1, 1, 0
+			{true,  false, false},  //1, 0, 0
+			{false, false, true},   //0, 1, 0
+			{false, true,  false},  //0, 0, 1
+			{true,  false, true},   //1, 0, 1
+			{false, true,  true} ,  //0, 1, 1
+			{true,  true,  false}}; //1, 1, 0
 
 	//x and y coordinates
 	double[] x, y;
@@ -111,6 +98,9 @@ public class ClusteringViz extends AbstractExecutableComponent {
 	//color pattern selected
 	int colorIndex;
 
+	//features selected
+	int[] features;
+
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
@@ -121,77 +111,61 @@ public class ClusteringViz extends AbstractExecutableComponent {
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		Object input = cc.getDataComponentFromInput(IN_OBJECT);
-		_cmodel = (ClusterModel)input;
-
-		TableCluster root = _cmodel.getRoot();
-		TreeSet<ClusteringViz.ClusterNode> ranked = new TreeSet<ClusteringViz.ClusterNode>(
-				new cRank_Comparator());
-		clusterWalk(root, ranked);
-
-		Iterator<ClusteringViz.ClusterNode> itty = ranked.iterator();
-		while (itty.hasNext()) {
-			ClusteringViz.ClusterNode cn = itty.next();
-
-			JSONObject obj = new JSONObject(cn.getMap());
-			//console.info("jsonobject = " + obj.toString());
-			try {
-				_clustMap.put(Integer.valueOf(obj.getInt("rid")), cn);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
+		Object input = cc.getDataComponentFromInput(IN_CLUSTER_MODEL);
+		ClusterModel model = (ClusterModel)input;
 
 		double minX = Double.MAX_VALUE,
 			   minY = Double.MAX_VALUE,
 		       maxX = Double.MIN_VALUE,
 		       maxY = Double.MIN_VALUE;
 
-		ExampleTable et = (ExampleTable)_cmodel.getTable();
-		int[] features = et.getInputFeatures();
+		ExampleTable et = (ExampleTable)model.getTable();
+		features = et.getInputFeatures();
 
-		for(int row=0; row<_cmodel.getNumRows(); row++) {
-			double value = _cmodel.getDouble(row, features[0]);
+		if(features.length<2)
+			throw new Exception("At least two input features must be present to visualizate clustering process.");
+
+		for(int row=0; row<model.getNumRows(); row++) {
+			double value = model.getDouble(row, features[0]);
 			minX = (minX > value)? value: minX;
 			maxX = (maxX > value)? maxX: value;
-			value = _cmodel.getDouble(row, features[1]);
+			value = model.getDouble(row, features[1]);
 			minY = (minY > value)? value: minY;
 			maxY = (maxY > value)? maxY: value;
 		}
 
-		x = new double[_cmodel.getNumRows()];
-		y = new double[_cmodel.getNumRows()];
+		x = new double[model.getNumRows()];
+		y = new double[model.getNumRows()];
 
-		red   = new float[_cmodel.getNumRows()];
-		green = new float[_cmodel.getNumRows()];
-		blue  = new float[_cmodel.getNumRows()];
+		red   = new float[model.getNumRows()];
+		green = new float[model.getNumRows()];
+		blue  = new float[model.getNumRows()];
 
-		dist = new double[_cmodel.getNumRows()];
+		dist = new double[model.getNumRows()];
 
-		ArrayList clusters = _cmodel.getClusters();
+		ArrayList clusters = model.getClusters();
 
 		maxDist = new double[clusters.size()];
-
 		for(int i=0; i<clusters.size(); i++) {
-			TableCluster tc = (TableCluster)clusters.get(i);
+			TableCluster root = (TableCluster)clusters.get(i);
 			maxDist[i] = Double.MIN_VALUE;
-			rootCentroids = tc.getCentroid();
-			traverse(tc, i);
+			rootCentroids = root.getCentroid();
+			traverse(root, i);
 		}
 
 		for(int i=0; i<clusters.size(); i++) {
-			TableCluster tc = (TableCluster)clusters.get(i);
+			TableCluster root = (TableCluster)clusters.get(i);
 			colorIndex = i%rgb.length;
-			traverse(tc, maxDist[i]);
+			traverse(root, maxDist[i]);
 		}
 
 		double diffX = maxX - minX,
 			   diffY = maxY - minY;
 		double transX = ((minX+maxX)/2-minX)/diffX,
 			   transY = ((minY+maxY)/2-minY)/diffY;
-		for(int row=0; row<_cmodel.getNumRows(); row++) {
-			x[row] = (_cmodel.getDouble(row, features[0])-minX)/diffX-transX;
-			y[row] = (_cmodel.getDouble(row, features[1])-minY)/diffY-transY;
+		for(int row=0; row<model.getNumRows(); row++) {
+			x[row] = (model.getDouble(row, features[0])-minX)/diffX-transX;
+			y[row] = (model.getDouble(row, features[1])-minY)/diffY-transY;
  		}
 
 		clustering();
@@ -297,12 +271,7 @@ public class ClusteringViz extends AbstractExecutableComponent {
     	scene.addChild(background);
 
     	SimpleUniverse u = new SimpleUniverse(canvas3D);
-
-    	// This will move the ViewPlatform back a bit so the
-   		// objects in the scene can be viewed.
     	u.getViewingPlatform().setNominalViewingTransform();
-
-    	// setLocalEyeViewing
     	u.getViewer().getView().setLocalEyeLightingEnable(true);
 
    		u.addBranchGraph(scene);
@@ -335,36 +304,32 @@ public class ClusteringViz extends AbstractExecutableComponent {
   		TableCluster lc = root.getLC();
 		TableCluster rc = root.getRC();
 
-		if(lc.isLeaf()) {
-			double[] childCentroids = lc.getCentroid();
-			int len = childCentroids.length;
-			if(len > 2) //features at 0 and 1 are used to calculate distance
-				len = 2;
-			double theDist = 0;
-			for(int i=0; i<len; i++) {
-				theDist += Math.pow(rootCentroids[i]-childCentroids[i], 2);
-			}
-			theDist = Math.sqrt(theDist);
-			maxDist[k] = (theDist>maxDist[k])? theDist: maxDist[k];
-			dist[lc.getMemberIndices()[0]] = theDist;
-		} else {
-			traverse(lc, k);
+		if(lc != null) {
+			if(lc.isLeaf()) {
+				double[] childCentroids = lc.getCentroid();
+				double theDist = 0;
+				for(int i=0; i<2; i++) {//the first features are used to calculate distance
+					theDist += Math.pow(rootCentroids[i]-childCentroids[i], 2);
+				}
+				theDist = Math.sqrt(theDist);
+				maxDist[k] = (theDist>maxDist[k])? theDist: maxDist[k];
+				dist[lc.getMemberIndices()[0]] = theDist;
+			} else
+				traverse(lc, k);
 		}
 
-		if(rc.isLeaf()) {
-			double[] childCentroids = rc.getCentroid();
-			int len = childCentroids.length;
-			if(len > 2) //features at 0 and 1 are used to calculate distance
-				len = 2;
-			double theDist = 0;
-			for(int i=0; i<len; i++) {
-				theDist += Math.pow(rootCentroids[i]-childCentroids[i], 2);
-			}
-			theDist = Math.sqrt(theDist);
-			maxDist[k] = (theDist>maxDist[k])? theDist: maxDist[k];
-			dist[rc.getMemberIndices()[0]] = theDist;
-		} else {
-			traverse(rc, k);
+		if(rc != null) {
+			if(rc.isLeaf()) {
+				double[] childCentroids = rc.getCentroid();
+				double theDist = 0;
+				for(int i=0; i<2; i++) { //the first features are used to calculate distance
+					theDist += Math.pow(rootCentroids[i]-childCentroids[i], 2);
+				}
+				theDist = Math.sqrt(theDist);
+				maxDist[k] = (theDist>maxDist[k])? theDist: maxDist[k];
+				dist[rc.getMemberIndices()[0]] = theDist;
+			} else
+				traverse(rc, k);
 		}
   	}
 
@@ -377,159 +342,26 @@ public class ClusteringViz extends AbstractExecutableComponent {
 		TableCluster lc = root.getLC();
 		TableCluster rc = root.getRC();
 
-		if (lc.isLeaf()) {
-			int pos = lc.getMemberIndices()[0];
-			float colorValue = (float)(dist[pos]/max);
-			red[pos]   = (rgb[colorIndex][0])? 255f: colorValue;
-			green[pos] = (rgb[colorIndex][1])? 255f: colorValue;
-			blue[pos]  = (rgb[colorIndex][2])? 255f: colorValue;
-		} else
-			traverse(lc, max);
-
-		if (rc.isLeaf()) {
-			int pos = rc.getMemberIndices()[0];
-			float colorValue = (float)(dist[pos]/max);
-			red[pos]   = (rgb[colorIndex][0])? 255f: colorValue;
-			green[pos] = (rgb[colorIndex][1])? 255f: colorValue;
-			blue[pos]  = (rgb[colorIndex][2])? 255f: colorValue;
-		} else
-			traverse(rc, max);
-  	}
-
-	private ClusteringViz.ClusterNode clusterWalk(
-			TableCluster root,
-			Set<ClusteringViz.ClusterNode> hold) {
-
-			TableCluster lc = root.getLC();
-			TableCluster rc = root.getRC();
-
-			ClusteringViz.ClusterNode lcNode = null;
-			ClusteringViz.ClusterNode rcNode = null;
+		if(lc != null) {
 			if (lc.isLeaf()) {
-				lcNode = new ClusteringViz.ClusterNode(lc, null, null, lc
-						.getChildDistance());
-				hold.add(lcNode);
-			} else {
-				lcNode = clusterWalk(lc, hold);
-			}
+				int pos = lc.getMemberIndices()[0];
+				float colorValue = (float)(dist[pos]/max);
+				red[pos]   = (rgb[colorIndex][0])? 255f: colorValue;
+				green[pos] = (rgb[colorIndex][1])? 255f: colorValue;
+				blue[pos]  = (rgb[colorIndex][2])? 255f: colorValue;
+			} else
+				traverse(lc, max);
+		}
+
+		if(rc != null) {
 			if (rc.isLeaf()) {
-				rcNode = new ClusteringViz.ClusterNode(rc, null, null, rc
-						.getChildDistance());
-				hold.add(rcNode);
-			} else {
-				rcNode = clusterWalk(rc, hold);
-			}
-			ClusterNode ret = new ClusterNode(root, lcNode, rcNode, root
-					.getChildDistance());
-			hold.add(ret);
-			return ret;
-	}
-
-
-	// ===============
-	// Inner Classes
-	// ===============
-
-	private class ClusterNode {
-		private TableCluster _root = null;
-
-		private ClusterNode _lc = null;
-
-		private ClusterNode _rc = null;
-
-		private double _cdist = 0;
-
-		private Map<String, Object> _map = null;
-
-		public ClusterNode(TableCluster root, ClusterNode lc, ClusterNode rc,
-				double cdist) {
-			super();
-			_map = new HashMap<String, Object>();
-			_root = root;
-			_map.put("rid", Integer.valueOf(_root.hashCode()));
-			_lc = lc;
-			if (lc != null) {
-				_map.put("lc", Double.valueOf(lc.getRoot().hashCode()));
-			}
-			_rc = rc;
-			if (rc != null) {
-				_map.put("rc", Double.valueOf(rc.getRoot().hashCode()));
-			}
-			_cdist = cdist;
-			_map.put("cd", Double.valueOf(_cdist));
+				int pos = rc.getMemberIndices()[0];
+				float colorValue = (float)(dist[pos]/max);
+				red[pos]   = (rgb[colorIndex][0])? 255f: colorValue;
+				green[pos] = (rgb[colorIndex][1])? 255f: colorValue;
+				blue[pos]  = (rgb[colorIndex][2])? 255f: colorValue;
+			} else
+				traverse(rc, max);
 		}
-
-		public Map<String, Object> getMap() {
-			return _map;
-		}
-
-		public boolean isLeaf() {
-			return _root.isLeaf();
-		}
-
-		public TableCluster getRoot() {
-			return _root;
-		}
-
-		public double getChildDistance() {
-			return _cdist;
-		}
-
-		public ClusterNode getLC() {
-			return _lc;
-		}
-
-		public ClusterNode getRC() {
-			return _rc;
-		}
-	}
-
-	private class Centroid_Comparator implements Comparator<Object[]> {
-
-		/**
-		 * The small deviation allowed in double comparisons.
-		 */
-		public Centroid_Comparator() {
-		}
-
-		public int compare(Object[] objarr1, Object[] objarr2) {
-			double d1 = ((Double) objarr1[1]).doubleValue();
-			double d2 = ((Double) objarr2[1]).doubleValue();
-
-			if (d1 < d2) {
-				return 1;
-			} else {
-				return -1;
-			}
-		} // end method compare
-
-		public boolean equals(Object o) {
-			return false;
-		}
-	} // end class cRank_Comparator
-
-	private class cRank_Comparator implements
-			Comparator<ClusteringViz.ClusterNode> {
-
-		/**
-		 * The small deviation allowed in double comparisons.
-		 */
-		public cRank_Comparator() {
-		}
-
-		public int compare(ClusteringViz.ClusterNode objarr1,
-				ClusteringViz.ClusterNode objarr2) {
-
-			if (objarr1.getChildDistance() > objarr2.getChildDistance()) {
-				return 1;
-			} else {
-				return -1;
-			}
-		} // end method compare
-
-		public boolean equals(Object o) {
-			return false;
-		}
-	} // end class cRank_Comparator
-
+  	}
 }
