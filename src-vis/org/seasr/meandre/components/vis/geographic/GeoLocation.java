@@ -10,32 +10,42 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 
 
+/*
+37.843075,-122.27787
+37.843075,-122.277869
+*/
+
 
 public class GeoLocation {
 	
-	float latitude;
-	float longitude;
+	double latitude;
+	double longitude;
 	
 	public GeoLocation()
 	{ 
 		this(-1.0f, -1.0f);
 	}
 	
-	public GeoLocation(float lat, float lng) {
+	public GeoLocation(double lat, double lng) {
 		
 		this.latitude  = lat;
 		this.longitude = lng;
 		
 	}
 	
-	public float getLatitude()  {return latitude;}
-	public float getLongitude() {return longitude;}
+	public double getLatitude()  {return latitude;}
+	public double getLongitude() {return longitude;}
 	
-	public void setLatitude(float l) {
+	public void setLatitude(double l) {
 		this.latitude = l;
 	}
-	public void setLongitude(float l) {
+	public void setLongitude(double l) {
 		this.longitude = l;
+	}
+	
+	public boolean isValid()
+	{ 
+		return (this.latitude != -1 || this.longitude != -1);
 	}
 	
 	
@@ -92,7 +102,7 @@ public class GeoLocation {
 		
 		
 		GeoLocation geo = 
-			new GeoLocation(Float.parseFloat(lat), Float.parseFloat(lng));
+			new GeoLocation(Double.parseDouble(lat), Double.parseDouble(lng));
 		
 
         return geo;
