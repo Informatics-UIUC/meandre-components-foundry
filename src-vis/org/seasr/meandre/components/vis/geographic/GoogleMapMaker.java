@@ -72,12 +72,9 @@ import org.w3c.dom.NodeList;
 /**
  * @author Lily Dong
  * @author Boris Capitanu
+ * @author Mike Haberman
  */
 
-//
-// NOTE: TODO: this component needs to be refactored to
-// use GeoLocation helper class
-//
 
 
 @Component(
@@ -127,11 +124,11 @@ public class GoogleMapMaker	extends AbstractExecutableComponent
     )
 	protected static final String OUT_CONTEXT = Names.PORT_CONTEXT_VECTOR;
 
+    
+    
     //------------------------------ PROPERTIES --------------------------------------------------
-
-    static final String defaultAPIKey = "yFUeASDV34FRJWiaM8pxF0eJ7d2MizbUNVB2K6in0Ybwji5YB0D4ZODR2y3LqQ--";
     @ComponentProperty(
-            defaultValue = defaultAPIKey,
+            defaultValue = GeoLocation.defaultAPIKey,
             description = "This property sets Yahoo API ID. The default value is applicable to all applications.",
             name = Names.PROP_YAHOO_API_KEY
     )
@@ -199,78 +196,55 @@ public class GoogleMapMaker	extends AbstractExecutableComponent
             if(!m.matches()) //illegal characters
                 continue;
 
-            StringBuffer sb = new StringBuffer();
-            sb.append("http://local.yahooapis.com/MapsService/V1/geocode?appid=");
-            sb.append(yahooAPIKey);
-            //String str = fstNode.getTextContent();
-            str = str.replaceAll(" ", "%20");
-            sb.append("&location=").append(str);
-
-            URL url = new URL(sb.toString());
-            BufferedReader br = null;
+            
+            //
+            // start of the refactored code
+            //
             try {
-                br = new BufferedReader(new InputStreamReader(
-                        url.openConnection().getInputStream()));
-            }catch(java.io.IOException ex) {
-                console.warning("bad query : " + str);
-                br = null;
+            	GeoLocation geo = GeoLocation.getLocation(str, yahooAPIKey);
+            	if (geo.isValid()) {
+            		lat.add(String.valueOf(geo.getLatitude()));
+            		lon.add(String.valueOf(geo.getLongitude()));
+            	}
+            }catch(IOException e) {
+            	console.info("unable to find location " + str);
+            	continue;
             }
-            if(br == null)
-                continue;
-            StringBuffer buffer = new StringBuffer();
-            String line;
-            while((line = br.readLine())!= null) {
-                line = line.trim();
-                if(line.length() == 0)
-                    continue;
-                buffer.append(line).append(STRING_DELIMITER);
+            
+            
+            //
+            // This was copied from the original code (see below)
+            // 
+            NamedNodeMap nnp = fstNode.getAttributes();
+            String sentence = nnp.getNamedItem("sentence").getNodeValue();
+
+            StringTokenizer st = new StringTokenizer(sentence, "|");
+            StringBuffer buf = new StringBuffer();
+            int nr = 0;
+            while(st.hasMoreTokens()) {
+                String nt = st.nextToken();
+                int pos = nt.toLowerCase().indexOf(fstNode.getTextContent());
+
+                if(pos == -1)
+    	    		continue;
+
+                int offset = pos+fstNode.getTextContent().length();
+                nt = new StringBuffer(nt).insert(offset, "</font>").toString();
+                offset = pos;
+                nt = new StringBuffer(nt).insert(offset, "<font color='red'>").toString();
+                buf.append("<div onclick='toggleVisibility(this)' style='position:relative' ALIGN='LEFT'><b>Sentence ").append(++nr).append("</b>");
+                buf.append("<span style='display: ' ALIGN='LEFT'><table><tr><td>").append(nt).append("</td></tr></table></span></div>");
             }
-            br.close();
 
-            String s = buffer.toString();
-            while(true) {//valid location
-                if(s.indexOf("<Latitude>") == -1)
-                    break;
+            /*sentence = "<p align=left>" + sentence;
+            sentence = sentence.replaceAll("[|]", "</p><hr><p align=left>");
+            sentence = sentence + "</p>";*/
 
-                int beginIndex = s.indexOf("<Latitude>") + 10,
-                    endIndex = s.indexOf("</Latitude>");
-                lat.add(s.substring(beginIndex, endIndex));
+            location.add(fstNode.getTextContent()+"("+nr+")");
+            context.add(buf.toString());//sentence);
 
-                beginIndex = s.indexOf("<Longitude>") + 11;
-                endIndex = s.indexOf("</Longitude>");
-                lon.add(s.substring(beginIndex, endIndex));
-
-                NamedNodeMap nnp = fstNode.getAttributes();
-
-                String sentence = nnp.getNamedItem("sentence").getNodeValue();
-
-                StringTokenizer st = new StringTokenizer(sentence, "|");
-                StringBuffer buf = new StringBuffer();
-                int nr = 0;
-                while(st.hasMoreTokens()) {
-                    String nt = st.nextToken();
-                    int pos = nt.toLowerCase().indexOf(fstNode.getTextContent());
-
-                    if(pos == -1)
-        	    		continue;
-
-                    int offset = pos+fstNode.getTextContent().length();
-                    nt = new StringBuffer(nt).insert(offset, "</font>").toString();
-                    offset = pos;
-                    nt = new StringBuffer(nt).insert(offset, "<font color='red'>").toString();
-                    buf.append("<div onclick='toggleVisibility(this)' style='position:relative' ALIGN='LEFT'><b>Sentence ").append(++nr).append("</b>");
-                    buf.append("<span style='display: ' ALIGN='LEFT'><table><tr><td>").append(nt).append("</td></tr></table></span></div>");
-                }
-
-                /*sentence = "<p align=left>" + sentence;
-                sentence = sentence.replaceAll("[|]", "</p><hr><p align=left>");
-                sentence = sentence + "</p>";*/
-
-                location.add(fstNode.getTextContent()+"("+nr+")");
-                context.add(buf.toString());//sentence);
-
-                s = s.substring(endIndex+12);
-            }
+            // End of original code
+        
         }
 
         MapData mapData = new MapData();
@@ -282,3 +256,83 @@ public class GoogleMapMaker	extends AbstractExecutableComponent
         return mapData;
     }
 }
+
+
+
+
+
+/*  
+ * // ORIGINAL CODE .. to be deleted once confirmed 
+StringBuffer sb = new StringBuffer();
+sb.append("http://local.yahooapis.com/MapsService/V1/geocode?appid=");
+sb.append(yahooAPIKey);
+//String str = fstNode.getTextContent();
+str = str.replaceAll(" ", "%20");
+sb.append("&location=").append(str);
+
+URL url = new URL(sb.toString());
+BufferedReader br = null;
+try {
+    br = new BufferedReader(new InputStreamReader(
+            url.openConnection().getInputStream()));
+}catch(java.io.IOException ex) {
+    console.warning("bad query : " + str);
+    br = null;
+}
+if(br == null)
+    continue;
+StringBuffer buffer = new StringBuffer();
+String line;
+while((line = br.readLine())!= null) {
+    line = line.trim();
+    if(line.length() == 0)
+        continue;
+    buffer.append(line).append(STRING_DELIMITER);
+}
+br.close();
+
+String s = buffer.toString();
+while(true) {//valid location
+    if(s.indexOf("<Latitude>") == -1)
+        break;
+
+    int beginIndex = s.indexOf("<Latitude>") + 10,
+        endIndex = s.indexOf("</Latitude>");
+    lat.add(s.substring(beginIndex, endIndex));
+
+    beginIndex = s.indexOf("<Longitude>") + 11;
+    endIndex = s.indexOf("</Longitude>");
+    lon.add(s.substring(beginIndex, endIndex));
+
+    NamedNodeMap nnp = fstNode.getAttributes();
+
+    String sentence = nnp.getNamedItem("sentence").getNodeValue();
+
+    StringTokenizer st = new StringTokenizer(sentence, "|");
+    StringBuffer buf = new StringBuffer();
+    int nr = 0;
+    while(st.hasMoreTokens()) {
+        String nt = st.nextToken();
+        int pos = nt.toLowerCase().indexOf(fstNode.getTextContent());
+
+        if(pos == -1)
+    		continue;
+
+        int offset = pos+fstNode.getTextContent().length();
+        nt = new StringBuffer(nt).insert(offset, "</font>").toString();
+        offset = pos;
+        nt = new StringBuffer(nt).insert(offset, "<font color='red'>").toString();
+        buf.append("<div onclick='toggleVisibility(this)' style='position:relative' ALIGN='LEFT'><b>Sentence ").append(++nr).append("</b>");
+        buf.append("<span style='display: ' ALIGN='LEFT'><table><tr><td>").append(nt).append("</td></tr></table></span></div>");
+    }
+
+    // sentence = "<p align=left>" + sentence;
+    // sentence = sentence.replaceAll("[|]", "</p><hr><p align=left>");
+    // sentence = sentence + "</p>";
+
+    location.add(fstNode.getTextContent()+"("+nr+")");
+    context.add(buf.toString());//sentence);
+
+    s = s.substring(endIndex+12);
+}
+*/
