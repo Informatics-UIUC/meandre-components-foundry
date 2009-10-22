@@ -63,6 +63,11 @@ public class TextChunk {
 		this.pos = pos;
 	}
 	
+    public String getPOS()
+    {
+    	return pos;
+    }
+	
     public List<String> getTokens()
     {
     	return tokens;
