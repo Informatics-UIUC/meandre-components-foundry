@@ -53,11 +53,21 @@ public class TextChunk {
 	List<String> tokens    = new ArrayList<String>();
 	List<String> tokensPos = new ArrayList<String>();
 
+	public TextChunk()
+	{
+		this.pos = "never set";
+	}
+	
 	public TextChunk(String pos) 
 	{
 		this.pos = pos;
 	}
-
+	
+    public List<String> getTokens()
+    {
+    	return tokens;
+    }
+    
 	public void add(String text, String pos) {
 		tokens.add(text);
 		tokensPos.add(pos);
