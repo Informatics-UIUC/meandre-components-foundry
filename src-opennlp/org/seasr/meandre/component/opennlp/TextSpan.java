@@ -1,7 +1,3 @@
-package org.seasr.meandre.component.opennlp;
-
-
-
 /**
 *
 * University of Illinois/NCSA
@@ -44,6 +40,7 @@ package org.seasr.meandre.component.opennlp;
 *
 */
 
+package org.seasr.meandre.component.opennlp;
 
 //
 //simple helper class to maintain text spans

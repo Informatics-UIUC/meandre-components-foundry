@@ -1,5 +1,3 @@
-package org.seasr.meandre.component.opennlp;
-
 /**
 *
 * University of Illinois/NCSA
@@ -41,6 +39,8 @@ package org.seasr.meandre.component.opennlp;
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
 *
 */
+
+package org.seasr.meandre.component.opennlp;
 
 import java.util.ArrayList;
 import java.util.List;
