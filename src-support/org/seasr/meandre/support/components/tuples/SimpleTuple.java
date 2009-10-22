@@ -101,6 +101,9 @@ public class SimpleTuple {
 	public void setValue(String fieldName, String value)
 	{
 		int idx = peer.getIndexForFieldName(fieldName);
+		if (idx == -1) {
+			throw new RuntimeException("Unable to find field " + fieldName);
+		}
 		this.setValue(idx, value);
 	}
 	
