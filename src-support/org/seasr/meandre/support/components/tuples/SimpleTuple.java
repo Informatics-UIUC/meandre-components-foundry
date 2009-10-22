@@ -1,6 +1,3 @@
-package org.seasr.meandre.support.components.tuples;
-
-
 /**
 *
 * University of Illinois/NCSA
@@ -43,6 +40,7 @@ package org.seasr.meandre.support.components.tuples;
 *
 */
 
+package org.seasr.meandre.support.components.tuples;
 
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;

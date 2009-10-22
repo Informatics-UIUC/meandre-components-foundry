@@ -1,5 +1,3 @@
-package org.seasr.meandre.support.components.tuples;
-
 /**
 *
 * University of Illinois/NCSA
@@ -41,6 +39,8 @@ package org.seasr.meandre.support.components.tuples;
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
 *
 */
+
+package org.seasr.meandre.support.components.tuples;
 
 
 import java.util.ArrayList;
