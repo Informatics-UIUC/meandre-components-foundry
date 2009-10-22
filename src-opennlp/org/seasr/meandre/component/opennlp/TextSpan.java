@@ -88,10 +88,13 @@ public class TextSpan {
 		
 		if (b == null) return false;
 		
+		// both null, assume equality
 		if (this.span == null &&
 			   b.span == null) return true;
 		
-		if (this.span == null) return false;
+		// either null, not equal
+		if (this.span == null ||
+			   b.span == null) return false;
 		
 		return this.startIdx == b.startIdx &&
 		       this.endIdx   == b.endIdx   &&
