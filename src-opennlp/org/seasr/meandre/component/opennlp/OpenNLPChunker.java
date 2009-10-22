@@ -186,6 +186,30 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 		}
 		return out.toString();
    }
+   
+   public static List<TextChunk> toChunks(String[] tokens, String[] tags, String[] chunks) 
+   {
+	   List<TextChunk> allChunks = new ArrayList<TextChunk>();
+	   TextChunk currentChunk = null;
+	   
+	    // see above
+		for (int j=0; j < chunks.length; j++) {
+			if (j > 0 && !chunks[j].startsWith("I-") && !chunks[j-1].equals("O")) {
+				// end of a chunk
+				allChunks.add(currentChunk);
+			}
+			if (chunks[j].startsWith("B-")) {
+				// start of a chunk
+				currentChunk = new TextChunk(chunks[j].substring(2));
+			}
+			currentChunk.add(tokens[j], tags[j]);
+		}
+		if (!chunks[chunks.length-1].equals("O")) {
+			// end of a chunk
+			allChunks.add(currentChunk);
+		}
+		return allChunks;
+   }
 
 	//--------------------------------------------------------------------------------------------
 
