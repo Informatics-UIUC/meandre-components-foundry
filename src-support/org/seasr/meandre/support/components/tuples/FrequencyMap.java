@@ -60,7 +60,7 @@ public class FrequencyMap<T> {
 		
 	}
 	
-	public void put(T key)
+	public void add(T key)
 	{
 		Integer value = map.get(key);
 
@@ -68,6 +68,42 @@ public class FrequencyMap<T> {
 			value = new Integer(0);
 		}
 		map.put(key,value+1);
+		
+	}
+	
+	public int size()
+	{
+		return map.size();
+	}
+	
+	public void clear() 
+	{
+		map.clear();
+	}
+	
+	public void trimToSize(int size) 
+	{
+		//
+		// note this also resets the frequency count
+		// to those left to be 1
+		// option: reset to the relative freq:
+		// 0:  100%
+		// n:  1
+		
+		List<Map.Entry<T, Integer>> entries = this.sortedEntries();
+		size = Math.min(size, entries.size());
+		List<Map.Entry<T, Integer>> sub = entries.subList(0, size);
+		
+		// clear it all
+		map.clear();
+		
+		for (Map.Entry<T, Integer> e : sub) {
+			this.add(e.getKey());
+		}
+		
+		//
+		// most accessed entry is at location 0
+		//
 		
 	}
 	

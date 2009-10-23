@@ -83,7 +83,7 @@ public class TupleUtilities {
 			// this should be an optional parameter
 			// pass in the method/interface to use to normalize
 			value = normalizeText(value);
-			freqMap.put(value);
+			freqMap.add(value);
 		}
 
 		List<Map.Entry<String, Integer>> sortedEntries = freqMap.sortedEntries();
