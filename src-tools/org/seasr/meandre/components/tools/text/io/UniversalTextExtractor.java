@@ -115,12 +115,14 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
         Object input = cc.getDataComponentFromInput(IN_LOCATION);
         URL location = StreamUtils.getURLforResource(DataTypeParser.parseAsURI(input));
 
-        console.fine("Location set to: " + location.toString());
+        console.fine("Reading: " + location.toString());
 
         URLConnection connection = location.openConnection();
+        String encoding = connection.getContentEncoding();
         String mimeType = connection.getContentType();
 
         console.finest("Content type: " + mimeType);
+        console.finest("    Encoding: " + encoding);
 
         String text;
 
@@ -149,8 +151,7 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
         }
 
         cc.pushDataComponentToOutput(OUT_LOCATION, input);
-        cc.pushDataComponentToOutput(OUT_TEXT,
-                BasicDataTypesTools.stringToStrings(text));
+        cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
     }
 
     @Override

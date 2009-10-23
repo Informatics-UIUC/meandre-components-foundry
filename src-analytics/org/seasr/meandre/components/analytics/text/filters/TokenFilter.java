@@ -331,6 +331,9 @@ public class TokenFilter extends AbstractExecutableComponent {
 	 * @throws Exception
 	 */
 	protected void processTokenizedSentences(Object next) throws Exception {
+	    int nFilteredTokens = 0;
+	    int nKeptTokens = 0;
+
 		StringsMap im = safeStringsMapCast(next);
 		org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
 		for ( int i=0, iMax=im.getKeyCount() ; i<iMax ; i++ ) {
@@ -340,9 +343,18 @@ public class TokenFilter extends AbstractExecutableComponent {
 			for ( String s:sVals.getValueList())
 				if ( !this.setBlacklist.contains(s) )
 					resFiltered.addValue(s);
+				else
+				    nFilteredTokens++;
+
+			nKeptTokens += resFiltered.getValueCount();
+
 			res.addKey(sKey);
 			res.addValue(resFiltered.build());
 		}
+
+		console.fine(String.format("sentences: Filtered: %,d  Kept: %,d  Total: %,d",
+		        nFilteredTokens, nKeptTokens, nFilteredTokens + nKeptTokens));
+
 		componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, res.build());
 	}
 
@@ -366,16 +378,22 @@ public class TokenFilter extends AbstractExecutableComponent {
 		        throw e;
 		}
 
+		int nFilteredTokens = 0;
+
 		Map<String, Integer> res = new HashMap<String, Integer>();
 		for ( Entry<String, Integer> entry : im.entrySet()) {
 			String sKey = entry.getKey();
 			Integer iVal = entry.getValue();
 			if ( !this.setBlacklist.contains(sKey) )
 				res.put(sKey, iVal);
+			else
+			    nFilteredTokens++;
 		}
 
-		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
-		        BasicDataTypesTools.mapToIntegerMap(res, false));
+		console.fine(String.format("counts: Filtered: %,d  Kept: %,d  Total: %,d",
+		        nFilteredTokens, res.size(), nFilteredTokens + res.size()));
+
+		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(res, false));
 	}
 
 	/**
@@ -398,10 +416,17 @@ public class TokenFilter extends AbstractExecutableComponent {
                 throw e;
         }
 
+        int nFilteredTokens = 0;
+
 		org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 		for ( String sTok : tokens )
 			if ( !this.setBlacklist.contains(sTok) )
 				res.addValue(sTok);
+			else
+			    nFilteredTokens++;
+
+		console.fine(String.format("tokens: Filtered: %,d  Kept: %,d  Total: %,d",
+		        nFilteredTokens, res.getValueCount(), nFilteredTokens + res.getValueCount()));
 
 		componentContext.pushDataComponentToOutput(OUT_TOKENS, res.build());
 	}

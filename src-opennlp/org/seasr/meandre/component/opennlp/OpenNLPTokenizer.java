@@ -111,8 +111,9 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
     	return new Tokenizer(sOpenNLPDir+"tokenize"+File.separator+
 				sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"Tok.bin.gz");
     }
-    
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		super.initializeCallBack(ccp);
 
 		// Initialize the tokenizer
@@ -125,7 +126,8 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 		}
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 
 		StringBuilder sb = new StringBuilder();
@@ -135,9 +137,12 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 
 		String[] ta = tokenizer.tokenize(sb.toString());
 
+		console.fine(String.format("Extracted %,d tokens", ta.length));
+
 		cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         super.disposeCallBack(ccp);
         this.tokenizer = null;

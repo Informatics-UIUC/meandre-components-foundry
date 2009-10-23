@@ -189,6 +189,8 @@ public class TokenCountToTable extends AbstractExecutableComponent {
         if (!_gotInitiator)
             throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
+        console.fine(String.format("The resulting table has %,d row(s) and %,d column(s)", _table.getNumRows(), _table.getNumColumns()));
+
         componentContext.pushDataComponentToOutput(OUT_TABLE, new StreamInitiator());
         componentContext.pushDataComponentToOutput(OUT_TABLE, _table);
         componentContext.pushDataComponentToOutput(OUT_TABLE, new StreamTerminator());

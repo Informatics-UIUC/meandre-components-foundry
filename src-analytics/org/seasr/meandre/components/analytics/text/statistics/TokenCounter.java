@@ -116,11 +116,13 @@ public class TokenCounter extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.bOrdered = Boolean.parseBoolean(ccp.getProperty(PROP_ORDERED));
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		String[] tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
 
 		Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>(1000);
@@ -133,9 +135,12 @@ public class TokenCounter extends AbstractExecutableComponent {
 				htCounts.put(sToken, 1);
 		}
 
+		console.fine(String.format("Found %,d unique tokens", htCounts.size()));
+
 		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts,bOrdered));
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }
