@@ -43,8 +43,8 @@
 package org.seasr.meandre.component.opennlp;
 
 //
-//simple helper class to maintain text spans
-//this one keeps the actual text as well
+// simple helper class to maintain text spans
+// this one keeps the actual text as well
 // this class should NOT be coupled tightly 
 // with any OPEN NLP stuff
 //
@@ -77,8 +77,12 @@ public class TextSpan {
 	
 	public void setSpan(String s) 
 	{
+		this.span = s.substring(startIdx, endIdx);
+		
+		/* let the client do any post cleaning
 		String textSpan = s.substring(startIdx, endIdx);
 		this.span = textSpan.replace("\n", " ").trim();
+		*/
 	}
 	
 	public boolean equals(TextSpan b) {
