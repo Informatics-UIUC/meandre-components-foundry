@@ -49,15 +49,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+//
+// a work in progress
+// used for twitter stuff
+//
 
 public class FrequencyMap<T> {
 
 	Map<T,Integer> map = new HashMap<T,Integer>();
-	
+	int maxCount = 0;
+	T mfKey; // mostFrequentKey
 	
 	public FrequencyMap()
 	{
 		
+	}
+	
+	private void add(T key, int value)
+	{
+		this.add(key);
+		map.put(key, value);
+		
+		if (value > maxCount) {
+			maxCount = value;
+			mfKey = key;
+		}
 	}
 	
 	public void add(T key)
@@ -67,7 +83,16 @@ public class FrequencyMap<T> {
 		if (value == null) {
 			value = new Integer(0);
 		}
-		map.put(key,value+1);
+		value = value+1;
+		
+		
+		map.put(key,value);
+		
+		
+		if (value> maxCount) {
+			maxCount = value;
+			mfKey = key;
+		}
 		
 	}
 	
@@ -79,10 +104,31 @@ public class FrequencyMap<T> {
 	public void clear() 
 	{
 		map.clear();
+		maxCount = 0;
 	}
 	
-	public void trimToSize(int size) 
+	public T getMostFrequentItem()
 	{
+		return mfKey;
+	}
+	
+	public int getHighCount()
+	{
+		return maxCount;
+	}
+	
+	// returned the entries that were trimmed off
+	public List<Map.Entry<T,Integer>> trimToSize(int size) 
+	{
+		return this.trimToSize(size, 1);
+	}
+	
+	public List<Map.Entry<T,Integer>> trimToSize(int size, int defaultValue) 
+	{
+		//
+		// most accessed entry is at location 0
+		//
+		
 		//
 		// note this also resets the frequency count
 		// to those left to be 1
@@ -93,17 +139,24 @@ public class FrequencyMap<T> {
 		List<Map.Entry<T, Integer>> entries = this.sortedEntries();
 		size = Math.min(size, entries.size());
 		List<Map.Entry<T, Integer>> sub = entries.subList(0, size);
+		List<Map.Entry<T, Integer>> old = entries.subList(size, entries.size());
 		
 		// clear it all
 		map.clear();
 		
 		for (Map.Entry<T, Integer> e : sub) {
-			this.add(e.getKey());
+			Integer oldV = e.getValue();
+			
+			if (defaultValue == 0) {
+				this.add(e.getKey(), oldV);
+			}
+			else {
+				this.add(e.getKey(), defaultValue);
+			}
+			
 		}
 		
-		//
-		// most accessed entry is at location 0
-		//
+		return old;
 		
 	}
 	
