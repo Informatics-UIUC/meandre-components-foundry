@@ -45,37 +45,33 @@ package org.seasr.meandre.support.components.discovery.ruleassociation.fpgrowth;
 //==============
 // Java Imports
 //==============
-import java.io.*;
 
-public class FPProb implements Serializable{
-	 //==============
+import java.io.Serializable;
+
+public class FPProb implements Serializable {
+
+    private static final long serialVersionUID = -6335289272708223182L;
+
+    //==============
     // Data Members
     //==============
-    private int[] _alpha;
+
+    private final int[] _alpha;
     private FPSparse _tab = null;
     private int _support = 1;
     private int _maxSupport = Integer.MAX_VALUE;
 
-  //============
-  // Properties
-  //============
+    //============
+    // Properties
+    //============
 
     private int _condsupp = 0;
-    public void setConditionalSupport(int i){_condsupp = i;}
-    public int getConditionalSupport(){return _condsupp;}
 
     //================
     // Constructor(s)
     //================
+
     public FPProb (FPSparse tab, int[] alpha, int sup) {
-        //    if (alpha instanceof Collection){
-        //      _alpha = new ArrayList(alpha);
-        //    } else {
-        //      _alpha = new ArrayList();
-        //      for (Iterator it = alpha.iterator(); it.hasNext();){
-        //        _alpha.add(it.next());
-        //      }
-        //    }
         _alpha = alpha;
         _tab = tab;
         _support = sup;
@@ -84,6 +80,15 @@ public class FPProb implements Serializable{
     //================
     // Public Methods
     //================
+
+    public void setConditionalSupport(int i) {
+        _condsupp = i;
+    }
+
+    public int getConditionalSupport() {
+        return _condsupp;
+    }
+
     public int getSupport () {
         return  _support;
     }
@@ -100,22 +105,11 @@ public class FPProb implements Serializable{
         _maxSupport = i;
     }
 
-    /**
-     * put your documentation comment here
-     * @return
-     */
     public int[] getAlpha () {
         return  _alpha;
     }
 
-    /**
-     * put your documentation comment here
-     * @return
-     */
     public FPSparse getTable () {
         return  _tab;
     }
-  //=================
-  // Inner Class(es)
-  //=================
 }

@@ -64,6 +64,8 @@ import org.seasr.datatypes.table.basic.TableImpl;
  */
 public class RuleTable extends MutableTableImpl {
 
+    private static final long serialVersionUID = 534162652542763102L;
+
     private static final int IF = 0;
     private static final int THEN = 1;
     private static final int SUPPORT = 3;
@@ -73,10 +75,10 @@ public class RuleTable extends MutableTableImpl {
     private final double minimumSupport;
     private final int numberOfTransactions;
     private int numRulesShowing;
-    private List items;
-    private List itemSets;
-    private LinkedList origItems;
-    private LinkedList origItemSets;
+    private List<String> items;
+    private List<FreqItemSet> itemSets;
+    private LinkedList<String> origItems;
+    private LinkedList<FreqItemSet> origItemSets;
     //--------------------
 
     /**
@@ -87,7 +89,7 @@ public class RuleTable extends MutableTableImpl {
      * @param names list of item labels
      * @param sets list of frequent item sets
      */
-    public RuleTable(TableImpl rls, double minCon, double minSupp, int numTrans, List names, List sets) {
+    public RuleTable(TableImpl rls, double minCon, double minSupp, int numTrans, List<String> names, List<FreqItemSet> sets) {
         // the support and confidence columns are in the wrong order when we get them.
         Column[] c = {rls.getColumn(0), rls.getColumn(1),
             rls.getColumn(3), rls.getColumn(2)};
@@ -105,10 +107,10 @@ public class RuleTable extends MutableTableImpl {
      * any alterations.
      */
     private void initializeOriginals(){
-      	this.origItems = new LinkedList(items);
-	this.origItemSets = new LinkedList(itemSets);
+      	this.origItems = new LinkedList<String>(items);
+      	this.origItemSets = new LinkedList<FreqItemSet>(itemSets);
         for(int i = 0; i < origItemSets.size(); i++){
-          FreqItemSet I = (FreqItemSet) itemSets.get(i);
+          FreqItemSet I = itemSets.get(i);
           FreqItemSet newItems = new FreqItemSet();
           newItems.support = I.support;
           newItems.numberOfItems = I.numberOfItems;
@@ -157,7 +159,7 @@ public class RuleTable extends MutableTableImpl {
           remap[i] = i-adjustment;
       //adjust the values of frequent item sets by the remap data
       for (int i=0; i < itemSets.size(); i++) {
-        FreqItemSet fis = (FreqItemSet) itemSets.get(i);
+        FreqItemSet fis = itemSets.get(i);
         len = fis.items.size();
         int j = 0;
         while(j < fis.items.size() && fis.items.get(j) != -1){
@@ -201,7 +203,7 @@ public class RuleTable extends MutableTableImpl {
           remap[i] = i-adjustment;
       //adjust the values of frequent item sets by the remap data
       for (int i=0; i < itemSets.size(); i++) {
-        FreqItemSet fis = (FreqItemSet) itemSets.get(i);
+        FreqItemSet fis = itemSets.get(i);
         len = fis.items.size();
         int j = 0;
         while(j < fis.items.size() && fis.items.get(j) != -1){
@@ -224,7 +226,7 @@ public class RuleTable extends MutableTableImpl {
       //sort the attribute-value combinations
       int begin = 0;
       while(begin < items.size()){
-        ListIterator I = items.listIterator(begin);
+        ListIterator<String> I = items.listIterator(begin);
         String min = I.next().toString();
         int minIndex = begin;
         for (int i = begin; i < (items.size()-1); i++) {
@@ -253,16 +255,16 @@ public class RuleTable extends MutableTableImpl {
      * @param order is the current order of the rows in the Vis
      * @return h, the HashSet of 'items' used by the filter criteria
      */
-    private HashSet findUsedItems(int[] order){
-      HashSet h = new HashSet();
+    private HashSet<TIntArrayList> findUsedItems(int[] order){
+      HashSet<TIntArrayList> h = new HashSet<TIntArrayList>();
       FreqItemSet F;
       for(int i = 0; i < order.length; i++){
         //the rules contained in order[] are the important rules that need to be seen
         int ante = this.getRuleAntecedentID(order[i]);
-        F = (FreqItemSet)itemSets.get(ante);
+        F = itemSets.get(ante);
         h.add(F.items);
         int cons = this.getRuleConsequentID(order[i]);
-        F = (FreqItemSet)itemSets.get(cons);
+        F = itemSets.get(cons);
         h.add(F.items);
       }
       return h;
@@ -277,7 +279,7 @@ public class RuleTable extends MutableTableImpl {
      */
     public void rulesToDisplay(boolean[] ruleList, int[] order){
       numRulesShowing = order.length;
-      HashSet hSet = findUsedItems(order);
+      HashSet<TIntArrayList> hSet = findUsedItems(order);
       int ante;
       int cons;
       FreqItemSet F;
@@ -285,12 +287,12 @@ public class RuleTable extends MutableTableImpl {
         if(ruleList[c] == false){
           ante = this.getRuleAntecedentID(c);
           cons = this.getRuleConsequentID(c);
-          F = (FreqItemSet)itemSets.get(ante);
+          F = itemSets.get(ante);
           //'remove' the items not used by the Vis.
           if(!hSet.contains(F.items))
             for(int i = 0; i < F.items.size(); i++)
               F.items.set(i, -1);
-          F = (FreqItemSet)itemSets.get(cons);
+          F = itemSets.get(cons);
           if(!hSet.contains(F.items))
             F.items.set(0, -1);
         }
@@ -311,7 +313,7 @@ public class RuleTable extends MutableTableImpl {
         rowMap[newOrder[x]] = x;
       int len;
       for (int i=0; i < itemSets.size(); i++) {
-        FreqItemSet fis = (FreqItemSet)itemSets.get(i);
+        FreqItemSet fis = itemSets.get(i);
         len = fis.items.size();
         for (int j=0; j<len; j++){
           if(fis.items.get(j) < 0)
@@ -328,7 +330,7 @@ public class RuleTable extends MutableTableImpl {
      * @param newOrder is the re-mapping array
      */
     public void reOrderRowHeads(int[] newOrder){
-      LinkedList newList = new LinkedList();
+      LinkedList<String> newList = new LinkedList<String>();
       for(int i = 0; i < items.size(); i++){
         newList.add(i,items.get(newOrder[i]));
       }
@@ -435,7 +437,7 @@ public class RuleTable extends MutableTableImpl {
      */
     public int[] getRuleAntecedent(int row) {
         int idx = getInt(getNumRows()-1-row, IF);
-        FreqItemSet fis = (FreqItemSet)itemSets.get(idx);
+        FreqItemSet fis = itemSets.get(idx);
         TIntArrayList set = fis.items;
         return set.toNativeArray();
     }
@@ -456,7 +458,7 @@ public class RuleTable extends MutableTableImpl {
      */
     public int[] getRuleConsequent(int row) {
         int idx = getInt(getNumRows()-1-row, THEN);
-        FreqItemSet fis = (FreqItemSet)itemSets.get(idx);
+        FreqItemSet fis = itemSets.get(idx);
         TIntArrayList set = fis.items;
         return set.toNativeArray();
     }
@@ -482,7 +484,7 @@ public class RuleTable extends MutableTableImpl {
      * Get the list of names.
      * @return the list of item labels.
      */
-    public List getNamesList() {
+    public List<String> getNamesList() {
         return items;
     }
 
@@ -490,7 +492,7 @@ public class RuleTable extends MutableTableImpl {
      * Get the list of FreqItemSets
      * @return the list of FreqItemSets.
      */
-    public List getItemSetsList() {
+    public List<FreqItemSet> getItemSetsList() {
         return itemSets;
     }
 
@@ -558,12 +560,12 @@ public class RuleTable extends MutableTableImpl {
       FreqItemSet f2;
 
       if(column == IF) {
-        f1 = (FreqItemSet)this.itemSets.get(getInt(i, IF));
-        f2 = (FreqItemSet)this.itemSets.get(getInt(j, IF));
+        f1 = this.itemSets.get(getInt(i, IF));
+        f2 = this.itemSets.get(getInt(j, IF));
       }
       else {
-        f1 = (FreqItemSet)this.itemSets.get(getInt(i, THEN));
-        f2 = (FreqItemSet)this.itemSets.get(getInt(j, THEN));
+        f1 = this.itemSets.get(getInt(i, THEN));
+        f2 = this.itemSets.get(getInt(j, THEN));
       }
 
       String s1 = itemSetAsString(f1);

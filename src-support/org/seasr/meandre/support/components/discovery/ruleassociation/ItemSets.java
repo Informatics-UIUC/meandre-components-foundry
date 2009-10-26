@@ -79,7 +79,9 @@ import org.seasr.datatypes.table.Table;
 //
 public class ItemSets implements ItemSetInterface, Serializable {
 
-	/** number of examples. */
+    private static final long serialVersionUID = -3342695805257380865L;
+
+    /** number of examples. */
 	private int numExamples;
 
 	/** this array contains a list of attribute names of target attributes. */
@@ -90,7 +92,7 @@ public class ItemSets implements ItemSetInterface, Serializable {
 
 	/** for each unique item, this hashtable contains it's frequency count and it's
 	 *  order in terms of frequency. */
-	private final HashMap unique = new HashMap ();
+	private final HashMap<String, int[]> unique = new HashMap<String, int[]>();
 
 	/** this is the list of unique attribute value names ordered by frequency. */
 	private String [] names;
@@ -194,7 +196,7 @@ public class ItemSets implements ItemSetInterface, Serializable {
 				targetNames[i] = vt.getColumnLabel( outputs[i] );
 			   }
 
-			// Example Tablee case 4
+			// Example Table case 4
 			} else if ( inCnt == 0 && outCnt == 0 ) {
 			   numAttributes = numColumns;
 			   attributes = new int [ numAttributes ];
@@ -233,7 +235,7 @@ public class ItemSets implements ItemSetInterface, Serializable {
 
 		int counter = 0;
 		char [] chars = new char [1024];
-		ArrayList set = new ArrayList();
+		ArrayList<int[]> set = new ArrayList<int[]>();
 
 		// added meh to hold the item names before sorting
 		ArrayList<String> allNames = new ArrayList<String>();
@@ -250,7 +252,7 @@ public class ItemSets implements ItemSetInterface, Serializable {
 				a.getChars(0,alen,chars,0);
 				b.getChars(0,blen,chars,alen);
 				String item_desc = new String(chars,0,alen+blen);
-				int [] cnt_and_id = (int []) unique.get (item_desc);
+				int [] cnt_and_id = unique.get (item_desc);
 				if (cnt_and_id == null) {
 					cnt_and_id = new int [2];
 					cnt_and_id[0] = 1;
@@ -270,7 +272,7 @@ public class ItemSets implements ItemSetInterface, Serializable {
 
 		// create the arrays to sort.
 		int [][] vals = new int [set.size()][];
-		for (int i = 0 ; i < set.size();i++) vals[i] = (int[])set.get(i);
+		for (int i = 0 ; i < set.size();i++) vals[i] = set.get(i);
 		int [] ind = new int [set.size()];
 		for (int i = 0 ; i < set.size() ; i++) ind[i] = i;
 		this.quickSort (ind, vals, 0, ind.length-1);
@@ -282,11 +284,11 @@ public class ItemSets implements ItemSetInterface, Serializable {
 		// name in the unique names hashmap is set correctly. Now we will just
 		// create an array of unique names in the order sorted by frequency.
 		names = new String [unique.size()];
-		Iterator enum1 = unique.values().iterator();
-		Iterator enum2 = unique.keySet().iterator();
+		Iterator<int[]> enum1 = unique.values().iterator();
+		Iterator<String> enum2 = unique.keySet().iterator();
 		while (enum1.hasNext ()) {
-			int [] tmp = (int[]) enum1.next ();
-			String tmpName = (String) enum2.next ();
+			int [] tmp = enum1.next ();
+			String tmpName = enum2.next ();
 			names[tmp[1]] = tmpName;
 		}
 
@@ -304,7 +306,7 @@ public class ItemSets implements ItemSetInterface, Serializable {
 				a.getChars(0,alen,chars,0);
 				b.getChars(0,blen,chars,alen);
 				String name = new String(chars,0,blen+alen);
-				int [] pz = (int[])unique.get(name);
+				int [] pz = unique.get(name);
 				documents[i][j] = pz[1];
 			}
 		}
@@ -323,15 +325,15 @@ public class ItemSets implements ItemSetInterface, Serializable {
 		// ItemSetTool.print(this);
 
 		// Figure out the indices of those items that are targets
-		Iterator keys = unique.keySet().iterator();
-		Iterator indxs = unique.values().iterator();
-		ArrayList list = new ArrayList ();
+		Iterator<String> keys = unique.keySet().iterator();
+		Iterator<int[]> indxs = unique.values().iterator();
+		ArrayList<int[]> list = new ArrayList<int[]>();
 
 		// for each target attributes, see if the inputs include the attribute.
 		if (targetNames != null) {
 			while (keys.hasNext ()) {
-				String name = (String) keys.next ();
-				int[] indx = (int[]) indxs.next ();
+				String name = keys.next ();
+				int[] indx = indxs.next ();
 				for (int i = 0 ; i < targetNames.length; i++) {
 					if (name.startsWith (targetNames[i])) {
 						list.add (indx);
@@ -345,7 +347,7 @@ public class ItemSets implements ItemSetInterface, Serializable {
 		if (size != 0) {
 			targetIndices = new int [size];
 			for (int i = 0 ; i < size ; i++)
-				targetIndices[i] = ((int[])list.get (i))[1];
+				targetIndices[i] = (list.get (i))[1];
 		}
 
 	}
@@ -403,16 +405,28 @@ public class ItemSets implements ItemSetInterface, Serializable {
 	// }
 
 	public boolean getItemFlag(int exampleNum, int attributeNum) {
-		return itemFlags[exampleNum][attributeNum];
+	    return itemFlags[exampleNum][attributeNum];
 	}
-	public int getNumExamples() {    return numExamples;}
-	public String[] getTargetNames() {return targetNames;}
-   public HashMap  getUnique()      {return unique;}
 
-   public String[] getItemsOrderedByFrequency() { return names;}
+	public int getNumExamples() {
+	    return numExamples;
+	}
 
-   public String[] getItemsInColumnOrder() { return unsortedNames;}
+	public String[] getTargetNames() {
+	    return targetNames;
+	}
 
+	public HashMap<String, int[]>  getUnique() {
+	    return unique;
+	}
+
+	public String[] getItemsOrderedByFrequency() {
+	    return names;
+	}
+
+	public String[] getItemsInColumnOrder() {
+	    return unsortedNames;
+	}
 }
 
 

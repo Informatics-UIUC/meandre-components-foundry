@@ -5,30 +5,30 @@ import java.util.HashMap;
 
 
 public class ItemSetTool {
-   
+
    public static void print(ItemSetInterface itemSet)
    {
-      
+
       String[] targetNames = itemSet.getTargetNames();
       int size = targetNames.length;
       System.out.println("targetNames (columns) " + size);
       for (int i = 0;i < size; i++ ) {
          System.out.println(i + " " + targetNames[i]);
       }
-      
+
       System.out.println("");
-      HashMap unique = itemSet.getUnique();
+      HashMap<String, int[]> unique = itemSet.getUnique();
       String[] names = itemSet.getItemsOrderedByFrequency();
       for (int i = 0;i < names.length; i++ ) {
          String key = names[i];
-         int[] cnt_and_id = (int[]) unique.get(key);
+         int[] cnt_and_id = unique.get(key);
          int count = cnt_and_id[0];
-         System.out.println(i + " " + key +  "(" + cnt_and_id[1] + ")" + " has freq: " + count);    
+         System.out.println(i + " " + key +  "(" + cnt_and_id[1] + ")" + " has freq: " + count);
       }
-      
+
       assert unique.size() == names.length;
       assert unique.size() == itemSet.getItemsOrderedByFrequency().length;
-      
+
       int rows = itemSet.getNumExamples();
       int cols = itemSet.getItemsOrderedByFrequency().length;
       for (int i = 0;i < rows; i++) {
@@ -42,15 +42,15 @@ public class ItemSetTool {
          }
          System.out.println("");
       }
-      
+
    }
-   
-  
+
+
 }
 
 
 
-// DEBUG 
+// DEBUG
 //
 // Assert numAttributes == targetNames.length
 /*

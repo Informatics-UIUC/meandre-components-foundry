@@ -42,119 +42,74 @@
 
 package org.seasr.meandre.support.components.discovery.ruleassociation.fpgrowth;
 
+import gnu.trove.TIntHashSet;
+import gnu.trove.TIntIntHashMap;
+import gnu.trove.TIntObjectHashMap;
 
-import java.util.*;
-import gnu.trove.*;
+public class FPSparse implements java.io.Serializable {
 
+    private static final long serialVersionUID = 8110389004664764540L;
 
-public class FPSparse implements java.io.Serializable{
-
-	private int[] _columns = null;
+    private int[] _columns = null;
     private int[] _labels = null;
-    private TIntObjectHashMap _rows = new TIntObjectHashMap();
-    private TIntObjectHashMap _colrows = new TIntObjectHashMap();
-    private int _numcols = -1;
+    private final TIntObjectHashMap<TIntIntHashMap> _rows = new TIntObjectHashMap<TIntIntHashMap>();
+    private final TIntObjectHashMap<TIntHashSet> _colrows = new TIntObjectHashMap<TIntHashSet>();
     private int _colcnt = 0;
 
-    /**
-     * put your documentation comment here
-     * @param     int numcols
-     */
-    public FPSparse (int numcols) {
+    public FPSparse(int numcols) {
         _columns = new int[numcols];
         _labels = new int[numcols];
-        _numcols = numcols;
     }
 
-    /**
-     * put your documentation comment here
-     * @param col
-     * @return
-     */
     public int getLabel (int col) {
-        //   if ((col >= 0) && (col < _columns.size())){
-        return  _labels[col];
-        //      return (String)((Object[])_columns.get(col))[0];
-        //    }else {
-        //      return null;
-        //    }
+        return _labels[col];
     }
 
-    /**
-     * put your documentation comment here
-     * @return
-     */
     public int getNumColumns () {
-        return  _colcnt;
+        return _colcnt;
     }
 
-    /**
-     * put your documentation comment here
-     * @return
-     */
     public int getNumRows () {
-        return  _rows.size();
+        return _rows.size();
     }
 
-    /**
-     * put your documentation comment here
-     * @param lbl
-     */
     public void addColumn (int lbl) {
         _labels[_colcnt++] = lbl;
-        //Object[] obarr = new Object[2];
-        //obarr[0] = lbl;
-        //obarr[1] = new Integer(0);
-        //_columns.add(obarr);
     }
 
-    /**
-     * put your documentation comment here
-     * @param row
-     * @param col
-     * @return
-     */
-    public int getInt (int row, int col) {
-        if (_rows.containsKey(row)){
-          TIntIntHashMap rowob = (TIntIntHashMap)_rows.get(row);
-          if (rowob.contains(col)){
-            return rowob.get(col);
-          } else {
-            return 0;
-          }
+    public int getInt(int row, int col) {
+        if (_rows.containsKey(row)) {
+            TIntIntHashMap rowob = _rows.get(row);
+            if (rowob.contains(col)){
+                return rowob.get(col);
+            } else {
+                return 0;
+            }
         } else {
-          return 0;
+            return 0;
         }
     }
 
-    /**
-     * put your documentation comment here
-     * @param data
-     * @param row
-     * @param col
-     */
     public void setInt (int data, int row, int col) {
         //add row to column set
-        //((TIntHashSet)((Object[])_columns.get(col))[1]).add(row);
-        if (data == 0){
-          return;
+        if (data == 0) {
+            return;
         }
+
         _columns[col] = _columns[col] + data;
 
-        TIntHashSet colrows = (TIntHashSet)_colrows.get(col);
-        if (colrows == null){
-          colrows = new TIntHashSet();
-          colrows.add(row);
-          _colrows.put(col, colrows);
-        } else {
-          colrows.add(row);
+        TIntHashSet colrows = _colrows.get(col);
+
+        if (colrows == null) {
+            colrows = new TIntHashSet();
+            _colrows.put(col, colrows);
         }
 
-        //Integer iob = (Integer)((Object[])_columns.get(col))[1];
-        //((Object[])_columns.get(col))[1] = new Integer(iob.intValue() + data);
+        colrows.add(row);
+
         //check for row
         if (_rows.containsKey(row)) {
-            ((TIntIntHashMap)_rows.get(row)).put(col, data);
+            (_rows.get(row)).put(col, data);
         }
         else {
             TIntIntHashMap iihm = new TIntIntHashMap();
@@ -163,37 +118,17 @@ public class FPSparse implements java.io.Serializable{
         }
     }
 
-    /**
-     * put your documentation comment here
-     * @param col
-     * @return
-     */
     public int getColumnTots (int col) {
-        //    if ((col >= 0) && (col < _columns.size())){
-        //return ((Integer)((Object[])_columns.get(col))[1]).intValue();
         return  _columns[col];
-        //    } else {
-        //      return new int[0];
-        //    }
     }
 
-    /**
-     * put your documentation comment here
-     * @param row
-     * @return
-     */
     public int[] getRowIndices (int row) {
-        //    if (_rows.containsKey(row)){
-        return  ((TIntIntHashMap)_rows.get(row)).keys();
-        //    } else {
-        //      return new int[0];
-        //    }
+        return  (_rows.get(row)).keys();
     }
 
-    public int[] getColumnIndices(int col){
-      return ((TIntHashSet)_colrows.get(col)).toArray();
+    public int[] getColumnIndices(int col) {
+        return (_colrows.get(col)).toArray();
     }
-
 }
 
 

@@ -47,9 +47,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-
 /**
- * A representaiton of a feature column in a table. Has references to the data,
+ * A representation of a feature column in a table. Has references to the data,
  * the original index, label and count.
  *
  * @author  $Author: vered $
@@ -61,7 +60,7 @@ public class FeatureTableElement {
 	  // Data Members
 	  //==============
 	  private int _lbl = -1;
-	  private ArrayList _ptrs = new ArrayList();
+	  private ArrayList<FPTreeNode> _ptrs = new ArrayList<FPTreeNode>();
 	  private int _cnt = 0;
 	  private int _pos = -1;
 
@@ -75,12 +74,12 @@ public class FeatureTableElement {
 	    _pos = pos;
 	  }
 
-	  public FeatureTableElement(int lbl, int cnt, int pos, Collection nodes){
+	  public FeatureTableElement(int lbl, int cnt, int pos, Collection<FPTreeNode> nodes){
 	    _lbl = lbl;
 	    _cnt = cnt;
 	    _pos = pos;
 	    if (nodes != null){
-	      _ptrs = new ArrayList();
+	      _ptrs = new ArrayList<FPTreeNode>();
 	      _ptrs.addAll(nodes);
 	    }
 	  }
@@ -89,7 +88,8 @@ public class FeatureTableElement {
 	  // Public Methods
 	  //================
 
-	  public boolean equals(Object obj){
+	  @Override
+    public boolean equals(Object obj){
 	    if (!(obj instanceof FeatureTableElement)){
 	      return false;
 	    }
@@ -109,11 +109,11 @@ public class FeatureTableElement {
 	    return _cnt;
 	  }
 
-	  public List getPointers(){
+	  public List<FPTreeNode> getPointers(){
 	    return _ptrs;
 	  }
 
-	  public Iterator getPointersIter(){
+	  public Iterator<FPTreeNode> getPointersIter(){
 	    return _ptrs.iterator();
 	  }
 
