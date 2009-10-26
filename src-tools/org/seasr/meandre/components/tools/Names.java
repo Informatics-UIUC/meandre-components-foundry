@@ -111,6 +111,8 @@ public abstract class Names {
 	public static final String PORT_TEXT_2 = "text2";
 	public static final String PORT_TOKENS = "tokens";
 	public static final String PORT_WORDS = "words";
+	public static final String PORT_STEMMED_WORDS = "stemmed_words";
+	public static final String PORT_DICTIONARY = "dictionary";
 	public static final String PORT_TOKEN_BLACKLIST = "tokens_blacklist";
 	public static final String PORT_TOKEN_COUNTS = "token_counts";
 	public static final String PORT_TOKEN_COUNTS_REFERENCE = "token_counts_reference";
