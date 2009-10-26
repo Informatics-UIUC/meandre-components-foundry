@@ -42,6 +42,10 @@
 
 package org.seasr.meandre.components.tools.text.normalize.porter;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -66,8 +70,12 @@ import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeExcept
  */
 
 @Component(creator = "Lily Dong",
-		   description = "Maps the stemmed token back to " +
-		                 "the actual word in the original document.",
+		   description = "Constructs a dictionary mapping the stemmed words back to " +
+		                 "the actual words in the original document, so for the output map, " +
+		                 "the stemmed words are keys and the actural words are values. " +
+		                 "If several words have the same stem, the shortest word is choosed " +
+		                 "as the representative. "
+		                 ,
 		   firingPolicy = FiringPolicy.all,
 		   name = "Dictionary Of Stemming",
 		   tags = "stem dictionary",
@@ -79,24 +87,24 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			name = Names.PORT_TOKENS,
-			description = "The stemmed tokens"
+			name = Names.PORT_STEMMED_WORDS,
+			description = "The stemmed words"
 	)
-	protected static final String IN_TOKENS = Names.PORT_TOKENS;
+	protected static final String IN_STEMMED_WORDS = Names.PORT_STEMMED_WORDS;
 
 	@ComponentInput(
 			name = Names.PORT_WORDS,
 			description = "The original words"
 	)
-	protected static final String IN_WORDS= Names.PORT_WORDS;
+	protected static final String IN_ORIGINAL_WORDS= Names.PORT_WORDS;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			name = Names.PORT_WORDS,
-			description = "The mapped words"
+			name = Names.PORT_DICTIONARY,
+			description = "The output dictionary"
 	)
-	protected static final String OUT_WORDS = Names.PORT_WORDS;
+	protected static final String OUT_DICTIONARY = Names.PORT_DICTIONARY;
 
     //--------------------------------------------------------------------------------------------
 
@@ -117,12 +125,12 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		String[] words = null;
-		String[] tokens = null;
+		String[] originalWords = null;
+		String[] stemmedWords = null;
 
 		try {
-			words = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_WORDS));
-            tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
+			originalWords = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_ORIGINAL_WORDS));
+            stemmedWords = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_STEMMED_WORDS));
         }
         catch (UnsupportedDataTypeException e) {
             if (ignoreErrors)
@@ -131,17 +139,19 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
                 throw e;
         }
 
-        for (int i=0; i<words.length; i++ ) {
-        	String key = tokens[i];
-        	String theValue = words[i];
+        for (int i=0; i<originalWords.length; i++ ) {
+        	String key = stemmedWords[i];
+        	String str = originalWords[i];
         	if (map.containsKey(key)) { //take the shorter one
         		String value = map.get(key);
-        		value = (value.length()>theValue.length())?
-        				theValue: value;
+        		value = (value.length()>str.length())? str: value;
         		map.put(key, value);
         	} else
-        		map.put(key, theValue);
+        		map.put(key, str);
         }
+
+        /*PrintWriter out
+		   = new PrintWriter(new BufferedWriter(new FileWriter("result.txt")));*/
 
         if (!_gotInitiator) {
         	org.seasr.datatypes.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
@@ -151,9 +161,14 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
             	sres.addValue(map.get(s));
             	mres.addKey(s);
     			mres.addValue(sres.build());
+
+    			//out.println("key = " + s + "\tvalue = " + map.get(s));
             }
 
-            componentContext.pushDataComponentToOutput(OUT_WORDS, mres.build());
+            //out.flush();
+            //out.close();
+
+            componentContext.pushDataComponentToOutput(OUT_DICTIONARY, mres.build());
 
             map.clear();
         }
@@ -187,9 +202,9 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
 			mres.addValue(sres.build());
         }
 
-        componentContext.pushDataComponentToOutput(OUT_WORDS, new StreamInitiator());
-        componentContext.pushDataComponentToOutput(OUT_WORDS, mres.build());
-        componentContext.pushDataComponentToOutput(OUT_WORDS, new StreamTerminator());
+        componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamInitiator());
+        componentContext.pushDataComponentToOutput(OUT_DICTIONARY, mres.build());
+        componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamTerminator());
 
         map.clear();
         _gotInitiator = false;

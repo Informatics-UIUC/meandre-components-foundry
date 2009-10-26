@@ -53,14 +53,14 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Integers;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 
 @Component(creator = "Lily Dong",
-		description = "Replaces stemmed tokens with actual words in documents.",
+		description = "Replaces tokens with their representatives from the dictionary. " +
+		"If several tokens have the same representative, their counts are aggregated.",
 		firingPolicy = FiringPolicy.all,
 		name = "Transform Token From Dictionary",
 		tags = "token transform",
@@ -77,10 +77,10 @@ public class TransformTokenFromDictionary extends AbstractExecutableComponent
 	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
 	@ComponentInput(
-			name = Names.PORT_WORDS,
-			description = "Mapping from token to actual word"
+			name = Names.PORT_DICTIONARY,
+			description = "The input dictionary"
 	)
-	protected static final String IN_WORDS = Names.PORT_WORDS;
+	protected static final String IN_DICTIONARY = Names.PORT_DICTIONARY;
 
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -106,22 +106,27 @@ public class TransformTokenFromDictionary extends AbstractExecutableComponent
 	throws Exception {
 		Map<String, Integer> res = new HashMap<String, Integer>();
 
-		StringsMap sm = (StringsMap)cc.getDataComponentFromInput(IN_WORDS);
+		StringsMap sm = (StringsMap)cc.getDataComponentFromInput(IN_DICTIONARY);
 		HashMap<String, Strings> hm = new HashMap<String, Strings>();
-		for(int i=0; i<sm.getValueCount(); i++) //convert sm to hm for the following comparison
+		for(int i=0; i<sm.getValueCount(); i++) //for quicker lookup
 			hm.put(sm.getKey(i), sm.getValue(i));
+
+		PorterStemmer stemmer = new PorterStemmer();
 
 		Object data = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
 		IntegersMap im = (IntegersMap)data;
 		for (int i = 0; i < im.getValueCount(); i++) {
-			String key = im.getKey(i);
-		    Integers values = im.getValue(i);
-		    if(hm.get(key) != null) {
-		    	res.put(
-		    			BasicDataTypesTools.stringsToStringArray(hm.get(key))[0],
-		        		Integer.valueOf(values.getValue(0)));
-		    } else
-		        res.put(key, Integer.valueOf(values.getValue(0)));
+
+			String word = im.getKey(i);
+		    int   count = im.getValue(i).getValue(0);
+
+		    String stemmedWord= stemmer.normalizeTerm(word);
+		    if(hm.get(stemmedWord) != null) {
+		    	String originalWord = hm.get(stemmedWord).getValue(0);
+		    	if(res.get(originalWord) != null)
+		    		count += res.get(originalWord).intValue();
+		    	res.put(originalWord, count);
+		    }
 		}
 		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
 				BasicDataTypesTools.mapToIntegerMap(res, false));

@@ -46,10 +46,15 @@ package org.seasr.meandre.components.tools.text.normalize.porter;
 // Java Imports
 // ==============
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -60,6 +65,7 @@ import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeException;
+
 
 /**
  * @author D. Searsmith
@@ -104,7 +110,7 @@ public class Stem extends AbstractExecutableComponent {
 	// Data Members
 	// ==============
 
-	private PorterStemmer _stemmer = null;
+	private PorterStemmer stemmer = null;
 
 	// IO
 
@@ -115,10 +121,16 @@ public class Stem extends AbstractExecutableComponent {
 	protected static final String IN_OBJECT = Names.PORT_OBJECT;
 
 	@ComponentOutput(
-			name = Names.PORT_OBJECT,
-			description = "The stemmed tokens or tokenized_sentences"
+			name = Names.PORT_TOKENS,
+			description = "The stemmed tokens"
 	)
-	protected static final String OUT_OBJECT = Names.PORT_OBJECT;
+	protected static final String OUT_TOKENS = Names.PORT_TOKENS;
+
+	@ComponentOutput(
+			name = Names.PORT_TOKENIZED_SENTENCES,
+			description = "The stemmed tokenized sentences"
+	)
+	protected static final String OUT_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
 
 	// ================
 	// Public Methods
@@ -126,18 +138,18 @@ public class Stem extends AbstractExecutableComponent {
 
 	public void initializeCallBack(ComponentContextProperties ccp)
     throws Exception {
-		_stemmer = null;
+		stemmer = null;
 	}
 
 	public void disposeCallBack(ComponentContextProperties ccp)
     throws Exception {
-		_stemmer = null;
+		stemmer = null;
 	}
 
 	public void executeCallBack(ComponentContext cc)
 	throws Exception {
-		if (_stemmer == null)
-			_stemmer = new PorterStemmer();
+		if (stemmer == null)
+			stemmer = new PorterStemmer();
 
 		Object object = cc.getDataComponentFromInput(IN_OBJECT);
 		if(object instanceof Strings)
@@ -170,12 +182,20 @@ public class Stem extends AbstractExecutableComponent {
 
         org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 
+    	/*PrintWriter out
+		   = new PrintWriter(new BufferedWriter(new FileWriter("result.txt")));*/
+
 		for (String sToken : tokens ) {
-			String stem = _stemmer.normalizeTerm(sToken);
+			String stem = stemmer.normalizeTerm(sToken);
 			res.addValue(stem);
+
+			//out.println("token = " + sToken + "\tstem = " + stem );
 		}
 
-		componentContext.pushDataComponentToOutput(OUT_OBJECT, res.build());
+		//out.flush();
+		//out.close();
+
+		componentContext.pushDataComponentToOutput(OUT_TOKENS, res.build());
 	}
 
 	/**
@@ -194,27 +214,33 @@ public class Stem extends AbstractExecutableComponent {
 			Strings sVals = im.getValue(i);
 			org.seasr.datatypes.BasicDataTypes.Strings.Builder resStemmed = BasicDataTypes.Strings.newBuilder();
 			for ( String s:sVals.getValueList()) {
-				String stem = _stemmer.normalizeTerm(s);
+				String stem = stemmer.normalizeTerm(s);
 				resStemmed.addValue(stem);
 			}
 			res.addKey(sKey);
 			res.addValue(resStemmed.build());
 		}
 
-		componentContext.pushDataComponentToOutput(OUT_OBJECT, res.build());
+		componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, res.build());
 	}
 
 	@Override
 	protected void handleStreamInitiators() throws Exception {
 		StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(
 				IN_OBJECT );
-	    componentContext.pushDataComponentToOutput(OUT_OBJECT, si);
+
+        componentContext.pushDataComponentToOutput(OUT_TOKENS, si);
+        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES,
+                ComponentUtils.cloneStreamDelimiter(si));
 	}
 
 	@Override
 	protected void handleStreamTerminators() throws Exception {
 		StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(
 				IN_OBJECT);
-	    componentContext.pushDataComponentToOutput(OUT_OBJECT, st);
+
+	    componentContext.pushDataComponentToOutput(OUT_TOKENS, st);
+        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES,
+                ComponentUtils.cloneStreamDelimiter(st));
 	}
 }
