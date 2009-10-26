@@ -56,7 +56,6 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
@@ -68,9 +67,9 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
 /**
- * 
+ *
  * @author Mike Haberman
- * 
+ *
  */
 
 @Component(
@@ -81,17 +80,16 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/tools/",
-        dependency = { "velocity-1.6.1-dep.jar" },
+        dependency = { "velocity-1.6.2-dep.jar" },
         resources = { "SimpleGoogleMapViewer.vm" }
 )
 public class SimpleGoogleMapViewer extends GenericTemplate {
 
-	
     //
 	// google key for ncsa.uiuc.edu
 	//
 	static final String NCSA_KEY = "ABQIAAAADV1H5JfZH41B6yxB1yGVFhQmgYtTImkVBc-VhblDgOLOdwhVaBSPwcEgsBl7atDdDJjnfl51p9fU5A";
-	
+
 
 	//
 	// google key for localhost
@@ -99,21 +97,21 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 
 	static final String LOCALHOST_KEY = "ABQIAAAADV1H5JfZH41B6yxB1yGVFhT2yXp_ZAY8_ufC3CFXhHIE1NvwkxR-tpPz23kSE2A2buBtYPTRubh20w";
     static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/geographic/SimpleGoogleMapViewer.vm";
-	
+
 	//------------------------------ INPUTS -----------------------------------------------------
-	
+
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
 			description = "set of tuples"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
-	
+
 	@ComponentInput(
 			name = Names.PORT_META_TUPLE,
 			description = "meta data for tuples"
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
-	
+
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -150,10 +148,10 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
     protected static final String PROP_TEMPLATE = GenericTemplate.PROP_TEMPLATE;
 
     //--------------------------------------------------------------------------------------------
-   
-	
-	public static String buildDefaultViz(List<GeoLocation> list) 
-	   throws Exception 
+
+
+	public static String buildDefaultViz(List<GeoLocation> list)
+	   throws Exception
 	{
 		VelocityTemplateService velocity = VelocityTemplateService.getInstance();
 		VelocityContext context;
@@ -166,43 +164,43 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 		String html = velocity.generateOutput(context, DEFAULT_TEMPLATE);
 		return html;
 	}
-    
+
 	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception
 	{
 	    super.initializeCallBack(ccp);
-	    
+
 
 	    context.put("key",          ccp.getProperty(PROP_KEY));
 	    context.put("title",        ccp.getProperty(PROP_TITLE));
 	    context.put("addDone", true);
-	    
+
 	}
-	
+
     @Override
-    public void executeCallBack(ComponentContext cc) throws Exception 
+    public void executeCallBack(ComponentContext cc) throws Exception
     {
-    	
+
     	//
     	// fetch the input, push it to the context
-    	// 
-    	
+    	//
+
     	Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
 		SimpleTuple tuple = tuplePeer.createTuple();
-		
+
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
-		
+
 		List<GeoLocation> geo = new ArrayList<GeoLocation>();
-		
+
 		for (int i = 0; i < in.length; i++) {
 			tuple.setValues(in[i]);
-			
+
 			String location = tuple.getValue("location");
 			// convert to a geo location
 			try {
-				
+
 				GeoLocation g = GeoLocation.getLocation(location);
 				if (g.isValid()) {
 					geo.add(g);
@@ -210,27 +208,27 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 				else {
 					console.info("Unable to find " + location);
 				}
-				
-				
+
+
 			}
 			catch (IOException e) {
 				console.info("unable to contact yahoo " + location);
 			}
-		
+
 		}
-		
+
 		context.put("geoList", geo);
-		
+
 		console.info("Ready to view google maps");
-    	
-		// 
+
+		//
     	// now wait for the user to access the webUI
-		// 
+		//
     	super.executeCallBack(cc);
     }
 
 	@Override
-	protected boolean processRequest(HttpServletRequest request) throws IOException 
+	protected boolean processRequest(HttpServletRequest request) throws IOException
 	{
 	   return true;
 	}
