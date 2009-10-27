@@ -117,11 +117,7 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
-    @ComponentOutput(
-            description = "The text",
-            name = Names.PORT_TEXT
-    )
-    protected static final String OUT_TEXT = Names.PORT_TEXT;
+   
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
