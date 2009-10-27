@@ -59,8 +59,6 @@ import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
-import org.seasr.datatypes.BasicDataTypesTools;
-
 public class SimpleTuplePeer 
 {
 	String[] fieldNames;
