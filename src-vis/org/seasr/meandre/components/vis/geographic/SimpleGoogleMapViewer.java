@@ -74,7 +74,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
 @Component(
         creator = "Mike Haberman",
-        description = "Presents a simple google map based on inputs",
+        description = "Presents a simple google map based on location inputs",
         name = "Simple Google Map Viewer",
         tags = "string, visualization",
         rights = Licenses.UofINCSA,
@@ -113,6 +113,8 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 
 
+	
+
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
@@ -132,6 +134,15 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 	        defaultValue = "Google Maps"
 	)
 	protected static final String PROP_TITLE = Names.PROP_TITLE;
+	
+	
+	@ComponentProperty(
+	        description = "max locations to query, -1 no max, yahoo restricts query access",
+	        name = "maxLocations",
+	        defaultValue = "100"
+	)
+	protected static final String PROP_LOC_MAX = "maxLocations";
+
 
    @ComponentProperty(
 	        description = "Default key for google maps",
@@ -165,6 +176,8 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 		return html;
 	}
 
+	int maxLocations = 100;
+	
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception
 	{
@@ -175,6 +188,13 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 	    context.put("title",        ccp.getProperty(PROP_TITLE));
 	    context.put("addDone", true);
 
+	    
+	    maxLocations = Integer.parseInt(ccp.getProperty(PROP_LOC_MAX));
+	    if (maxLocations < 0) {
+	    	maxLocations = -1;
+	    }
+	    
+	    console.info("max locations " + maxLocations);
 	}
 
     @Override
@@ -189,6 +209,26 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
 		SimpleTuple tuple = tuplePeer.createTuple();
 
+		//
+		// TODO: type/text/location should be properties
+		//
+		
+		//
+		// we can get location values directly from the data
+		// or by looking at a "type" and "text" values
+		// 
+		int TYPE_IDX = tuplePeer.getIndexForFieldName("type");
+		int TEXT_IDX = tuplePeer.getIndexForFieldName("text");
+		
+		int LOCATION_IDX = tuplePeer.getIndexForFieldName("location");
+		if (LOCATION_IDX == -1) {
+		
+			if (TYPE_IDX == -1 || TEXT_IDX == -1) {
+				console.info(tuplePeer.toString());
+				throw new RuntimeException("no type/text field");
+			}
+		}
+		
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
@@ -197,7 +237,22 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 		for (int i = 0; i < in.length; i++) {
 			tuple.setValues(in[i]);
 
-			String location = tuple.getValue("location");
+			//
+			// get the location data
+			//
+			String location = null;
+			if (LOCATION_IDX != -1) {
+				location = tuple.getValue(LOCATION_IDX);
+			}
+			else {
+				String type = tuple.getValue(TYPE_IDX);
+				if (! type.equals("location")) {
+					continue;
+				}
+				location = tuple.getValue(TEXT_IDX);
+			}
+			
+			
 			// convert to a geo location
 			try {
 
@@ -209,17 +264,21 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 					console.info("Unable to find " + location);
 				}
 
-
 			}
 			catch (IOException e) {
 				console.info("unable to contact yahoo " + location);
+				break;
+			}
+
+			if (maxLocations > 0 && geo.size() > maxLocations) {
+				break;
 			}
 
 		}
 
 		context.put("geoList", geo);
 
-		console.info("Ready to view google maps");
+		console.info("Ready to view google maps with locations " + geo.size());
 
 		//
     	// now wait for the user to access the webUI
