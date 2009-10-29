@@ -65,6 +65,8 @@ public class PatternsToTable extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         ArrayList<FPPattern> patterns = (ArrayList<FPPattern>)cc.getDataComponentFromInput(IN_PATTERNS);
 
+        console.fine(String.format("Processing %d patterns...", patterns.size()));
+
         MutableTable table = (MutableTable) TABLE_FACTORY.createTable();
 
         Column colPattern = new StringColumn();
@@ -90,6 +92,9 @@ public class PatternsToTable extends AbstractExecutableComponent {
             StringBuilder patternStr = new StringBuilder();
             for (String pat : patternList)
                 patternStr.append(pat).append(" ");
+
+            console.finest(String.format("Row %d: pattern: '%s'  support: %d",
+                    i, patternStr.toString(), fpPattern.getSupport()));
 
             table.setString(patternStr.toString().trim(), i, 0);
             table.setInt(fpPattern.getSupport(), i, 1);
