@@ -1,6 +1,6 @@
 <html>
 <head>
-    <script src="http://simile.mit.edu/timeline/api/timeline-api.js" type="text/javascript"></script>
+    <script src="$simileTimelineAPI" type="text/javascript"></script>
     <script type="text/javascript">
 	    function submit() {
 	     var select_list_field = document.getElementById('year');

@@ -45,6 +45,7 @@ package org.seasr.meandre.components.vis.temporal;
 import java.io.File;
 import java.io.Writer;
 import java.net.URI;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,15 +59,21 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.generic.encoding.Base64;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
+import org.seasr.meandre.support.generic.io.ClasspathUtils;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.seasr.meandre.support.generic.io.IOUtils;
+import org.seasr.meandre.support.generic.io.JARInstaller;
+import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 import org.w3c.dom.Document;
+
+import de.schlichtherle.io.FileInputStream;
 
 /**
  * @author Lily Dong
@@ -84,7 +91,7 @@ import org.w3c.dom.Document;
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/tools/",
         firingPolicy = FiringPolicy.all,
-        dependency = {"protobuf-java-2.2.0.jar"},
+        dependency = {"protobuf-java-2.2.0.jar", "simile-timeline.jar"},
         resources = {"SimileTimelineGenerator.vm"}
 )
 public class SimileTimelineGenerator extends AbstractExecutableComponent {
@@ -119,6 +126,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+	protected static final String SIMILE_API_PATH = "simile-timeline-api";   // this path is assumed to be appended to the published_resources location
 
 	protected static final String simileVelocityTemplate =
 	    "org/seasr/meandre/components/vis/temporal/SimileTimelineGenerator.vm";
@@ -138,6 +146,29 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     	_context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
+
+        File simileApiJar = null;
+        URL simileJarDepUrl = ClasspathUtils.findDependencyInClasspath("simile-timeline.jar", getClass());
+        if (simileJarDepUrl != null)
+            simileApiJar = new File(simileJarDepUrl.toURI());
+
+        if (!simileApiJar.exists())
+            throw new ComponentContextException("Could not find simile-timeline.jar");
+
+        console.fine("Installing Simile Timeline API from: " + simileApiJar.toString());
+
+        String simileApiDir = ccp.getPublicResourcesDirectory() + File.separator + SIMILE_API_PATH;
+        InstallStatus status = JARInstaller.installFromStream(new FileInputStream(simileApiJar), simileApiDir, false);
+        switch (status) {
+            case SKIPPED:
+                console.fine("Installation skipped - Simile Timeline API is already installed");
+                break;
+
+            case FAILED:
+                throw new ComponentContextException("Failed to install the Simile Timeline API at " + new File(simileApiDir).getAbsolutePath());
+        }
+
+        _context.put("simileTimelineAPI", "/public/resources/" + SIMILE_API_PATH + "/timeline-api.js");
     }
 
     @Override
