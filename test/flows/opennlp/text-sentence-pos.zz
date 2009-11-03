@@ -41,7 +41,7 @@ pos.filter_regex    = "RB|JJ|JJR|JJS|NN|NNS|NNP|NNPS"
 @iSentence  = sentence(text:iPush.text)
 
 @iTokens    = tokens(sentences:iSentence.sentences)
-@iPos       = pos(tokens:iTokens.tokenized_sentences)
+@iPos       = pos(tokenized_sentences:iTokens.tokenized_sentences)
 @iPrinter   = printer(tuples:iPos.tuples meta_tuple:iPos.meta_tuple)
 
 
