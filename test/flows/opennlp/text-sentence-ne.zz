@@ -41,7 +41,7 @@ ne.openNLPdir       = "/tmp/opennlp"
 @iSentence  = sentence(text:iPush.text)
 
 @iTokens    = tokens(sentences:iSentence.sentences)
-@iNe        = ne(tokens:iTokens.tokenized_sentences)
+@iNe        = ne(tokenized_sentences:iTokens.tokenized_sentences)
 @iPrinter   = printer(tuples:iNe.tuples meta_tuple:iNe.meta_tuple)
 
 
