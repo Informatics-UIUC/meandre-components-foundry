@@ -54,7 +54,7 @@ filter.filter_regex     = "location"
 
 
 @iTokens    = tokens(sentences:iSentence.sentences)
-@iNe        = ne(tokens:iTokens.tokenized_sentences)
+@iNe        = ne(tokenized_sentences:iTokens.tokenized_sentences)
 @iFilter    = filter(tuples:iNe.tuples meta_tuple:iNe.meta_tuple)
 @iPrinter   = printer(tuples:iFilter.tuples meta_tuple:iFilter.meta_tuple)
 
