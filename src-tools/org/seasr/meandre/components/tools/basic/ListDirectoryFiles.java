@@ -194,31 +194,32 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
 		componentContext.pushDataComponentToOutput(OUT_LOCATION,st);
 	}
 
+	private void pushLocation(File file) throws Exception {
+	    String sLoc = file.toURI().toString();
+
+        if (sLoc.matches(sExpression)) {
+            console.fine(String.format("Pushing filename %s", sLoc));
+            componentContext.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(sLoc));
+        }
+	}
+
 	/**
 	 * Pushes the locations that match the given expression.
 	 *
 	 * @param fileLoc The location being processed
 	 * @throws Exception Failed to push the the file name to the output
 	 */
-	private boolean pushLocations(File fileLoc) throws Exception {
-		if ( fileLoc.isDirectory() ) {
-            String[] children  = fileLoc.list();
-            for (int i=0; bRecursive && i<children.length ; i++) {
-                boolean success = pushLocations(new File(fileLoc, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-		else {
-			String sLoc = fileLoc.toURI().toString();//fileLoc.toString();
-
-			if ( sLoc.matches(sExpression) ) {
-			    console.fine(String.format("Pushing filename %s", sLoc));
-				componentContext.pushDataComponentToOutput(OUT_LOCATION,
-				        BasicDataTypesTools.stringToStrings(sLoc));
-			}
-		}
-		return true;
+	private void pushLocations(File fileLoc) throws Exception {
+	    if (fileLoc.isDirectory()) {
+	        for (File file : fileLoc.listFiles()) {
+	            if (file.isDirectory() && bRecursive)
+	                pushLocations(file);
+	            else {
+	                if (file.isFile())
+	                    pushLocation(file);
+	            }
+	        }
+	    } else
+	        pushLocation(fileLoc);
 	}
 }
