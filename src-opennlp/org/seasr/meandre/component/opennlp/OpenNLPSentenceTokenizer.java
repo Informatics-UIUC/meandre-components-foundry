@@ -70,7 +70,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
  *
  */
 
-/* 
+/*
  * NOTES  USE TokenizerME instead of the english one
    model = new SuffixSensitiveGISModelReader(new File(name))).getModel());
    setAlphaNumericOptimization(true);
@@ -88,7 +88,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences",
 		description = "This component breaks the text contained in the input sentences " +
 				      "unsing OpenNLP tokenizing facilities.",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar"}
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar", "seasr-commons.jar"}
 )
 public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 
@@ -117,7 +117,8 @@ public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		super.initializeCallBack(ccp);
 
 		try {
@@ -130,7 +131,8 @@ public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 		}
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_SENTENCES));
 
 		StringsMap smRes = BasicDataTypesTools.buildEmptyStringsMap();
@@ -147,6 +149,7 @@ public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 		cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, smRes);
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         super.disposeCallBack(ccp);
         this.tokenizer = null;

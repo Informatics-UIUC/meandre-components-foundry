@@ -89,7 +89,7 @@ public class DateEntityToSimile extends AbstractExecutableComponent {
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-	        description = "The output XML doucment",
+	        description = "The output XML document",
 	        name = Names.PORT_XML
 	)
 	protected static final String OUT_XML = Names.PORT_XML;

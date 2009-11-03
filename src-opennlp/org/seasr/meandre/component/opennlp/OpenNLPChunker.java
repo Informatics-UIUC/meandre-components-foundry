@@ -43,48 +43,31 @@
 package org.seasr.meandre.component.opennlp;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 
-import java.util.regex.Pattern;
-
-
-import opennlp.tools.lang.english.PosTagger;
-import opennlp.tools.postag.POSTaggerME;
-import opennlp.tools.postag.POSDictionary;
-import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.lang.english.TreebankChunker;
-
+import opennlp.tools.postag.POSTaggerME;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-
-import org.seasr.meandre.components.tools.Names;
-
-
-import org.seasr.meandre.support.components.tuples.SimpleTuple;
-import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-
-
-import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
+import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 
 /**
@@ -109,7 +92,7 @@ import org.seasr.datatypes.BasicDataTypes.StringsMap;
 		description = "This component performs treebank chunking on the incoming set of tokenized sentences " +
 				      "unsing OpenNLP " +
 				      "facilities.",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar"}
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar", "seasr-commons.jar"}
 )
 public class OpenNLPChunker extends OpenNLPBaseUtilities {
 
@@ -137,7 +120,7 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
-	
+
 
 	//--------------------------------------------------------------------------------------------
 
@@ -145,32 +128,32 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 	/** The OpenNLP tokenizer to use */
 	private POSTaggerME tagger = null;
 	private ChunkerME chunker = null;
- 
-   public static ChunkerME build(String sOpenNLPDir, String sLanguage) throws IOException 
+
+   public static ChunkerME build(String sOpenNLPDir, String sLanguage) throws IOException
    {
-	   
+
 	    // from maxent-models.jar
 	    // ==> opennlp.1.4.3/models/English/chunker/EnglishChunk.bin.gz
 	    // NOT opennlp/models/English/parser/chunk.bin.gz
-	   
-		String chunkPath = 
+
+		String chunkPath =
 		    sOpenNLPDir + "chunker" + File.separator + "EnglishChunk.bin.gz";
 
-		
+
 		File chunkFile = new File(chunkPath);
 
 		if (! chunkFile.canRead()) {
 			throw new IOException("Failed to open chunk file for " + chunkPath);
 		}
-		
+
 		ChunkerME tagger = new TreebankChunker(chunkPath);
 		return tagger;
-		
+
    }
-   
-   public static String toString(String[] tokens, String[] tags, String[] chunks) 
+
+   public static String toString(String[] tokens, String[] tags, String[] chunks)
    {
-	    // see TreebankChunker.java 	
+	    // see TreebankChunker.java
 		StringBuffer out = new StringBuffer();
 		for (int j=0; j < chunks.length; j++) {
 			if (j > 0 && !chunks[j].startsWith("I-") && !chunks[j-1].equals("O")) {
@@ -183,15 +166,15 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 		}
 		if (!chunks[chunks.length-1].equals("O")) {
 			out.append("]");
-		} 
+		}
 		return out.toString();
    }
-   
-   public static List<TextChunk> toChunks(String[] tokens, String[] tags, String[] chunks) 
+
+   public static List<TextChunk> toChunks(String[] tokens, String[] tags, String[] chunks)
    {
 	   List<TextChunk> allChunks = new ArrayList<TextChunk>();
 	   TextChunk currentChunk = new TextChunk();
-	   
+
 	    // see above
 		for (int j=0; j < chunks.length; j++) {
 			if (j > 0 && !chunks[j].startsWith("I-") && !chunks[j-1].equals("O")) {
@@ -218,7 +201,7 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 
 		super.initializeCallBack(ccp);
 
-		try {	
+		try {
 			tagger  = OpenNLPPosTagger.build(sOpenNLPDir, sLanguage);
 			chunker = build(sOpenNLPDir, sLanguage);
 		}
@@ -227,17 +210,17 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 			throw new ComponentExecutionException(t);
 		}
 
-		
-		String[] fields = 
+
+		String[] fields =
 			new String[] {SENTENCE_ID_FIELD, TEXT_FIELD};
-		
+
 		this.tuplePeer = new SimpleTuplePeer(fields);
-		
+
 	}
-	
-	
+
+
 	SimpleTuplePeer tuplePeer;
-	
+
 	public static final String SENTENCE_ID_FIELD = "sentenceId";
 	public static final String TEXT_FIELD        = "text";
 
@@ -255,9 +238,9 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 
 		int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
 		int TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
-		
-		
-		 
+
+
+
 		for (int i = 0; i < count; i++) {
 			String key    = input.getKey(i);    // this is the entire sentence
 			Strings value = input.getValue(i);  // this is the set of tokens for that sentence
@@ -265,20 +248,20 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 			String[] tokens = DataTypeParser.parseAsString(value);
 			String[] tags   = tagger.tag(tokens);
 			String[] chunks = chunker.chunk(tokens, tags);
-			
+
 			// console.info(key);
 		    String markUp = toString(tokens, tags, chunks);
-		    
+
 		    tuple.setValue(SENTENCE_ID_IDX, i);
 		    tuple.setValue(TEXT_IDX, markUp);
 		    output.add(tuple.convert());
 		}
 
-		
+
 		// push the whole collection, protocol safe
 	    Strings[] results = new Strings[output.size()];
 	    output.toArray(results);
-	    
+
 	    StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
 	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 
@@ -287,7 +270,7 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 		//
 	    Strings metaData = tuplePeer.convert();
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
-	    
+
 	}
 
     @Override

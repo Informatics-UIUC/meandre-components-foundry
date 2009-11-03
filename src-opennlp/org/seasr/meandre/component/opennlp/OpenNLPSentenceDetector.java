@@ -70,7 +70,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
  */
 
 //
-// NOTE: this needs to be changed to use SentenceDetctorME 
+// NOTE: this needs to be changed to use SentenceDetctorME
 // and NOT lang.english.SentenceDetctor
 // model = SuffixSensitiveGISModelReader(new File(modelName))).getModel())
 
@@ -84,7 +84,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		tags = "semantic, tools, text, opennlp, sentence detector",
 		description = "This component splits sentences of the text contained in the input  " +
 				      "unsing OpenNLP tokenizing facilities.",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar"}
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar", "seasr-commons.jar"}
 )
 public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 
@@ -110,24 +110,25 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	/** The OpenNLP tokenizer to use */
 	private SentenceDetectorME sdetector;
 
-	public static SentenceDetectorME build(String sOpenNLPDir, String sLanguage) 
+	public static SentenceDetectorME build(String sOpenNLPDir, String sLanguage)
 	   throws IOException
 	{
 		String path = sOpenNLPDir+"sentdetect"+File.separator+
 	    sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"SD.bin.gz";
-		
+
 		try {
 		    return new SentenceDetector(path);
 		}
 		catch (Throwable t) {
 			throw new IOException("unable to build sentence dectector using " + path);
 		}
-	    
+
 	}
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		super.initializeCallBack(ccp);
 
 		try {
@@ -139,24 +140,26 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 		}
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		/*
 		String rawText = (String) cc.getDataComponentFromInput(IN_TEXT);
 		console.info("Converting " + rawText);
 		*/
-		
+
 		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 		StringBuilder sb = new StringBuilder();
 
 		for (String text : inputs)
 		    sb.append(text).append(" ");
-		
+
 		console.finer("sentence conversion start");
 		String[] sa = sdetector.sentDetect(sb.toString());
 		console.finer("sentence conversion finish");
 		cc.pushDataComponentToOutput(OUT_SENTENCES, BasicDataTypesTools.stringToStrings(sa));
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         super.disposeCallBack(ccp);
         this.sdetector = null;

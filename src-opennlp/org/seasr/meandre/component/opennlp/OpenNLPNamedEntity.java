@@ -45,16 +45,14 @@ package org.seasr.meandre.component.opennlp;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Collections;
 import java.util.StringTokenizer;
 
-
-import opennlp.tools.namefind.NameFinderME;
 import opennlp.maxent.io.BinaryGISModelReader;
+import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 
 import org.meandre.annotations.Component;
@@ -72,8 +70,6 @@ import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
-
-
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -100,7 +96,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences, tagging",
 		description = "This component tags the incoming set of tokenized sentences " +
 				      "unsing OpenNLP named entity facilities.",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar"}
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar", "seasr-commons.jar"}
 )
 public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
@@ -137,15 +133,15 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	//--------------------------------------------------------------------------------------------
 
-   
+
 	// money, percentage, time
 	String[] finderTypes = {"person", "location", "date", "organization"};
-	
+
     NameFinderME[] finders = null;
 
 	//--------------------------------------------------------------------------------------------
-    
-    
+
+
     public static NameFinderME[] build(String sOpenNLPDir, String[] finderTypes)
     throws IOException
     {
@@ -157,7 +153,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			if (! tagFile.canRead()) {
 				throw new IOException("Failed to open tag file for " + tagPath);
 			}
-			
+
 			System.out.println("loaded " + tagPath);
 			BinaryGISModelReader reader = new BinaryGISModelReader(tagFile);
 			NameFinderME finder = new NameFinderME(reader.getModel());
@@ -171,7 +167,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 		super.initializeCallBack(ccp);
 
-		
+
 		// parse up the Named Entity types
 		String types = ccp.getProperty(PROP_NE_TYPES).trim();
 		StringTokenizer tokens = new StringTokenizer(types,",");
@@ -181,7 +177,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			finderTypes[i] = tokens.nextToken();
 			console.info("added type " + finderTypes[i]);
 		}
-		
+
 
 		try {
 			finders = build(sOpenNLPDir, finderTypes);
@@ -194,65 +190,65 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		//
 		// build the tuple (output) data
 		//
-		String[] fields = 
+		String[] fields =
 			new String[] {SENTENCE_ID_FIELD, TYPE_FIELD,
 				          TEXT_START_FIELD, TEXT_END_FIELD, TEXT_FIELD};
-		
+
 		tuplePeer = new SimpleTuplePeer(fields);
-		
+
 		TYPE_IDX        = tuplePeer.getIndexForFieldName(TYPE_FIELD);
 		SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
 		TEXT_START_IDX  = tuplePeer.getIndexForFieldName(TEXT_START_FIELD);
 		TEXT_END_IDX    = tuplePeer.getIndexForFieldName(TEXT_END_FIELD);
 		TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
-		
-		
+
+
 	}
-		
+
 	SimpleTuplePeer tuplePeer;
 	public static final String TYPE_FIELD        = "type";
 	public static final String SENTENCE_ID_FIELD = "sentenceId";
 	public static final String TEXT_START_FIELD  = "textStart";
 	public static final String TEXT_END_FIELD    = "textEnd";
 	public static final String TEXT_FIELD        = "text";
-	
+
 	int TYPE_IDX        ;
 	int SENTENCE_ID_IDX ;
 	int TEXT_START_IDX  ;
 	int TEXT_END_IDX    ;
 	int TEXT_IDX        ;
-	
+
 	public static TextSpan label(String sentence, String[] tokens, Span span) {
-		
+
 		TextSpan out = new TextSpan();
 		return label(sentence, tokens, span, out);
 	}
-	
-	public static TextSpan label(String sentence, String[] tokens, Span span, TextSpan out) 
+
+	public static TextSpan label(String sentence, String[] tokens, Span span, TextSpan out)
 	{
-		
+
 		int s = span.getStart();
 		int e = span.getEnd();
-		
+
 		String first = tokens[s];
 		String last = first;
 		if (e != s) {
 	       last = tokens[e-1];
-		}					
+		}
 		int beginIndex = sentence.indexOf(first,out.getEnd());
 		// always go from where the first token was found
 		int endIndex   = sentence.indexOf(last, beginIndex) + last.length();
-	
-		
+
+
 		out.setStart(beginIndex);
 		out.setEnd(endIndex);
 		out.setSpan(sentence);
 		return out;
-		
-		
-		/* 
+
+
+		/*
 		 // another way to derive text span
-		 // but needs to be smarter about 
+		 // but needs to be smarter about
 		 // processing punctuation, spaces, etc
 		StringBuffer sb = new StringBuffer();
 		for (int ti = s; ti < e; ti++) {
@@ -261,38 +257,38 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		}
 		console.info(sb.toString());
 		*/
-		
-		
+
+
 	}
-	
+
 	public static List<TextSpan> findURLS(String sentence) {
-		
+
 		List<TextSpan> list = new ArrayList<TextSpan>();
-		
+
 		StringTokenizer tokens = new StringTokenizer(sentence);
 		int sIdx = 0;
 		int eIdx = 0;
-		
+
 		while(tokens.hasMoreTokens()) {
 			String s = tokens.nextToken();
-			
+
 			int idx = s.toLowerCase().indexOf("http");
 			if ( idx >= 0) {
-			
+
 				String sub = s.substring(idx);
-				
+
 				sIdx = sentence.indexOf(sub, eIdx);
 				eIdx = sIdx + sub.length();
-				
+
 				TextSpan span = new TextSpan();
 				span.setStart(sIdx);
 				span.setEnd(eIdx);
 				span.setSpan(sentence);
-				
+
 				list.add(span);
-				
+
 			}
-			
+
 		}
 	    return list;
 	}
@@ -302,7 +298,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     public void executeCallBack(ComponentContext cc) throws Exception
 	{
 		List<Strings> output = new ArrayList<Strings>();
-		
+
 		// input was encoded via :
 		// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
 		//
@@ -318,68 +314,68 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 		List<SimpleTuple> list = new ArrayList<SimpleTuple>();
 		TextSpan textSpan = new TextSpan();
-		
+
 		for (int i = 0; i < count; i++) {
 			String key    = input.getKey(i);    // this is the entire sentence
 			Strings value = input.getValue(i);  // this is the set of tokens for that sentence
 
 			String[] tokens = DataTypeParser.parseAsString(value);
 			// console.info("Tokens " + tokens.length + " .. " + tokens[0]);
-			
+
 			list.clear();
 			for (int j = 0; j < finders.length; j++) {
-				
+
 				String type = finderTypes[j];
 				Span[] span = finders[j].find(tokens);
-				
+
 				textSpan.reset();
 				for (int k = 0; k < span.length; k++) {
-					
+
 					textSpan = label(key, tokens, span[k], textSpan);
 					int beginIndex = textSpan.getStart();
 					int endIndex   = textSpan.getEnd();
 					String text    = textSpan.getText();
-					
+
 					SimpleTuple tuple = tuplePeer.createTuple();
 					tuple.setValue(TYPE_IDX,        type);
 					tuple.setValue(SENTENCE_ID_IDX, i);
 					tuple.setValue(TEXT_START_IDX,  beginIndex + globalOffset);
 					tuple.setValue(TEXT_END_IDX,    endIndex + globalOffset);
 					tuple.setValue(TEXT_IDX,        text);
-					
+
 					list.add(tuple);
-					
+
 				}
-				
-				
+
+
 			} // end finders
-			
+
 			//
 			// bonus find the urls
 			//
 			// TODO: add a property to or finderTypes a URL type
 			//
-			
+
 			List<TextSpan> urls = findURLS(key);
 			for (TextSpan s : urls) {
-				
+
 				SimpleTuple tuple = tuplePeer.createTuple();
 				tuple.setValue(TYPE_IDX,        "URL");
 				tuple.setValue(SENTENCE_ID_IDX, i);
 				tuple.setValue(TEXT_START_IDX,  s.getStart() + globalOffset);
 				tuple.setValue(TEXT_END_IDX,    s.getEnd()   + globalOffset);
 				tuple.setValue(TEXT_IDX,        s.getText());
-				
+
 				list.add(tuple);
 			}
-			
-			
+
+
 			//
 			// at this point, sort all the tuples based
 			// on their beginIndex
 			// then add them to the output
 			Collections.sort(list, new Comparator() {
-				
+
 				       public int compare(Object a, Object b) {
 				    	   SimpleTuple at = (SimpleTuple)a;
 				    	   SimpleTuple bt = (SimpleTuple)b;
@@ -387,25 +383,25 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 				    	   int u = Integer.parseInt(bt.getValue(TEXT_START_IDX));
 				    	   return v-u;
 				       }
-				       
+
 					}
              );
-			
+
 			// add the sorted tuples to the output buffer
 			for (SimpleTuple t:list) {
 				output.add(t.convert());
 			}
-			
-			globalOffset += key.length();
-			
-			
-		}
-		
 
-		// push the whole collection, protocol safe   
+			globalOffset += key.length();
+
+
+		}
+
+
+		// push the whole collection, protocol safe
 	    Strings[] results = new Strings[output.size()];
 	    output.toArray(results);
-	    
+
 	    StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
 	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 
@@ -419,7 +415,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         super.disposeCallBack(ccp);
     }
-    
-    
-    
+
+
+
 }

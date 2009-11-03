@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.tools.basic;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -219,7 +220,11 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
 	                    pushLocation(file);
 	            }
 	        }
-	    } else
-	        pushLocation(fileLoc);
+	    } else {
+	        if (fileLoc.exists())
+	            pushLocation(fileLoc);
+	        else
+	            throw new FileNotFoundException(fileLoc.toString());
+	    }
 	}
 }
