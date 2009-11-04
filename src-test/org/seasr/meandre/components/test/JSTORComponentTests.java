@@ -46,6 +46,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.StringReader;
 import java.util.Iterator;
 
@@ -75,13 +76,12 @@ public class JSTORComponentTests {
 
 		ctb = new ComponentTesterBase();
 		ctb.setBaseTestPort(50000);
-		ctb.setFlowsFolder("./test/flows/jstor");
-		ctb.setTempDescriptorFolder("./tmp");
-		ctb.setTempDescriptorFolder("./tmp/desc/jstor");
-		ctb.setSourceFolders(new String [] { "./src-jstor", "./src-tools", "./src-opennlp"} );
+		ctb.setFlowsFolder("."+File.separator+"test"+File.separator+"flows"+File.separator+"jstor");
+		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
+		ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"jstor");
+		ctb.setSourceFolders(new String [] { "."+File.separator+"src-jstor", "."+File.separator+"src-opennlp", "."+File.separator+"src-tools"} );
 		ctb.initialize();
 	}
-
 
     /** Generates the descriptors for the specified folders */
 	@AfterClass
