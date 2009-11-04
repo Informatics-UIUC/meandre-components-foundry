@@ -71,13 +71,12 @@ public class OpenNLPComponentTests {
 	public static void initializeTestResources () {
 		ctb = new ComponentTesterBase();
 		ctb.setBaseTestPort(50000);
-		ctb.setFlowsFolder("./test/flows/opennlp");
-		ctb.setTempDescriptorFolder("./tmp");
-		ctb.setTempDescriptorFolder("./tmp/desc/opennlp");
-		ctb.setSourceFolders(new String [] { "./src-opennlp", "./src-tools", "./src-sentiment"} );
+		ctb.setFlowsFolder("."+File.separator+"test"+File.separator+"flows"+File.separator+"opennlp");
+		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
+		ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"opennlp");
+		ctb.setSourceFolders(new String [] {"."+File.separator+"src-opennlp", "."+File.separator+"src-tools", "."+File.separator+"src-sentiment"} );
 		ctb.initialize();
 	}
-
 
     /** Generates the descriptors for the specified folders */
 	@AfterClass
@@ -128,7 +127,7 @@ public class OpenNLPComponentTests {
 		ctb.runZigZag(ctb.getZigZag("text-sentence-tokenizer.zz"),out,err);
 
 		String expected = IOUtils.getTextFromReader(new FileReader(
-                "test/flows/opennlp/text-sentence-tokenizer.zz.out".replaceAll("/", File.separator)))
+                "test"+File.separator+"flows"+File.separator+"opennlp"+File.separator+"text-sentence-tokenizer.zz.out"))
                 .replaceAll("\r|\n", "");
         String actual = out.toString().replaceAll("\r|\n", "");
 
