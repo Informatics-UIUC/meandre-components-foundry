@@ -72,10 +72,10 @@ public class AnalyticsComponentTests {
 
 		ctb = new ComponentTesterBase();
 		ctb.setBaseTestPort(50000);
-		ctb.setFlowsFolder("./test/flows/analytics");
-		ctb.setTempDescriptorFolder("./tmp");
-		ctb.setTempDescriptorFolder("./tmp/desc/analytics");
-		ctb.setSourceFolders(new String [] { "./src-jstor", "./src-tools", "./src-opennlp", "./src-analytics"} );
+		ctb.setFlowsFolder("."+File.separator+"test"+File.separator+"flows"+File.separator+"analytics");
+		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
+		ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"analytics");
+		ctb.setSourceFolders(new String [] { "."+File.separator+"src-jstor", "."+File.separator+"src-tools", "."+File.separator+"src-opennlp", "."+File.separator+"src-analytics"} );
 		ctb.initialize();
 	}
 
@@ -141,7 +141,7 @@ public class AnalyticsComponentTests {
 		ctb.runZigZag(ctb.getZigZag("text-sentence-tokenizer-with-filter.zz"),out,err);
 
 		String expected = IOUtils.getTextFromReader(new FileReader(
-		        "test/flows/analytics/text-sentence-tokenizer-with-filter.zz.out".replaceAll("/", File.separator)))
+		        "test"+File.separator+"flows"+File.separator+"analytics"+File.separator+"text-sentence-tokenizer-with-filter.zz.out"))
 		        .replaceAll("\r|\n", "");
 		String actual = out.toString().replaceAll("\r|\n", "");
 
