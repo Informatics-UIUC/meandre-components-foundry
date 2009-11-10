@@ -109,6 +109,7 @@ public abstract class Names {
 	public static final String PORT_DOC_TITLE = "document_title";
 	public static final String PORT_TEXT = "text";
 	public static final String PORT_TEXT_2 = "text2";
+	public static final String PORT_TEXT_FOUND = "text_found";
 	public static final String PORT_TOKENS = "tokens";
 	public static final String PORT_WORDS = "words";
 	public static final String PORT_STEMMED_WORDS = "stemmed_words";
