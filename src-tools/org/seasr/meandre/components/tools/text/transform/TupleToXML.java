@@ -139,7 +139,7 @@ public class TupleToXML extends AbstractExecutableComponent {
 	private Vector<org.w3c.dom.Document> _simileDocs = new Vector<org.w3c.dom.Document>();
 	private boolean _gotInitiator;
 
-	private static String encoding = "UTF-8";
+	private static String encoding = "ISO-8859-1";//"UTF-8";
 
 
     //--------------------------------------------------------------------------------------------
