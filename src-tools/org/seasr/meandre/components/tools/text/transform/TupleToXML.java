@@ -131,6 +131,13 @@ public class TupleToXML extends AbstractExecutableComponent {
 	)
 	protected static final String PROP_ENTITIES = Names.PROP_ENTITIES;
 
+
+	@ComponentProperty(
+			name=Names.PROP_ENCODING,
+			description = "The encoding to use on the outputed text.",
+			defaultValue = "ISO-8859-1"
+	    )
+	protected static final String PROP_ENCODING = Names.PROP_ENCODING;
     //--------------------------------------------------------------------------------------------
 
 
@@ -139,13 +146,15 @@ public class TupleToXML extends AbstractExecutableComponent {
 	private Vector<org.w3c.dom.Document> _simileDocs = new Vector<org.w3c.dom.Document>();
 	private boolean _gotInitiator;
 
-	private static String encoding = "ISO-8859-1";//"UTF-8";
+	private static String encoding;
 
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+		encoding = ccp.getProperty(PROP_ENCODING);
+
         _entities = ccp.getProperty(PROP_ENTITIES);
 
         _xmlProperties = new Properties();
