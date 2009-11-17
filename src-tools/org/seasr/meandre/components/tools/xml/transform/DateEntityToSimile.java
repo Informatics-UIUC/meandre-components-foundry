@@ -94,18 +94,6 @@ public class DateEntityToSimile extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_XML = Names.PORT_XML;
 
-	@ComponentOutput(
-	        description = "The minimum year in input xml document",
-	        name = Names.PORT_MIN_VALUE
-	)
-	protected static final String OUT_MIN_YEAR = Names.PORT_MIN_VALUE;
-
-	@ComponentOutput(
-	        description = "The maximum year in input xml document",
-	        name = Names.PORT_MAX_VALUE
-	)
-	protected static final String OUT_MAX_YEAR = Names.PORT_MAX_VALUE;
-
 	//--------------------------------------------------------------------------------------------
 
 
@@ -303,10 +291,6 @@ public class DateEntityToSimile extends AbstractExecutableComponent {
 		StringWriter writer = new StringWriter();
 		DOMUtils.writeXML(doc_out, writer, null);
 
-	    cc.pushDataComponentToOutput(OUT_MIN_YEAR,
-	            BasicDataTypesTools.integerToIntegers(new Integer(minYear)));
-	    cc.pushDataComponentToOutput(OUT_MAX_YEAR,
-	            BasicDataTypesTools.integerToIntegers(new Integer(maxYear)));
 	    cc.pushDataComponentToOutput(OUT_XML,
 	            BasicDataTypesTools.stringToStrings(writer.toString()));
     }
