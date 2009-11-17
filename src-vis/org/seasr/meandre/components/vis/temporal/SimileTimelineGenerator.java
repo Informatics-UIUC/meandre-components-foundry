@@ -180,7 +180,6 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     	maxYear = DataTypeParser.parseAsInteger(
     			cc.getDataComponentFromInput(IN_MAX_YEAR))[0].intValue();
 
-
         String dirName = cc.getPublicResourcesDirectory() + File.separator;
         dirName += "simile" + File.separator;
 
@@ -241,9 +240,9 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         int interval;
         ArrayList<Integer> list = new ArrayList<Integer>();
 
-        if(range<=20)  //for every single year
+        if(range<20)  //for every single year
         	interval = 1;
-        else  if(range>20 && range<=100) //for every decade
+        else  if(range>=20 && range<100) //for every decade
         	interval = 10;
         else { //for every century
         	interval = 100;
