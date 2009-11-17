@@ -1,4 +1,4 @@
-/**
+ /**
 *
 * University of Illinois/NCSA
 * Open Source License
@@ -42,95 +42,96 @@
 
 package org.seasr.meandre.components.tools.xml.io;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
+import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.html.VelocityTemplateService;
+
 @Component(
-		name = "XML To XML With XSL",
+		name = "Date Filter",
 		creator = "Lily Dong",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "xml, xsl, filter",
-		description = "This component reads a XML and a XSL. It filters XML with XSL "+
-		"and outputs the filtered XML.",
-		dependency = {"protobuf-java-2.2.0.jar"}
+		tags = "date, xsl, filter",
+		description = "This component generates xsl template based on " +
+		"the input minimum year and maximum year.",
+		dependency = {"protobuf-java-2.2.0.jar", "velocity-1.6.2-dep.jar"},
+		resources = { "DateFilter.vm" }
 )
 
-public class XMLToXMLWithXSLT extends AbstractExecutableComponent {
-	//------------------------------ INPUTS ------------------------------------------------------
+public class DateFilter extends AbstractExecutableComponent {
+	 //------------------------------ PROPERTIES --------------------------------------------------
 
-	@ComponentInput(
-			name = Names.PORT_XML,
-			description = "The XML doucment to read"
-	)
-	protected static final String IN_XML = Names.PORT_XML;
+    @ComponentProperty(
+    		defaultValue="1000",
+            name=Names.PORT_MIN_VALUE,
+            description = "The minimum year to use on the outputed xsl template."
+    )
+    protected static final String PROP_MIN_VALUE = Names.PORT_MIN_VALUE;
 
-	@ComponentInput(
-			name = Names.PORT_XSL,
-			description = "The XSL document to read"
-	)
-	protected static final String IN_XSL = Names.PORT_XSL;
+    @ComponentProperty(
+    		defaultValue="1800",
+            name=Names.PORT_MAX_VALUE,
+            description = "The maximum year to use on the outputed xsl template."
+    )
+    protected static final String PROP_MAX_VALUE = Names.PORT_MAX_VALUE;
 
-	//------------------------------ OUTPUTS -----------------------------------------------------
+   //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			name = Names.PORT_XML,
-			description = "The XML document to output after filtering"
-		)
-	private final static String OUT_XML = Names.PORT_XML;
+			name = Names.PORT_XSL,
+			description = "The XSL templage for filtering"
+	)
+	private final static String OUT_XSL = Names.PORT_XSL;
 
-	//--------------------------------------------------------------------------------------------
+	@ComponentOutput(
+			name = Names.PORT_MIN_YEAR,
+			description = "The minimum year"
+	)
+	private final static String OUT_MIN_YEAR = Names.PORT_MIN_YEAR;
 
-	public void executeCallBack(ComponentContext cc)
-	throws Exception {
-		String inXml = DataTypeParser.parseAsString(
-    			cc.getDataComponentFromInput(IN_XML))[0];
-		String inXsl = DataTypeParser.parseAsString(
-    			cc.getDataComponentFromInput(IN_XSL))[0];
+	@ComponentOutput(
+			name = Names.PORT_MAX_YEAR,
+			description = "The maximum year"
+	)
+	private final static String OUT_MAX_YEAR = Names.PORT_MAX_YEAR;
 
-		StringReader xmlReader = new StringReader(inXml);
-		StringReader xslReader = new StringReader(inXsl);
+    static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/tools/xml/io/DateFilter.vm";
 
-		Source xmlSource = new StreamSource(xmlReader);
-		Source xslSource = new StreamSource(xslReader);
-
-		StringWriter xmlWriter = new StringWriter();
-		StreamResult xmlResult = new StreamResult(xmlWriter);
-
-		TransformerFactory factory = TransformerFactory.newInstance();
-    	Transformer transformer = factory.newTransformer(xslSource);
-    	transformer.transform(xmlSource, xmlResult);
-    	String outXml = xmlWriter.getBuffer().toString();
-
-		cc.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(outXml));
-
-		xmlReader.close();
-		xslReader.close();
-		xmlWriter.close();
-	}
+    /** The min year and max year to use */
+	private String minYear, maxYear;
 
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	}
+
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		minYear = cc.getProperty(PROP_MIN_VALUE);
+		maxYear = cc.getProperty(PROP_MAX_VALUE);
+
+		VelocityTemplateService velocity = VelocityTemplateService.getInstance();
+		VelocityContext context;
+
+		context = velocity.getNewContext();
+
+		context.put("min_year", minYear);
+		context.put("max_year", maxYear);
+
+		String xsl = velocity.generateOutput(context, DEFAULT_TEMPLATE);
+
+		cc.pushDataComponentToOutput(OUT_MIN_YEAR, BasicDataTypesTools.stringToStrings(minYear));
+		cc.pushDataComponentToOutput(OUT_MAX_YEAR, BasicDataTypesTools.stringToStrings(maxYear));
+		cc.pushDataComponentToOutput(OUT_XSL, BasicDataTypesTools.stringToStrings(xsl));
 	}
 
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
