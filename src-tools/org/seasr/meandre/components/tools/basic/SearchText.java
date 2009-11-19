@@ -61,7 +61,7 @@ import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 /**
- * Concatenates text from multiple inputs
+ * Searches text using regular expressions
  * 
  * @author Loretta Auvil
  * 
@@ -118,8 +118,8 @@ public class SearchText extends AbstractExecutableComponent {
 		String[] text = DataTypeParser.parseAsString(cc
 				.getDataComponentFromInput(IN_TEXT1));
 		String matchingText;
-		console.fine(String.format("Pushing text: %s", text[0]));
-		console.fine(String.format("Pushing expression: %s", sExpression));
+		console.finest(String.format("Input text: %s", text[0]));
+		console.fine(String.format("expression: %s", sExpression));
 
 		Boolean found = false;
 		Matcher regexMatcher;
@@ -132,7 +132,7 @@ public class SearchText extends AbstractExecutableComponent {
 			console.fine("end = " + regexMatcher.end());
 			matchingText = text[0].substring(regexMatcher.start(), regexMatcher.end());
 			console.fine(String
-					.format("Pushing search results: %s", matchingText));
+					.format("Search results: %s", matchingText));
 			componentContext.pushDataComponentToOutput(FOUND_TEXT,
 					BasicDataTypesTools.stringToStrings(matchingText));
 			found = true;
