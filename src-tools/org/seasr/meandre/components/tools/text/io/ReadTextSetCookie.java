@@ -136,13 +136,9 @@ public class ReadTextSetCookie extends AbstractExecutableComponent {
         GetMethod method = new GetMethod(uri);
         
         client.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
-        //method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
-        //method.setRequestHeader("I2KBRCK", "Content=1; Path=/;");
         try{
           client.executeMethod(method);
           String sRes = method.getResponseBodyAsString();
-          //String cookie = client.getParams().getCookiePolicy();
-          //console.fine(String.format("CookiePolicy: %s", cookie));
           Cookie[] cookies = client.getState().getCookies();
           for (int i = 0; i < cookies.length; i++) {
               console.fine("Cookies: " + cookies[i].toExternalForm());
