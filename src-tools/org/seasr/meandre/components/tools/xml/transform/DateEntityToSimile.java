@@ -182,10 +182,14 @@ public class DateEntityToSimile extends AbstractExecutableComponent {
 			        String docTitle = elSentence.getAttribute("docTitle");
 			        String theSentence = elSentence.getTextContent();
 
-			        String normalizedSentence = theSentence.replaceAll("\r|\n", " ").toLowerCase();
-			        String normalizedDate = aDate.replaceAll("\r|\n", " ").toLowerCase();
+			        theSentence = theSentence.replaceAll("\t|\r|\n", " ");
+			        aDate = aDate.replaceAll("\t|\r|\n", " ");
+
+			        String normalizedSentence = theSentence.toLowerCase();
+			        String normalizedDate = aDate.toLowerCase();
 
 			        int datePos = normalizedSentence.indexOf(normalizedDate);
+
 			        if (datePos < 0) {
 			            console.warning("Could not find the position of the date in the sentence! This should not happen!");
 			            console.warning("   sentence: '" + normalizedSentence + "'");
