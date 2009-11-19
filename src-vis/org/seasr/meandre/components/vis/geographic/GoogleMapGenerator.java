@@ -42,18 +42,12 @@
 
 package org.seasr.meandre.components.vis.geographic;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -65,8 +59,7 @@ import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
@@ -86,10 +79,10 @@ import org.w3c.dom.NodeList;
         baseURL="meandre://seasr.org/components/tools/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class GoogleMapMaker	extends AbstractExecutableComponent
+public class GoogleMapGenerator	extends AbstractExecutableComponent
 {
 
-	
+
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
@@ -124,8 +117,8 @@ public class GoogleMapMaker	extends AbstractExecutableComponent
     )
 	protected static final String OUT_CONTEXT = Names.PORT_CONTEXT_VECTOR;
 
-    
-    
+
+
     //------------------------------ PROPERTIES --------------------------------------------------
     @ComponentProperty(
             defaultValue = GeoLocation.defaultAPIKey,
@@ -168,8 +161,8 @@ public class GoogleMapMaker	extends AbstractExecutableComponent
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
-    
-    
+
+
 
 
     //--------------------------------------------------------------------------------------------
@@ -187,64 +180,64 @@ public class GoogleMapMaker	extends AbstractExecutableComponent
         console.finer("Information of all addresses");
 
         for (int k = 0; k < nodeLst.getLength(); k++) {
-            Node fstNode = nodeLst.item(k);
-
-            String str = fstNode.getTextContent();
+            Element elEntity = (Element)nodeLst.item(k);
+            String aLoc = elEntity.getAttribute("value");
 
             Pattern p = Pattern.compile("[a-zA-Z .]+");
-            Matcher m = p.matcher(str);
+            Matcher m = p.matcher(aLoc);
             if(!m.matches()) //illegal characters
                 continue;
 
-            
             //
             // start of the refactored code
             //
             try {
-            	GeoLocation geo = GeoLocation.getLocation(str, yahooAPIKey);
+            	GeoLocation geo = GeoLocation.getLocation(aLoc, yahooAPIKey);
             	if (geo.isValid()) {
             		lat.add(String.valueOf(geo.getLatitude()));
             		lon.add(String.valueOf(geo.getLongitude()));
             	}
-            }catch(IOException e) {
-            	console.info("unable to find location " + str);
+            }catch(java.io.IOException e) {
+            	console.info("unable to find location " + aLoc);
             	continue;
             }
-            
-            
-            //
-            // This was copied from the original code (see below)
-            // 
-            NamedNodeMap nnp = fstNode.getAttributes();
-            String sentence = nnp.getNamedItem("sentence").getNodeValue();
 
-            StringTokenizer st = new StringTokenizer(sentence, "|");
-            StringBuffer buf = new StringBuffer();
+            StringBuffer sbHtml = new StringBuffer();
             int nr = 0;
-            while(st.hasMoreTokens()) {
-                String nt = st.nextToken();
-                int pos = nt.toLowerCase().indexOf(fstNode.getTextContent());
 
-                if(pos == -1)
-    	    		continue;
+		    NodeList sentenceNodes = elEntity.getElementsByTagName("sentence");
+		    for (int idx = 0, idxMax = sentenceNodes.getLength(); idx < idxMax; idx++) {
+		        Element elSentence = (Element)sentenceNodes.item(idx);
+		        String docTitle = elSentence.getAttribute("docTitle");
+		        String theSentence = elSentence.getTextContent();
 
-                int offset = pos+fstNode.getTextContent().length();
-                nt = new StringBuffer(nt).insert(offset, "</font>").toString();
-                offset = pos;
-                nt = new StringBuffer(nt).insert(offset, "<font color='red'>").toString();
-                buf.append("<div onclick='toggleVisibility(this)' style='position:relative' ALIGN='LEFT'><b>Sentence ").append(++nr).append("</b>");
-                buf.append("<span style='display: ' ALIGN='LEFT'><table><tr><td>").append(nt).append("</td></tr></table></span></div>");
-            }
+		        theSentence = theSentence.replaceAll("\t|\r|\n", " ");
+		        aLoc = aLoc.replaceAll("\t|\r|\n", " ");
 
-            /*sentence = "<p align=left>" + sentence;
-            sentence = sentence.replaceAll("[|]", "</p><hr><p align=left>");
-            sentence = sentence + "</p>";*/
+		        String normalizedSentence = theSentence.toLowerCase();
+		        String normalizedDate = aLoc.toLowerCase();
 
-            location.add(fstNode.getTextContent()+"("+nr+")");
-            context.add(buf.toString());//sentence);
+		        int datePos = normalizedSentence.indexOf(normalizedDate);
+		        if (datePos < 0) {
+		            console.warning("Could not find the position of the date in the sentence! This should not happen!");
+		            console.warning("   sentence: '" + normalizedSentence + "'");
+		            console.warning("   date: '" + normalizedDate + "'");
+		        }
 
-            // End of original code
-        
+		        String sentBefore = theSentence.substring(0, datePos);
+		        String sentAfter = theSentence.substring(datePos + aLoc.length());
+		        theSentence = StringEscapeUtils.escapeHtml(sentBefore) +
+		                      "<font color='red'>" + StringEscapeUtils.escapeHtml(aLoc) + "</font>" +
+		                      StringEscapeUtils.escapeHtml(sentAfter);
+                sbHtml.append("<div onclick='toggleVisibility(this)' style='position:relative' align='left'><b>Sentence ").append(++nr);
+                if (docTitle != null && docTitle.length() > 0)
+                    sbHtml.append(" from '" + StringEscapeUtils.escapeHtml(docTitle) + "'");
+                sbHtml.append("</b><span style='display: ' align='left'><table><tr><td>").append(theSentence).append("</td></tr></table></span></div>");
+		    }
+		    String sentence = sbHtml.toString();
+
+            location.add(aLoc+"("+nr+")");
+            context.add(sentence);
         }
 
         MapData mapData = new MapData();
@@ -258,81 +251,3 @@ public class GoogleMapMaker	extends AbstractExecutableComponent
 }
 
 
-
-
-
-/*  
- * // ORIGINAL CODE .. to be deleted once confirmed 
-StringBuffer sb = new StringBuffer();
-sb.append("http://local.yahooapis.com/MapsService/V1/geocode?appid=");
-sb.append(yahooAPIKey);
-//String str = fstNode.getTextContent();
-str = str.replaceAll(" ", "%20");
-sb.append("&location=").append(str);
-
-URL url = new URL(sb.toString());
-BufferedReader br = null;
-try {
-    br = new BufferedReader(new InputStreamReader(
-            url.openConnection().getInputStream()));
-}catch(java.io.IOException ex) {
-    console.warning("bad query : " + str);
-    br = null;
-}
-if(br == null)
-    continue;
-StringBuffer buffer = new StringBuffer();
-String line;
-while((line = br.readLine())!= null) {
-    line = line.trim();
-    if(line.length() == 0)
-        continue;
-    buffer.append(line).append(STRING_DELIMITER);
-}
-br.close();
-
-String s = buffer.toString();
-while(true) {//valid location
-    if(s.indexOf("<Latitude>") == -1)
-        break;
-
-    int beginIndex = s.indexOf("<Latitude>") + 10,
-        endIndex = s.indexOf("</Latitude>");
-    lat.add(s.substring(beginIndex, endIndex));
-
-    beginIndex = s.indexOf("<Longitude>") + 11;
-    endIndex = s.indexOf("</Longitude>");
-    lon.add(s.substring(beginIndex, endIndex));
-
-    NamedNodeMap nnp = fstNode.getAttributes();
-
-    String sentence = nnp.getNamedItem("sentence").getNodeValue();
-
-    StringTokenizer st = new StringTokenizer(sentence, "|");
-    StringBuffer buf = new StringBuffer();
-    int nr = 0;
-    while(st.hasMoreTokens()) {
-        String nt = st.nextToken();
-        int pos = nt.toLowerCase().indexOf(fstNode.getTextContent());
-
-        if(pos == -1)
-    		continue;
-
-        int offset = pos+fstNode.getTextContent().length();
-        nt = new StringBuffer(nt).insert(offset, "</font>").toString();
-        offset = pos;
-        nt = new StringBuffer(nt).insert(offset, "<font color='red'>").toString();
-        buf.append("<div onclick='toggleVisibility(this)' style='position:relative' ALIGN='LEFT'><b>Sentence ").append(++nr).append("</b>");
-        buf.append("<span style='display: ' ALIGN='LEFT'><table><tr><td>").append(nt).append("</td></tr></table></span></div>");
-    }
-
-    // sentence = "<p align=left>" + sentence;
-    // sentence = sentence.replaceAll("[|]", "</p><hr><p align=left>");
-    // sentence = sentence + "</p>";
-
-    location.add(fstNode.getTextContent()+"("+nr+")");
-    context.add(buf.toString());//sentence);
-
-    s = s.substring(endIndex+12);
-}
-*/
