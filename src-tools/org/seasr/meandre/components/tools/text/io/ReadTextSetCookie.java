@@ -42,7 +42,10 @@
 
 package org.seasr.meandre.components.tools.text.io;
 
+
+import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -66,25 +69,26 @@ import org.seasr.meandre.components.tools.Names;
  * Reads text from a remote location with cookies
  *
  * @author Lily Dong;
+ * @author Loretta Auvil;
  */
 
 @Component(
-		name = "Read Text With Cookie",
+		name = "Read Text Set Cookie",
 		creator = "Lily Dong",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "io, read, text",
+		tags = "io, read, text, cookie",
 		description = "This component reads text from a remote location " +
 		"with cookie support. The text location is specified in the input. "+
-		"The component outputs the text read. " +
+		"The component outputs the text read and the cookie obtained from the request. " +
 		"A property controls the behavior of the component in " +
 		"the event of an IO error, allowing it to ignore the error and continue, or " +
 		"throw an exception, forcing the finalization of the flow execution.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class ReadTextWithCookie extends AbstractExecutableComponent {
+public class ReadTextSetCookie extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -98,9 +102,15 @@ public class ReadTextWithCookie extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
-			description = "The location that the text was read from"
+			description = "The input location where the text was read."
 		)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
+
+	@ComponentOutput(
+			name = "cookie",
+			description = "The cookie that needs to be used to retrieve the content."
+		)
+	protected static final String OUT_COOKIE = "cookie";
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
@@ -124,12 +134,22 @@ public class ReadTextWithCookie extends AbstractExecutableComponent {
 
         HttpClient client = new HttpClient();
         GetMethod method = new GetMethod(uri);
+        
+        client.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+        //method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+        //method.setRequestHeader("I2KBRCK", "Content=1; Path=/;");
         try{
           client.executeMethod(method);
-          client.executeMethod(method);
           String sRes = method.getResponseBodyAsString();
+          //String cookie = client.getParams().getCookiePolicy();
+          //console.fine(String.format("CookiePolicy: %s", cookie));
+          Cookie[] cookies = client.getState().getCookies();
+          for (int i = 0; i < cookies.length; i++) {
+              console.fine("Cookies: " + cookies[i].toExternalForm());
+          }
           method.releaseConnection();
           cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
+          cc.pushDataComponentToOutput(OUT_COOKIE, cookies);
         } catch(Exception e) {
         	throw new Exception(e);
         } finally {
