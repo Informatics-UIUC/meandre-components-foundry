@@ -82,6 +82,7 @@ public abstract class Names {
 	public static final String PROP_ENTITIES = "entities";
 	public static final String PROP_N_SLICES = "n_slices";
 	public static final String PROP_YAHOO_API_KEY = "yahoo_api_key";
+	public static final String PROP_GOOGLE_APIS_KEY = "google_apis_key";
 	public static final String PROP_REPLICATION_MODE = "replication_mode";
 	public static final String PROP_REPLICATION_METHOD = "replication_method_name";
 	public static final String PROP_SEPARATOR = "separator";
