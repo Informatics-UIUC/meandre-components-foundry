@@ -144,9 +144,6 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
         _context.put("loc_list", listForLocation);
         _context.put("cxt_list", listForContext);
 
-        String sInstanceId = cc.getExecutionInstanceID();
-        _context.put("sInstanceId", sInstanceId);
-
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
         String html = velocity.generateOutput(_context, DEFAULT_TEMPLATE);
 
