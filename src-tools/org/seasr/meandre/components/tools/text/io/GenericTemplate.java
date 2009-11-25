@@ -95,7 +95,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         tags = "string, visualization",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
-        baseURL = "meandre://seasr.org/components/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         resources = { "GenericTemplate.vm" },
         dependency = { "velocity-1.6.2-dep.jar" }
 )

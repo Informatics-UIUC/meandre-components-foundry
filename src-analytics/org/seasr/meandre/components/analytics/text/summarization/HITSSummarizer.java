@@ -82,7 +82,7 @@ import cern.jet.math.Functions;
 @Component(
 		name = "HITS Summarizer",
 		creator = "Xavier Llora",
-		baseURL = "meandre://seasr.org/components/tools/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,

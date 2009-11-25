@@ -84,7 +84,7 @@ import org.seasr.meandre.components.tools.Names;
         name = "Fork x5",
         tags = "clone, fork, copy",
         rights = Licenses.UofINCSA,
-        baseURL = "meandre://seasr.org/components/tools/"
+        baseURL = "meandre://seasr.org/components/foundry/"
 )
 public class ForkX5 extends AbstractExecutableComponent {
 

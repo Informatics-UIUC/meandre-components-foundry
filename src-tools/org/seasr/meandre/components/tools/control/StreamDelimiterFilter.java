@@ -64,7 +64,7 @@ import org.seasr.meandre.components.tools.Names;
         name = "Stream Delimiter Filter",
         tags = "filter, delimiter",
         rights = Licenses.UofINCSA,
-        baseURL="meandre://seasr.org/components/tools/"
+        baseURL="meandre://seasr.org/components/foundry/"
 )
 public class StreamDelimiterFilter extends AbstractExecutableComponent {
 

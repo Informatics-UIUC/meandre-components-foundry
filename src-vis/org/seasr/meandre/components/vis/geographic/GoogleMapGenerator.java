@@ -76,7 +76,7 @@ import org.w3c.dom.NodeList;
         name = "Google Map Generator",
         tags = "google map, latitude, longitude",
         rights = Licenses.UofINCSA,
-        baseURL="meandre://seasr.org/components/tools/",
+        baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class GoogleMapGenerator	extends AbstractExecutableComponent

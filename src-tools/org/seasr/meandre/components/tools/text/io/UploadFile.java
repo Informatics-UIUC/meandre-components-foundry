@@ -95,7 +95,7 @@ import com.oreilly.servlet.multipart.Part;
         tags = "file input upload text",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
-        baseURL = "meandre://seasr.org/components/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         dependency={ "velocity-1.6.2-dep.jar", "protobuf-java-2.2.0.jar", "fluid-components-0.8.jar" },
         resources={ "FluidUploadFile.vm" }
 )

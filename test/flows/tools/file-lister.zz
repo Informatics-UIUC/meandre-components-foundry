@@ -2,9 +2,9 @@
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PrintToConsole.rdf>
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/ListDirectoryFiles.rdf>
 
-alias <meandre://seasr.org/components/tools/push-text> as PUSH
-alias <meandre://seasr.org/components/tools/list-directory-files> as LIST
-alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+alias <meandre://seasr.org/components/foundry/push-text> as PUSH
+alias <meandre://seasr.org/components/foundry/list-directory-files> as LIST
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT
 
 push, list, print = PUSH(), LIST(), PRINT()
 

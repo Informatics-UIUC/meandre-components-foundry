@@ -82,7 +82,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		              "or Griffiths, D. Head First Statistics. 2009. Second edition. O'Reilly.",
 		name = "Dunning Log Likelihood",
 		tags = "dunning, likelihood, loglikelihood, monk, comparison, statistics",
-		baseURL = "meandre://seasr.org/components/tools/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 	    dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class DunningLogLikelihood extends AbstractExecutableComponent {

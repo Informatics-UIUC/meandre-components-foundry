@@ -81,7 +81,7 @@ import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeExcept
 @Component(
 		name = "Token Filter",
 		creator = "Xavier Llora",
-		baseURL = "meandre://seasr.org/components/tools/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.any,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,

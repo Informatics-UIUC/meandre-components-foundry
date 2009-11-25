@@ -82,7 +82,7 @@ import org.seasr.meandre.components.tools.text.io.GenericTemplate;
         tags = "flash",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
-        baseURL = "meandre://seasr.org/components/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.6.2-dep.jar" },
         resources = {"CrossDomainPolicyServer.vm"}
 )

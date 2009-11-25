@@ -89,7 +89,7 @@ import de.schlichtherle.io.FileInputStream;
         name = "Simile Timeline Generator",
         tags = "simile, timeline",
         rights = Licenses.UofINCSA,
-        baseURL="meandre://seasr.org/components/tools/",
+        baseURL="meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         dependency = {"protobuf-java-2.2.0.jar", "simile-timeline.jar"},
         resources = {"SimileTimelineGenerator.vm"}

@@ -72,7 +72,7 @@ import org.seasr.meandre.support.generic.io.ModelUtils;
 @Component(
 		name = "Read Semantic Model",
 		creator = "Xavier Llora",
-		baseURL = "meandre://seasr.org/components/tools/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,

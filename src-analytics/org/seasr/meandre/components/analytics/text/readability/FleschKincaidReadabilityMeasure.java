@@ -83,7 +83,7 @@ import org.seasr.meandre.support.generic.text.analytics.ReadabilityMeasure;
 		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
-		baseURL = "meandre://seasr.org/components/zotero/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		dependency = {"protobuf-java-2.2.0.jar"},
 		resources = {"FleschKincaidReadabilityMeasure.vm"}
 )

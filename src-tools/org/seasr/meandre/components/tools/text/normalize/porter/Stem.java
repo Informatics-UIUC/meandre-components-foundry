@@ -102,7 +102,7 @@ description = "<p>Overview: <br>"
 		+ "<p>Trigger Criteria: <br>" + "All." + "</p>",
 
 name = "Stem", tags = "nlp text document normalize stem",
-baseURL="meandre://seasr.org/components/tools/")
+baseURL="meandre://seasr.org/components/foundry/")
 
 public class Stem extends AbstractExecutableComponent {
 

@@ -1,8 +1,8 @@
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PushText.rdf>
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PrintToConsole.rdf>
 
-alias <meandre://seasr.org/components/tools/push-text> as PUSH
-alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+alias <meandre://seasr.org/components/foundry/push-text> as PUSH
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT
 
 push,print = PUSH(),PRINT()
 

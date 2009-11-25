@@ -45,7 +45,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 @Component(
 		name = "Tuple Sentiment Grouper",
 		creator = "Mike Haberman",
-		baseURL = "meandre://seasr.org/components/tools/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,

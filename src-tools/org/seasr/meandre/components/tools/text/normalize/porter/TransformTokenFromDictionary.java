@@ -64,7 +64,7 @@ import org.seasr.meandre.components.tools.Names;
 		firingPolicy = FiringPolicy.all,
 		name = "Transform Token From Dictionary",
 		tags = "token transform",
-		baseURL="meandre://seasr.org/components/tools/")
+		baseURL="meandre://seasr.org/components/foundry/")
 
 public class TransformTokenFromDictionary extends AbstractExecutableComponent
 {

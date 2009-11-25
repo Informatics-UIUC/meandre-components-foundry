@@ -4,11 +4,11 @@
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/WriteText.rdf>
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PushText.rdf>
 
-alias <meandre://seasr.org/components/tools/push-text> as PUSH
-alias <meandre://seasr.org/components/tools/read-text> as READ
-alias <meandre://seasr.org/components/tools/xml-to-text> as X2T
-alias <meandre://seasr.org/components/tools/text-to-xml> as T2X
-alias <meandre://seasr.org/components/tools/write-text> as WRITE
+alias <meandre://seasr.org/components/foundry/push-text> as PUSH
+alias <meandre://seasr.org/components/foundry/read-text> as READ
+alias <meandre://seasr.org/components/foundry/xml-to-text> as X2T
+alias <meandre://seasr.org/components/foundry/text-to-xml> as T2X
+alias <meandre://seasr.org/components/foundry/write-text> as WRITE
 
 push, read, x2t, t2x, write = PUSH(), READ(), X2T(), T2X(), WRITE()
 push_loc = PUSH()

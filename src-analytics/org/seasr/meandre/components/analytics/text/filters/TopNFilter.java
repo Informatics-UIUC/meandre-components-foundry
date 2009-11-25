@@ -72,7 +72,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         name = "Top N Filter",
         tags = "word, filter",
         rights = Licenses.UofINCSA,
-        baseURL = "meandre://seasr.org/components/tools/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TopNFilter extends AbstractExecutableComponent {

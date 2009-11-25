@@ -73,7 +73,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
 @Component(
 		name = "Write Text",
 		creator = "Xavier Llora",
-		baseURL = "meandre://seasr.org/components/tools/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,

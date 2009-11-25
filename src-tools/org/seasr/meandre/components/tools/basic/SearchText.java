@@ -68,7 +68,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
  */
 
 @Component(name = "Search Text", creator = "Loretta Auvil", 
-		baseURL = "meandre://seasr.org/components/tools/", 
+		baseURL = "meandre://seasr.org/components/foundry/", 
 		firingPolicy = FiringPolicy.all, 
 		mode = Mode.compute, rights = Licenses.UofINCSA, 
 		tags = "text, string, search", 

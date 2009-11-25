@@ -62,7 +62,7 @@ import org.seasr.meandre.components.tools.Names;
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         firingPolicy = FiringPolicy.all,
-        baseURL = "meandre://seasr.org/components/tools/"
+        baseURL = "meandre://seasr.org/components/foundry/"
 )
 public class ConfigurableServiceHeadPost extends ServiceHeadPost implements ConfigurableWebUIFragmentCallback {
 

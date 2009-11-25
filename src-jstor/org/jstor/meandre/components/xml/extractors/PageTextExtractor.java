@@ -68,7 +68,7 @@ import org.w3c.dom.NodeList;
 @Component(
 		name = "Page Text Extractor",
 		creator = "Xavier Llora",
-		baseURL = "meandre://jstor.org/components/xml/extractor/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,

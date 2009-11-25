@@ -28,9 +28,9 @@ import <file:///Users/lauvil/org/seasr/meandre/components/tools/basic/SearchText
 #
 # Create the component aliases
 #
-alias <meandre://seasr.org/components/tools/print-to-console> as PRINT_TO_CONSOLE
-alias <meandre://seasr.org/components/tools/push-text> as PUSH_TEXT
-alias <meandre://seasr.org/components/tools/search-text> as SEARCH_TEXT
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT_TO_CONSOLE
+alias <meandre://seasr.org/components/foundry/push-text> as PUSH_TEXT
+alias <meandre://seasr.org/components/foundry/search-text> as SEARCH_TEXT
 
 #
 # Create the component instances

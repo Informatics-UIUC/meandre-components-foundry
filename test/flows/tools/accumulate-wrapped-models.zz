@@ -4,11 +4,11 @@
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PushText.rdf>
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/WrappedModelsReducer.rdf>
 
-alias <meandre://seasr.org/components/tools/push-text> as PUSH
-alias <meandre://seasr.org/components/tools/wrap-text-into-model> as WRAP
-alias <meandre://seasr.org/components/tools/wrapped-models-reducer> as ACC
-alias <meandre://seasr.org/components/tools/model-to-rdf-text> as M2T
-alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+alias <meandre://seasr.org/components/foundry/push-text> as PUSH
+alias <meandre://seasr.org/components/foundry/wrap-text-into-model> as WRAP
+alias <meandre://seasr.org/components/foundry/wrapped-models-reducer> as ACC
+alias <meandre://seasr.org/components/foundry/model-to-rdf-text> as M2T
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT
 
 push, wrap, acc, m2t, print = PUSH(), WRAP(), ACC(), M2T(), PRINT()
 

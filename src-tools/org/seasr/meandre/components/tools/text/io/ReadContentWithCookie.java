@@ -76,7 +76,7 @@ import org.seasr.meandre.components.tools.Names;
 @Component(
 		name = "Read Content With Cookie",
 		creator = "Lily Dong",
-		baseURL = "meandre://seasr.org/components/tools/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,

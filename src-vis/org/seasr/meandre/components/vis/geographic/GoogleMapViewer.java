@@ -64,7 +64,8 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         name="Google Map Viewer",
         tags="google map, visualization",
         mode=Mode.webui,
-        baseURL="meandre://seasr.org/components/")
+        baseURL="meandre://seasr.org/components/foundry/",
+        resources = {"GoogleMapViewer.vm"})
 
 public class GoogleMapViewer extends AbstractExecutableComponent {
 	//-------------------------- INPUTS --------------------------

@@ -70,7 +70,7 @@ import org.w3c.dom.Document;
         rights = Licenses.UofINCSA,
         tags = "html, text, converter",
         dependency = {"protobuf-java-2.2.0.jar", "htmlparser.jar"},
-        baseURL = "meandre://seasr.org/components/tools/"
+        baseURL = "meandre://seasr.org/components/foundry/"
 )
 public class HTMLTextExtractor extends AbstractExecutableComponent {
 

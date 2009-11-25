@@ -53,7 +53,7 @@ import org.seasr.meandre.support.sentiment.PathMetricFinder;
 @Component(
 		name = "Token Concept Labeler",
 		creator = "Mike Haberman",
-		baseURL = "meandre://seasr.org/components/tools/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,

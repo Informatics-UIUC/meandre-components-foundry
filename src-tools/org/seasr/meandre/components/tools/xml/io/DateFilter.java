@@ -59,7 +59,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 @Component(
 		name = "Date Filter",
 		creator = "Lily Dong",
-		baseURL = "meandre://seasr.org/components/tools/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,

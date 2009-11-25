@@ -78,7 +78,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
-		baseURL = "meandre://seasr.org/components/zotero/"
+		baseURL = "meandre://seasr.org/components/foundry/"
 )
 public class ZoteroAuthorExtractor extends AbstractExecutableComponent {
 

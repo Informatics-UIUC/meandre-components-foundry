@@ -2,19 +2,19 @@
 # this flow does Named Entity using OpenNLP
 
 #import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/tools/basic/PushText.rdf>
-alias <meandre://seasr.org/components/tools/push-text> as Push
+alias <meandre://seasr.org/components/foundry/push-text> as Push
 
 #import <file:///Users/mikeh/descriptors/org/seasr/meandre/components/tools/tuples/TupleLogger.rdf>
-alias <meandre://seasr.org/components/tools/tuple-logger> as Printer
+alias <meandre://seasr.org/components/foundry/tuple-logger> as Printer
 
 #import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPSentenceDetector.rdf>
-alias <meandre://seasr.org/components/tools/opennlp-sentence-detector> as Sentence
+alias <meandre://seasr.org/components/foundry/opennlp-sentence-detector> as Sentence
 
 #import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPSentenceTokenizer.rdf>
-alias <meandre://seasr.org/components/tools/opennlp-sentence-tokenizer> as Tokens
+alias <meandre://seasr.org/components/foundry/opennlp-sentence-tokenizer> as Tokens
 
 #import <file:///Users/mikeh/descriptors/org/seasr/meandre/component/opennlp/OpenNLPNamedEntity.rdf>
-alias <meandre://seasr.org/components/tools/opennlp-named-entity> as Ne
+alias <meandre://seasr.org/components/foundry/opennlp-named-entity> as Ne
 
 
 

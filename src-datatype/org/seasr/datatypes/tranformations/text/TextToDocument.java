@@ -68,7 +68,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         description = "Creates a Document structure from the input text. " +
                       "This Document structure is used by other components for running various analyses.",
         creator = "Boris Capitanu",
-        baseURL = "meandre://seasr.org/components/tools/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,

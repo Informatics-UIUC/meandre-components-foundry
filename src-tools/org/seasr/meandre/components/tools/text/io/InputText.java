@@ -69,7 +69,7 @@ import org.seasr.meandre.components.tools.Names;
         tags = "string, visualization",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
-        baseURL = "meandre://seasr.org/components/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.6.2-dep.jar" },
         resources = { "InputText.vm" }
 )

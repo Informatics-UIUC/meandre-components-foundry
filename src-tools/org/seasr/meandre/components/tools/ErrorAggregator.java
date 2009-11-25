@@ -62,7 +62,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 @Component(
         name = "Error Aggregator",
         creator = "Boris Capitanu",
-        baseURL = "meandre://seasr.org/components/tools/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,

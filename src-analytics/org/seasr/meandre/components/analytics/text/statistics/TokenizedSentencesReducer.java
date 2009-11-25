@@ -70,7 +70,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 @Component(
         name = "Tokenized Sentences Reducer",
         creator = "Boris Capitanu",
-        baseURL = "meandre://seasr.org/components/tools/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,

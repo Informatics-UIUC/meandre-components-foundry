@@ -83,7 +83,7 @@ import org.w3c.dom.NodeList;
         name = "Tuple To XML",
         tags = "text, document, tuple",
         rights = Licenses.UofINCSA,
-        baseURL="meandre://seasr.org/components/tools/",
+        baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TupleToXML extends AbstractExecutableComponent {

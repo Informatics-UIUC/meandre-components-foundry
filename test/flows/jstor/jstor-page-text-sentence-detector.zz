@@ -4,10 +4,10 @@
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/jstor/OpenNLPSentenceDetector.rdf>
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/jstor/PrintToConsole.rdf>
 
-alias <meandre://seasr.org/components/tools/push-text> as PUSH
-alias <meandre://seasr.org/components/tools/read-xml> as READ
-alias <meandre://seasr.org/components/tools/opennlp-sentence-detector> as SD
-alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+alias <meandre://seasr.org/components/foundry/push-text> as PUSH
+alias <meandre://seasr.org/components/foundry/read-xml> as READ
+alias <meandre://seasr.org/components/foundry/opennlp-sentence-detector> as SD
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT
 alias <meandre://jstor.org/components/xml/extractor/page-text-extractor> as PTE
 
 push, read, pte, sd, print = PUSH(), READ(), PTE(), SD(), PRINT()

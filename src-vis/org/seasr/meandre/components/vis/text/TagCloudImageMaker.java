@@ -74,7 +74,7 @@ import org.seasr.meandre.support.generic.text.TagCloudImage;
         name = "Tag Cloud Image Maker",
         rights = Licenses.UofINCSA,
         tags = "tag cloud, visualization",
-        baseURL="meandre://seasr.org/components/",
+        baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TagCloudImageMaker extends AbstractExecutableComponent {

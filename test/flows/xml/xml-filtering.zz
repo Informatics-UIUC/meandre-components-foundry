@@ -1,9 +1,9 @@
-alias <meandre://seasr.org/components/tools/push-text> as PUSH
-alias <meandre://seasr.org/components/tools/read-xml> as XMLREADER
-alias <meandre://seasr.org/components/tools/xml-to-text> as XML2TEXT
-alias <meandre://seasr.org/components/tools/xml-to-xml-with-xslt> as XML2XML
-alias <meandre://seasr.org/components/tools/text-to-xml> as T2X
-alias <meandre://seasr.org/components/tools/write-xml> as WRITE
+alias <meandre://seasr.org/components/foundry/push-text> as PUSH
+alias <meandre://seasr.org/components/foundry/read-xml> as XMLREADER
+alias <meandre://seasr.org/components/foundry/xml-to-text> as XML2TEXT
+alias <meandre://seasr.org/components/foundry/xml-to-xml-with-xslt> as XML2XML
+alias <meandre://seasr.org/components/foundry/text-to-xml> as T2X
+alias <meandre://seasr.org/components/foundry/write-xml> as WRITE
 
 push_xml, xmlreader, xml2text, xml2xml, t2x, write = PUSH(), XMLREADER(), XML2TEXT(), XML2XML(), T2X(), WRITE()
 push_xsl, xslreader, xsl2text = PUSH(), XMLREADER(), XML2TEXT()

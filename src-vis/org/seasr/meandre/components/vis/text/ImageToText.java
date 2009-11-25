@@ -29,7 +29,7 @@ import org.seasr.meandre.support.generic.io.StreamUtils;
         name = "Image To ASCII Text",
         rights = Licenses.UofINCSA,
         tags = "image, text, ascii art",
-        baseURL="meandre://seasr.org/components/",
+        baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ImageToText extends AbstractExecutableComponent {

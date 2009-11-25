@@ -28,7 +28,7 @@ import org.seasr.meandre.support.components.discovery.ruleassociation.fpgrowth.F
         name = "Patterns To Table",
         tags = "table, patterns, frequent itemsets",
         rights = Licenses.UofINCSA,
-        baseURL = "meandre://seasr.org/components/"
+        baseURL = "meandre://seasr.org/components/foundry/"
 )
 public class PatternsToTable extends AbstractExecutableComponent {
 

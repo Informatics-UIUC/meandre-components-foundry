@@ -5,13 +5,13 @@
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/PrintToConsole.rdf>
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/PushText.rdf>
 
-alias <meandre://seasr.org/components/tools/push-text> as PUSH
-alias <meandre://seasr.org/components/tools/opennlp-sentence-detector> as SD
-alias <meandre://seasr.org/components/tools/opennlp-sentence-tokenizer> as ST
-alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+alias <meandre://seasr.org/components/foundry/push-text> as PUSH
+alias <meandre://seasr.org/components/foundry/opennlp-sentence-detector> as SD
+alias <meandre://seasr.org/components/foundry/opennlp-sentence-tokenizer> as ST
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT
 
-alias <meandre://seasr.org/components/tools/opennlp-tokenizer> as TOKENIZER
-alias <meandre://seasr.org/components/tools/token-filter> as FILTER
+alias <meandre://seasr.org/components/foundry/opennlp-tokenizer> as TOKENIZER
+alias <meandre://seasr.org/components/foundry/token-filter> as FILTER
 
 push, sd, st, print = PUSH(), SD(), ST(), PRINT()
 blst, tokenize_bl, filter = PUSH(), TOKENIZER(), FILTER()

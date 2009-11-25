@@ -4,11 +4,11 @@
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/PushText.rdf>
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/analytics/PrintToConsole.rdf>
 
-alias <meandre://seasr.org/components/tools/push-text> as PUSH
-alias <meandre://seasr.org/components/tools/token-counts-to-text> as T2T
-alias <meandre://seasr.org/components/tools/opennlp-tokenizer> as TOKENIZER
-alias <meandre://seasr.org/components/tools/token-counter> as COUNTER
-alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+alias <meandre://seasr.org/components/foundry/push-text> as PUSH
+alias <meandre://seasr.org/components/foundry/token-counts-to-text> as T2T
+alias <meandre://seasr.org/components/foundry/opennlp-tokenizer> as TOKENIZER
+alias <meandre://seasr.org/components/foundry/token-counter> as COUNTER
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT
 
 push, tokenizer, counter, t2t, print = PUSH(), TOKENIZER(), COUNTER(), T2T(), PRINT()
 

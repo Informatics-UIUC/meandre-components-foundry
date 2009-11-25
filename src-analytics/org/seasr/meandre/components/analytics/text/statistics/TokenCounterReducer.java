@@ -74,7 +74,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 @Component(
 		name = "Token Counter Reducer",
 		creator = "Xavier Llora",
-		baseURL = "meandre://seasr.org/components/tools/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,

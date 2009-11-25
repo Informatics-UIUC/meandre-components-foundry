@@ -87,7 +87,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         tags = "table viewer",
         mode = Mode.webui,
         rights = Licenses.UofINCSA,
-        baseURL = "meandre://seasr.org/components/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar", "org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer.jar"},
         resources = {"TableViewer.vm"}
 )

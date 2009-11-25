@@ -70,7 +70,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 @Component(
 		name = "Model To RDF Text",
 		creator = "Xavier Llora",
-		baseURL = "meandre://seasr.org/components/tools/",
+		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,

@@ -80,7 +80,7 @@ import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeExcept
 		   name = "Dictionary Of Stemming",
 		   tags = "stem dictionary",
 		   rights = Licenses.UofINCSA,
-		   baseURL="meandre://seasr.org/components/tools/"
+		   baseURL="meandre://seasr.org/components/foundry/"
 )
 public class DictionaryOfStemming extends AbstractExecutableComponent {
 

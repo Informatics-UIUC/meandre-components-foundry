@@ -4,9 +4,9 @@
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/opennlp/PrintToConsole.rdf>
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/opennlp/PushText.rdf>
 
-alias <meandre://seasr.org/components/tools/push-text> as PUSH
-alias <meandre://seasr.org/components/tools/opennlp-tokenizer> as TOKENIZER
-alias <meandre://seasr.org/components/tools/print-to-console> as PRINT
+alias <meandre://seasr.org/components/foundry/push-text> as PUSH
+alias <meandre://seasr.org/components/foundry/opennlp-tokenizer> as TOKENIZER
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT
 
 push, tokenizer, print = PUSH(), TOKENIZER(), PRINT()
 

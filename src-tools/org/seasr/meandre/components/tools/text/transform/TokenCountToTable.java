@@ -74,7 +74,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         tags = "token, count, table, convert",
         firingPolicy = FiringPolicy.any,
         rights = Licenses.UofINCSA,
-        baseURL = "meandre://seasr.org/components/tools/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TokenCountToTable extends AbstractExecutableComponent {

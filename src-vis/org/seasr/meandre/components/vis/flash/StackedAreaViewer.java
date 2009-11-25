@@ -71,7 +71,7 @@ import org.seasr.meandre.components.tools.text.io.GenericTemplate;
         tags = "string, visualization",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
-        baseURL = "meandre://seasr.org/components/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         resources = { "StackedAreaViewer.vm", "StackedAreaViewer.swf"}
 )
 

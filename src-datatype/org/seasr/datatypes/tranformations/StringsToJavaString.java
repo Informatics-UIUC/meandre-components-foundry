@@ -65,7 +65,7 @@ import org.seasr.meandre.components.tools.Names;
 @Component(
         name = "Strings To Java String",
         creator = "Boris Capitanu",
-        baseURL = "meandre://seasr.org/components/tools/",
+        baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
