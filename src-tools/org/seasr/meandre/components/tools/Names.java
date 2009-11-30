@@ -153,5 +153,6 @@ public abstract class Names {
 	public static final String PORT_TUPLES = "tuples";
 	public static final String PORT_META_TUPLE = "meta_tuple";
 	public static final String PORT_CLUSTER_MODEL = "cluster_model";
+	public static final String PROP_FIELD_NAME ="field_name";
 
 }
