@@ -67,10 +67,11 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 @Component(
         creator = "Lily Dong",
-        description = "Inputs a Map<String, Integer> and filters " +
-                      "words with lower word counts.",
+        description = "Inputs token counts or the Map<String, Integer> structure and filters " +
+                      "tokens based on their counts. A property can be set to filter for the " +
+                      "highest counts or the lowest counts.",
         name = "Top N Filter",
-        tags = "word, filter",
+        tags = "token, word, filter",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
@@ -80,7 +81,7 @@ public class TopNFilter extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "Token counts",
+            description = "Token counts.",
             name = Names.PORT_TOKEN_COUNTS
     )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
@@ -88,7 +89,7 @@ public class TopNFilter extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "Filtered token counts",
+            description = "Filtered token counts.",
             name = Names.PORT_TOKEN_COUNTS
     )
     protected static final String OUT_FILTERED_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
@@ -97,7 +98,7 @@ public class TopNFilter extends AbstractExecutableComponent {
 
     @ComponentProperty(
             defaultValue = "100",
-            description = "This property sets the maximum number of keys to be outputed",
+            description = "This property sets the maximum number of tokens to be output.",
             name = Names.PROP_N_TOP_TOKENS
     )
     protected static final String PROP_UPPER_LIMIT = Names.PROP_N_TOP_TOKENS;

@@ -85,12 +85,16 @@ import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeExcept
 		firingPolicy = FiringPolicy.any,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, filter, tokenizer",
-		description = "This component filters the tokens on the inputs based " +
-				      "based on the list of tokens provided. If new tokens to " +
+		tags = "text, filter, token, token count, tokenized sentence, word",
+		description = "This component filters the tokens of the input based " +
+				      "on the list of tokens provided. The component has 3 inputs for the " +
+				      "type of data to be filtered (tokens, token counts or tokenized sentences" +
+				      "and one input for the list of tokens to filter. "+
+				      "It will output the same data type it received. If new tokens to " +
 				      "filter are provide they either replace the current ones " +
-				      "or add them to the black list. The component outputs the " +
-				      "filtered tokens.",
+				      "or add them to the black list. The component waits for a black list and then " +
+				      "begins processing the data it receives. The component outputs the " +
+				      "filtered tokens, token counts or tokenized sentences.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
 @SuppressWarnings("unchecked")
@@ -106,19 +110,19 @@ public class TokenFilter extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TOKENS,
-			description = "The sequence of tokens to filter"
+			description = "The sequence of tokens to filter."
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENS;
 
 	@ComponentInput(
 			name = Names.PORT_TOKEN_COUNTS,
-			description = "The token counts to filter"
+			description = "The token counts to filter."
 	)
 	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
 	@ComponentInput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
-			description = "The tokenized sentences to filter"
+			description = "The tokenized sentences to filter."
 	)
 	protected static final String IN_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
 
@@ -126,19 +130,19 @@ public class TokenFilter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TOKENS,
-			description = "The filtered of tokens"
+			description = "The filtered tokens."
 	)
 	protected static final String OUT_TOKENS = Names.PORT_TOKENS;
 
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_COUNTS,
-			description = "The filtered token counts"
+			description = "The filtered token counts."
 	)
 	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
 	@ComponentOutput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
-			description = "The filtered tokenized sentences"
+			description = "The filtered tokenized sentences."
 	)
 	protected static final String OUT_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
 
@@ -148,7 +152,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = Names.PROP_REPLACE,
-            description = "If set to true errors blacklisted tokens get replaced when a new set is provided. " +
+            description = "If set to true then blacklisted tokens get replaced when a new set is provided. " +
                           "When set to false, tokens keep being appended to the blacklist. ",
             defaultValue = "true"
     )
