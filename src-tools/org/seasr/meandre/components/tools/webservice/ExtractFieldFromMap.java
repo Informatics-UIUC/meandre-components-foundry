@@ -86,7 +86,7 @@ public class ExtractFieldFromMap extends AbstractExecutableComponent {
             description = "The data contained on the provided field",
             name = Names.PORT_RAW_DATA
     )
-    protected static final String OUT_LOWERCASE_TEXT = Names.PORT_TEXT;
+    protected static final String OUT_LOWERCASE_TEXT = Names.PORT_RAW_DATA;
 
 
     @ComponentOutput(
