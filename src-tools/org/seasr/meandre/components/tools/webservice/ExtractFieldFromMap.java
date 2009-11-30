@@ -86,7 +86,7 @@ public class ExtractFieldFromMap extends AbstractExecutableComponent {
             description = "The data contained on the provided field",
             name = Names.PORT_RAW_DATA
     )
-    protected static final String OUT_LOWERCASE_TEXT = Names.PORT_RAW_DATA;
+    protected static final String OUT_RAW_DATA = Names.PORT_RAW_DATA;
 
 
     @ComponentOutput(
@@ -116,9 +116,9 @@ public class ExtractFieldFromMap extends AbstractExecutableComponent {
         
         cc.getLogger().info("Keys available "+map.keySet().toString());
 		if ( map.containsKey(fieldName) ) 
-    		cc.pushDataComponentToOutput(OUT_LOWERCASE_TEXT,BasicDataTypesTools.stringToStrings(new String(map.get(fieldName))));
+    		cc.pushDataComponentToOutput(OUT_RAW_DATA,BasicDataTypesTools.stringToStrings(new String(map.get(fieldName))));
 		else
-    		cc.pushDataComponentToOutput(OUT_LOWERCASE_TEXT,BasicDataTypesTools.stringToStrings(""));
+    		cc.pushDataComponentToOutput(OUT_RAW_DATA,BasicDataTypesTools.stringToStrings(""));
 	
     	cc.pushDataComponentToOutput(OUT_REQUEST,obj);
     }
