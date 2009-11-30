@@ -88,6 +88,8 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
  *  @author Boris Capitanu
  */
 
+
+
 @Component(
         creator = "Mike Haberman",
         description = "Generates and displays a webpage via a Velocity Template ",
@@ -99,7 +101,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         resources = { "GenericTemplate.vm" },
         dependency = { "velocity-1.6.2-dep.jar" }
 )
-public abstract class GenericTemplate extends AbstractExecutableComponent implements WebUIFragmentCallback {
+public class GenericTemplate extends AbstractExecutableComponent implements WebUIFragmentCallback {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -305,17 +307,21 @@ public abstract class GenericTemplate extends AbstractExecutableComponent implem
         response.getWriter().println("<html><head><meta http-equiv='REFRESH' content='1;url=/'></head><body></body></html>");
     }
 
-    //
-    // not only check errors, process the input at this step
-    // return false on errors, bad input, etc
-    // return true if all is good
-    protected abstract boolean processRequest(HttpServletRequest request) throws IOException;
-
     protected boolean expectMoreRequests(HttpServletRequest request)
     {
     	// we are done, e.g. ?done=true
     	// if the request does NOT contain this parameter
     	// we will assume, we are expecting more input
     	return (request.getParameter("done") == null);
+    }
+    
+    //
+    // not only check errors, process the input at this step
+    // return false on errors, bad input, etc
+    // return true if all is good
+    // NOTE: subclasses SHOULD override this method
+    protected  boolean processRequest(HttpServletRequest request) throws IOException
+    {
+    	return true;
     }
 }
