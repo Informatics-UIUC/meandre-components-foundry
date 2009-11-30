@@ -10,8 +10,8 @@ version="1.0">
 	<xsl:choose>
 
 	<xsl:when test="$len &lt;= 1">
-		<xsl:if test="@start &gt;= 1850">
-			<xsl:if test="@start &lt; 1900">
+		<xsl:if test="@start &gt;= $min_year">
+			<xsl:if test="@start &lt; $max_year">
 				<xsl:copy-of select="."/> 
 			</xsl:if>
 		</xsl:if>	
@@ -19,8 +19,8 @@ version="1.0">
 	
 	<xsl:otherwise>
 		<xsl:variable name="year" select="normalize-space(substring(@start, $len, 4))" />
-		<xsl:if test="$year &gt;= 1850">
-			<xsl:if test="$year &lt; 1900">
+		<xsl:if test="$year &gt;= $min_year">
+			<xsl:if test="$year &lt; $max_year">
 				<xsl:copy-of select="."/> 
 			</xsl:if>
 		</xsl:if>	
