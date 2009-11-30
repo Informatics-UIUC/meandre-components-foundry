@@ -49,7 +49,7 @@ import com.sun.j3d.utils.universe.SimpleUniverse;
         name = "Clustering Viz",
         rights = Licenses.UofINCSA,
         tags = "clustering",
-        dependency = {"vecmath-1.3.1.jar", "j3d-core-1.3.1.jar", "protobuf-java-2.2.0.jar"},
+        dependency = {"vecmath-1.3.1.jar", "j3d-core-1.3.1.jar", "j3d-core-utils-1.3.1.jar", "protobuf-java-2.2.0.jar"},
         baseURL = "meandre://seasr.org/components/foundry/"
 )
 
