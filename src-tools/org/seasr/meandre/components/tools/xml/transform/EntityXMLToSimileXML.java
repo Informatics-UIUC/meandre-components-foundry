@@ -69,7 +69,12 @@ import org.w3c.dom.NodeList;
 
 @Component(
         creator = "Lily Dong",
-        description = "Transforms the XML from the entity extraction to the XML used by the Simile Timeline.",
+        description = "Conforms the input XML document, such as, " +
+        "<date id=\"date:2001\" value=\"2001\"> " +
+        "<sentence> ... </sentence> " +
+        "</date>" +
+        ",to the standard which Simile Timeline requires, such as, " +
+        "<event start=\"2001\" title=\"2001(2)\"> ... </event>",
         name = "Entity XML To Simile XML",
         tags = "date, entity, simile, xml, convert",
         rights = Licenses.UofINCSA,
