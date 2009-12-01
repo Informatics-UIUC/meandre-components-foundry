@@ -109,7 +109,6 @@ public class TokenCountToJSON extends AbstractExecutableComponent {
 	    }
     	myBuilder.endObject();
 
-    	console.info(myString.toString());
     	cc.pushDataComponentToOutput(OUT_JSON,
     			BasicDataTypesTools.stringToStrings(myString.toString()));
     }
