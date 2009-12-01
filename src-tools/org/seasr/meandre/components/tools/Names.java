@@ -99,6 +99,7 @@ public abstract class Names {
 	public static final String PROP_LOCATION = "location";
 	public static final String PROP_TABLE_FACTORY = "table_factory";
 	public static final String PROP_TABLE = "table";
+	public static final String PROP_JSON = "json";
 	public static final String PROP_HAS_COLUMN_LABEL_HEADER = "has_column_label_header";
 	public static final String PROP_HAS_COLUMN_TYPE_HEADER = "has_column_type_header";
 	public static final String PROP_PAGE_SIZE = "page_size";
