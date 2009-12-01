@@ -40,25 +40,24 @@
 *
 */
 
-package org.jstor.meandre.components.xml.extractors;
+package org.seasr.meandre.components.transform.totext;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
-import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-/**
+
+/** This component tokenizes the text contained in the input model using OpenNLP.
  *
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
@@ -66,61 +65,47 @@ import org.w3c.dom.NodeList;
  */
 
 @Component(
-		name = "Page Text Extractor",
+		name = "Tokens To Text",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "jstor, xml, extractor, text",
-		description = "Extract the text of the pages in an XML JSTOR document.",
+		tags = "semantic, tools, text, tokenizer, counting",
+		description = "Given a collection of tokens, this component converts it " +
+				      "into text.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class PageTextExtractor extends AbstractExecutableComponent {
+public class TokensToText extends AnalysisToText {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			name = Names.PORT_XML,
-			description = "The JSTOR XML document"
+			name = Names.PORT_TOKENS,
+			description = "The tokens to convert to text"
 	)
-	protected static final String IN_XML = Names.PORT_XML;
+	protected static final String IN_TOKENS = Names.PORT_TOKENS;
 
-    //------------------------------ OUTPUTS -----------------------------------------------------
+	//------------------------------ PROPERTIES --------------------------------------------------
 
-	@ComponentOutput(
-			name = Names.PORT_TEXT,
-			description = "The extracted text based on the pages tag"
-	)
-	protected static final String OUT_TEXT = Names.PORT_TEXT;
+    @ComponentProperty(
+            name = Names.PROP_MESSAGE,
+            description = "The header to use.",
+            defaultValue = "Available tokens"
+    )
+    protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
 
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	}
-
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
+		String[] tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
 
-		NodeList nl = doc.getChildNodes().item(0).getChildNodes();
-		StringBuffer sb = new StringBuffer();
-		boolean bContinue = true;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(baos);
 
-		for ( int i=0 ; bContinue && i<nl.getLength() ; i++ ) {
-			Node node = nl.item(i);
-			if ( node.getNodeName().equalsIgnoreCase("pages")) {
-				NodeList nlPages = node.getChildNodes();
-				for ( int j=0 ; j<nlPages.getLength() ; j++ )
-					if (nlPages.item(j).getNodeName().equalsIgnoreCase("page"))
-						sb.append(nlPages.item(j).getFirstChild().getNodeValue()+" ");
-				bContinue = false;
-			}
-		}
+		printStrings(ps, tokens, this.iCount, this.iOffset);
 
-		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sb.toString()));
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString()));
 	}
-
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
 }

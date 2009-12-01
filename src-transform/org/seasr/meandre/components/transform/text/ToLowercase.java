@@ -40,87 +40,63 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.meandre.components.tools.webservice;
-
-import java.util.Map;
+package org.seasr.meandre.components.transform.text;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.BytesMap;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
-/** Extracts a field from a given request map provided by a service head
- * 
- * @author Xavier Llor&agrave;
+/**
+ * @author Lily Dong
+ * @author Boris Capitanu
  */
 
+// TODO: add the ability to lowercase tokencounts
+
 @Component(
-        creator = "Xavier Llora",
-        description = "Extract the given field in the property pushing the content of that field to the output port",
-        name = "Extract Text Field From Map",
-        tags = "webservice, field, value, extract",
+        creator = "Lily Dong",
+        description = "Converts a text to lowercase.",
+        name = "To Lowercase",
+        tags = "lowercase, text, transform",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class ExtractFieldFromMap extends AbstractExecutableComponent {
+public class ToLowercase extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-    		description = "A map object containing the key elements of the request and the associated values",
-			name = Names.PORT_REQUEST_DATA
+            description = "The text to be converted",
+            name = Names.PORT_TEXT
     )
-    protected static final String IN_REQUEST = Names.PORT_REQUEST_DATA;
+    protected static final String IN_TEXT = Names.PORT_TEXT;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The data contained on the provided field",
-            name = Names.PORT_RAW_DATA
+            description = "The lowercase text",
+            name = Names.PORT_TEXT
     )
-    protected static final String OUT_RAW_DATA = Names.PORT_RAW_DATA;
+    protected static final String OUT_LOWERCASE_TEXT = Names.PORT_TEXT;
 
 
-    @ComponentOutput(
-    		description = "The original map object",
-			name = Names.PORT_REQUEST_DATA
-    )
-    protected static final String OUT_REQUEST = Names.PORT_REQUEST_DATA;
-
-
-    //------------------------------ PROPERTIES ---------------------------------------------------
-
-    @ComponentProperty (
-    		description = "The name of the filed to filter",
-    		name = Names.PROP_FIELD_NAME,
-    		defaultValue = "url"
-    )
-    protected static final String PROP_FIELD = Names.PROP_FIELD_NAME;
     //--------------------------------------------------------------------------------------------
 
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	Object obj = cc.getDataComponentFromInput(IN_REQUEST);
-    	Map<String, byte[]> map = BasicDataTypesTools.ByteMapToMap((BytesMap)obj);
-        String fieldName = cc.getProperty(PROP_FIELD);
-        
-        cc.getLogger().info("Keys available "+map.keySet().toString());
-		if ( map.containsKey(fieldName) ) 
-    		cc.pushDataComponentToOutput(OUT_RAW_DATA,BasicDataTypesTools.stringToStrings(new String(map.get(fieldName))));
-		else
-    		cc.pushDataComponentToOutput(OUT_RAW_DATA,BasicDataTypesTools.stringToStrings(""));
-	
-    	cc.pushDataComponentToOutput(OUT_REQUEST,obj);
+        for (String text : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT)))
+            cc.pushDataComponentToOutput(OUT_LOWERCASE_TEXT,
+                    BasicDataTypesTools.stringToStrings(text.toLowerCase()));
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
