@@ -58,6 +58,7 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.webui.ConfigurableWebUIFragmentCallback;
 import org.meandre.webui.WebUIException;
 import org.meandre.webui.WebUIFragmentCallback;
 import org.seasr.meandre.components.tools.Names;
@@ -101,7 +102,9 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         resources = { "GenericTemplate.vm" },
         dependency = { "velocity-1.6.2-dep.jar" }
 )
-public class GenericTemplate extends AbstractExecutableComponent implements WebUIFragmentCallback {
+public class GenericTemplate extends AbstractExecutableComponent 
+   implements ConfigurableWebUIFragmentCallback 
+   {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -133,7 +136,10 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
 
 
     //--------------------------------------------------------------------------------------------
-
+    public String getContextPath() {
+    	return "/";
+    }
+    
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         templateName = ccp.getProperty(PROP_TEMPLATE);
@@ -208,6 +214,10 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
 
     public void emptyRequest(HttpServletResponse response) throws WebUIException
     {
+    	//
+    	// since this is now a configurable web ui, this method
+    	// will NOT be called
+    	//
         console.entering(getClass().getName(), "emptyRequest", response);
 
     	// TODO: it would be nice to see the request object here
@@ -228,12 +238,10 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
         //
         try {
            if (!processRequest(request)) {
-                // TODO: populate the velocity context with error objects
-                // regenerate the template
-                // TODO: put the request parameters or a wrapper in the context
-               context.put("hasErrors", new Boolean(true));
+        	   
+        	   // regenerate the template
                generateContent(request, response);
-               console.exiting(getClass().getName(), "handle/hasErrors");
+               console.exiting(getClass().getName(), "handle/generateContent");
                return;
             }
         } catch(IOException ioe) {
@@ -278,7 +286,10 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
         }
 
         try {
+        	
             // request could be null on the "first" request
+        	// TODO: put the request parameters or a wrapper in the context
+            
             context.put("request",  request);
             context.put("response", response);
 
@@ -315,13 +326,21 @@ public class GenericTemplate extends AbstractExecutableComponent implements WebU
     	return (request.getParameter("done") == null);
     }
     
+    
     //
-    // not only check errors, process the input at this step
-    // return false on errors, bad input, etc
-    // return true if all is good
+    // not only check errors, but process the input at this step
+    // return false on errors, bad input, or you want to regenerate the template/html
+    // return true if all processing is completed
+    
     // NOTE: subclasses SHOULD override this method
-    protected  boolean processRequest(HttpServletRequest request) throws IOException
+    protected boolean processRequest(HttpServletRequest request) throws IOException
     {
-    	return true;
+    	console.finest("subclass did NOT override processRequest(), returning false");
+    	
+    	 // TODO: populate the velocity context with error objects
+         // e.g. context.put("hasErrors", new Boolean(true));
+       
+       
+    	return false;
     }
 }
