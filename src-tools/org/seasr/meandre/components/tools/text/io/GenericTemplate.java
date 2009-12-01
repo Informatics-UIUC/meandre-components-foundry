@@ -50,6 +50,7 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentProperty;
@@ -230,7 +231,12 @@ public class GenericTemplate extends AbstractExecutableComponent
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException
     {
         console.entering(getClass().getName(), "handle", response);
-
+        
+        
+        StringBuffer sb = request.getRequestURL();
+        sb.append(" ").append(request.getQueryString());
+        console.info("Request: " + sb.toString());
+        
         //
         // this is the workhorse method
         // process the input, determine any errors,
@@ -337,7 +343,7 @@ public class GenericTemplate extends AbstractExecutableComponent
     {
     	console.finest("subclass did NOT override processRequest(), returning false");
     	
-    	 // TODO: populate the velocity context with error objects
+    	 // populate the velocity context with error objects
          // e.g. context.put("hasErrors", new Boolean(true));
        
        
