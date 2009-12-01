@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.meandre.component.opennlp;
+package org.seasr.meandre.support.component.opennlp;
 
 import java.util.ArrayList;
 import java.util.List;
