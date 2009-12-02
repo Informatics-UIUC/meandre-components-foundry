@@ -103,7 +103,7 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
    private String startLabel   = "tokenStart";
    private String posLabel     = "pos";
    
-   
+   // tuple field names
    public static String WINDOW_FIELD  = "windowId";
    public static String POS_FIELD     = "pos";
    public static String START_FIELD   = "start";
@@ -146,8 +146,7 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 		int POS_IDX     = inPeer.getIndexForFieldName(posLabel);
 		
 		
-		int windowSize = 1000;   // allow user to select windowing scheme
-		long maxWindows = 65;    // how many windows of data do you want
+		long maxWindows = 65;       // how many windows of data do you want
 		long currentPosition = 0;
 		long total = 0;
 		int window = 1;
@@ -155,7 +154,12 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 		// the last tuple has the last idx
 		tuple.setValues(in[in.length - 1]);
 		long end = Long.parseLong(tuple.getValue(START_IDX));
-		windowSize = (int) (end/maxWindows);
+		int windowSize = (int) (end/maxWindows);
+		if (windowSize <= end ) {
+			windowSize = (int) end;
+		}
+		
+		console.info("Window size (charcters of text per group) " + windowSize);
 		
 		Map<String,Integer> freqMap = new HashMap<String,Integer>();
 		
