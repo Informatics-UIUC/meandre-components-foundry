@@ -45,6 +45,7 @@ package org.seasr.meandre.components.tools.text.io;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -215,6 +216,7 @@ public class GenericTemplate extends AbstractExecutableComponent
 
     public void emptyRequest(HttpServletResponse response) throws WebUIException
     {
+    	console.info("WARNING, emptyRequest() was called on a configuable web ui");
     	//
     	// since this is now a configurable web ui, this method
     	// will NOT be called
@@ -231,6 +233,14 @@ public class GenericTemplate extends AbstractExecutableComponent
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException
     {
         console.entering(getClass().getName(), "handle", response);
+        
+        Map pMap = request.getParameterMap();
+        if (pMap.size() == 0) {
+        	// there are no parameters, it's an empty request
+        	generateContent(request, response);
+        	console.exiting(getClass().getName(), "handle/generateContent, no data");
+        	return;
+        }
         
         
         StringBuffer sb = request.getRequestURL();
