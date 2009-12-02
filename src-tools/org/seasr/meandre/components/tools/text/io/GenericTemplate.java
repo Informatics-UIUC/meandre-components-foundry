@@ -143,7 +143,8 @@ public class GenericTemplate extends AbstractExecutableComponent
     }
     
     @Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
         templateName = ccp.getProperty(PROP_TEMPLATE);
 
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
