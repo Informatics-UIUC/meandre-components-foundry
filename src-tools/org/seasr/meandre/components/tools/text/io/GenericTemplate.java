@@ -234,6 +234,11 @@ public class GenericTemplate extends AbstractExecutableComponent
     {
         console.entering(getClass().getName(), "handle", response);
         
+        StringBuffer sb = request.getRequestURL();
+        sb.append(" <Query Data> ").append(request.getQueryString());
+        console.info("Request: " + sb.toString());
+        
+        
         Map pMap = request.getParameterMap();
         if (pMap.size() == 0) {
         	// there are no parameters, it's an empty request
@@ -242,10 +247,6 @@ public class GenericTemplate extends AbstractExecutableComponent
         	return;
         }
         
-        
-        StringBuffer sb = request.getRequestURL();
-        sb.append(" ").append(request.getQueryString());
-        console.info("Request: " + sb.toString());
         
         //
         // this is the workhorse method
@@ -267,6 +268,7 @@ public class GenericTemplate extends AbstractExecutableComponent
         //
         // see if this component can handle multiple requests before
         // releasing the semaphore,
+        //
         if (expectMoreRequests(request)) {
             console.finest("Expecting more requests");
             console.exiting(getClass().getName(), "handle/expecting more requests");
