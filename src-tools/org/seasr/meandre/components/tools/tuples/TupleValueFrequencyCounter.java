@@ -67,8 +67,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 /**
- * This component perform POS tagging on the text passed using OpenNLP.
- *
+ * 
  * @author Mike Haberman
  *
  */
@@ -104,7 +103,7 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples (key,count)"
+			description = "set of tuples (countValue, tokenValue)"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
