@@ -111,6 +111,13 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 			description = "meta data for the tuples (same as input)"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
+	
+	@ComponentOutput(
+			name = Names.PORT_FILENAME,
+			description = "name of the file written"
+	)
+	protected static final String OUT_FILENAME = Names.PORT_FILENAME;
+	
 
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
@@ -133,12 +140,13 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 
 	BufferedWriter output;
 	String tokenSep;
+	String filename;
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		String filename = ccp.getProperty(PROP_FILENAME).trim();
+		filename = ccp.getProperty(PROP_FILENAME).trim();
 		if (filename.length() == 0) {
 			throw new ComponentContextException("Property not set " + PROP_FILENAME);
 		}
@@ -186,7 +194,10 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 			output.write("\n");
 		}
 
-		cc.pushDataComponentToOutput(OUT_TUPLES, input);
+		Strings fn = BasicDataTypesTools.stringToStrings(filename);
+		
+		cc.pushDataComponentToOutput(OUT_FILENAME,   fn);
+		cc.pushDataComponentToOutput(OUT_TUPLES,     input);
 		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
 
 	}
