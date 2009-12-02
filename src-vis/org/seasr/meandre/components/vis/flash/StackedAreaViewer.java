@@ -52,16 +52,25 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentProperty;
+import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.BasicDataTypesTools;
+import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.components.tools.text.io.GenericTemplate;
 
 
 /**
  * @author Mike Haberman
+ * 
+ * Latest version:  now the dataURL is an input not a property
+ * Push Text -> StackedAreaViewer
+ * 
  */
 
 @Component(
@@ -71,6 +80,7 @@ import org.seasr.meandre.components.tools.text.io.GenericTemplate;
         tags = "string, visualization",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
+        firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/",
         resources = { "StackedAreaViewer.vm", "StackedAreaViewer.swf"}
 )
@@ -78,12 +88,19 @@ import org.seasr.meandre.components.tools.text.io.GenericTemplate;
 public class StackedAreaViewer extends GenericTemplate {
 
     // the swf file will be unjar'ed and written to public_resources/SWF_DIR/SWF_FILE
-	protected static String SWF_DIR = "flash";
+	protected static String SWF_DIR  = "flash";
 	protected static String SWF_FILE = "StackedAreaViewer.swf";
 
-
-    //------------------------------ OUTPUTS -----------------------------------------------------
-
+	
+	@ComponentInput(
+			name = "dataUrl",
+			description = "data url"
+	)
+	protected static final String INPUT_URL = "dataUrl";
+	
+	
+	//------------------------------ OUTPUTS -----------------------------------------------------
+	
     //------------------------------ PROPERTIES --------------------------------------------------
 
 	//
@@ -103,12 +120,15 @@ public class StackedAreaViewer extends GenericTemplate {
 	)
 	protected static final String PROP_NODE_NAMES = "nodeNames";
 
+	/*
 	@ComponentProperty(
 	        description = "data url",
 	        name = "dataUrl",
 	        defaultValue = ""
 	)
 	protected static final String PROP_DATA_URL= "dataUrl";
+	*/
+	
 
 	@ComponentProperty(
 	        description = "x axis column",
@@ -148,17 +168,32 @@ public class StackedAreaViewer extends GenericTemplate {
 	    String destination = ccp.getPublicResourcesDirectory();
 	    String path = unjarFlashSWF(destination);
 
+	    
+	    /*
 	    String url = ccp.getProperty(PROP_DATA_URL).trim();
 	    if (url.length() == 0) {
 	    	throw new RuntimeException(PROP_DATA_URL + " needs to be specified");
 	    }
+	    context.put(PROP_DATA_URL,url);
+	    */
+	    
 
 	    context.put("swf",           path);
-	    context.put(PROP_DATA_URL,   url);
 	    context.put(PROP_TITLE,      ccp.getProperty(PROP_TITLE));
 	    context.put(PROP_FIELD_X,    ccp.getProperty(PROP_FIELD_X));
 	    context.put(PROP_FIELD_Y,    ccp.getProperty(PROP_FIELD_Y));
 	    context.put(PROP_NODE_NAMES, ccp.getProperty(PROP_NODE_NAMES));
+	}
+	
+	
+    @Override
+	public void executeCallBack(ComponentContext cc) throws Exception 
+	{
+        Strings inputURL = (Strings) cc.getDataComponentFromInput(INPUT_URL);
+		String[] in = BasicDataTypesTools.stringsToStringArray (inputURL);
+		context.put(INPUT_URL, in[0]);
+		  
+		super.executeCallBack(cc);  
 	}
 
 	@Override
@@ -166,8 +201,6 @@ public class StackedAreaViewer extends GenericTemplate {
 	{
 	    return true;
 	}
-
-
 
 	protected String unjarFlashSWF(String dir)
 	{
