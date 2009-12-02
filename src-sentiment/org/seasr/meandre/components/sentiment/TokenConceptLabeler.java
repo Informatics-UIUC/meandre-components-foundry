@@ -49,6 +49,24 @@ import org.seasr.meandre.support.sentiment.PathMetricFinder;
  *
  */
 
+/* 
+ * ASSUMES: the incoming tuples have a field named "token"
+ * the value of this field is used to find a concept (using SynNet)
+ * that matches closest to the concept properties specified
+ * 
+ * the output is the same as the input except an additional field to the 
+ * tuple is added: concept.
+ * 
+ * example flow:  sentence detect -> tokenizer -> posTagger --> TokenConceptLabeler
+ * NOTE:  it will help to filter out the tuples that do not occur very often
+ * You can do this by using TupleValueFrequencyCounter component
+ * then filter out those below a certain threshold BEFORE labeling
+ * 
+ * NOTE: this component uses the SynNet service to label tokens,
+ * it is NOT fast and can take a very long time to process large bodies of text
+ * especially if you don't heed the warning given above
+ * 
+ */
 
 @Component(
 		name = "Token Concept Labeler",
