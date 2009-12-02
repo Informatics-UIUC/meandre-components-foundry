@@ -111,6 +111,10 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
    public static String CONCEPT_FIELD = "concept";
    public static String FREQ_FIELD    = "frequency";
    
+   // TODO: make this value settable via properties
+   // right now, the flash component works faster with less windows
+   long DEFAULT_NUMBER_OF_WINDOWS = 65;
+   
 	
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
 	{
@@ -146,20 +150,22 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 		int POS_IDX     = inPeer.getIndexForFieldName(posLabel);
 		
 		
-		long maxWindows = 65;       // how many windows of data do you want
+		long maxWindows      = DEFAULT_NUMBER_OF_WINDOWS; // number of windows of data
 		long currentPosition = 0;
-		long total = 0;
-		int window = 1;
+		long total   = 0;  // running sum, used to make frequencies
+		int windowId = 1;
 		
 		// the last tuple has the last idx
 		tuple.setValues(in[in.length - 1]);
 		long end = Long.parseLong(tuple.getValue(START_IDX));
 		int windowSize = (int) (end/maxWindows);
 		if (windowSize <= end ) {
-			windowSize = (int) end;
+			windowSize = (int) (end - 1);
 		}
+		long numberOfWindows = end/windowSize;
 		
 		console.info("Window size (charcters of text per group) " + windowSize);
+		console.info("Number of windows " + numberOfWindows);
 		
 		Map<String,Integer> freqMap = new HashMap<String,Integer>();
 		
@@ -203,7 +209,7 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 					double f = ((double)count/(double)total) * 100.0;
 					int rf = (int) f;
 					
-					outTuple.setValue(WINDOW_FIELD,  Integer.toString(window));
+					outTuple.setValue(WINDOW_FIELD,  Integer.toString(windowId));
 					outTuple.setValue(START_FIELD,   Long.toString(currentPosition));
 					outTuple.setValue(POS_FIELD,     pos);
 					outTuple.setValue(CONCEPT_FIELD, key);
@@ -215,7 +221,7 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 				freqMap.clear();  
 				total = 0;
 				currentPosition = start;
-				window++;
+				windowId++;
 				
 			}
 		}
