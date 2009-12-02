@@ -78,10 +78,10 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, model, accumulate, reduce, token counts",
+		tags = "accumulate, reduce, token, count, token count",
 		description = "This component is intended to work on wrapped model streams. " +
 				      "Given a sequence of wrapped models, it will create a new model that " +
-				      "accumulates/reduces the token counts and then pushes them the resulting model. " +
+				      "accumulates/reduces the token counts and then pushes the resulting model. " +
 				      "If no wrapped model is provided it will act as a simple pass through. This " +
 				      "component is based on Wrapped models reducer.",
 		dependency = {"protobuf-java-2.2.0.jar"}

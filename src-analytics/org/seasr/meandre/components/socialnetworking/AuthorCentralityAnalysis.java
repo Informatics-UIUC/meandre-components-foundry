@@ -66,7 +66,8 @@ import edu.uci.ics.jung.algorithms.importance.NodeRanking;
 import edu.uci.ics.jung.graph.Graph;
 
 /**
- *  This class extracts the list of authors per entry from a Zotero RDF
+ *  This class calculates author centrality based on a list of authors per entry. 
+ *  Originally developed to deal with author data from a Zotero RDF.
  *
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
@@ -80,7 +81,7 @@ import edu.uci.ics.jung.graph.Graph;
 		              "ranks each author in the author-citation graph derived from the number of "+
 		              "shortest paths that pass through them.",
 		name = "Author Centrality Analysis",
-		tags = "zotero, authors, social network analysis",
+		tags = "author, betweenness centrality, social network analysis",
 		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,

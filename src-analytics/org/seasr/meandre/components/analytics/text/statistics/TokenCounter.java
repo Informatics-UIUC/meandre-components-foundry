@@ -73,9 +73,9 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, tokenizer, counting",
-		description = "Given a document containing collections of tokens, " +
-				      "this component counts all the different occurences of the " +
+		tags = "text, token, count",
+		description = "Given a collection of tokens from a document, " +
+				      "this component counts all the different occurrences of the " +
 				      "tokens. If the document contains multiple token sequences, the " +
 				      "component aggregate all the sequences providing a cummulative count.",
 		dependency = {"protobuf-java-2.2.0.jar"}
