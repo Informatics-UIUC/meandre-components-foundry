@@ -271,7 +271,7 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 
 
 				   tuple.setValue(POS_IDX,         tags[j]);
-				   tuple.setValue(SENTENCE_ID_IDX, i);
+				   tuple.setValue(SENTENCE_ID_IDX, i);  // keep this zero based
 				   tuple.setValue(TOKEN_START_IDX, tokenStart);
 				   tuple.setValue(TOKEN_IDX,       tokens[j]);
 
