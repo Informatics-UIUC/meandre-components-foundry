@@ -78,7 +78,7 @@ import org.seasr.meandre.components.tools.text.io.GenericTemplate;
         creator = "Mike Haberman",
         description = "flash vis for stacked areas",
         name = "Stacked Area Viewer",
-        tags = "string, visualization",
+        tags = "flash, visualization, bar chart, stacked bar chart",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         firingPolicy = FiringPolicy.all,
