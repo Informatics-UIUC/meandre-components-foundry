@@ -40,7 +40,7 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.datatypes.tranformations.text;
+package org.seasr.meandre.components.transform.text;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;

@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.datatypes.tranformations;
+package org.seasr.meandre.components.transform;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -52,57 +52,61 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
+import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
 
 
 /**
  * This component transforms a token count into a map.
  *
- * @author Xavier Llor&agrave;
  * @author Boris Capitanu
  *
  */
 @Component(
-		name = "Java String To Strings",
-		creator = "Xavier Llora",
-		baseURL = "meandre://seasr.org/components/foundry/",
-		firingPolicy = FiringPolicy.all,
-		mode = Mode.compute,
-		rights = Licenses.UofINCSA,
-		tags = "tools, tokenizer, counting, transformations",
-		description = "Converts a Java string into an equivalent string protocol buffer wrapper.",
-		dependency = {"protobuf-java-2.2.0.jar"}
+        name = "Strings To Java String",
+        creator = "Boris Capitanu",
+        baseURL = "meandre://seasr.org/components/foundry/",
+        firingPolicy = FiringPolicy.all,
+        mode = Mode.compute,
+        rights = Licenses.UofINCSA,
+        tags = "tools, convert, transform",
+        description = "Converts a Google string into an equivalent Java string",
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class JavaStringToStrings extends AbstractExecutableComponent {
+public class StringsToJavaString extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
-	@ComponentInput(
-	        name = Names.PORT_JAVA_STRING,
-			description = "The Java string to convert"
-	)
-	protected static final String IN_JAVA_STRING = Names.PORT_JAVA_STRING;
+    @ComponentInput(
+            name = Names.PORT_TEXT,
+            description = "The Google string to convert"
+    )
+    protected static final String IN_TEXT = Names.PORT_TEXT;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
-	@ComponentOutput(
-			name = Names.PORT_TEXT,
-			description = "The converted text"
-	)
-	protected static final String OUT_TEXT = Names.PORT_TEXT;
+    @ComponentOutput(
+            name = Names.PORT_JAVA_STRING,
+            description = "The converted string"
+    )
+    protected static final String OUT_JAVA_STRING = Names.PORT_JAVA_STRING;
 
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
-	    cc.pushDataComponentToOutput(OUT_TEXT,
-	            BasicDataTypesTools.stringToStrings(
-	                    (String)cc.getDataComponentFromInput(IN_JAVA_STRING)));
-	}
+    @Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
+        String[] sa = BasicDataTypesTools.stringsToStringArray((Strings)cc.getDataComponentFromInput(IN_TEXT));
+        if (sa.length > 1)
+            console.warning("Detected multiple packed strings in the Google structure. Only the first one is returned...");
+        cc.pushDataComponentToOutput(OUT_JAVA_STRING, sa[0]);
+    }
 
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-	}
+    @Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
 }

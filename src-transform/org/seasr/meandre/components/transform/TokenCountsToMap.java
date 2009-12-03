@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.datatypes.tranformations;
+package org.seasr.meandre.components.transform;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -52,61 +52,59 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.meandre.components.tools.Names;
 
 
 /**
  * This component transforms a token count into a map.
  *
+ * @author Xavier Llor&agrave;
  * @author Boris Capitanu
  *
  */
 @Component(
-        name = "Strings To Java String",
-        creator = "Boris Capitanu",
-        baseURL = "meandre://seasr.org/components/foundry/",
-        firingPolicy = FiringPolicy.all,
-        mode = Mode.compute,
-        rights = Licenses.UofINCSA,
-        tags = "tools, convert, transform",
-        description = "Converts a Google string into an equivalent Java string",
-        dependency = {"protobuf-java-2.2.0.jar"}
+		name = "Token Counts To Map",
+		creator = "Xavier Llora",
+		baseURL = "meandre://seasr.org/components/foundry/",
+		firingPolicy = FiringPolicy.all,
+		mode = Mode.compute,
+		rights = Licenses.UofINCSA,
+		tags = "tools, tokenizer, counting, transformations",
+		description = "Given a collection of token counts, this component converts them " +
+				      "to a Java map.",
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class StringsToJavaString extends AbstractExecutableComponent {
+public class TokenCountsToMap extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
-    @ComponentInput(
-            name = Names.PORT_TEXT,
-            description = "The Google string to convert"
-    )
-    protected static final String IN_TEXT = Names.PORT_TEXT;
+	@ComponentInput(
+			name = Names.PORT_TOKEN_COUNTS,
+			description = "The token counts to convert to text"
+	)
+	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
-    @ComponentOutput(
-            name = Names.PORT_JAVA_STRING,
-            description = "The converted string"
-    )
-    protected static final String OUT_JAVA_STRING = Names.PORT_JAVA_STRING;
+	@ComponentOutput(
+			name = Names.PORT_TOKEN_MAP,
+			description = "The converted token map"
+		)
+	private final static String OUT_TOKEN_MAP = Names.PORT_TOKEN_MAP;
 
 
-    //--------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------
 
-    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
-    @Override
-    public void executeCallBack(ComponentContext cc) throws Exception {
-        String[] sa = BasicDataTypesTools.stringsToStringArray((Strings)cc.getDataComponentFromInput(IN_TEXT));
-        if (sa.length > 1)
-            console.warning("Detected multiple packed strings in the Google structure. Only the first one is returned...");
-        cc.pushDataComponentToOutput(OUT_JAVA_STRING, sa[0]);
-    }
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		cc.pushDataComponentToOutput(OUT_TOKEN_MAP,
+		        BasicDataTypesTools.IntegerMapToMap(
+		                (IntegersMap)cc.getDataComponentFromInput(IN_TOKEN_COUNTS)));
+	}
 
-    @Override
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
+	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	}
 }

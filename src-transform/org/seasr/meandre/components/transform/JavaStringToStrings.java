@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.datatypes.tranformations;
+package org.seasr.meandre.components.transform;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -52,7 +52,6 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.meandre.components.tools.Names;
 
 
@@ -64,34 +63,33 @@ import org.seasr.meandre.components.tools.Names;
  *
  */
 @Component(
-		name = "Token Counts To Map",
+		name = "Java String To Strings",
 		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "tools, tokenizer, counting, transformations",
-		description = "Given a collection of token counts, this component converts them " +
-				      "to a Java map.",
+		description = "Converts a Java string into an equivalent string protocol buffer wrapper.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TokenCountsToMap extends AbstractExecutableComponent {
+public class JavaStringToStrings extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			name = Names.PORT_TOKEN_COUNTS,
-			description = "The token counts to convert to text"
+	        name = Names.PORT_JAVA_STRING,
+			description = "The Java string to convert"
 	)
-	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+	protected static final String IN_JAVA_STRING = Names.PORT_JAVA_STRING;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			name = Names.PORT_TOKEN_MAP,
-			description = "The converted token map"
-		)
-	private final static String OUT_TOKEN_MAP = Names.PORT_TOKEN_MAP;
+			name = Names.PORT_TEXT,
+			description = "The converted text"
+	)
+	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 
 	//--------------------------------------------------------------------------------------------
@@ -100,9 +98,9 @@ public class TokenCountsToMap extends AbstractExecutableComponent {
     }
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		cc.pushDataComponentToOutput(OUT_TOKEN_MAP,
-		        BasicDataTypesTools.IntegerMapToMap(
-		                (IntegersMap)cc.getDataComponentFromInput(IN_TOKEN_COUNTS)));
+	    cc.pushDataComponentToOutput(OUT_TEXT,
+	            BasicDataTypesTools.stringToStrings(
+	                    (String)cc.getDataComponentFromInput(IN_JAVA_STRING)));
 	}
 
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
