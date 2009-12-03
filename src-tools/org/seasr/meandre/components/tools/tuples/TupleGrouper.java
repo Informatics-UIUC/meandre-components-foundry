@@ -49,8 +49,8 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
-		description = "This component labels the incoming set of pos tuples " ,
+		tags = "tuple, group",
+		description = "This component groups (frequency counts) consecutive tuples based on window size " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class TupleGrouper  extends AbstractExecutableComponent {
@@ -122,7 +122,7 @@ public class TupleGrouper  extends AbstractExecutableComponent {
    // pos field
    // key field
    public static String WINDOW_FIELD  = "windowId";
-   public static String START_FIELD   = "start";  // units based on windowField
+   public static String START_FIELD   = "start";       // units based on windowField
    public static String COUNT_FIELD   = "count";
    public static String FREQ_FIELD    = "frequency";
  
@@ -178,13 +178,7 @@ public class TupleGrouper  extends AbstractExecutableComponent {
 		if (START_IDX == -1){
 			throw new RuntimeException("tuple has no field " + windowField);
 		}
-		if (POS_IDX == -1){
-			throw new RuntimeException("tuple has no field " + posField);
-		}
 		
-		
-		
-	
 		
 		//
 		// assumes, tuples are in order, so the last tuple has the biggest windowField value
@@ -228,8 +222,12 @@ public class TupleGrouper  extends AbstractExecutableComponent {
 			
 			tuple.setValues(in[i]);	
 			String concept = tuple.getValue(KEY_IDX);
-			String pos     = tuple.getValue(POS_IDX);
 			long start     = Long.parseLong(tuple.getValue(START_IDX));
+			
+			String pos = "N.A";
+			if (POS_IDX != -1) {
+				pos = tuple.getValue(POS_IDX);
+			}
 			
 			if (concept == null) {
 				console.info("warning, null concept");
@@ -242,6 +240,12 @@ public class TupleGrouper  extends AbstractExecutableComponent {
 			}
 			freqMap.put(concept, count + 1);
 			total += 1;
+			
+			//
+			// TODO: if previousPOS value != currentPOS value, that
+			// could mark a new window, this needs to implemented
+			// and pushed to properties
+			//
 			
 			//
 			// check to see if we have a window's worth of data
