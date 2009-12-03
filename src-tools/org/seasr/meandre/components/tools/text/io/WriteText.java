@@ -42,8 +42,16 @@
 
 package org.seasr.meandre.components.tools.text.io;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -68,6 +76,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
  *
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
+ * @author Lily Dong
  */
 
 @Component(
@@ -122,19 +131,31 @@ public class WriteText extends AbstractExecutableComponent {
 	}
 
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		URI sLocation = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
+		URI objLoc = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
 		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 
 		if (inputs.length > 1)
 		    throw new ComponentExecutionException("Cannot process multiple inputs per execute()");
 
+		Date now = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+		int index = objLoc.toString().lastIndexOf(".");
+		String sLocation;
+		if (index == -1)
+			 sLocation = objLoc.toString()+formatter.format(now);
+		else
+			 sLocation = objLoc.toString().substring(0, index)+formatter.format(now)+objLoc.toString().substring(index);
+
 		String sText = inputs[0];
 
-		Writer wrtr = IOUtils.getWriterForResource(sLocation);
+		Writer wrtr = openWriter(cc.getPublicResourcesDirectory()+File.separator+sLocation);//IOUtils.getWriterForResource(sLocation);
 		wrtr.write(sText);
 		wrtr.close();
 
-		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(sLocation.toString()));
+		URL outputURL = new URL(cc.getProxyWebUIUrl(true), "/public/resources/" + sLocation);
+		console.info("File written " + "and accessible at "+ outputURL);
+
+		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(outputURL.toString()));
 		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sText));
 	}
 
@@ -204,6 +225,35 @@ public class WriteText extends AbstractExecutableComponent {
             catch (Exception e) {
                 throw new ComponentExecutionException(e);
             }
+		}
+	}
+
+	//-----------------------------------------------------------------------------------
+
+	/** Opens a writer to the location where to write.
+	 *
+	 * @param sLocation The location to write to
+	 * @return The writer for this location
+	 * @throws IOException The location could not be read
+	 */
+	private Writer openWriter(String sLocation) throws IOException {
+		try {
+			// Try too pull it as a URL
+			URL url = new URL(sLocation);
+			if ( url.getProtocol().equalsIgnoreCase("file") )
+				return new FileWriter(new File(url.toString().substring(7)));
+			else
+				// Not a file, assuming unsupported format
+				throw new MalformedURLException();
+		} catch (MalformedURLException e) {
+			// Badly formated UR or remoteL. Trying as a local file
+			try {
+				return new FileWriter(sLocation);
+			} catch (FileNotFoundException e1) {
+				throw e1;
+			}
+		} catch (IOException e) {
+			throw e;
 		}
 	}
 }
