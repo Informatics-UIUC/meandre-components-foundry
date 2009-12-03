@@ -169,7 +169,7 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 		*/
 
 
-		/*  NEW WAY, untested */
+		/*  NEW WAY  */
 
 		POSTaggerME tagger = new PosTagger(tagPath,
 				               // new Dictionary(dIs),
