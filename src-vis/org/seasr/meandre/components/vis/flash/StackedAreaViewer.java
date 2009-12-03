@@ -45,6 +45,7 @@ package org.seasr.meandre.components.vis.flash;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -191,7 +192,21 @@ public class StackedAreaViewer extends GenericTemplate {
 	{
         Strings inputURL = (Strings) cc.getDataComponentFromInput(INPUT_URL);
 		String[] in = BasicDataTypesTools.stringsToStringArray (inputURL);
-		context.put(INPUT_URL, in[0]);
+		
+		String fileOrURL = in[0];
+
+		
+		// if this is a fullURL, we are done, we assume the data is available
+		// via http
+		//
+		if (! fileOrURL.startsWith("http")) {
+			
+			fileOrURL = "/public/resources/" + fileOrURL;
+		
+		}
+		
+		console.info("Resource is at " + fileOrURL);
+		context.put(INPUT_URL, fileOrURL);
 		  
 		super.executeCallBack(cc);  
 	}
@@ -251,3 +266,46 @@ public class StackedAreaViewer extends GenericTemplate {
 	}
 
 }
+
+
+
+/*
+//
+// we assume this is a file that exists on the local filesystem
+// we need to copy it to the server's public/resources directory
+// so that it is available via http
+//
+File src = new File(fileOrURL);
+if (! src.canRead()) {
+	throw new RuntimeException("unable to read " + fileOrURL);
+}
+
+
+int idx = fileOrURL.lastIndexOf(File.separator);
+console.info("new path " + idx + " " + fileOrURL + " " + File.separator);
+
+if (idx > 0) {
+	fileOrURL = fileOrURL.substring(idx+1);
+	
+}
+File dst = new File(fileOrURL);
+
+console.info("moving file " + dst.getAbsolutePath());
+
+try {
+	InputStream inS   = new FileInputStream(src);
+    OutputStream out = new FileOutputStream(dst);
+
+    // Transfer bytes from in to out
+    byte[] buf = new byte[1024];
+    int len;
+    while ((len = inS.read(buf)) > 0) {
+        out.write(buf, 0, len);
+    }
+    inS.close();
+    out.close();
+}
+catch (IOException ioe) {
+	throw new RuntimeException("unable to copy file ");
+}
+*/
