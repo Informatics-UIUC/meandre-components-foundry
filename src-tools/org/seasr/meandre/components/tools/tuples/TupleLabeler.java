@@ -55,6 +55,10 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  *  
  */
 
+/* N
+ * OTE: this was once used in the sentiment application, it is no longer needed
+ * 
+ */
 
 @Component(
 		name = "Tuple Labeler",
