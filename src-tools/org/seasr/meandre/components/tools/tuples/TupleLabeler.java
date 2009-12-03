@@ -40,16 +40,18 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  *
  */
 
+
+
 /*
  *  This component uses an incoming set of tuples that are treated as a hashmap
  *  where each tuple has a key/value pair
  *  
- *  the other input is the set of tuples who have a field that will serve as the
+ *  the other input is the set of tuples who have a key field that will serve as the
  *  key into the first hashmap.  An additional field will be appended to incoming tuple
  *  with the value that comes from the hashmap.
  *  
  *  e.g.  Say you have the map:  "mike" --> "eater"
- *  any tuple whose key is equal to "mike" will have "eater" attached to it
+ *  any tuple whose keyfield has a value equal to "mike" will have "eater" attached to it
  *  
  */
 
@@ -61,7 +63,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
+		tags = "tuple",
 		description = "This component uses a set of tuples to label another set of tuples " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
@@ -106,10 +108,10 @@ public class TupleLabeler extends AbstractExecutableComponent {
 	protected static final String IN_CONCEPT_TUPLES = "hashMapTuples";
 	
 	@ComponentInput(
-			name = "hashMapMetaTuples",
+			name = "hashMapMetaTuple",
 			description = "meta data for hash map tuples"
 	)
-	protected static final String IN_CONCEPT_META_TUPLE = "hashMapMetaTuples";
+	protected static final String IN_CONCEPT_META_TUPLE = "hashMapMetaTuple";
 	
 	
 	
@@ -224,6 +226,7 @@ public class TupleLabeler extends AbstractExecutableComponent {
 			throw new RuntimeException("tuple has no field named " + keyFieldName);
 		}
 		
+		console.info("output peer " + outPeer.toString());
 		
 		VALUE_IDX = outPeer.getIndexForFieldName(hashValueFieldName);
 		// assert VALUE_IDX != -1, since we just added it
