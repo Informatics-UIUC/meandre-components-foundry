@@ -137,14 +137,15 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 		this.keyField    = ccp.getProperty(DATA_PROPERTY_KEY_FIELD);
 		this.windowField = ccp.getProperty(DATA_PROPERTY_WINDOW_FIELD);
 		
+		
 		int ws = Integer.parseInt(ccp.getProperty(DATA_PROPERTY_WINDOW_SIZE));
 		int mw = Integer.parseInt(ccp.getProperty(DATA_PROPERTY_MAX_WINDOWS));
 		
-		if (ws == 0) {
-			throw new RuntimeException("windowSize cannot be zero");
+		if (ws <= 0) {
+			ws = -1;
 		}
-		if (mw == 0) {
-			throw new RuntimeException("maxWindows cannot be zero");
+		if (mw <= 0) {
+			mw = -1;
 		}
 		
 		
@@ -183,9 +184,7 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 		
 		
 		
-		long currentPosition = 0;
-		long total   = 0;  // running sum, used to make frequencies
-		int windowId = 1;
+	
 		
 		//
 		// assumes, tuples are in order, so the last tuple has the biggest windowField value
@@ -217,6 +216,10 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 		
 		console.info("Window size " + windowSize);
 		console.info("Number of windows (best guess) " + numberOfWindows);
+		
+		long currentPosition = 0;
+		long total   = 0;          // running sum, used to make frequencies
+		int windowId = 1;
 		
 		Map<String,Integer> freqMap = new HashMap<String,Integer>();
 		
