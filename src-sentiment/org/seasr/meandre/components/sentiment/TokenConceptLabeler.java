@@ -142,10 +142,15 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
            name = "remapFile",
            defaultValue = "remap.csv")
     protected static final String DATA_PROPERTY_WORDMAP = "remapFile";
+   
+   @ComponentProperty(description = "field name for the key field of incoming tuples, its value will be used to label",
+		   name = "key",
+		   defaultValue = "token")
+   protected static final String DATA_PROPERTY_FIELDNAME_KEY = "key";
   
    
    static String NO_VALUE = "N.A.";
-   
+   String keyFieldName = "token";
    
 	//--------------------------------------------------------------------------------------------
 
@@ -166,6 +171,7 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 	
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
 	{
+		this.keyFieldName = ccp.getProperty(DATA_PROPERTY_FIELDNAME_KEY);
 		//
 		// init the synNet host
 		//
@@ -225,7 +231,7 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{
-		// TODO: pull from poperties
+		// TODO: pull from properties
 		
 		/*
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
@@ -250,8 +256,12 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 		SimpleTuple tuple    = inPeer.createTuple();
 		SimpleTuple outTuple = outPeer.createTuple();
 		
-		int TOKEN_IDX   = inPeer.getIndexForFieldName("token");
+		int TOKEN_IDX   = inPeer.getIndexForFieldName(keyFieldName);
 		int CONCEPT_IDX = outPeer.getIndexForFieldName("concept");
+		
+		if (TOKEN_IDX == -1) {
+			throw new RuntimeException("incoming tuple has no field named " + keyFieldName);
+		}
 		
 		console.info("tuple count to label " + in.length);
 		
