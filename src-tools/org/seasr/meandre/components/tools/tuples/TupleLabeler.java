@@ -62,7 +62,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
-		description = "This component uses a set of tuples to label another set set of tuples " ,
+		description = "This component uses a set of tuples to label another set of tuples " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class TupleLabeler extends AbstractExecutableComponent {
@@ -70,24 +70,31 @@ public class TupleLabeler extends AbstractExecutableComponent {
 	//
 	// this is the set of tuples to be treated like a hashmap
 	//
-	String keyFieldName   = "token";
-	String valueFieldName = "concept";
+	String hashKeyFieldName   = "token";
+	String hashValueFieldName = "concept";
+	String keyFieldName       = hashKeyFieldName;
+	
 	
 	//----------------------------- PROPERTIES ---------------------------------------------------
 	
    @ComponentProperty(description = "field name for the key field of hash map tuples",
+		   name = "hashKey",
+		   defaultValue = "token")
+   protected static final String DATA_PROPERTY_FIELDNAME_HASH_KEY = "hashKey";
+   
+   @ComponentProperty(description = "field name for the value field of hash map tuples",
+		   name = "hashValue",
+		   defaultValue = "concept")
+   protected static final String DATA_PROPERTY_FIELDNAME_HASH_VALUE = "hashValue";
+   
+   
+   @ComponentProperty(description = "field name for the key field of incoming tuples",
 		   name = "key",
 		   defaultValue = "token")
    protected static final String DATA_PROPERTY_FIELDNAME_KEY = "key";
    
-   @ComponentProperty(description = "field name for the value field of hash map tuples",
-		   name = "value",
-		   defaultValue = "concept")
-   protected static final String DATA_PROPERTY_FIELDNAME_VALUE = "value";
    
    
-   
-	//--------------------------------------------------------------------------------------------
 
     //------------------------------ INPUTS ------------------------------------------------------
 	
@@ -135,23 +142,27 @@ public class TupleLabeler extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 	
+
+	   
+	//--------------------------------------------------------------------------------------------
+	
 	
 	
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
 	{
 		
-		String k = ccp.getProperty(DATA_PROPERTY_FIELDNAME_KEY);
-		String v = ccp.getProperty(DATA_PROPERTY_FIELDNAME_VALUE);
+		String k = ccp.getProperty(DATA_PROPERTY_FIELDNAME_HASH_KEY);
+		String v = ccp.getProperty(DATA_PROPERTY_FIELDNAME_HASH_VALUE);
 		
 		if (k == null || k.trim().length() == 0) {
-			throw new RuntimeException("invalid property value " + DATA_PROPERTY_FIELDNAME_KEY);
+			throw new RuntimeException("invalid property value " + DATA_PROPERTY_FIELDNAME_HASH_KEY);
 		}
 		if (v == null || v.trim().length() == 0) {
-			throw new RuntimeException("invalid property value " + DATA_PROPERTY_FIELDNAME_VALUE);
+			throw new RuntimeException("invalid property value " + DATA_PROPERTY_FIELDNAME_HASH_VALUE);
 		}
 		
-		this.keyFieldName   = k;
-		this.valueFieldName = v;
+		this.hashKeyFieldName   = k;
+		this.hashValueFieldName = v;
 	}
 
 	
@@ -173,14 +184,14 @@ public class TupleLabeler extends AbstractExecutableComponent {
 		// convert the list of concept tokens to a map for easy access
 		//
 		
-		int KEY_IDX   = inPeer.getIndexForFieldName(keyFieldName);    // key
-		int VALUE_IDX = inPeer.getIndexForFieldName(valueFieldName);  // value
+		int KEY_IDX   = inPeer.getIndexForFieldName(hashKeyFieldName);    // key
+		int VALUE_IDX = inPeer.getIndexForFieldName(hashValueFieldName);  // value
 		
 		if (KEY_IDX == -1) {
-			throw new RuntimeException("hash tuple has no field named " + keyFieldName);
+			throw new RuntimeException("hash tuple has no field named " + hashKeyFieldName);
 		}
 		if (VALUE_IDX == -1) {
-			throw new RuntimeException("has tuple have no field named " + valueFieldName);
+			throw new RuntimeException("has tuple have no field named " + hashValueFieldName);
 		}
 		
 		Map<String,String> wordToConceptMap = new HashMap<String,String>();
@@ -200,7 +211,7 @@ public class TupleLabeler extends AbstractExecutableComponent {
 		//
 		inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 		inPeer = new SimpleTuplePeer(inputMeta);
-		SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[]{valueFieldName});	
+		SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[]{hashValueFieldName});	
 		
 		input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		in = BasicDataTypesTools.stringsArrayToJavaArray(input);
@@ -208,13 +219,13 @@ public class TupleLabeler extends AbstractExecutableComponent {
 		tuple = inPeer.createTuple();
 		
 		
-		KEY_IDX   = inPeer.getIndexForFieldName(keyFieldName);
+		KEY_IDX = inPeer.getIndexForFieldName(keyFieldName);
 		if (KEY_IDX == -1) {
 			throw new RuntimeException("tuple has no field named " + keyFieldName);
 		}
 		
 		
-		VALUE_IDX = outPeer.getIndexForFieldName(valueFieldName);
+		VALUE_IDX = outPeer.getIndexForFieldName(hashValueFieldName);
 		// assert VALUE_IDX != -1, since we just added it
 		
 		
