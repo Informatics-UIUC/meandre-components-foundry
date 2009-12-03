@@ -60,7 +60,7 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 	
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "set of labelled tuples to be grouped (e.g. startToken, token, concept)"
+			description = "set of labelled tuples to be grouped (e.g. startTokenPosition, token, concept)"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
 	
