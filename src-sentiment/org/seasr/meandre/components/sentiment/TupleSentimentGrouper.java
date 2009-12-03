@@ -216,7 +216,7 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
 		int windowSize = (int) (end/numberOfWindows);
 		
 		console.info("Window size " + windowSize);
-		console.info("Number of windows " + numberOfWindows);
+		console.info("Number of windows (best guess) " + numberOfWindows);
 		
 		Map<String,Integer> freqMap = new HashMap<String,Integer>();
 		
@@ -297,8 +297,6 @@ public class TupleSentimentGrouper  extends AbstractExecutableComponent {
     {
     	    
     }
-    
-    
     
 	
 }
