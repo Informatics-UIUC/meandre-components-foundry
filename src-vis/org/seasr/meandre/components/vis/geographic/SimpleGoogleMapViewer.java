@@ -68,7 +68,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
 /**
  *
- * @author Mike Haberman
+ * @author Mike Haberman  (DO NOT DELETE, I (M.H. am using this class)
  *
  */
 
