@@ -64,9 +64,10 @@ import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
+import de.schlichtherle.io.File;
+
 /**
- * This component perform POS tagging on the text passed using OpenNLP.
- *
+ * 
  * @author Mike Haberman
  *
  */
@@ -144,18 +145,58 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+	public String createPathToResource(String path) 
+	{
+		String resource = path;
+		int idx = path.lastIndexOf(File.separator);
+		console.info("Process " + path + " " + idx);
+		
+		if (idx > 0) {
+			resource = path.substring(idx+1);
+			path     = path.substring(0, idx);
+			
+			console.info(path + "-->" + resource);
+			boolean success = (new File(path)).mkdirs();
+		    if (success) {
+		      console.info("Directories: " + path + " created");
+		    }
+		}
+		
+	    return resource;
+	}
+	
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
 		filename = ccp.getProperty(PROP_FILENAME).trim();
 		if (filename.length() == 0) {
 			throw new ComponentContextException("Property not set " + PROP_FILENAME);
 		}
 
+		String path = filename;
 		try {
-		    output = new BufferedWriter(new FileWriter(filename));
+			
+			if (! filename.startsWith(File.separator)) {
+				
+				//
+				// user did not specify an absolute path
+				// if user does "data/data.csv"
+				// need to create that path
+				//
+				
+				String destination = ccp.getPublicResourcesDirectory();
+				path = destination + File.separator + filename;
+								createPathToResource(path);
+			}
+			
+			console.info("writing data to " + path);
+		    output = new BufferedWriter(new FileWriter(path));
+		    
 	    } catch (IOException e) {
-	    	throw new ComponentContextException("Unable to write to" + filename);
+	    	throw new ComponentContextException("Unable to write to" + path);
 	    }
+	    
+	    console.info("tuple file " + filename);
 
 	    tokenSep = ccp.getProperty(PROP_TOKEN_SEPARATOR).trim();
 	}
@@ -193,6 +234,7 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 			}
 			output.write("\n");
 		}
+		output.flush();
 
 		Strings fn = BasicDataTypesTools.stringToStrings(filename);
 		
@@ -204,7 +246,8 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        output.close();
+    	console.info("CLosing output ");
+    	output.close();
     }
 }
 
