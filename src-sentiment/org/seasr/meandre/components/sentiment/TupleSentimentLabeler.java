@@ -40,6 +40,19 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  *
  */
 
+/*
+ *  This component uses an incoming set of tuples that are treated as a hashmap
+ *  where each tuple has a key/value pair
+ *  
+ *  the other input is the set of tuples who have a field that will serve as the
+ *  key into the first hashmap.  An additional field will be appended to incoming tuple
+ *  with the value that comes from the hashmap.
+ *  
+ *  e.g.  Say you have the map:  "mike" --> "eater"
+ *  any tuple whose key is equal to "mike" will have "eater" attached to it
+ *  
+ */
+
 
 @Component(
 		name = "Tuple Sentiment Labeler",
@@ -49,13 +62,53 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
-		description = "This component labels the incoming set of pos tuples " ,
+		description = "This component uses a set of tuples to label another set set of tuples " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class TupleSentimentLabeler  extends AbstractExecutableComponent {
 	
+	//
+	// this is the set of tuples to be treated like a hashmap
+	//
+	String keyFieldName   = "token";
+	String valueFieldName = "concept";
+	
+	//----------------------------- PROPERTIES ---------------------------------------------------
+	
+   @ComponentProperty(description = "field name for the key field of hash map tuples",
+		   name = "key",
+		   defaultValue = "token")
+   protected static final String DATA_PROPERTY_FIELDNAME_KEY = "key";
+   
+   @ComponentProperty(description = "field name for the value field of hash map tuples",
+		   name = "value",
+		   defaultValue = "concept")
+   protected static final String DATA_PROPERTY_FIELDNAME_VALUE = "value";
+   
+   
+   
+	//--------------------------------------------------------------------------------------------
 
     //------------------------------ INPUTS ------------------------------------------------------
+	
+
+
+	
+	
+	@ComponentInput(
+			name = "hashMapTuples",
+			description = "set of tuples that serve as a hash map"
+	)
+	protected static final String IN_CONCEPT_TUPLES = "hashMapTuples";
+	
+	@ComponentInput(
+			name = "hashMapMetaTuples",
+			description = "meta data for hash map tuples"
+	)
+	protected static final String IN_CONCEPT_META_TUPLE = "hashMapMetaTuples";
+	
+	
+	
 	
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
@@ -69,42 +122,28 @@ public class TupleSentimentLabeler  extends AbstractExecutableComponent {
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 	
-	@ComponentInput(
-			name = "conceptTuples",
-			description = "set of tuples (labeled concepts)"
-	)
-	protected static final String IN_CONCEPT_TUPLES = "conceptTuples";
-	
-	@ComponentInput(
-			name = "conceptMetaTuple",
-			description = "meta data for tuples "
-	)
-	protected static final String IN_CONCEPT_META_TUPLE = "conceptMetaTuple";
 	
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 	
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of labeled tuples"
+			description = "set of labeled tuples (same as input with an addtional field)"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 	
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuples (same as input, concept)"
+			description = "meta data for the tuples (same as input with an additional field)"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 	
 	
 	
+
 	
-	//----------------------------- PROPERTIES ---------------------------------------------------
-   @ComponentProperty(description = "field name for the key",
-		   name = "key",
-		   defaultValue = "concept")
-    protected static final String DATA_PROPERTY_CONCEPTS = "concept";
-	//--------------------------------------------------------------------------------------------
+	
+	
 
    
 	
@@ -112,19 +151,10 @@ public class TupleSentimentLabeler  extends AbstractExecutableComponent {
 	{
 	}
 
+	
+	
 	public void executeCallBack(ComponentContext cc) throws Exception 
-	{
-		/*
-		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_CONCEPT_META_TUPLE);
-		String[] meta = DataTypeParser.parseAsString(inputMeta);
-		String fields = meta[0];
-		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
-		
-		Strings input = (Strings) cc.getDataComponentFromInput(IN_CONCEPT_TUPLES);
-		String[] tuples = DataTypeParser.parseAsString(input);
-		DynamicTuple tuple = inPeer.createTuple();
-		*/
-		
+	{	
 		//
 		// Process the concept Map data
 		//
@@ -141,15 +171,15 @@ public class TupleSentimentLabeler  extends AbstractExecutableComponent {
 		// convert the list of concept tokens to a map for easy access
 		//
 		
-		int TOKEN_IDX   = inPeer.getIndexForFieldName("token");
-		int CONCEPT_IDX = inPeer.getIndexForFieldName("concept");
+		int KEY_IDX   = inPeer.getIndexForFieldName(keyFieldName);    // key
+		int VALUE_IDX = inPeer.getIndexForFieldName(valueFieldName);  // value
 		
 		Map<String,String> wordToConceptMap = new HashMap<String,String>();
 		for (int i = 0; i < in.length; i++) {
 			
 			tuple.setValues(in[i]);	
-			String key   = tuple.getValue(TOKEN_IDX);
-			String value = tuple.getValue(CONCEPT_IDX);
+			String key   = tuple.getValue(KEY_IDX);
+			String value = tuple.getValue(VALUE_IDX);
 			
 			wordToConceptMap.put(key, value);
 		}
@@ -177,7 +207,7 @@ public class TupleSentimentLabeler  extends AbstractExecutableComponent {
 		//
 		inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 		inPeer = new SimpleTuplePeer(inputMeta);
-		SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[]{"concept"});	
+		SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[]{valueFieldName});	
 		
 		input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		in = BasicDataTypesTools.stringsArrayToJavaArray(input);
@@ -185,19 +215,19 @@ public class TupleSentimentLabeler  extends AbstractExecutableComponent {
 		tuple = inPeer.createTuple();
 		
 		
-		TOKEN_IDX   = inPeer.getIndexForFieldName("token");
-		CONCEPT_IDX = outPeer.getIndexForFieldName("concept");
+		KEY_IDX   = inPeer.getIndexForFieldName(keyFieldName);
+		VALUE_IDX = outPeer.getIndexForFieldName(valueFieldName);
 		
 		List<Strings> output = new ArrayList<Strings>();
 		SimpleTuple outTuple = outPeer.createTuple();
 		for (int i = 0; i < in.length; i++) {
 			tuple.setValues(in[i]);	
-			String key = tuple.getValue(TOKEN_IDX);
+			String key = tuple.getValue(KEY_IDX);
 			String concept = wordToConceptMap.get(key);
 			
 			if (concept != null) {
 				outTuple.setValue(tuple);
-				outTuple.setValue(CONCEPT_IDX, concept);
+				outTuple.setValue(VALUE_IDX, concept);
 				output.add(outTuple.convert());
 			}
 		}
