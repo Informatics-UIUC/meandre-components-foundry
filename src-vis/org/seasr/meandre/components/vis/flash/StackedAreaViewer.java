@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 
 import org.meandre.annotations.Component;
@@ -202,6 +203,12 @@ public class StackedAreaViewer extends GenericTemplate {
 		if (! fileOrURL.startsWith("http")) {
 			
 			fileOrURL = "/public/resources/" + fileOrURL;
+			
+			/* if you need to prepend the host :
+			URL host = cc.getWebUIUrl(true);
+			console.info("Host " + host);
+			fileOrURL = host.toString() + fileOrURL;
+			*/
 		
 		}
 		
