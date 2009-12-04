@@ -78,7 +78,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "tuple, tools, text, filter",
-		description = "This component reads a text resources via file or http (no authentication required)",
+		description = "This component reads a text resources via file or http (assumes no authentication required)",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class UrlToTuple extends AbstractExecutableComponent {
@@ -126,7 +126,8 @@ public class UrlToTuple extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
 	    String location = ccp.getProperty(PROP_LOCATION).trim();
 	    String title    = ccp.getProperty(PROP_TITLE).trim();
 
@@ -147,7 +148,8 @@ public class UrlToTuple extends AbstractExecutableComponent {
 	}
 
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception {
+    public void executeCallBack(ComponentContext cc) throws Exception 
+    {
 		// push the meta data
 		cc.pushDataComponentToOutput(OUT_META_TUPLE, outTuple.getPeer().convert());
 

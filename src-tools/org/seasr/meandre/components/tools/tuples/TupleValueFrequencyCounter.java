@@ -63,6 +63,7 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.components.tuples.FrequencyMap;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
@@ -147,41 +148,17 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 
 		int KEY_FIELD_IDX = tuplePeer.getIndexForFieldName(KEY_FIELD_TUPLE);
-		console.info("FIELD " + KEY_FIELD_TUPLE);
+		console.info("FIELD           " + KEY_FIELD_TUPLE);
 		console.info("key field index " + KEY_FIELD_IDX);
 
-		Map<String, Integer> tokenToCountMap = new HashMap<String,Integer>();
+		FrequencyMap<String> freqMap = new FrequencyMap<String>();
 		for (int i = 0; i < in.length; i++) {
-
 			tuple.setValues(in[i]);
 			String key = tuple.getValue(KEY_FIELD_IDX);
-
-			Integer value  = tokenToCountMap.get(key);
-			if (value == null) {
-				value = new Integer(0);
-				tokenToCountMap.put(key,value);
-			}
-			tokenToCountMap.put(key,value+1);
+			freqMap.add(key);
 		}
-
-		//
-		// sort the map based on the frequency of the values
-		//
-		List<Map.Entry<String, Integer>> sortedEntries
-		     = new ArrayList<Map.Entry<String, Integer>>(tokenToCountMap.entrySet());
-
-	    // Sort the list using an annonymous inner class
-	    java.util.Collections.sort(sortedEntries, new Comparator<Map.Entry<String, Integer>>(){
-	         public int compare(Map.Entry<String, Integer> entry0,
-	        		            Map.Entry<String, Integer> entry1)
-	         {
-	        	 int v0 = entry0.getValue();
-	        	 int v1 = entry1.getValue();
-	        	 return v1 - v0; // descending
-	          }
-	      });
-
-
+		List<Map.Entry<String, Integer>> sortedEntries = freqMap.sortedEntries();
+		
 	    SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[]{"count", "token"});
 	    SimpleTuple outTuple = outPeer.createTuple();
 
@@ -208,3 +185,36 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }
+
+/*
+Map<String, Integer> tokenToCountMap = new HashMap<String,Integer>();
+for (int i = 0; i < in.length; i++) {
+
+	tuple.setValues(in[i]);
+	String key = tuple.getValue(KEY_FIELD_IDX);
+
+	Integer value  = tokenToCountMap.get(key);
+	if (value == null) {
+		value = new Integer(0);
+		tokenToCountMap.put(key,value);
+	}
+	tokenToCountMap.put(key,value+1);
+}
+
+//
+// sort the map based on the frequency of the values
+//
+List<Map.Entry<String, Integer>> sortedEntries
+     = new ArrayList<Map.Entry<String, Integer>>(tokenToCountMap.entrySet());
+
+// Sort the list using an annonymous inner class
+java.util.Collections.sort(sortedEntries, new Comparator<Map.Entry<String, Integer>>(){
+     public int compare(Map.Entry<String, Integer> entry0,
+    		            Map.Entry<String, Integer> entry1)
+     {
+    	 int v0 = entry0.getValue();
+    	 int v1 = entry1.getValue();
+    	 return v1 - v0; // descending
+      }
+  });
+  */
