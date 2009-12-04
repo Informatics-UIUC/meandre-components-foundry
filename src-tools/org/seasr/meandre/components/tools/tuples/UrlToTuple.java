@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 
@@ -130,7 +131,17 @@ public class UrlToTuple extends AbstractExecutableComponent {
     {
 	    String location = ccp.getProperty(PROP_LOCATION).trim();
 	    String title    = ccp.getProperty(PROP_TITLE).trim();
+	    
+	    int idx = location.indexOf("{cwd}");
+	    if (idx > 0) {
+	    	String prefix = location.substring(0,idx);
+	    	String post   = location.substring(idx + 5);
+	    	String cwd    = System.getProperty("user.dir");
+	    	location = prefix + cwd + File.separator + post;
+	    }
 
+	    console.info("reading location " + location);
+	    
 		URL url = new URL(location);
 		BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 
