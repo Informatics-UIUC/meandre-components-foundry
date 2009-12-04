@@ -72,6 +72,14 @@ public class SimpleTuple {
 		this.values = va;
 	}
 	
+	public void setValues(String[] parts) 
+	{
+		if (this.peer.size() != parts.length) {
+			throw new RuntimeException("unable to force new values into tuple, mismatch in size");
+		}
+		this.values = parts;
+	}
+	
 	 public void setValue(SimpleTuple copyMe) 
 	 {
 	    int sz = copyMe.peer.size();
