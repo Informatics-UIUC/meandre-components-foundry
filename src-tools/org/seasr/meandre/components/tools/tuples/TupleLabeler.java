@@ -171,6 +171,10 @@ public class TupleLabeler extends AbstractExecutableComponent {
 		this.hashValueFieldName = v;
 	}
 
+	String normalize(String in) {
+		in = in.replaceAll("\\[\\]!\\.,;\\?'\"", "");
+		return in.trim().toLowerCase();
+	}
 	
 	public void executeCallBack(ComponentContext cc) throws Exception 
 	{	
@@ -207,7 +211,7 @@ public class TupleLabeler extends AbstractExecutableComponent {
 			String key   = tuple.getValue(KEY_IDX);
 			String value = tuple.getValue(VALUE_IDX);
 			
-			wordToConceptMap.put(key, value);
+			wordToConceptMap.put(normalize(key), value);
 		}
 		
 	
@@ -241,7 +245,7 @@ public class TupleLabeler extends AbstractExecutableComponent {
 		for (int i = 0; i < in.length; i++) {
 			tuple.setValues(in[i]);	
 			String key = tuple.getValue(KEY_IDX);
-			String concept = wordToConceptMap.get(key);
+			String concept = wordToConceptMap.get(normalize(key));
 			
 			if (concept != null) {
 				outTuple.setValue(tuple);
