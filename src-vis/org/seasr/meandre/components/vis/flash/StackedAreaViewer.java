@@ -121,6 +121,13 @@ public class StackedAreaViewer extends GenericTemplate {
 	        defaultValue = "anger,fear,joy,love,sadness,surprise"
 	)
 	protected static final String PROP_NODE_NAMES = "nodeNames";
+	
+	@ComponentProperty(
+	        description = "field name for the column that is the label category",
+	        name = "nodeNameField",
+	        defaultValue = "concept"
+	)
+	protected static final String PROP_NODE_NAME_FIELD = "nodeNameField";
 
 	/*
 	@ComponentProperty(
@@ -185,6 +192,7 @@ public class StackedAreaViewer extends GenericTemplate {
 	    context.put(PROP_FIELD_X,    ccp.getProperty(PROP_FIELD_X));
 	    context.put(PROP_FIELD_Y,    ccp.getProperty(PROP_FIELD_Y));
 	    context.put(PROP_NODE_NAMES, ccp.getProperty(PROP_NODE_NAMES));
+	    context.put(PROP_NODE_NAME_FIELD, ccp.getProperty(PROP_NODE_NAME_FIELD));
 	}
 	
 	
