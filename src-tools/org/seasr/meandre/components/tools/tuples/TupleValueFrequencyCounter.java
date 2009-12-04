@@ -123,18 +123,29 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 		)
 	protected static final String PROP_FILTER_FIELD = "tupleField";
 
+	@ComponentProperty(
+			name = "threshold",
+			description = "export any tuples whose count is greater than this value",
+		    defaultValue = "0"
+		)
+	protected static final String PROP_FILTER_THRESHOLD = "threshold";
 	//--------------------------------------------------------------------------------------------
 
 	String KEY_FIELD_TUPLE;
+	int threshold = 0;
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
 		KEY_FIELD_TUPLE = ccp.getProperty(PROP_FILTER_FIELD).trim();
 		if (KEY_FIELD_TUPLE.length() == 0) {
 			throw new ComponentContextException("Property not set " + PROP_FILTER_FIELD);
 		}
+		
+		threshold = Integer.parseInt(ccp.getProperty(PROP_FILTER_THRESHOLD));
+		console.info("Export all tuples whose count > " + threshold);
 	}
 
 	@Override
@@ -155,19 +166,29 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 		for (int i = 0; i < in.length; i++) {
 			tuple.setValues(in[i]);
 			String key = tuple.getValue(KEY_FIELD_IDX);
+			
+			// simple normalization TODO: make a property for this
+			key = key.toLowerCase(); 
+			
 			freqMap.add(key);
 		}
 		List<Map.Entry<String, Integer>> sortedEntries = freqMap.sortedEntries();
 		
 	    SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[]{"count", "token"});
 	    SimpleTuple outTuple = outPeer.createTuple();
+	    
+	    int COUNT_IDX = 0; // outPeer.getFieldIndex("count")
+	    int TOKEN_IDX = 1; // outPeer.getFieldIndex("token")
 
 	    List<Strings> output = new ArrayList<Strings>();
 
 	    for (Map.Entry<String,Integer> v : sortedEntries) {
-	    	outTuple.setValue("count", v.getValue().toString());
-	    	outTuple.setValue("token", v.getKey());
-	    	output.add(outTuple.convert());
+	    	int count = v.getValue();
+	    	if (count > threshold) {
+	    	   outTuple.setValue(COUNT_IDX, count);
+	    	   outTuple.setValue(TOKEN_IDX, v.getKey());
+	    	   output.add(outTuple.convert());
+	    	}
 	    }
 
 	    Strings[] results = new Strings[output.size()];
