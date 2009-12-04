@@ -233,19 +233,6 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 	{
 		// TODO: pull from properties
 		
-		/*
-		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		String[] meta = DataTypeParser.parseAsString(inputMeta);
-		String fields = meta[0];
-		DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
-		DynamicTuplePeer outPeer = new DynamicTuplePeer(inPeer, new String[]{"concept"});	
-		
-		Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
-		String[] tuples = DataTypeParser.parseAsString(input);
-		DynamicTuple tuple = inPeer.createTuple();
-		*/
-		
-		
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 		SimpleTuplePeer inPeer  = new SimpleTuplePeer(inputMeta);
 		SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[]{"concept"});	
@@ -265,6 +252,7 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 		
 		console.info("tuple count to label " + in.length);
 		
+		int valuesWritten = 0;
 		List<Strings> output = new ArrayList<Strings>();
 		for (int i = 0; i < in.length; i++) {
 			
@@ -296,9 +284,12 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 			      wordToConceptMap.put(token, concept);
 			      // console.info(metric.toString());
 			      // label the tuple and save it
+			      
+			      valuesWritten++;
 			   }
 			   else {
 				   noConceptMap.put(token, NO_VALUE);
+				   valuesWritten++;
 			   }
 			}
 			
@@ -306,6 +297,13 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 				outTuple.setValue(tuple);
 				outTuple.setValue(CONCEPT_IDX, concept);
 				output.add(outTuple.convert());
+			}
+			
+			
+			// temp. flush
+			if (valuesWritten%50 == 0) {
+				writeToFile(wordToConceptMap, cacheFileName);
+		    	writeToFile(noConceptMap, noConceptFileName);
 			}
 		}
 		
@@ -394,3 +392,17 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 	}
 	
 }
+
+
+/*
+Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+String[] meta = DataTypeParser.parseAsString(inputMeta);
+String fields = meta[0];
+DynamicTuplePeer inPeer = new DynamicTuplePeer(fields);
+DynamicTuplePeer outPeer = new DynamicTuplePeer(inPeer, new String[]{"concept"});	
+
+Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
+String[] tuples = DataTypeParser.parseAsString(input);
+DynamicTuple tuple = inPeer.createTuple();
+*/
+
