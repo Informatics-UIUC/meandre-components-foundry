@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.meandre.components.tools.xml.io;
+package org.seasr.meandre.components.transform.xml;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -71,9 +71,10 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "xml, xsl, filter",
-		description = "This component reads a XML and a XSL. It filters XML with XSL "+
-		"and outputs the filtered XML.",
+		tags = "xml, xsl, transform",
+		description = "This component inputs two XML documents, one the XML data and the other the XSL. " +
+		"It transforms the XML data based on the XSL template "+
+		"and outputs the transformed XML.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
 
@@ -82,13 +83,13 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_XML,
-			description = "The XML doucment to read"
+			description = "The XML doucment"
 	)
 	protected static final String IN_XML = Names.PORT_XML;
 
 	@ComponentInput(
 			name = Names.PORT_XSL,
-			description = "The XSL document to read"
+			description = "The XSL document"
 	)
 	protected static final String IN_XSL = Names.PORT_XSL;
 
@@ -96,7 +97,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_XML,
-			description = "The XML document to output after filtering"
+			description = "The transformed XML document."
 		)
 	private final static String OUT_XML = Names.PORT_XML;
 

@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.meandre.components.tools.xml.io;
+package org.seasr.meandre.components.transform.xml;
 
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
@@ -64,8 +64,8 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "date, xsl, filter",
-		description = "This component generates xsl template based on " +
-		"the input minimum year and maximum year.",
+		description = "This component generates an xsl template to filter an xml file and include only " +
+		"the dates between the minimum and maximum year. This is used to filter the Simile xml file that is generated.",
 		dependency = {"protobuf-java-2.2.0.jar", "velocity-1.6.2-dep.jar"},
 		resources = { "DateFilter.vm" }
 )
@@ -74,16 +74,16 @@ public class DateFilter extends AbstractExecutableComponent {
 	 //------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
-    		defaultValue="1000",
+    		defaultValue="1600",
             name=Names.PORT_MIN_VALUE,
-            description = "The minimum year to use on the outputed xsl template."
+            description = "The minimum year to include in the xsl template."
     )
     protected static final String PROP_MIN_VALUE = Names.PORT_MIN_VALUE;
 
     @ComponentProperty(
     		defaultValue="1800",
             name=Names.PORT_MAX_VALUE,
-            description = "The maximum year to use on the outputed xsl template."
+            description = "The maximum year to include in the xsl template."
     )
     protected static final String PROP_MAX_VALUE = Names.PORT_MAX_VALUE;
 
@@ -91,19 +91,19 @@ public class DateFilter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_XSL,
-			description = "The XSL templage for filtering"
+			description = "The XSL template for filtering dates."
 	)
 	private final static String OUT_XSL = Names.PORT_XSL;
 
 	@ComponentOutput(
 			name = Names.PORT_MIN_YEAR,
-			description = "The minimum year"
+			description = "The minimum year."
 	)
 	private final static String OUT_MIN_YEAR = Names.PORT_MIN_YEAR;
 
 	@ComponentOutput(
 			name = Names.PORT_MAX_YEAR,
-			description = "The maximum year"
+			description = "The maximum year."
 	)
 	private final static String OUT_MAX_YEAR = Names.PORT_MAX_YEAR;
 
