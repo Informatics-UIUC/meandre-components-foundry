@@ -26,13 +26,13 @@
     FLASHVARS="url=$dataUrl
             &fieldX=$fieldX
             &fieldY=$fieldY
-            &nodeNameField=concept
+            &nodeNameField=$nodeNameField
             &nodeNames=$nodeNames
             &defaultValue=0
             &visTitle=$title
-            &titleX=Paragraph Number
-            &titleY=Emotion Percentage
-            &legendTitle=Emotions"
+            &titleX=Window Number
+            &titleY=Concept Percentage
+            &legendTitle=Concepts/Labels"
     BGCOLOR=#FFFFFF WIDTH=540 HEIGHT=350 
     TYPE="application/x-shockwave-flash">
   </EMBED>
