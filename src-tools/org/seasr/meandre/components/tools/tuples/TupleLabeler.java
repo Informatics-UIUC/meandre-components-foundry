@@ -264,6 +264,12 @@ public class TupleLabeler extends AbstractExecutableComponent {
 		// metaData for this tuple producer
 		//
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
+	    
+	    
+	    // TODO ???
+	    // convenice output: strings[] unique set of keys
+	    // vis could use these as labels
+	    //
 		
 	}
 
