@@ -173,10 +173,10 @@ public class TupleGrouper  extends AbstractExecutableComponent {
 		int POS_IDX   = inPeer.getIndexForFieldName(posField);
 		
 		if (KEY_IDX == -1){
-			throw new RuntimeException("tuple has no field " + keyField);
+			throw new RuntimeException("tuple has no key field " + keyField);
 		}
 		if (START_IDX == -1){
-			throw new RuntimeException("tuple has no field " + windowField);
+			throw new RuntimeException("tuple has no window field " + windowField);
 		}
 		
 		
