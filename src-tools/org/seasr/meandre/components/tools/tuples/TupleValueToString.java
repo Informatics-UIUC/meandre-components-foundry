@@ -39,7 +39,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "tools, text,",
-		description = "This component converts a tuple field/value to a string" ,
+		description = "This component converts a tuple field/value to a single output string" ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class TupleValueToString extends AbstractExecutableComponent {

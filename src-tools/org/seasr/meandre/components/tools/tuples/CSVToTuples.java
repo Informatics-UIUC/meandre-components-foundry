@@ -137,8 +137,6 @@ public class CSVToTuples extends AbstractExecutableComponent {
             	// else skip the line
             	console.fine("skipping line " + line);
             }
-            
-			
 		}
 			
 		 Strings[] results = new Strings[output.size()];

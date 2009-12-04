@@ -65,7 +65,6 @@ import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 /**
- * This component perform POS tagging on the text passed using OpenNLP.
  *
  * @author Mike Haberman
  *
