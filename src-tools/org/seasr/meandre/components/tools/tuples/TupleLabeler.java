@@ -42,6 +42,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 
 
+
 /*
  *  This component uses an incoming set of tuples that are treated as a hashmap
  *  where each tuple has a key/value pair
@@ -53,12 +54,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  *  e.g.  Say you have the map:  "mike" --> "eater"
  *  any tuple whose keyfield has a value equal to "mike" will have "eater" attached to it
  *  
- */
-
-/* N
- * OTE: this was once used in the sentiment application, it is no longer needed
- * 
- */
+*/
 
 @Component(
 		name = "Tuple Labeler",
