@@ -99,10 +99,12 @@ public abstract class Names {
 	public static final String PROP_LOCATION = "location";
 	public static final String PROP_TABLE_FACTORY = "table_factory";
 	public static final String PROP_TABLE = "table";
-	public static final String PROP_JSON = "json";
 	public static final String PROP_HAS_COLUMN_LABEL_HEADER = "has_column_label_header";
 	public static final String PROP_HAS_COLUMN_TYPE_HEADER = "has_column_type_header";
 	public static final String PROP_PAGE_SIZE = "page_size";
+	public static final String PROP_FIELD_NAME ="field_name";
+	public static final String PROP_USERNAME = "usename";
+	public static final String PROP_PASSWORD = "password";
 
 	// PORTS
 	public static final String PORT_DIRECTORY = "directory";
@@ -154,6 +156,5 @@ public abstract class Names {
 	public static final String PORT_TUPLES = "tuples";
 	public static final String PORT_META_TUPLE = "meta_tuple";
 	public static final String PORT_CLUSTER_MODEL = "cluster_model";
-	public static final String PROP_FIELD_NAME ="field_name";
-
+	public static final String PORT_JSON = "json";
 }
