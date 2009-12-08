@@ -103,8 +103,10 @@ public abstract class Names {
 	public static final String PROP_HAS_COLUMN_TYPE_HEADER = "has_column_type_header";
 	public static final String PROP_PAGE_SIZE = "page_size";
 	public static final String PROP_FIELD_NAME ="field_name";
-	public static final String PROP_USERNAME = "usename";
+	public static final String PROP_USERNAME = "username";
 	public static final String PROP_PASSWORD = "password";
+	public static final String PROP_CONSUMER_KEY = "consumer_key";
+	public static final String PROP_CONSUMER_SECRET = "consumer_secret";
 
 	// PORTS
 	public static final String PORT_DIRECTORY = "directory";
@@ -157,4 +159,5 @@ public abstract class Names {
 	public static final String PORT_META_TUPLE = "meta_tuple";
 	public static final String PORT_CLUSTER_MODEL = "cluster_model";
 	public static final String PORT_JSON = "json";
+	public static final String PORT_TITLE = "title";
 }
