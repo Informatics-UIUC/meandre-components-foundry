@@ -107,7 +107,7 @@ public class DateFilter extends AbstractExecutableComponent {
 	)
 	private final static String OUT_MAX_YEAR = Names.PORT_MAX_YEAR;
 
-    static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/tools/xml/io/DateFilter.vm";
+    static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/transform/xml/DateFilter.vm";
 
     /** The min year and max year to use */
 	private String minYear, maxYear;
