@@ -64,8 +64,6 @@ import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
-import java.io.File;
-
 import org.seasr.meandre.support.utils.FileResourceUtility;
 
 /**
