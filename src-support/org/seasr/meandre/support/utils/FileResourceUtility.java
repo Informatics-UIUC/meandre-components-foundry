@@ -58,6 +58,10 @@ public class FileResourceUtility {
 		
 	}
 	
+	/* 
+	 * returns the path name to the resource in published resources if filename is not absolute
+	 * 
+	 */
 	public static String buildResourcePath(ComponentContextProperties ccp, String filename)
 	{
 		if (filename.startsWith(File.separator) || filename.startsWith(".")) {
@@ -67,6 +71,9 @@ public class FileResourceUtility {
 		
 		return ccp.getPublicResourcesDirectory() + File.separator + filename;
 	}
+	
+	
+	
 	//
 	// convenience method for components to create directories inside published resources
 	//
@@ -86,18 +93,16 @@ public class FileResourceUtility {
 			return filename;
 		}
 
+		
 		//
 		// user did not specify an absolute path e.g. /tmp/file.stuff
 		// if user does "data/data.csv" 
 		// need to create that path
 		//
-
-
 		String path = dir + File.separator + filename;
 		FileResourceUtility.createPathToResource(path, console);
 
 		return path;
-
 	}
 	
 	
