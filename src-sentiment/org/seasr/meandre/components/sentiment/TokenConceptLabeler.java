@@ -42,6 +42,8 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.sentiment.PathMetric;
 import org.seasr.meandre.support.sentiment.PathMetricFinder;
 
+import org.seasr.meandre.support.utils.FileResourceUtility;
+
 
 /**
  *
@@ -180,9 +182,10 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 		
 		
 		// create/build the cache file name
-		this.cacheFileName     = ccp.getProperty(DATA_PROPERTY_CACHE);
-		this.wordMapFileName   = ccp.getProperty(DATA_PROPERTY_WORDMAP);
-		this.noConceptFileName = ccp.getProperty(DATA_PROPERTY_IGNORE);
+		this.cacheFileName     = FileResourceUtility.buildResourcePath(ccp, ccp.getProperty(DATA_PROPERTY_CACHE));
+		this.wordMapFileName   = FileResourceUtility.buildResourcePath(ccp, ccp.getProperty(DATA_PROPERTY_WORDMAP));
+		this.noConceptFileName = FileResourceUtility.buildResourcePath(ccp, ccp.getProperty(DATA_PROPERTY_IGNORE));
+		
 		
 		this.wordToConceptMap = readFromFile(cacheFileName);
 		this.noConceptMap     = readFromFile(noConceptFileName);
@@ -301,7 +304,7 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 			
 			
 			// temp. flush
-			if (valuesWritten%50 == 0) {
+			if (valuesWritten%10 == 0) {
 				writeToFile(wordToConceptMap, cacheFileName);
 		    	writeToFile(noConceptMap, noConceptFileName);
 			}
@@ -327,7 +330,7 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception 
     {
     	writeToFile(wordToConceptMap, cacheFileName);
-    	writeToFile(noConceptMap, noConceptFileName);
+    	writeToFile(noConceptMap,     noConceptFileName);
     }
     
     
