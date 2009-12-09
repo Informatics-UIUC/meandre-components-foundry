@@ -64,7 +64,9 @@ import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
-import de.schlichtherle.io.File;
+import java.io.File;
+
+import org.seasr.meandre.support.utils.FileResourceUtility;
 
 /**
  * 
@@ -145,25 +147,7 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-	public String createPathToResource(String path) 
-	{
-		String resource = path;
-		int idx = path.lastIndexOf(File.separator);
-		console.info("Process " + path + " " + idx);
-		
-		if (idx > 0) {
-			resource = path.substring(idx+1);
-			path     = path.substring(0, idx);
-			
-			console.info(path + "-->" + resource);
-			boolean success = (new File(path)).mkdirs();
-		    if (success) {
-		      console.info("Directories: " + path + " created");
-		    }
-		}
-		
-	    return resource;
-	}
+	
 	
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
@@ -176,19 +160,7 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 		String path = filename;
 		try {
 			
-			if (! filename.startsWith(File.separator)) {
-				
-				//
-				// user did not specify an absolute path
-				// if user does "data/data.csv"
-				// need to create that path
-				//
-				
-				String destination = ccp.getPublicResourcesDirectory();
-				path = destination + File.separator + filename;
-								createPathToResource(path);
-			}
-			
+			path = FileResourceUtility.createPathToPublishedResources(ccp, filename, console);
 			console.info("writing data to " + path);
 		    output = new BufferedWriter(new FileWriter(path));
 		    
