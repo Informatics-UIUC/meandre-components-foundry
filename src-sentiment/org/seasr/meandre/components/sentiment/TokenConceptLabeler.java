@@ -186,6 +186,9 @@ public class TokenConceptLabeler  extends AbstractExecutableComponent {
 		this.wordMapFileName   = FileResourceUtility.buildResourcePath(ccp, ccp.getProperty(DATA_PROPERTY_WORDMAP));
 		this.noConceptFileName = FileResourceUtility.buildResourcePath(ccp, ccp.getProperty(DATA_PROPERTY_IGNORE));
 		
+		FileResourceUtility.createPathToResource(cacheFileName,     console);
+		FileResourceUtility.createPathToResource(wordMapFileName,   console);
+		FileResourceUtility.createPathToResource(noConceptFileName, console);
 		
 		this.wordToConceptMap = readFromFile(cacheFileName);
 		this.noConceptMap     = readFromFile(noConceptFileName);
