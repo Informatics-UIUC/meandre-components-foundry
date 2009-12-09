@@ -3,9 +3,9 @@ package org.seasr.meandre.support.utils;
 import java.io.File;
 import java.util.logging.Logger;
 
-public class PublishedResourcesUtility {
+public class FileResourceUtility {
 	
-	protected PublishedResourcesUtility()
+	protected FileResourceUtility()
 	{
 		
 	}
