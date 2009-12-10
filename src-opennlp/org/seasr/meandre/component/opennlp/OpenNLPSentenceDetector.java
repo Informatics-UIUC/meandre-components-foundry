@@ -128,7 +128,8 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
 		super.initializeCallBack(ccp);
 
 		try {
@@ -141,7 +142,8 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	}
 
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception {
+    public void executeCallBack(ComponentContext cc) throws Exception 
+    {
 		/*
 		String rawText = (String) cc.getDataComponentFromInput(IN_TEXT);
 		console.info("Converting " + rawText);
