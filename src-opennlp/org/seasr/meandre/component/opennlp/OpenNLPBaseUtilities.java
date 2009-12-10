@@ -45,6 +45,7 @@ package org.seasr.meandre.component.opennlp;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
+import java.util.logging.Logger;
 
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
@@ -102,38 +103,46 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 	/** The language of the text being processed */
 	protected String sLanguage;
 
-
+    protected String modelJarFile = "maxent-models.jar";
 	//--------------------------------------------------------------------------------------------
 
-	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-
-	    File modelsJar = null;
-	    URL modelsDepURL = ClasspathUtils.findDependencyInClasspath("maxent-models.jar", getClass());
+    public static void installModelsFromJarFile(String dir, String filename, Logger console, Class caller) throws Exception
+    {
+    	File modelsJar = null;
+	    URL modelsDepURL = ClasspathUtils.findDependencyInClasspath(filename,caller);
 	    if (modelsDepURL != null)
 	        modelsJar = new File(modelsDepURL.toURI());
+		
+
+		if (modelsJar == null || !modelsJar.exists())
+		    modelsJar = new File(dir + File.separator + filename);
+
+		if (!modelsJar.exists())
+		    throw new ComponentContextException("Could not find " + filename);
+
+		console.fine("attempting to put " + modelsJar + " into " + dir);
+		InstallStatus status = JARInstaller.installFromStream(new FileInputStream(modelsJar), dir, false);
+		if (status == InstallStatus.SKIPPED)
+		    console.fine("Installation skipped - models already installed");
+
+		if (status == InstallStatus.FAILED)
+			throw new ComponentContextException("Failed to install models at " + new File(dir).getAbsolutePath());
+
+    }
+    
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
 
 		this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
 
 		sOpenNLPDir = ccp.getProperty(PROP_OPENNLP_DIR).trim();
 		if (sOpenNLPDir.length() == 0)
 		    sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
-
-		if (modelsJar == null || !modelsJar.exists())
-		    modelsJar = new File(sOpenNLPDir + File.separator + "maxent-models.jar");
-
-		if (!modelsJar.exists())
-		    throw new ComponentContextException("Could not find maxent-models.jar");
-
-		console.fine("Installing " + sLanguage + " models from: " + modelsJar.toString());
-
-		InstallStatus status = JARInstaller.installFromStream(new FileInputStream(modelsJar), sOpenNLPDir, false);
-		if (status == InstallStatus.SKIPPED)
-		    console.fine("Installation skipped - models already installed");
-
-		if (status == InstallStatus.FAILED)
-			throw new ComponentContextException("Failed to install OpenNLP models at " + new File(sOpenNLPDir).getAbsolutePath());
-
+		
+		installModelsFromJarFile(sOpenNLPDir, modelJarFile, console, getClass());
+		console.fine("Installed " + sLanguage + " models into: " + sOpenNLPDir);
+		
 		// constructs the final OpenNLP models path based on the language chosen
 		// example:  <sOpenNLPDir>/models/English/
 		sOpenNLPDir += (sOpenNLPDir.endsWith(File.separator) ? "" : File.separator) + "models" + File.separator
