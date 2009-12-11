@@ -85,9 +85,9 @@ public class TokenCountToJSON extends AbstractExecutableComponent {
 
     @ComponentOutput(
             description = "Output JSON object.",
-            name = Names.PROP_JSON
+            name = Names.PORT_JSON
     )
-    protected static final String OUT_JSON = Names.PROP_JSON;
+    protected static final String OUT_JSON = Names.PORT_JSON;
 
     //--------------------------------------------------------------------
 
