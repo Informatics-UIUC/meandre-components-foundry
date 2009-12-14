@@ -71,21 +71,6 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 )
 
 public class DateFilter extends AbstractExecutableComponent {
-	 //------------------------------ PROPERTIES --------------------------------------------------
-
-    @ComponentProperty(
-    		defaultValue="1600",
-            name=Names.PORT_MIN_VALUE,
-            description = "The minimum year to include in the xsl template."
-    )
-    protected static final String PROP_MIN_VALUE = Names.PORT_MIN_VALUE;
-
-    @ComponentProperty(
-    		defaultValue="1800",
-            name=Names.PORT_MAX_VALUE,
-            description = "The maximum year to include in the xsl template."
-    )
-    protected static final String PROP_MAX_VALUE = Names.PORT_MAX_VALUE;
 
    //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -106,6 +91,24 @@ public class DateFilter extends AbstractExecutableComponent {
 			description = "The maximum year."
 	)
 	private final static String OUT_MAX_YEAR = Names.PORT_MAX_YEAR;
+
+	//------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+    		defaultValue="1600",
+            name=Names.PROP_MIN_VALUE,
+            description = "The minimum year to include in the xsl template."
+    )
+    protected static final String PROP_MIN_VALUE = Names.PROP_MIN_VALUE;
+
+    @ComponentProperty(
+    		defaultValue="1800",
+            name=Names.PROP_MAX_VALUE,
+            description = "The maximum year to include in the xsl template."
+    )
+    protected static final String PROP_MAX_VALUE = Names.PROP_MAX_VALUE;
+
+    //--------------------------------------------------------------------
 
     static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/transform/xml/DateFilter.vm";
 
