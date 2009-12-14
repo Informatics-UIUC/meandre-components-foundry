@@ -46,9 +46,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -61,11 +61,10 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.generic.io.DOMUtils;
+import org.w3c.dom.Document;
 
 @Component(
 		name = "XML To XML With XSL",
@@ -130,7 +129,6 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 		cc.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(outXml));
 
-		xmlReader.close();
 		xslReader.close();
 		xmlWriter.close();
 	}
