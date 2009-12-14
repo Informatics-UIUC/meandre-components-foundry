@@ -42,8 +42,7 @@
 
 package org.seasr.meandre.components.transform.text;
 
-import net.sf.json.util.JSONStringer;
-import net.sf.json.util.JSONBuilder;
+import org.json.JSONObject;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -73,7 +72,7 @@ import org.seasr.meandre.components.tools.Names;
 )
 
 public class TokenCountToJSON extends AbstractExecutableComponent {
-       //------------------------------ INPUTS ------------------------------
+    //------------------------------ INPUTS ------------------------------
 
     @ComponentInput(
             description = "The token counts",
@@ -95,19 +94,19 @@ public class TokenCountToJSON extends AbstractExecutableComponent {
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {
-       JSONStringer myString = new JSONStringer();
-       JSONBuilder myBuilder = myString.object();
+    	JSONObject myObject = new JSONObject();
 
-       IntegersMap im = (IntegersMap)cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
-       for (int i = 0; i < im.getValueCount(); i++) {
+    	IntegersMap im = (IntegersMap)cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
+    	for (int i = 0; i < im.getValueCount(); i++) {
                String key = im.getKey(i);
                int count = im.getValue(i).getValue(0);
-            myBuilder.key(key).value(count);
-           }
-       myBuilder.endObject();
+               myObject.put(key, new Integer(count));
+        }
 
-       cc.pushDataComponentToOutput(OUT_JSON,
-          BasicDataTypesTools.stringToStrings(myString.toString()));
+    	console.info(myObject.toString());
+
+    	cc.pushDataComponentToOutput(OUT_JSON,
+    			BasicDataTypesTools.stringToStrings(myObject.toString()));
     }
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
