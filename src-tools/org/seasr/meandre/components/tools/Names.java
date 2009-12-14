@@ -107,6 +107,8 @@ public abstract class Names {
 	public static final String PROP_PASSWORD = "password";
 	public static final String PROP_CONSUMER_KEY = "consumer_key";
 	public static final String PROP_CONSUMER_SECRET = "consumer_secret";
+	public static final String PROP_CONNECTION_TIMEOUT = "connection_timeout";
+	public static final String PROP_READ_TIMEOUT = "read_timeout";
 
 	// PORTS
 	public static final String PORT_DIRECTORY = "directory";

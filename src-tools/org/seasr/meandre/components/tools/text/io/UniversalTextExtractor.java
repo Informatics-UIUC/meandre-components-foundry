@@ -51,6 +51,7 @@ import java.util.logging.Level;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.components.utils.ComponentUtils;
@@ -104,10 +105,36 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            description = "The connection timeout in milliseconds " +
+            		"(amount of time to wait for a connection to be established before giving up; 0 = wait forever)",
+            name = Names.PROP_CONNECTION_TIMEOUT,
+            defaultValue = "0"
+    )
+    protected static final String PROP_CONNECTION_TIMEOUT = Names.PROP_CONNECTION_TIMEOUT;
+
+    @ComponentProperty(
+            description = "The read timeout in milliseconds " +
+            		"(amount of time to wait for a read operation to complete before giving up; 0 = wait forever)",
+            name = Names.PROP_READ_TIMEOUT,
+            defaultValue = "0"
+    )
+    protected static final String PROP_READ_TIMEOUT = Names.PROP_READ_TIMEOUT;
+
+    //--------------------------------------------------------------------------------------------
+
+
+    private int connectionTimeout;
+    private int readTimeout;
+
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        connectionTimeout = Integer.parseInt(ccp.getProperty(PROP_CONNECTION_TIMEOUT));
+        readTimeout = Integer.parseInt(ccp.getProperty(PROP_READ_TIMEOUT));
     }
 
     @Override
@@ -118,6 +145,9 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
         console.fine("Reading: " + location.toString());
 
         URLConnection connection = location.openConnection();
+        connection.setConnectTimeout(connectionTimeout);
+        connection.setReadTimeout(readTimeout);
+
         String encoding = connection.getContentEncoding();
         String mimeType = connection.getContentType();
 
