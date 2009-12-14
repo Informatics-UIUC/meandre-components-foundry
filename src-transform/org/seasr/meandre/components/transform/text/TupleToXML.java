@@ -118,9 +118,9 @@ public class TupleToXML extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 	        description = "XML document created from tuples.",
-	        name = Names.PORT_XML
+	        name = Names.PORT_TEXT
 	)
-	protected static final String OUT_XML = Names.PORT_XML;
+	protected static final String OUT_XML = Names.PORT_TEXT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 

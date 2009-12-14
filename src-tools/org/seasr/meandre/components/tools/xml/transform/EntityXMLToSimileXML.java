@@ -95,9 +95,9 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 	        description = "The output XML document in the Simile Timeline format.",
-	        name = Names.PORT_XML
+	        name = Names.PORT_TEXT
 	)
-	protected static final String OUT_XML = Names.PORT_XML;
+	protected static final String OUT_XML = Names.PORT_TEXT;
 
 	@ComponentOutput(
 	        description = "The minimum year in input xml document",

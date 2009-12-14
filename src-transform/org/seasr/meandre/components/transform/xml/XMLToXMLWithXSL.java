@@ -46,6 +46,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
@@ -64,6 +65,8 @@ import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.io.DOMUtils;
+
 @Component(
 		name = "XML To XML With XSL",
 		creator = "Lily Dong",
@@ -77,13 +80,13 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		"and outputs the transformed XML.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-
 public class XMLToXMLWithXSL extends AbstractExecutableComponent {
+
 	//------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_XML,
-			description = "The XML doucment"
+			description = "The XML document"
 	)
 	protected static final String IN_XML = Names.PORT_XML;
 
@@ -96,24 +99,25 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			name = Names.PORT_XML,
+			name = Names.PORT_TEXT,
 			description = "The transformed XML document."
-		)
-	private final static String OUT_XML = Names.PORT_XML;
+	)
+	private final static String OUT_XML = Names.PORT_TEXT;
 
 	//--------------------------------------------------------------------------------------------
 
-	public void executeCallBack(ComponentContext cc)
-	throws Exception {
-		String inXml = DataTypeParser.parseAsString(
-    			cc.getDataComponentFromInput(IN_XML))[0];
-		String inXsl = DataTypeParser.parseAsString(
-    			cc.getDataComponentFromInput(IN_XSL))[0];
+	@Override
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	}
 
-		StringReader xmlReader = new StringReader(inXml);
+	@Override
+	public void executeCallBack(ComponentContext cc) throws Exception {
+	    Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
+	    String inXsl = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_XSL))[0];
+
 		StringReader xslReader = new StringReader(inXsl);
 
-		Source xmlSource = new StreamSource(xmlReader);
+		Source xmlSource = new DOMSource(doc);
 		Source xslSource = new StreamSource(xslReader);
 
 		StringWriter xmlWriter = new StringWriter();
@@ -131,9 +135,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 		xmlWriter.close();
 	}
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	}
-
+	@Override
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 }

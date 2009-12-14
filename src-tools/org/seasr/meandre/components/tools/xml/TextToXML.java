@@ -42,10 +42,7 @@
 
 package org.seasr.meandre.components.tools.xml;
 
-import java.io.ByteArrayInputStream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -56,9 +53,10 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
+import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.w3c.dom.Document;
 
 /**
@@ -108,59 +106,36 @@ public class TextToXML extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-
-	/** The document builder factory */
-	private DocumentBuilderFactory factory;
-
-	/** The document builder instance */
-	private DocumentBuilder parser;
-
-
-	//--------------------------------------------------------------------------------------------
-
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		try {
-			this.factory = DocumentBuilderFactory.newInstance();
-			this.factory.setNamespaceAware(true);
-			this.parser = factory.newDocumentBuilder();
-		}
-		catch (Throwable t) {
-			String sMessage = "Could not initialize the XML parser";
-			console.warning(sMessage);
-
-			throw new ComponentExecutionException(sMessage + " " + t.toString());
-		}
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		for (String sText : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))) {
-    		Document doc;
+	    Object input = cc.getDataComponentFromInput(IN_TEXT);
+	    if (input instanceof Strings) {
+            for (String sText : DataTypeParser.parseAsString(input)) {
+                Document doc = null;
+                try {
+                    doc = DataTypeParser.parseAsDomDocument(sText);
+                }
+                catch (Exception e) {
+                    console.log(Level.WARNING, e.getMessage(), e);
 
-    		try {
-    			doc = parser.parse(new ByteArrayInputStream(sText.getBytes("UTF-8")));
+                    if (ignoreErrors)
+                        doc = DOMUtils.createNewDocument();
+                    else
+                        throw e;
+                }
+
+        		cc.pushDataComponentToOutput(OUT_DOCUMENT, doc);
     		}
-    		catch (Throwable t) {
-    			String sMessage = "Could not read XML from text " +
-    			    ((sText.length() > 100) ? sText.substring(0, 100) : sText);
-
-    			console.warning(sMessage);
-
-    			if ( !ignoreErrors )
-    				throw new ComponentExecutionException(t);
-    			else
-    				doc = parser.newDocument();
-    		}
-
-    		cc.pushDataComponentToOutput(OUT_DOCUMENT, doc);
-		}
+	    } else
+	        cc.pushDataComponentToOutput(OUT_DOCUMENT, DataTypeParser.parseAsDomDocument(input));
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.factory = null;
-        this.parser = null;
     }
 
     //--------------------------------------------------------------------------------------------

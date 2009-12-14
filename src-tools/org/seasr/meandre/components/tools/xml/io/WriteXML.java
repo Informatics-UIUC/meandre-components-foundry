@@ -105,7 +105,7 @@ public class WriteXML extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_XML,
-			description = "The XML document to write"
+			description = "The XML document"
 	)
 	protected static final String IN_XML = Names.PORT_XML;
 
@@ -119,7 +119,7 @@ public class WriteXML extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_XML,
-			description = "The XML wroten"
+			description = "The XML document"
 	)
 	protected static final String OUT_XML= Names.PORT_XML;
 
@@ -144,7 +144,8 @@ public class WriteXML extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.sEncoding = ccp.getProperty(PROP_ENCODING);
 
 		try {
@@ -159,9 +160,10 @@ public class WriteXML extends AbstractExecutableComponent {
 		}
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 	    URI sLocation = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
-		Document doc = (Document)cc.getDataComponentFromInput(IN_XML);
+	    Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
 
 		Writer wrtr = IOUtils.getWriterForResource(sLocation);
 		StreamResult result = new StreamResult(wrtr);
@@ -173,6 +175,7 @@ public class WriteXML extends AbstractExecutableComponent {
 		cc.pushDataComponentToOutput(OUT_XML, doc);
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.transformer = null;
     }

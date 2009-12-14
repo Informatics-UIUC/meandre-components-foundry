@@ -42,7 +42,6 @@
 
 package org.seasr.meandre.components.vis.geographic;
 
-import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,8 +67,6 @@ import org.w3c.dom.NodeList;
  * @author Mike Haberman
  */
 
-
-
 @Component(
         creator = "Lily Dong",
         description = "Calculates latitude and longitude for an address contained in the input XML document.",
@@ -79,9 +76,7 @@ import org.w3c.dom.NodeList;
         baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class GoogleMapGenerator	extends AbstractExecutableComponent
-{
-
+public class GoogleMapGenerator	extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -117,9 +112,8 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent
     )
 	protected static final String OUT_CONTEXT = Names.PORT_CONTEXT_VECTOR;
 
-
-
     //------------------------------ PROPERTIES --------------------------------------------------
+
     @ComponentProperty(
             defaultValue = GeoLocation.defaultAPIKey,
             description = "This property sets Yahoo API ID. The default value is applicable to all applications.",
@@ -129,8 +123,6 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent
 
     //--------------------------------------------------------------------------------------------
 
-
-    private final static String STRING_DELIMITER = System.getProperty("line.separator");
 
     private String yahooAPIKey;
 
@@ -144,10 +136,12 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         yahooAPIKey = ccp.getProperty(PROP_YAHOO_KEY);
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
 
@@ -159,11 +153,9 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent
 		cc.pushDataComponentToOutput(OUT_CONTEXT, mapData.context_vector);
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
-
-
-
 
     //--------------------------------------------------------------------------------------------
 

@@ -91,9 +91,9 @@ public class DFRQuery extends AbstractExecutableComponent {
 
     @ComponentOutput(
             description = "The JSTOR DFR XML response",
-            name = Names.PORT_XML
+            name = Names.PORT_TEXT
     )
-    protected static final String OUT_RESPONSE_XML = Names.PORT_XML;
+    protected static final String OUT_RESPONSE_XML = Names.PORT_TEXT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 

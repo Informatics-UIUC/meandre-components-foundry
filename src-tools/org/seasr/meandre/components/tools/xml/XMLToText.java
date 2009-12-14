@@ -42,13 +42,10 @@
 
 package org.seasr.meandre.components.tools.xml;
 
-import java.io.StringWriter;
+import java.util.Properties;
+import java.util.logging.Level;
 
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -60,9 +57,10 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.w3c.dom.Document;
 
 /**
@@ -120,57 +118,40 @@ public class XMLToText extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 
-	/** The transformer for the document */
-	private Transformer transformer;
-
-	/** The string encoding to use */
-	private String sEncoding;
+	private Properties outputProps;
 
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.sEncoding = ccp.getProperty(PROP_ENCODING);
-
-		try {
-			transformer = TransformerFactory.newInstance().newTransformer();
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty( OutputKeys.ENCODING, sEncoding);
-		}
-		catch (Throwable t) {
-			String sMessage = "Could not initialize the XML transformer";
-			console.warning(sMessage);
-			throw new ComponentExecutionException(sMessage + " " + t.toString());
-		}
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+		outputProps = new Properties();
+		outputProps.put(OutputKeys.INDENT, "yes");
+		outputProps.put(OutputKeys.ENCODING, ccp.getProperty(PROP_ENCODING));
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
-		Object obj = cc.getDataComponentFromInput(IN_XML);
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
+	    String sXml = "";
 
-		String sRes;
+	    try {
+            Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
+            sXml = DOMUtils.getString(doc, outputProps);
+        }
+        catch (Exception e) {
+            console.log(Level.WARNING, e.getMessage(), e);
 
-		try {
-			Document doc = (Document) obj;
-			StreamResult result = new StreamResult(new StringWriter());
-			DOMSource source = new DOMSource(doc);
-			transformer.transform(source, result);
-			sRes = result.getWriter().toString();
-		}
-		catch (Throwable t) {
-			String sMessage = "Could not transform XML document into text";
-			console.warning(sMessage);
+            if (ignoreErrors)
+                sXml = "";
+            else
+                throw e;
+        }
 
-			if ( ignoreErrors )
-				sRes = "";
-			else
-				throw new ComponentExecutionException(sMessage + " " + t.toString());
-		}
-
-		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
+        cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sXml));
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.transformer = null;
     }
 
     //--------------------------------------------------------------------------------------------

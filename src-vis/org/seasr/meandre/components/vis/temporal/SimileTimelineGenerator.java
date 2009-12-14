@@ -112,17 +112,17 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
 	@ComponentInput(
 	        description = "The source XML document",
-	        name = Names.PORT_XML
+	        name = Names.PORT_TEXT
 	)
-    protected static final String IN_XML = Names.PORT_XML;
+    protected static final String IN_XML = Names.PORT_TEXT;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 	        description = "The HTML for the Simile Timeline viewer",
-	        name = Names.PORT_HTML
+	        name = Names.PORT_TEXT
 	)
-	protected static final String OUT_HTML = Names.PORT_HTML;
+	protected static final String OUT_HTML = Names.PORT_TEXT;
 
     //--------------------------------------------------------------------------------------------
 
@@ -173,12 +173,9 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	String simileXml = DataTypeParser.parseAsString(
-    			cc.getDataComponentFromInput(IN_XML))[0];
-    	minYear = DataTypeParser.parseAsInteger(
-    			cc.getDataComponentFromInput(IN_MIN_YEAR))[0].intValue();
-    	maxYear = DataTypeParser.parseAsInteger(
-    			cc.getDataComponentFromInput(IN_MAX_YEAR))[0].intValue();
+    	String simileXml = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_XML))[0];
+    	minYear = DataTypeParser.parseAsInteger(cc.getDataComponentFromInput(IN_MIN_YEAR))[0].intValue();
+    	maxYear = DataTypeParser.parseAsInteger(cc.getDataComponentFromInput(IN_MAX_YEAR))[0].intValue();
 
         String dirName = cc.getPublicResourcesDirectory() + File.separator;
         dirName += "simile" + File.separator;
