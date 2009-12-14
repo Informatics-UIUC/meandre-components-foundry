@@ -51,8 +51,8 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.BytesMap;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
+import org.seasr.datatypes.BasicDataTypes.BytesMap;
 import org.seasr.datatypes.BasicDataTypes.Integers;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
@@ -178,13 +178,29 @@ public abstract class DataTypeParser {
         else
 
         if (data instanceof Strings)
-            uri = new URI(BasicDataTypesTools.stringsToStringArray((Strings)data)[0]);
-
+            try {
+                uri = new URI(BasicDataTypesTools.stringsToStringArray((Strings)data)[0]);
+            }
+            catch (URISyntaxException e) {
+                String input = e.getInput();
+                int len = input.length();
+                if (len > 150)
+                    input = String.format("%.150s ... [%d more characters]", input, len-150);
+                throw new URISyntaxException(input, e.getReason(), e.getIndex());
+            }
         else
 
         if (data instanceof String)
-            uri = new URI((String)data);
-
+            try {
+                uri = new URI((String)data);
+            }
+            catch (URISyntaxException e) {
+                String input = e.getInput();
+                int len = input.length();
+                if (len > 150)
+                    input = String.format("%.150s ... [%d more characters]", input, len-150);
+                throw new URISyntaxException(input, e.getReason(), e.getIndex());
+            }
         else
             throw new UnsupportedDataTypeException(data.getClass().getName());
 
