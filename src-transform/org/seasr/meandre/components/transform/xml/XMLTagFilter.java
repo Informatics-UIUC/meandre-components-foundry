@@ -108,8 +108,6 @@ public class XMLTagFilter extends AbstractExecutableComponent {
 
 		String xsl = velocity.generateOutput(context, DEFAULT_TEMPLATE);
 
-		console.info(xsl);
-
 		cc.pushDataComponentToOutput(OUT_XSL, BasicDataTypesTools.stringToStrings(xsl));
 	}
 
