@@ -68,7 +68,12 @@ public class TextCleaner extends AbstractExecutableComponent{
 	//------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The text to clean or replace",
+            description = "The text to clean or replace" +
+            "<br>TYPE: java.lang.String" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+            "<br>TYPE: byte[]" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+            "<br>TYPE: java.lang.Object",
             name = Names.PORT_TEXT
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
@@ -76,7 +81,8 @@ public class TextCleaner extends AbstractExecutableComponent{
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The cleaned or replaced text",
+            description = "The cleaned or replaced text" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
             name = Names.PORT_TEXT
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
