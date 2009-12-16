@@ -80,13 +80,15 @@ public class ReadEvernote extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "Outputs note's title.",
+            description = "Outputs note's title." +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
             name = Names.PORT_TITLE
     )
     public final static String OUT_TITLE = Names.PORT_TITLE;
 
     @ComponentOutput(
-            description = "Output note's content as XML text.",
+            description = "Output note's content as XML text." +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
             name = Names.PORT_TEXT
     )
     public final static String OUT_XML = Names.PORT_TEXT;

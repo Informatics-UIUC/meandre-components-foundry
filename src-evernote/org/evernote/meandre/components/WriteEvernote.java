@@ -83,7 +83,12 @@ import com.evernote.edam.userstore.UserStore;
 public class WriteEvernote extends AbstractExecutableComponent
 {
 	 //------------------------------ INPUTS ------------------------------------------------------
-    @ComponentInput(description="The text to be written to server.",
+    @ComponentInput(description="The text to be written to server." +
+    		 "<br>TYPE: java.lang.String" +
+             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+             "<br>TYPE: byte[]" +
+             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+             "<br>TYPE: java.lang.Object",
     				name= Names.PORT_TEXT)
     public final static String IN_TEXT = Names.PORT_TEXT;
 
