@@ -79,7 +79,8 @@ public class JavaStringToStrings extends AbstractExecutableComponent {
 
 	@ComponentInput(
 	        name = Names.PORT_JAVA_STRING,
-			description = "The Java string to convert"
+			description = "The Java string to convert" +
+			"<br>TYPE: java.lang.String"
 	)
 	protected static final String IN_JAVA_STRING = Names.PORT_JAVA_STRING;
 
@@ -87,7 +88,8 @@ public class JavaStringToStrings extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "The converted text"
+			description = "The converted text" +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 

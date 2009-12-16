@@ -42,6 +42,8 @@
 
 package org.seasr.meandre.components.transform;
 
+import java.util.Map;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -81,7 +83,8 @@ public class TokenCountsToMap extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TOKEN_COUNTS,
-			description = "The token counts to convert to text"
+			description = "The token counts to convert to text" +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
@@ -89,7 +92,8 @@ public class TokenCountsToMap extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_MAP,
-			description = "The converted token map"
+			description = "The converted token map" +
+			"<br>TYPE: java.util.Map<String,Integer>"
 		)
 	private final static String OUT_TOKEN_MAP = Names.PORT_TOKEN_MAP;
 
