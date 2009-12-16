@@ -72,7 +72,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "io, string, concatenate",
+        tags = "text, string, concatenate",
         description = "Concatenates text from multiple inputs",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
@@ -82,13 +82,23 @@ public class ConcatenateText extends AbstractExecutableComponent {
 
     @ComponentInput(
             name = Names.PORT_TEXT,
-            description = "First text"
+            description = "First text" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_TEXT1 = Names.PORT_TEXT;
 
     @ComponentInput(
             name = Names.PORT_TEXT_2,
-            description = "Second text"
+            description = "Second text" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_TEXT2 = Names.PORT_TEXT_2;
 
@@ -96,7 +106,8 @@ public class ConcatenateText extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_TEXT,
-            description = "The concatenated text"
+            description = "The concatenated text" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 
@@ -128,7 +139,7 @@ public class ConcatenateText extends AbstractExecutableComponent {
         String[] inputs2 = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT2));
 
         if (inputs1.length != inputs2.length)
-            throw new Exception("Cannot process inputs of varying length!");
+            throw new Exception("Cannot process multiple inputs: array length mismatch!");
 
         for (int i = 0; i < inputs1.length; i++)
             cc.pushDataComponentToOutput(OUT_TEXT,
