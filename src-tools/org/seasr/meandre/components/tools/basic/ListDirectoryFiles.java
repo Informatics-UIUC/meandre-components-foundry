@@ -68,6 +68,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
  */
+
 @Component(
 		name = "List Directory Files",
 		creator = "Xavier Llora",
@@ -75,8 +76,8 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "io, string",
-		description = "Given a directory pushes all the file name available that " +
+		tags = "file, local",
+		description = "Given a [server-relative] directory, this component pushes all the file names available that " +
 				      "match a certain regular expression given in the properties.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
@@ -86,7 +87,12 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
-			description = "The location of the directory to push"
+			description = "The location of the directory to push" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
@@ -94,7 +100,8 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
-			description = "The location being pushed"
+			description = "The location being pushed" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
@@ -200,7 +207,8 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
 
         if (sLoc.matches(sExpression)) {
             console.fine(String.format("Pushing filename %s", sLoc));
-            componentContext.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(sLoc));
+            componentContext.pushDataComponentToOutput(OUT_LOCATION,
+                    BasicDataTypesTools.stringToStrings(sLoc));
         }
 	}
 

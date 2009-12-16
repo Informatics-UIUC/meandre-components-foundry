@@ -85,27 +85,32 @@ public class ZoteroAuthorExtractor extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			description = "A map object containing the key elements of the request and the associated values",
-			name = Names.PORT_REQUEST_DATA
+	        name = Names.PORT_REQUEST_DATA,
+			description = "A map object containing the key elements of the request and the associated values" +
+    			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.BytesMap" +
+    			"<br>TYPE: java.util.Map<java.lang.String, byte[]>"
 	)
 	protected static final String IN_REQUEST = Names.PORT_REQUEST_DATA;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
+	        name = Names.PORT_AUTHOR_LIST,
 			description = "A list of vectors containing the names of the authors. There is one vector for" +
-					      "Zotero entry",
-			name = Names.PORT_AUTHOR_LIST
+					      "Zotero entry" +
+					      "<br>TYPE: java.util.List<java.util.Vector<java.lang.String>>"
 	)
 	protected static final String OUT_AUTHOR_LIST = Names.PORT_AUTHOR_LIST;
 
 
     //--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		Map<String,byte[]> map = DataTypeParser.parseAsStringByteArrayMap(cc.getDataComponentFromInput(IN_REQUEST));
 
 		List<Vector<String>> list = new LinkedList<Vector<String>>();
@@ -123,6 +128,7 @@ public class ZoteroAuthorExtractor extends AbstractExecutableComponent {
 		cc.pushDataComponentToOutput(OUT_AUTHOR_LIST, list);
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }

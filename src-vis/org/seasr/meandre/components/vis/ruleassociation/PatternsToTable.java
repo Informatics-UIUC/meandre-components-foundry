@@ -36,15 +36,17 @@ public class PatternsToTable extends AbstractExecutableComponent {
 
     @ComponentInput(
             description = "The patterns",
-            name = "patterns"
+            name = "patterns" +
+                "<br>TYPE: java.util.ArrayList<org.seasr.meandre.support.components.discovery.ruleassociation.fpgrowth.FPPattern>"
     )
     protected static final String IN_PATTERNS = "patterns";
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The table containing the patterns and supports",
-            name = "patterns_table"
+            name = "patterns_table",
+            description = "The table containing the patterns and supports" +
+                "<br>TYPE: org.seasr.datatypes.table.MutableTable"
     )
     protected static final String OUT_TABLE = "patterns_table";
 

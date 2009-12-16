@@ -81,16 +81,22 @@ public class HelloWorld extends AbstractGWTWebUIComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The text to pass to the GWT app",
-            name = Names.PORT_TEXT
+            name = Names.PORT_TEXT,
+            description = "The text to pass to the GWT app" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The HTML to view",
-            name = Names.PORT_HTML
+            name = Names.PORT_HTML,
+            description = "The HTML to view" +
+                "<br>TYPE: java.lang.String"
     )
     protected static final String OUT_HTML = Names.PORT_HTML;
 

@@ -40,7 +40,7 @@
    Release 4
 
 */
-package org.seasr.meandre.components.tools.text.normalize.porter;
+package org.seasr.meandre.support.components.text.normalize.porter;
 
 import java.io.*;
 

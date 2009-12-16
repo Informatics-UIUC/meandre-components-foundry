@@ -73,7 +73,7 @@ import org.seasr.meandre.components.tools.Names;
 		tags = "io, string",
 		description = "Pushes the value of the text message property to the output. It provides " +
 				      "a couple of properties to control how many times it needs to be pushed, " +
-				      "and if it needs to be wrapped with terminators ",
+				      "and if it needs to be wrapped with delimiters.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class PushText extends AbstractExecutableComponent {
@@ -82,7 +82,8 @@ public class PushText extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "The text message being pushed"
+			description = "The text message being pushed" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
@@ -124,13 +125,15 @@ public class PushText extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		sMessage = ccp.getProperty(PROP_MESSAGE);
 		lTimes = Long.parseLong(ccp.getProperty(PROP_TIMES));
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		if ( bWrapped )
 			pushInitiator();
 
@@ -141,6 +144,7 @@ public class PushText extends AbstractExecutableComponent {
 			pushTerminator();
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         sMessage = null;
         lTimes = 0;

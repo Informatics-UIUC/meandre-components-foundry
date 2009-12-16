@@ -91,7 +91,11 @@ public class ReadModel extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the model to read"
+			description = "The URL or file name containing the model to read" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
@@ -99,13 +103,15 @@ public class ReadModel extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the model read"
+			description = "The URL or file name containing the model read" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentOutput(
 			name = Names.PORT_DOCUMENT,
-			description = "The model containing the semantic document read"
+			description = "The model containing the semantic document read" +
+			    "<br>TYPE: com.hp.hpl.jena.rdf.model.Model"
 	)
 	protected static final String OUT_DOCUMENT = Names.PORT_DOCUMENT;
 
@@ -129,17 +135,20 @@ public class ReadModel extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.sBaseURI = ccp.getProperty(PROP_BASE_URI);
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		URI location = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
 
 		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(location.toString()));
 		cc.pushDataComponentToOutput(OUT_DOCUMENT, ModelUtils.getModel(location, sBaseURI));
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.sBaseURI = null;
     }
@@ -168,7 +177,7 @@ public class ReadModel extends AbstractExecutableComponent {
 	private void pushDelimiters(StreamDelimiter sdLoc) throws Exception {
 		componentContext.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
 		try {
-			StreamDelimiter sd = (StreamDelimiter) sdLoc.getClass().newInstance();
+			StreamDelimiter sd = sdLoc.getClass().newInstance();
 			for ( String sKey:sd.keySet() )
 				sd.put(sKey, sdLoc.get(sKey));
 			componentContext.pushDataComponentToOutput(OUT_DOCUMENT, sd);

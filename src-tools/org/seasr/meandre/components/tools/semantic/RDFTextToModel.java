@@ -89,7 +89,12 @@ public class RDFTextToModel extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TEXT,
-			description = "The text containing the model to read"
+			description = "The text containing the model to read" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_TEXT = Names.PORT_TEXT;
 
@@ -97,7 +102,8 @@ public class RDFTextToModel extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_DOCUMENT,
-			description = "The model containing the semantic document read"
+			description = "The model containing the semantic document read" +
+                "<br>TYPE: com.hp.hpl.jena.rdf.model.Model"
 	)
 	protected static final String OUT_DOCUMENT = Names.PORT_DOCUMENT;
 
@@ -123,11 +129,13 @@ public class RDFTextToModel extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.sBaseURI = ccp.getProperty(PROP_BASE_URI);
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 	    for (String modelText : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))) {
             Model model;
 
@@ -144,6 +152,7 @@ public class RDFTextToModel extends AbstractExecutableComponent {
 	    }
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.sBaseURI = null;
         this.ignoreErrors = false;

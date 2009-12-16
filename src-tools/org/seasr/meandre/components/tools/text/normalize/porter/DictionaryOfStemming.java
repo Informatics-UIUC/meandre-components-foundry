@@ -42,10 +42,6 @@
 
 package org.seasr.meandre.components.tools.text.normalize.porter;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -69,18 +65,18 @@ import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeExcept
  * @author Lily Dong
  */
 
-@Component(creator = "Lily Dong",
-		   description = "Constructs a dictionary mapping the stemmed words back to " +
-		                 "the actual words in the original document, so for the output map, " +
-		                 "the stemmed words are keys and the actural words are values. " +
-		                 "If several words have the same stem, the shortest word is choosed " +
-		                 "as the representative. "
-		                 ,
-		   firingPolicy = FiringPolicy.all,
-		   name = "Dictionary Of Stemming",
-		   tags = "stem dictionary",
-		   rights = Licenses.UofINCSA,
-		   baseURL="meandre://seasr.org/components/foundry/"
+@Component(
+        creator = "Lily Dong",
+		description = "Constructs a dictionary mapping the stemmed words back to " +
+		              "the actual words in the original document, so for the output map, " +
+		              "the stemmed words are keys and the actural words are values. " +
+		              "If several words have the same stem, the shortest word is choosed " +
+		              "as the representative. ",
+        firingPolicy = FiringPolicy.all,
+		name = "Dictionary Of Stemming",
+		tags = "stem dictionary",
+		rights = Licenses.UofINCSA,
+		baseURL="meandre://seasr.org/components/foundry/"
 )
 public class DictionaryOfStemming extends AbstractExecutableComponent {
 
@@ -88,21 +84,32 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_STEMMED_WORDS,
-			description = "The stemmed words"
+			description = "The stemmed words" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_STEMMED_WORDS = Names.PORT_STEMMED_WORDS;
 
 	@ComponentInput(
 			name = Names.PORT_WORDS,
-			description = "The original words"
+			description = "The original words" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
-	protected static final String IN_ORIGINAL_WORDS= Names.PORT_WORDS;
+	protected static final String IN_ORIGINAL_WORDS = Names.PORT_WORDS;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_DICTIONARY,
-			description = "The output dictionary"
+			description = "The output dictionary" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String OUT_DICTIONARY = Names.PORT_DICTIONARY;
 

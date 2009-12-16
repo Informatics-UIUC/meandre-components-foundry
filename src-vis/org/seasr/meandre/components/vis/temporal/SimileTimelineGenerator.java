@@ -99,28 +99,42 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-	        description = "The minimum year in input document.",
-	        name = Names.PORT_MIN_VALUE
+	        name = Names.PORT_MIN_VALUE,
+	        description = "The minimum year in input document." +
+                "<br>TYPE: java.lang.Integer" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Integers" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
     protected static final String IN_MIN_YEAR = Names.PORT_MIN_VALUE;
 
 	@ComponentInput(
-	        description = "The maximum year in input document.",
-	        name = Names.PORT_MAX_VALUE
+	        name = Names.PORT_MAX_VALUE,
+	        description = "The maximum year in input document." +
+                "<br>TYPE: java.lang.Integer" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Integers" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
     protected static final String IN_MAX_YEAR = Names.PORT_MAX_VALUE;
 
 	@ComponentInput(
-	        description = "The source XML document",
-	        name = Names.PORT_TEXT
+	        name = Names.PORT_TEXT,
+	        description = "The source XML document" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
     protected static final String IN_XML = Names.PORT_TEXT;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-	        description = "The HTML for the Simile Timeline viewer",
-	        name = Names.PORT_TEXT
+	        name = Names.PORT_TEXT,
+	        description = "The HTML for the Simile Timeline viewer" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_HTML = Names.PORT_TEXT;
 

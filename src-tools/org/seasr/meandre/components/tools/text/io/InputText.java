@@ -78,8 +78,9 @@ public class InputText extends GenericTemplate {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The text",
-            name = Names.PORT_TEXT
+            name = Names.PORT_TEXT,
+            description = "The text" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 

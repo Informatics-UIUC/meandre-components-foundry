@@ -94,7 +94,11 @@ public class ReadXML extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the model to read"
+			description = "The URL or file name containing the model to read" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
@@ -102,14 +106,16 @@ public class ReadXML extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the model read"
+			description = "The URL or file name containing the model read" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentOutput(
 			name = Names.PORT_XML,
-			description = "The XML object containing the document read"
-		)
+			description = "The XML object containing the document read" +
+                "<br>TYPE: org.w3c.dom.Document"
+	)
 	private final static String OUT_XML = Names.PORT_XML;
 
     //------------------------------ PROPERTIES --------------------------------------------------

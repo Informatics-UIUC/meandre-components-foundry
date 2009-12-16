@@ -42,17 +42,11 @@
 
 package org.seasr.meandre.components.tools.text.normalize.porter;
 
-// ==============
-// Java Imports
-// ==============
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
@@ -65,6 +59,7 @@ import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeException;
+import org.seasr.meandre.support.components.text.normalize.porter.PorterStemmer;
 
 
 /**
@@ -74,100 +69,107 @@ import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeExcept
  * TODO: Testing, Unit Tests
  *
  */
-@Component(creator = "Lily Dong",
 
-description = "<p>Overview: <br>"
-		+ "This component transforms terms into their word stems. In this way, "
-		+ "different forms of the same word (plurals etc...) will be recognized as the same term."
-		+ "The algorithm used is the Porter stemming method."
-		+ "</p>"
-
-		+ "<p>References: <br>"
-		+ "See: http://www.tartarus.org/~martin/PorterStemmer/"
-		+ "</p>"
-
-		+ "<p>Data Type Restrictions: <br>"
-		+ "The input document must have been tokenized."
-		+ "</p>"
-
-		+ "<p>Data Handling: <br>"
-		+ "This component will modify (as described above) the document object that is input."
-		+ "</p>"
-
-		+ "<p>Scalability: <br>"
-		+ "This compnent makes one pass over the token list resulting in linear time complexity "
-		+ "per the number of tokens. Memory usage is proportional to the number tokens."
-		+ "</p>"
-
-		+ "<p>Trigger Criteria: <br>" + "All." + "</p>",
-
-name = "Stem", tags = "nlp text document normalize stem",
-baseURL="meandre://seasr.org/components/foundry/")
-
+@Component(
+        creator = "Lily Dong",
+        description = "<p>Overview: <br>"
+    		+ "This component transforms terms into their word stems. In this way, "
+    		+ "different forms of the same word (plurals etc...) will be recognized as the same term."
+    		+ "The algorithm used is the Porter stemming method."
+    		+ "</p>"
+    		+ "<p>References: <br>"
+    		+ "See: http://www.tartarus.org/~martin/PorterStemmer/"
+    		+ "</p>"
+    		+ "<p>Data Type Restrictions: <br>"
+    		+ "The input document must have been tokenized."
+    		+ "</p>"
+    		+ "<p>Data Handling: <br>"
+    		+ "This component will modify (as described above) the document object that is input."
+    		+ "</p>"
+    		+ "<p>Scalability: <br>"
+    		+ "This compnent makes one pass over the token list resulting in linear time complexity "
+    		+ "per the number of tokens. Memory usage is proportional to the number tokens."
+    		+ "</p>"
+    		+ "<p>Trigger Criteria: <br>" + "All." + "</p>",
+        name = "Stem",
+        tags = "nlp text document normalize stem",
+        rights = Licenses.UofINCSA,
+        firingPolicy = FiringPolicy.all,
+        baseURL = "meandre://seasr.org/components/foundry/"
+)
 public class Stem extends AbstractExecutableComponent {
 
-	// ==============
-	// Data Members
-	// ==============
-
-	private PorterStemmer stemmer = null;
-
-	// IO
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_OBJECT,
-			description = "The tokens or tokenized_sentences to be stemmed"
+			description = "The tokens or tokenized_sentences to be stemmed" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String IN_OBJECT = Names.PORT_OBJECT;
 
+	//------------------------------ OUTPUTS -----------------------------------------------------
+
 	@ComponentOutput(
 			name = Names.PORT_TOKENS,
-			description = "The stemmed tokens"
+			description = "The stemmed tokens" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TOKENS = Names.PORT_TOKENS;
 
 	@ComponentOutput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
-			description = "The stemmed tokenized sentences"
+			description = "The stemmed tokenized sentences" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String OUT_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
 
-	// ================
-	// Public Methods
-	// ================
+    //--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp)
-    throws Exception {
+
+	private PorterStemmer stemmer = null;
+
+
+    //--------------------------------------------------------------------------------------------
+
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		stemmer = null;
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp)
-    throws Exception {
-		stemmer = null;
-	}
-
-	public void executeCallBack(ComponentContext cc)
-	throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		if (stemmer == null)
 			stemmer = new PorterStemmer();
 
 		Object object = cc.getDataComponentFromInput(IN_OBJECT);
-		if(object instanceof Strings)
+
+		if (object instanceof Strings)
 			processTokens(object);
+
 		else
+
 		if(object instanceof StringsMap)
 			processSentences(object);
+
 		else
-			console.warning("input data was not in the correct format");
+			throw new Exception("Unsupported data type: " + object.getClass().toString());
 	}
+
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	    stemmer = null;
+	}
+
+	//--------------------------------------------------------------------------------------------
 
 	/**
 	 *
 	 * @param object input tokens
 	 * @throws Exception
 	 */
-	private void processTokens(Object object)
-	throws Exception {
+	private void processTokens(Object object) throws Exception {
 		String[] tokens = null;
 
 		try {
@@ -203,8 +205,7 @@ public class Stem extends AbstractExecutableComponent {
 	 * @param object input sentences
 	 * @throws Exception
 	 */
-	private void processSentences (Object object)
-	throws Exception {
+	private void processSentences (Object object) throws Exception {
 		StringsMap im = (StringsMap)object;
 
 		org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();

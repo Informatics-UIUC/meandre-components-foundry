@@ -88,7 +88,10 @@ public class TextToXML extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TEXT,
-			description = "The text containing the XML to read"
+			description = "The text containing the XML to read" +
+                "<br>TYPE: org.w3c.dom.Document" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_TEXT = Names.PORT_TEXT;
 
@@ -96,7 +99,8 @@ public class TextToXML extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_XML,
-			description = "The XML containing the XML document read"
+			description = "The XML object containing the XML document read" +
+                "<br>TYPE: org.w3c.dom.Document"
 	)
 	protected static final String OUT_DOCUMENT = Names.PORT_XML;
 

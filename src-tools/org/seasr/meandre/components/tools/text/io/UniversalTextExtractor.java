@@ -86,22 +86,27 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The document location",
-            name = Names.PORT_LOCATION
+            name = Names.PORT_LOCATION,
+            description = "The document location" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The document location",
-            name = Names.PORT_LOCATION
+            name = Names.PORT_LOCATION,
+            description = "The document location"
     )
     protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
     @ComponentOutput(
-            description = "The text extracted from the given document",
-            name = Names.PORT_TEXT
+            name = Names.PORT_TEXT,
+            description = "The text extracted from the given document" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 

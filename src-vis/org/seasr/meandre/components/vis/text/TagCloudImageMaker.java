@@ -82,18 +82,19 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
+            name = Names.PORT_TOKEN_COUNTS,
             description = "Tags to be analyzed." +
-                          "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>, IntegersMap",
-            name = Names.PORT_TOKEN_COUNTS
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap" +
+                "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>"
     )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
+            name = Names.PORT_RAW_DATA,
             description = "The image." +
-                          "<br>TYPE: Bytes",
-            name = Names.PORT_RAW_DATA
+                          "<br>TYPE: byte[]"
     )
     protected final static String OUT_IMAGE_RAW = Names.PORT_RAW_DATA;
 

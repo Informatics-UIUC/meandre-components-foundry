@@ -104,20 +104,23 @@ public class UploadFile extends GenericTemplate {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The file path of the uploaded file(s)",
-            name = Names.PORT_FILENAME
+            name = Names.PORT_FILENAME,
+            description = "The file path of the uploaded file(s)" +
+                "<br>TYPE: java.lang.String"
     )
     protected static final String OUT_FILE_PATH = Names.PORT_FILENAME;
 
     @ComponentOutput(
-            description = "The MIME type of the uploaded file(s)",
-            name = Names.PORT_MIME_TYPE
+            name = Names.PORT_MIME_TYPE,
+            description = "The MIME type of the uploaded file(s)" +
+                "<br>TYPE: java.lang.String"
     )
     protected static final String OUT_MIME_TYPE = Names.PORT_MIME_TYPE;
 
     @ComponentOutput(
-            description = "The content of the uploaded file(s)",
-            name = Names.PORT_RAW_DATA
+            name = Names.PORT_RAW_DATA,
+            description = "The content of the uploaded file(s)" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes"
     )
     protected static final String OUT_RAW_DATA = Names.PORT_RAW_DATA;
 
@@ -181,7 +184,8 @@ public class UploadFile extends GenericTemplate {
             throw new ComponentContextException("Failed to install Fluid components at " + new File(sFluidDir).getAbsolutePath());
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 	    if (wrapStream) pushInitiator();
 
 	    super.executeCallBack(cc);

@@ -51,7 +51,6 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentProperty;
@@ -62,7 +61,6 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.ConfigurableWebUIFragmentCallback;
 import org.meandre.webui.WebUIException;
-import org.meandre.webui.WebUIFragmentCallback;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
@@ -91,8 +89,6 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
  *  @author Boris Capitanu
  */
 
-
-
 @Component(
         creator = "Mike Haberman",
         description = "Generates and displays a webpage via a Velocity Template ",
@@ -104,9 +100,8 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         resources = { "GenericTemplate.vm" },
         dependency = { "velocity-1.6.2-dep.jar" }
 )
-public class GenericTemplate extends AbstractExecutableComponent 
-   implements ConfigurableWebUIFragmentCallback 
-   {
+public class GenericTemplate extends AbstractExecutableComponent
+                             implements ConfigurableWebUIFragmentCallback {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -138,12 +133,9 @@ public class GenericTemplate extends AbstractExecutableComponent
 
 
     //--------------------------------------------------------------------------------------------
-    public String getContextPath() {
-    	return "/";
-    }
-    
+
     @Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
         templateName = ccp.getProperty(PROP_TEMPLATE);
 
@@ -183,7 +175,7 @@ public class GenericTemplate extends AbstractExecutableComponent
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	
+
         String sInstanceId = cc.getExecutionInstanceID();
         context.put("sInstanceId", sInstanceId);
         context.put("cc", cc);
@@ -191,7 +183,7 @@ public class GenericTemplate extends AbstractExecutableComponent
         String webUIUrl = cc.getWebUIUrl(true).toString();
         if (webUIUrl.endsWith("/")) webUIUrl = webUIUrl.substring(0, webUIUrl.length()-1);
         context.put("webUIUrl", webUIUrl);
-        
+
         console.info("webUIUrl " + webUIUrl);
 
         done = false;
@@ -215,8 +207,11 @@ public class GenericTemplate extends AbstractExecutableComponent
 
     //--------------------------------------------------------------------------------------------
 
-    public void emptyRequest(HttpServletResponse response) throws WebUIException
-    {
+    public String getContextPath() {
+        return "/";
+    }
+
+    public void emptyRequest(HttpServletResponse response) throws WebUIException {
     	console.info("WARNING, emptyRequest() was called on a configuable web ui");
     	//
     	// since this is now a configurable web ui, this method
@@ -231,15 +226,15 @@ public class GenericTemplate extends AbstractExecutableComponent
 
     }
 
-    public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException
-    {
+    @SuppressWarnings("unchecked")
+    public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
         console.entering(getClass().getName(), "handle", response);
-        
+
         StringBuffer sb = request.getRequestURL();
         sb.append(" <Query Data> ").append(request.getQueryString());
         console.info("Request: " + sb.toString());
-        
-        
+
+
         Map pMap = request.getParameterMap();
         if (pMap.size() == 0) {
         	// there are no parameters, it's an empty request
@@ -247,8 +242,8 @@ public class GenericTemplate extends AbstractExecutableComponent
         	console.exiting(getClass().getName(), "handle/generateContent, no data");
         	return;
         }
-        
-        
+
+
         //
         // this is the workhorse method
         // process the input, determine any errors,
@@ -256,7 +251,7 @@ public class GenericTemplate extends AbstractExecutableComponent
         //
         try {
            if (!processRequest(request)) {
-        	   
+
         	   // regenerate the template
                generateContent(request, response);
                console.exiting(getClass().getName(), "handle/generateContent");
@@ -292,8 +287,7 @@ public class GenericTemplate extends AbstractExecutableComponent
 
     //--------------------------------------------------------------------------------------------
 
-    protected void generateContent(HttpServletRequest request, HttpServletResponse response) throws WebUIException
-    {
+    protected void generateContent(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
         if (done) {
             try {
                 generateMetaRefresh(response);
@@ -305,10 +299,10 @@ public class GenericTemplate extends AbstractExecutableComponent
         }
 
         try {
-        	
+
             // request could be null on the "first" request
         	// TODO: put the request parameters or a wrapper in the context
-            
+
             context.put("request",  request);
             context.put("response", response);
 
@@ -320,46 +314,43 @@ public class GenericTemplate extends AbstractExecutableComponent
             response.getWriter().println(html);
 
         } catch (Exception e) {
-        	
+
         	try {
         		response.getWriter().println("An exception occurred, check the logs<br/>" + e.toString());
         	}
         	catch (Exception ee) {
         	}
-        	
+
             throw new WebUIException(e);
         }
     }
 
-    protected void generateMetaRefresh(HttpServletResponse response) throws IOException
-    {
+    protected void generateMetaRefresh(HttpServletResponse response) throws IOException {
         console.finest("Sending refresh request");
         response.getWriter().println("<html><head><meta http-equiv='REFRESH' content='1;url=/'></head><body></body></html>");
     }
 
-    protected boolean expectMoreRequests(HttpServletRequest request)
-    {
+    protected boolean expectMoreRequests(HttpServletRequest request) {
     	// we are done, e.g. ?done=true
     	// if the request does NOT contain this parameter
     	// we will assume, we are expecting more input
     	return (request.getParameter("done") == null);
     }
-    
-    
+
+
     //
     // not only check errors, but process the input at this step
     // return false on errors, bad input, or you want to regenerate the template/html
     // return true if all processing is completed
-    
+
     // NOTE: subclasses SHOULD override this method
-    protected boolean processRequest(HttpServletRequest request) throws IOException
-    {
+    protected boolean processRequest(HttpServletRequest request) throws IOException {
     	console.finest("subclass did NOT override processRequest(), returning false");
-    	
+
     	 // populate the velocity context with error objects
          // e.g. context.put("hasErrors", new Boolean(true));
-       
-       
+
+
     	return false;
     }
 }

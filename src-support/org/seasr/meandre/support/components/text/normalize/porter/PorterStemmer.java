@@ -40,12 +40,16 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.meandre.components.tools.text.normalize.porter;
+package org.seasr.meandre.support.components.text.normalize.porter;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 
-import java.io.*;
-
-
+/**
+ * @author Mike Haberman
+ */
 public class PorterStemmer {
 
 	// ==============
@@ -87,7 +91,7 @@ public class PorterStemmer {
 		readCnt++;
 		if (readCnt < s.length()) {
 			try {
-				return (int) s.charAt(readCnt);
+				return s.charAt(readCnt);
 			} catch (Exception e) {
 				System.out.println("Index out of bounds: " + e);
 			}

@@ -43,6 +43,8 @@
 package org.seasr.meandre.components.tools.text.io;
 
 
+import java.net.URI;
+
 import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
@@ -61,8 +63,8 @@ import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 
 /**
@@ -81,11 +83,11 @@ import org.seasr.meandre.components.tools.Names;
 		rights = Licenses.UofINCSA,
 		tags = "io, read, text, cookie",
 		description = "This component reads text from a remote location " +
-		"with cookie support. The text location is specified in the input. "+
-		"The component outputs the text read and the cookie obtained from the request. " +
-		"A property controls the behavior of the component in " +
-		"the event of an IO error, allowing it to ignore the error and continue, or " +
-		"throw an exception, forcing the finalization of the flow execution.",
+    		"with cookie support. The text location is specified in the input. "+
+    		"The component outputs the text read and the cookie obtained from the request. " +
+    		"A property controls the behavior of the component in " +
+    		"the event of an IO error, allowing it to ignore the error and continue, or " +
+    		"throw an exception, forcing the finalization of the flow execution.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ReadTextSetCookie extends AbstractExecutableComponent {
@@ -102,20 +104,23 @@ public class ReadTextSetCookie extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
-			description = "The input location where the text was read."
-		)
+			description = "The input location where the text was read." +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+	)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentOutput(
 			name = "cookie",
-			description = "The cookie that needs to be used to retrieve the content."
-		)
+			description = "The cookie that needs to be used to retrieve the content." +
+			    "<br>TYPE: org.apache.commons.httpclient.Cookie[]"
+	)
 	protected static final String OUT_COOKIE = "cookie";
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "The text read"
-		)
+			description = "The text read" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 
@@ -127,29 +132,28 @@ public class ReadTextSetCookie extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	Object data = cc.getDataComponentFromInput(IN_LOCATION);
-    	String uri = BasicDataTypesTools.stringsToStringArray((Strings)data)[0];
+    	URI uri = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
 
         cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(uri.toString()));
 
+        GetMethod method = new GetMethod(uri.toString());
         HttpClient client = new HttpClient();
-        GetMethod method = new GetMethod(uri);
-        
         client.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
-        try{
-          client.executeMethod(method);
-          String sRes = method.getResponseBodyAsString();
-          Cookie[] cookies = client.getState().getCookies();
-          for (int i = 0; i < cookies.length; i++) {
-              console.fine("Cookies: " + cookies[i].toExternalForm());
-          }
-          method.releaseConnection();
-          cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
-          cc.pushDataComponentToOutput(OUT_COOKIE, cookies);
-        } catch(Exception e) {
-        	throw new Exception(e);
-        } finally {
-        	method.releaseConnection();
+
+        try {
+            client.executeMethod(method);
+            String sRes = method.getResponseBodyAsString();
+            Cookie[] cookies = client.getState().getCookies();
+
+            for (int i = 0; i < cookies.length; i++)
+                console.fine("Cookies: " + cookies[i].toExternalForm());
+
+            method.releaseConnection();
+            cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
+            cc.pushDataComponentToOutput(OUT_COOKIE, cookies);
+        }
+        finally {
+            method.releaseConnection();
         }
     }
 

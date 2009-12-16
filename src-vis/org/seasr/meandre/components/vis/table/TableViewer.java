@@ -96,25 +96,26 @@ public class TableViewer extends AbstractGWTWebUIComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
+            name = Names.PORT_TABLE,
             description = "This input contains the file content stored as a vector with "+
                           "each attribute (column) stored as an object array, or stored as a table." +
-                          "<br>TYPE: java.util.Vector<java.lang.Object[]>" +
-                          "<br>      or org.meandre.components.datatype.table.Table",
-            name = Names.PORT_TABLE
+                          "<br>TYPE: org.seasr.datatypes.table.MutableTable"
     )
     protected static final String IN_TABLE = Names.PORT_TABLE;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The HTML to view",
-            name = Names.PORT_HTML
+            name = Names.PORT_HTML,
+            description = "The HTML to view" +
+                "<br>TYPE: java.lang.String"
     )
     protected static final String OUT_HTML = Names.PORT_HTML;
 
     @ComponentOutput(
-            description = "This output is the original content that is unchanged.",
-            name = Names.PORT_TABLE
+            name = Names.PORT_TABLE,
+            description = "The original table, unchanged." +
+                "<br>TYPE: org.seasr.datatypes.table.MutableTable"
     )
     protected static final String OUT_TABLE = Names.PORT_TABLE;
 

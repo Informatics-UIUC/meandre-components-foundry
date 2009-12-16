@@ -43,8 +43,6 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +66,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 /**
- * 
+ *
  * @author Mike Haberman
  *
  */
@@ -76,12 +74,12 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 @Component(
 		name = "Tuple Value Frequency Counter",
 		creator = "Mike Haberman",
-		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
 		description = "This component counts the incoming set of tuples, based on a unique field value" ,
+		baseURL = "meandre://seasr.org/components/foundry/",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
@@ -90,13 +88,15 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples"
+			description = "set of tuples" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentInput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples"
+			description = "meta data for tuples" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 
@@ -104,13 +104,15 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples (countValue, tokenValue)"
+			description = "set of tuples (countValue, tokenValue)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuples (count, token)"
+			description = "meta data for the tuples (count, token)" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
@@ -129,6 +131,7 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 		    defaultValue = "0"
 		)
 	protected static final String PROP_FILTER_THRESHOLD = "threshold";
+
 	//--------------------------------------------------------------------------------------------
 
 	String KEY_FIELD_TUPLE;
@@ -137,13 +140,12 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
-    {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		KEY_FIELD_TUPLE = ccp.getProperty(PROP_FILTER_FIELD).trim();
 		if (KEY_FIELD_TUPLE.length() == 0) {
 			throw new ComponentContextException("Property not set " + PROP_FILTER_FIELD);
 		}
-		
+
 		threshold = Integer.parseInt(ccp.getProperty(PROP_FILTER_THRESHOLD));
 		console.info("Export all tuples whose count > " + threshold);
 	}
@@ -166,17 +168,18 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 		for (int i = 0; i < in.length; i++) {
 			tuple.setValues(in[i]);
 			String key = tuple.getValue(KEY_FIELD_IDX);
-			
+
 			// simple normalization TODO: make a property for this
-			key = key.toLowerCase(); 
-			
+			key = key.toLowerCase();
+
 			freqMap.add(key);
 		}
+
 		List<Map.Entry<String, Integer>> sortedEntries = freqMap.sortedEntries();
-		
+
 	    SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[]{"count", "token"});
 	    SimpleTuple outTuple = outPeer.createTuple();
-	    
+
 	    int COUNT_IDX = 0; // outPeer.getFieldIndex("count")
 	    int TOKEN_IDX = 1; // outPeer.getFieldIndex("token")
 
@@ -199,7 +202,6 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 		// tuple meta data
 		cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
-
 	}
 
     @Override

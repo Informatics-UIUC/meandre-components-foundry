@@ -90,7 +90,11 @@ public class ReadText extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the text to read"
+			description = "The URL or file name containing the text to read" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
@@ -98,14 +102,16 @@ public class ReadText extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
-			description = "The location that the text was read from"
-		)
+			description = "The location that the text was read from" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+	)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "The text read"
-		)
+			description = "The text read" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 

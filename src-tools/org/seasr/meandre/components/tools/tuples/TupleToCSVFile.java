@@ -63,11 +63,10 @@ import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-
 import org.seasr.meandre.support.utils.FileResourceUtility;
 
 /**
- * 
+ *
  * @author Mike Haberman
  *
  */
@@ -89,13 +88,15 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples"
+			description = "set of tuples" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentInput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples"
+			description = "meta data for tuples" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 
@@ -103,22 +104,24 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples (same as input)"
+			description = "set of tuples (same as input)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuples (same as input)"
+			description = "meta data for the tuples (same as input)" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
-	
+
 	@ComponentOutput(
 			name = Names.PORT_FILENAME,
-			description = "name of the file written"
+			description = "name of the file written" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_FILENAME = Names.PORT_FILENAME;
-	
 
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
@@ -145,10 +148,8 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-	
-	
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
 		filename = ccp.getProperty(PROP_FILENAME).trim();
 		if (filename.length() == 0) {
@@ -157,15 +158,15 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 
 		String path = filename;
 		try {
-			
+
 			path = FileResourceUtility.createPathToPublishedResources(ccp, filename, console);
 			console.info("writing data to " + path);
 		    output = new BufferedWriter(new FileWriter(path));
-		    
+
 	    } catch (IOException e) {
 	    	throw new ComponentContextException("Unable to write to" + path);
 	    }
-	    
+
 	    console.info("tuple file " + filename);
 
 	    tokenSep = ccp.getProperty(PROP_TOKEN_SEPARATOR).trim();
@@ -207,7 +208,7 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 		output.flush();
 
 		Strings fn = BasicDataTypesTools.stringToStrings(filename);
-		
+
 		cc.pushDataComponentToOutput(OUT_FILENAME,   fn);
 		cc.pushDataComponentToOutput(OUT_TUPLES,     input);
 		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);

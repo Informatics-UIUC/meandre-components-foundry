@@ -50,6 +50,7 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
@@ -58,48 +59,59 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
-@Component(creator="Lily Dong",
+@Component(
+        creator="Lily Dong",
         description="Generates a web page containing google map " +
         		"marked with locations from the original XML document.",
         name="Google Map Viewer",
         tags="google map, visualization",
         mode=Mode.webui,
+        rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/",
-        resources = {"GoogleMapViewer.vm"})
-
+        resources = {"GoogleMapViewer.vm"}
+)
 public class GoogleMapViewer extends AbstractExecutableComponent {
+
 	//-------------------------- INPUTS --------------------------
 
-	@ComponentInput(description="Read vector of latitude." +
-             "<br>TYPE: java.util.Vector",
-             name= Names.PORT_LATITUDE_VECTOR)
+	@ComponentInput(
+	        name = Names.PORT_LATITUDE_VECTOR,
+	        description = "Read vector of latitude." +
+	            "<br>TYPE: java.util.Vector<java.lang.String>"
+	)
     public final static String IN_LATITUDE = Names.PORT_LATITUDE_VECTOR;
 
-	@ComponentInput(description="Read vector of longitude." +
-         	"<br>TYPE: java.util.Vector",
-       		name= Names.PORT_LONGITUDE_VECTOR)
+	@ComponentInput(
+	        name = Names.PORT_LONGITUDE_VECTOR,
+	        description = "Read vector of longitude." +
+         	    "<br>TYPE: java.util.Vector<java.lang.String>"
+	)
     public final static String IN_LONGITUDE = Names.PORT_LONGITUDE_VECTOR;
 
-	@ComponentInput(description="Read vector of location." +
-         	"<br>TYPE: java.util.Vector",
-       		name= Names.PORT_LOCATION_VECTOR)
+	@ComponentInput(
+	        name = Names.PORT_LOCATION_VECTOR,
+	        description = "Read vector of location." +
+         	    "<br>TYPE: java.util.Vector<java.lang.String>"
+	)
     public final static String IN_LOCATION = Names.PORT_LOCATION_VECTOR;
 
-	@ComponentInput(description="Read vector of context." +
-         	"<br>TYPE: java.util.Vector",
-       		name= Names.PORT_CONTEXT_VECTOR)
+	@ComponentInput(
+	        name = Names.PORT_CONTEXT_VECTOR,
+	        description = "Read vector of context." +
+         	    "<br>TYPE: java.util.Vector<java.lang.String>"
+	)
     public final static String IN_CONTEXT = Names.PORT_CONTEXT_VECTOR;
-
 
 	//-------------------------- OUTPUTS --------------------------
 
 	@ComponentOutput(
-	        description = "The HTML for the Google Map viewer",
-	        name = Names.PORT_HTML
+	        name = Names.PORT_HTML,
+	        description = "The HTML for the Google Map viewer" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_HTML = Names.PORT_HTML;
 
-	 //-------------------------- PROPERTIES --------------------------
+	//-------------------------- PROPERTIES --------------------------
 
 	@ComponentProperty(
 	        defaultValue = "ABQIAAAAzuMq2M5--KdBKawoLNQWUxRi_j0U6kJrkFvY4-OX2XYmEAa76BQS61jzrv4ruAIpkFQs5Qp-fiN3hg",
@@ -108,9 +120,15 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
 	)
     protected static final String PROP_GOOGLE_KEY = Names.PROP_GOOGLE_APIS_KEY;
 
+    //--------------------------------------------------------------------------------------------
+
+
     static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/geographic/GoogleMapViewer.vm";
 
     private VelocityContext _context;
+
+
+    //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -118,6 +136,7 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
     	_context.put("key", ccp.getProperty(PROP_GOOGLE_KEY));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
     	Vector<String> latitude, longitude, location, context;

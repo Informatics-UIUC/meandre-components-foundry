@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.tools.text.io;
 
+import java.net.URI;
 
 import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.HttpClient;
@@ -62,8 +63,8 @@ import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 
 /**
@@ -82,12 +83,12 @@ import org.seasr.meandre.components.tools.Names;
 		rights = Licenses.UofINCSA,
 		tags = "io, read, text",
 		description = "This component reads content as byte array from a remote location " +
-		"with cookie support. The text location is specified in the input and" +
-		"the cookie is also an input. "+
-		"The component outputs the byte array of the content. " +
-		"A property controls the behavior of the component in " +
-		"the event of an IO error, allowing it to ignore the error and continue, or " +
-		"throw an exception, forcing the finalization of the flow execution.",
+    		"with cookie support. The text location is specified in the input and" +
+    		"the cookie is also an input. "+
+    		"The component outputs the byte array of the content. " +
+    		"A property controls the behavior of the component in " +
+    		"the event of an IO error, allowing it to ignore the error and continue, or " +
+    		"throw an exception, forcing the finalization of the flow execution.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ReadContentWithCookie extends AbstractExecutableComponent {
@@ -96,34 +97,39 @@ public class ReadContentWithCookie extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the text to read"
+			description = "The URL or file name containing the text to read" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
-    //------------------------------ OUTPUTS -----------------------------------------------------
-
 	@ComponentInput(
 			name = "Cookie",
-			description = "The cookie that needs to be used to retrieve the content."
+			description = "The cookie that needs to be used to retrieve the content." +
+			    "<br>TYPE: org.apache.commons.httpclient.Cookie[]"
 		)
 	protected static final String IN_COOKIE = "Cookie";
-	
+
+	//------------------------------ OUTPUTS -----------------------------------------------------
+
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
-			description = "The input location where the text was read."
+			description = "The input location from where the text was read." +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 		)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
-
-
 	@ComponentOutput(
 			name = Names.PORT_RAW_DATA,
-			description = "The content from the input location."
+			description = "The content from the input location." +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes"
 		)
 	protected static final String OUT_RAW_DATA = Names.PORT_RAW_DATA;
 
-
 	//--------------------------------------------------------------------------------------------
+
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -131,29 +137,26 @@ public class ReadContentWithCookie extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	Object data = cc.getDataComponentFromInput(IN_LOCATION);
+        URI uri = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
     	Cookie[] cookies = (Cookie[]) cc.getDataComponentFromInput(IN_COOKIE);
-    	
-    	String uri = BasicDataTypesTools.stringsToStringArray((Strings)data)[0];
 
         cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(uri.toString()));
 
         HttpClient client = new HttpClient();
-        GetMethod method = new GetMethod(uri);
+        GetMethod method = new GetMethod(uri.toString());
         HttpState initialState = new HttpState();
         initialState.addCookies(cookies);
         client.setState(initialState);
         client.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
-        
-        try{
-          client.executeMethod(method);
-          byte[] baRes = method.getResponseBody();
-          method.releaseConnection();
-          cc.pushDataComponentToOutput(OUT_RAW_DATA, BasicDataTypesTools.byteArrayToBytes(baRes));
-          } catch(Exception e) {
-        	throw new Exception(e);
-        } finally {
-        	method.releaseConnection();
+
+        try {
+            client.executeMethod(method);
+            byte[] baRes = method.getResponseBody();
+            method.releaseConnection();
+            cc.pushDataComponentToOutput(OUT_RAW_DATA, BasicDataTypesTools.byteArrayToBytes(baRes));
+        }
+        finally {
+            method.releaseConnection();
         }
     }
 

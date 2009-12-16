@@ -188,6 +188,7 @@ public abstract class DataTypeParser {
                     input = String.format("%.150s ... [%d more characters]", input, len-150);
                 throw new URISyntaxException(input, e.getReason(), e.getIndex());
             }
+
         else
 
         if (data instanceof String)
@@ -201,6 +202,7 @@ public abstract class DataTypeParser {
                     input = String.format("%.150s ... [%d more characters]", input, len-150);
                 throw new URISyntaxException(input, e.getReason(), e.getIndex());
             }
+
         else
             throw new UnsupportedDataTypeException(data.getClass().getName());
 

@@ -99,13 +99,20 @@ public class WriteXML extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the model to write"
+			description = "The URL or file name containing the model to write" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentInput(
 			name = Names.PORT_XML,
-			description = "The XML document"
+			description = "The XML document" +
+                "<br>TYPE: org.w3c.dom.Document" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_XML = Names.PORT_XML;
 
@@ -113,13 +120,15 @@ public class WriteXML extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the written XML"
+			description = "The URL or file name containing the written XML" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentOutput(
 			name = Names.PORT_XML,
-			description = "The XML document"
+			description = "The XML document" +
+                "<br>TYPE: org.w3c.dom.Document"
 	)
 	protected static final String OUT_XML= Names.PORT_XML;
 

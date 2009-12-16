@@ -51,7 +51,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
@@ -62,6 +61,7 @@ import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.components.tools.text.io.GenericTemplate;
+import org.seasr.meandre.support.components.geographic.GeoLocation;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
@@ -86,38 +86,33 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 public class SimpleGoogleMapViewer extends GenericTemplate {
 
     //
-	// google key for ncsa.uiuc.edu
-	//
-	static final String NCSA_KEY = "ABQIAAAADV1H5JfZH41B6yxB1yGVFhQmgYtTImkVBc-VhblDgOLOdwhVaBSPwcEgsBl7atDdDJjnfl51p9fU5A";
+    // google key for ncsa.uiuc.edu
+    //
+    static final String NCSA_KEY = "ABQIAAAADV1H5JfZH41B6yxB1yGVFhQmgYtTImkVBc-VhblDgOLOdwhVaBSPwcEgsBl7atDdDJjnfl51p9fU5A";
 
 
-	//
-	// google key for localhost
-	//
-
-	static final String LOCALHOST_KEY = "ABQIAAAADV1H5JfZH41B6yxB1yGVFhT2yXp_ZAY8_ufC3CFXhHIE1NvwkxR-tpPz23kSE2A2buBtYPTRubh20w";
+    //
+    // google key for localhost
+    //
+    static final String LOCALHOST_KEY = "ABQIAAAADV1H5JfZH41B6yxB1yGVFhT2yXp_ZAY8_ufC3CFXhHIE1NvwkxR-tpPz23kSE2A2buBtYPTRubh20w";
     static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/geographic/SimpleGoogleMapViewer.vm";
 
-	//------------------------------ INPUTS -----------------------------------------------------
+
+    //------------------------------ INPUTS -----------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples"
+			description = "set of tuples" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentInput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples"
+			description = "meta data for tuples" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
-
-
-	
-
-    //------------------------------ OUTPUTS -----------------------------------------------------
-
-   
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -130,8 +125,8 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 	        defaultValue = "Google Maps"
 	)
 	protected static final String PROP_TITLE = Names.PROP_TITLE;
-	
-	
+
+
 	@ComponentProperty(
 	        description = "max locations to query, -1 no max, yahoo restricts query access",
 	        name = "maxLocations",
@@ -156,47 +151,29 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 
     //--------------------------------------------------------------------------------------------
 
+    int maxLocations = 100;
 
-	public static String buildDefaultViz(List<GeoLocation> list)
-	   throws Exception
-	{
-		VelocityTemplateService velocity = VelocityTemplateService.getInstance();
-		VelocityContext context;
+    //--------------------------------------------------------------------------------------------
 
-		context = velocity.getNewContext();
-		context.put("key",    LOCALHOST_KEY);
-		context.put("title",  "Geo");
-		context.put("geoList", list);
-
-		String html = velocity.generateOutput(context, DEFAULT_TEMPLATE);
-		return html;
-	}
-
-	int maxLocations = 100;
-	
 	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-	{
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
-
 
 	    context.put("key",          ccp.getProperty(PROP_KEY));
 	    context.put("title",        ccp.getProperty(PROP_TITLE));
 	    context.put("addDone", true);
 
-	    
+
 	    maxLocations = Integer.parseInt(ccp.getProperty(PROP_LOC_MAX));
 	    if (maxLocations < 0) {
 	    	maxLocations = -1;
 	    }
-	    
+
 	    console.info("max locations " + maxLocations);
 	}
 
     @Override
-    public void executeCallBack(ComponentContext cc) throws Exception
-    {
-
+    public void executeCallBack(ComponentContext cc) throws Exception {
     	//
     	// fetch the input, push it to the context
     	//
@@ -208,23 +185,23 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 		//
 		// TODO: type/text/location should be properties
 		//
-		
+
 		//
 		// we can get location values directly from the data
 		// or by looking at a "type" and "text" values
-		// 
+		//
 		int TYPE_IDX = tuplePeer.getIndexForFieldName("type");
 		int TEXT_IDX = tuplePeer.getIndexForFieldName("text");
-		
+
 		int LOCATION_IDX = tuplePeer.getIndexForFieldName("location");
 		if (LOCATION_IDX == -1) {
-		
+
 			if (TYPE_IDX == -1 || TEXT_IDX == -1) {
 				console.info(tuplePeer.toString());
 				throw new RuntimeException("no type/text field");
 			}
 		}
-		
+
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
@@ -247,8 +224,8 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 				}
 				location = tuple.getValue(TEXT_IDX);
 			}
-			
-			
+
+
 			// convert to a geo location
 			try {
 
@@ -283,8 +260,20 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
     }
 
 	@Override
-	protected boolean processRequest(HttpServletRequest request) throws IOException
-	{
+	protected boolean processRequest(HttpServletRequest request) throws IOException {
 	   return true;
 	}
+
+	public static String buildDefaultViz(List<GeoLocation> list) throws Exception {
+        VelocityTemplateService velocity = VelocityTemplateService.getInstance();
+        VelocityContext context;
+
+        context = velocity.getNewContext();
+        context.put("key",    LOCALHOST_KEY);
+        context.put("title",  "Geo");
+        context.put("geoList", list);
+
+        String html = velocity.generateOutput(context, DEFAULT_TEMPLATE);
+        return html;
+    }
 }

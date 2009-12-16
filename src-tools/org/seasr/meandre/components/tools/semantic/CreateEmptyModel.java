@@ -84,7 +84,8 @@ public class CreateEmptyModel extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_DOCUMENT,
-			description = "The empty model being pushed"
+			description = "The empty model being pushed" +
+			    "<br>TYPE: com.hp.hpl.jena.rdf.model.Model"
 	)
 	protected static final String OUT_DOCUMENT = Names.PORT_DOCUMENT;
 
@@ -116,12 +117,14 @@ public class CreateEmptyModel extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		lTimes = Long.parseLong(ccp.getProperty(PROP_TIMES));
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		if ( bWrapped )
 			pushInitiator();
 
@@ -132,6 +135,7 @@ public class CreateEmptyModel extends AbstractExecutableComponent {
 			pushTerminator();
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         lTimes = 0;
         bWrapped = false;

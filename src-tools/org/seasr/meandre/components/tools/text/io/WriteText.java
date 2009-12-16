@@ -43,11 +43,7 @@
 package org.seasr.meandre.components.tools.text.io;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Writer;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -100,13 +96,22 @@ public class WriteText extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the model to write"
+			description = "The URL or file name containing the model to write" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentInput(
 			name = Names.PORT_TEXT,
-			description = "The text to write"
+			description = "The text to write" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_TEXT = Names.PORT_TEXT;
 
@@ -114,23 +119,27 @@ public class WriteText extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the written XML"
+			description = "The URL or file name containing the written XML" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "The text written"
+			description = "The text written" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TEXT= Names.PORT_TEXT;
 
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		URI objLoc = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
 		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 
@@ -148,17 +157,18 @@ public class WriteText extends AbstractExecutableComponent {
 
 		String sText = inputs[0];
 
-		Writer wrtr = openWriter(cc.getPublicResourcesDirectory()+File.separator+sLocation);//IOUtils.getWriterForResource(sLocation);
+		Writer wrtr = IOUtils.getWriterForResource(new URI(cc.getPublicResourcesDirectory()+File.separator+sLocation));
 		wrtr.write(sText);
 		wrtr.close();
 
 		URL outputURL = new URL(cc.getProxyWebUIUrl(true), "/public/resources/" + sLocation);
-		console.info("File written " + "and accessible at "+ outputURL);
+		console.info("File written! Accessible at "+ outputURL);
 
 		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(outputURL.toString()));
 		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sText));
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
@@ -225,35 +235,6 @@ public class WriteText extends AbstractExecutableComponent {
             catch (Exception e) {
                 throw new ComponentExecutionException(e);
             }
-		}
-	}
-
-	//-----------------------------------------------------------------------------------
-
-	/** Opens a writer to the location where to write.
-	 *
-	 * @param sLocation The location to write to
-	 * @return The writer for this location
-	 * @throws IOException The location could not be read
-	 */
-	private Writer openWriter(String sLocation) throws IOException {
-		try {
-			// Try too pull it as a URL
-			URL url = new URL(sLocation);
-			if ( url.getProtocol().equalsIgnoreCase("file") )
-				return new FileWriter(new File(url.toString().substring(7)));
-			else
-				// Not a file, assuming unsupported format
-				throw new MalformedURLException();
-		} catch (MalformedURLException e) {
-			// Badly formated UR or remoteL. Trying as a local file
-			try {
-				return new FileWriter(sLocation);
-			} catch (FileNotFoundException e1) {
-				throw e1;
-			}
-		} catch (IOException e) {
-			throw e;
 		}
 	}
 }

@@ -88,19 +88,22 @@ public class UrlToTuple extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "tuples (one tuple: title, location, content/text)"
+			description = "tuples (one tuple: title, location, content/text)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuple (title, location, content)"
+			description = "meta data for the tuple (title, location, content)" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "text from the URL fetch, for convenience.  Same as the other input."
+			description = "text from the URL fetch, for convenience.  Same as the other input." +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
@@ -127,11 +130,10 @@ public class UrlToTuple extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
-    {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    String location = ccp.getProperty(PROP_LOCATION).trim();
 	    String title    = ccp.getProperty(PROP_TITLE).trim();
-	    
+
 	    int idx = location.indexOf("{cwd}");
 	    if (idx > 0) {
 	    	String prefix = location.substring(0,idx);
@@ -141,7 +143,7 @@ public class UrlToTuple extends AbstractExecutableComponent {
 	    }
 
 	    console.info("reading location " + location);
-	    
+
 		URL url = new URL(location);
 		BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 
@@ -159,8 +161,7 @@ public class UrlToTuple extends AbstractExecutableComponent {
 	}
 
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception 
-    {
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		// push the meta data
 		cc.pushDataComponentToOutput(OUT_META_TUPLE, outTuple.getPeer().convert());
 

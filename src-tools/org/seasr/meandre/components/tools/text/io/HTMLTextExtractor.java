@@ -77,25 +77,34 @@ public class HTMLTextExtractor extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The HTML document",
-            name = Names.PORT_HTML
+            name = Names.PORT_HTML,
+            description = "The HTML document" +
+                "<br>TYPE: org.w3c.dom.Document" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_HTML = Names.PORT_HTML;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The text extracted from the HTML document",
-            name = Names.PORT_TEXT
+            name = Names.PORT_TEXT,
+            description = "The text extracted from the HTML document" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object input = cc.getDataComponentFromInput(IN_HTML);
 
@@ -112,6 +121,7 @@ public class HTMLTextExtractor extends AbstractExecutableComponent {
         }
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }

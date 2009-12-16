@@ -76,7 +76,12 @@ public class ErrorAggregator extends AbstractExecutableComponent {
 
     @ComponentInput(
             name = Names.PORT_ERROR,
-            description = "The error"
+            description = "The error" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_ERROR = Names.PORT_ERROR;
 

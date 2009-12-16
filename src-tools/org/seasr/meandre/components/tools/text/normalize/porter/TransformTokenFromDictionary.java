@@ -49,6 +49,7 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
@@ -57,28 +58,37 @@ import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.components.text.normalize.porter.PorterStemmer;
 
-@Component(creator = "Lily Dong",
+/**
+ * @author Lily Dong
+ */
+
+@Component(
+        creator = "Lily Dong",
 		description = "Replaces tokens with their representatives from the dictionary. " +
-		"If several tokens have the same representative, their counts are aggregated.",
+		    "If several tokens have the same representative, their counts are aggregated.",
 		firingPolicy = FiringPolicy.all,
 		name = "Transform Token From Dictionary",
 		tags = "token transform",
-		baseURL="meandre://seasr.org/components/foundry/")
+		rights = Licenses.UofINCSA,
+		baseURL = "meandre://seasr.org/components/foundry/"
+)
+public class TransformTokenFromDictionary extends AbstractExecutableComponent {
 
-public class TransformTokenFromDictionary extends AbstractExecutableComponent
-{
 	//------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TOKEN_COUNTS,
-			description = "The token counts to be transformed"
+			description = "The token counts to be transformed" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
 	@ComponentInput(
 			name = Names.PORT_DICTIONARY,
-			description = "The input dictionary"
+			description = "The input dictionary" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String IN_DICTIONARY = Names.PORT_DICTIONARY;
 
@@ -86,24 +96,19 @@ public class TransformTokenFromDictionary extends AbstractExecutableComponent
 
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_COUNTS,
-			description = "The transformed token counts"
+			description = "The transformed token counts" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
-	// ================
-	// Public Methods
-	// ================
+    //--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp)
-    throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp)
-    throws Exception {
-	}
-
-	public void executeCallBack(ComponentContext cc)
-	throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		Map<String, Integer> res = new HashMap<String, Integer>();
 
 		StringsMap sm = (StringsMap)cc.getDataComponentFromInput(IN_DICTIONARY);
@@ -130,5 +135,9 @@ public class TransformTokenFromDictionary extends AbstractExecutableComponent
 		}
 		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
 				BasicDataTypesTools.mapToIntegerMap(res, false));
+	}
+
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 }

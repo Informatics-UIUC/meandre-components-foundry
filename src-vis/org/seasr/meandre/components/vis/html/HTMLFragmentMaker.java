@@ -78,18 +78,25 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
+            name = Names.PORT_RAW_DATA,
             description = "Raw data encoded in one of the supported encoding types." +
-                          "<br>TYPE: String, Text, byte[] - text/plain<br>byte[] - image/<ext>",
-            name = Names.PORT_RAW_DATA
+            "<br>For text mime type:" +
+            "<br>TYPE: java.lang.String" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+            "<br>TYPE: byte[]" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+            "<br>TYPE: java.lang.Object" +
+            "<br><br>For image mime type:" +
+            "<br>TYPE: byte[]"
     )
     protected static final String IN_RAW_DATA = Names.PORT_RAW_DATA;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
+            name = Names.PORT_HTML,
             description = "The HTML fragment wrapping the input data." +
-                          "<br>TYPE: Text",
-            name = Names.PORT_HTML
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_HTML = Names.PORT_HTML;
 
@@ -126,6 +133,7 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _mimeType = ccp.getProperty(PROP_ENCODING).toLowerCase();
 
@@ -136,6 +144,7 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
         if (_css.trim().length() == 0) _css = null;
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object data = cc.getDataComponentFromInput(IN_RAW_DATA);
 
@@ -159,6 +168,7 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
             throw new UnsupportedEncodingException("Unknown MIME type specified: " + _mimeType);
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }

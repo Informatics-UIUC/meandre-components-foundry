@@ -87,7 +87,14 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_DOCUMENT,
-			description = "The model containing the semantic document to accumulate"
+			description = "The model containing the semantic document to accumulate" +
+                "<br>TYPE: com.hp.hpl.jena.rdf.model.Model" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL"
 	)
 	protected static final String IN_DOCUMENT = Names.PORT_DOCUMENT;
 
@@ -95,7 +102,8 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_DOCUMENT,
-			description = "The semantic document accumulated"
+			description = "The semantic document accumulated" +
+			    "<br>TYPE: com.hp.hpl.jena.rdf.model.Model"
 	)
 	protected static final String OUT_DOCUMENT = Names.PORT_DOCUMENT;
 
@@ -115,12 +123,14 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.modelAcc = null;
 		this.iCnt = 0;
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 	    Model model = DataTypeParser.parseAsModel(cc.getDataComponentFromInput(IN_DOCUMENT));
 
 		if ( this.modelAcc==null )
@@ -129,6 +139,7 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
 		    reduceModel(model);
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.modelAcc = null;
         this.iCnt = 0;

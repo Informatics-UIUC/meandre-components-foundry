@@ -93,13 +93,24 @@ public class WriteModel extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the model to write"
+			description = "The URL or file name containing the model to write" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentInput(
 			name = Names.PORT_DOCUMENT,
-			description = "The model containing the semantic document written"
+			description = "The model containing the semantic document written" +
+                "<br>TYPE: com.hp.hpl.jena.rdf.model.Model" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL"
 	)
 	protected static final String IN_DOCUMENT = Names.PORT_DOCUMENT;
 
@@ -137,11 +148,13 @@ public class WriteModel extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.sRDFDialect = ccp.getProperty(PROP_RDF_DIALECT);
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		Model model = DataTypeParser.parseAsModel(cc.getDataComponentFromInput(IN_DOCUMENT));
 		URI location = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
 
@@ -151,6 +164,7 @@ public class WriteModel extends AbstractExecutableComponent {
 		cc.pushDataComponentToOutput(OUT_DOCUMENT, model);
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.sRDFDialect = null;
     }

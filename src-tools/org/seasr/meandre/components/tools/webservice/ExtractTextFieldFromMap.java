@@ -57,7 +57,7 @@ import org.seasr.datatypes.BasicDataTypes.BytesMap;
 import org.seasr.meandre.components.tools.Names;
 
 /** Extracts a field from a given request map provided by a service head
- * 
+ *
  * @author Xavier Llor&agrave;
  */
 
@@ -75,26 +75,27 @@ public class ExtractTextFieldFromMap extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-    		description = "A map object containing the key elements of the request and the associated values",
-			name = Names.PORT_REQUEST_DATA
+            name = Names.PORT_REQUEST_DATA,
+    		description = "A map object containing the key elements of the request and the associated values" +
+    		    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.BytesMap"
     )
     protected static final String IN_REQUEST = Names.PORT_REQUEST_DATA;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The data contained on the provided field",
-            name = Names.PORT_RAW_DATA
+            name = Names.PORT_RAW_DATA,
+            description = "The data contained on the provided field" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_RAW_DATA = Names.PORT_RAW_DATA;
 
-
     @ComponentOutput(
-    		description = "The original map object",
-			name = Names.PORT_REQUEST_DATA
+            name = Names.PORT_REQUEST_DATA,
+    		description = "The original map object" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.BytesMap"
     )
     protected static final String OUT_REQUEST = Names.PORT_REQUEST_DATA;
-
 
     //------------------------------ PROPERTIES ---------------------------------------------------
 
@@ -104,25 +105,29 @@ public class ExtractTextFieldFromMap extends AbstractExecutableComponent {
     		defaultValue = "url"
     )
     protected static final String PROP_FIELD = Names.PROP_FIELD_NAME;
+
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
     	Object obj = cc.getDataComponentFromInput(IN_REQUEST);
     	Map<String, byte[]> map = BasicDataTypesTools.ByteMapToMap((BytesMap)obj);
         String fieldName = cc.getProperty(PROP_FIELD);
-        
+
         cc.getLogger().info("Keys available "+map.keySet().toString());
-		if ( map.containsKey(fieldName) ) 
+		if ( map.containsKey(fieldName) )
     		cc.pushDataComponentToOutput(OUT_RAW_DATA,BasicDataTypesTools.stringToStrings(new String(map.get(fieldName))));
 		else
     		cc.pushDataComponentToOutput(OUT_RAW_DATA,BasicDataTypesTools.stringToStrings(""));
-	
+
     	cc.pushDataComponentToOutput(OUT_REQUEST,obj);
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }

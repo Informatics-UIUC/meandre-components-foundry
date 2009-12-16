@@ -58,7 +58,6 @@ import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Integers;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
@@ -70,6 +69,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
  * @author Boris Capitanu
  * @author Lily Dong
  */
+
 @Component(
 		name = "Print To Console",
 		creator = "Xavier Llora",
@@ -77,7 +77,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "io, print, console",
+		tags = "print, console",
 		description = "This component takes the input and prints it to the console. ",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
@@ -87,7 +87,14 @@ public class PrintToConsole extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_OBJECT,
-			description = "The object to print"
+			description = "The object to print" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_OBJECT = Names.PORT_OBJECT;
 
@@ -131,15 +138,13 @@ public class PrintToConsole extends AbstractExecutableComponent {
 		    StringsMap sm = (StringsMap)data;
             for (int i = 0; i < sm.getValueCount(); i++) {
                 String key = sm.getKey(i);
-                //Strings values = sm.getValue(i);
+                String[] values = BasicDataTypesTools.stringsToStringArray(sm.getValue(i));
 
-                String[] values =
-                	BasicDataTypesTools.stringsToStringArray(sm.getValue(i));
                 StringBuffer buf = new StringBuffer();
-                for(int j=0; j<values.length; j++)
+                for (int j = 0; j < values.length; j++)
                 	buf.append(values[j]).append("\n");
 
-                outputConsole.println(String.format("key:\n%s\nvalues:\n%s", key, buf.toString()));//values));
+                outputConsole.println(String.format("key:%n%s%nvalues:%n%s%n", key, buf.toString()));
             }
 		}
 
@@ -151,23 +156,23 @@ public class PrintToConsole extends AbstractExecutableComponent {
 		    int maxLength = 0;
 			for (int i = 0; i < im.getValueCount(); i++) {
 				String key = im.getKey(i);
-				maxLength = (key.length()>maxLength)? key.length(): maxLength;
+				maxLength = (key.length() > maxLength) ? key.length() : maxLength;
 		    }
 
-			String pattern = "%-"+maxLength+"s %s%n";
+			String pattern = "%-" + maxLength + "s %s%n";
 		    outputConsole.println(String.format(pattern, "key", "value"));
-		    pattern = "%-"+maxLength+"s %d";
+
+		    pattern = "%-" + maxLength + "s %d";
 		    for (int i = 0; i < im.getValueCount(); i++) {
 		        String key = im.getKey(i);
 		        Integers values = im.getValue(i);
-                outputConsole.println(String.format(pattern,  key, values.getValue(0)));
+                outputConsole.println(String.format(pattern, key, values.getValue(0)));
 		    }
 		}
 
-		else {
+		else
             for (String s : DataTypeParser.parseAsString(data))
                 outputConsole.println(s);
-		}
 
 		cc.pushDataComponentToOutput(OUT_OBJECT, data);
 	}
@@ -203,10 +208,12 @@ public class PrintToConsole extends AbstractExecutableComponent {
 		StringBuffer sb = new StringBuffer();
 		String [] saName = obj.getClass().getName().split("\\"+".");
 		sb.append(saName[saName.length-1]+" [ ");
+
 		StreamDelimiter sd = (StreamDelimiter) obj;
-		for ( String sKey:sd.keySet())
-			sb.append("("+sKey+"="+sd.get(sKey)+") ");
+		for (String sKey : sd.keySet())
+			sb.append("(" + sKey + "=" + sd.get(sKey) + ") ");
 		sb.append("]");
+
 		componentContext.getOutputConsole().println(sb);
 	}
 }

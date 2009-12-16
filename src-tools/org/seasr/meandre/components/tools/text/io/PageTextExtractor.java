@@ -82,7 +82,10 @@ public class PageTextExtractor extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_XML,
-			description = "The JSTOR XML document"
+			description = "The JSTOR XML document" +
+                "<br>TYPE: org.w3c.dom.Document" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_XML = Names.PORT_XML;
 
@@ -90,17 +93,20 @@ public class PageTextExtractor extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "The extracted text based on the pages tag"
+			description = "The extracted text based on the pages tag" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
 
 		NodeList nl = doc.getChildNodes().item(0).getChildNodes();
@@ -121,6 +127,7 @@ public class PageTextExtractor extends AbstractExecutableComponent {
 		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sb.toString()));
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }

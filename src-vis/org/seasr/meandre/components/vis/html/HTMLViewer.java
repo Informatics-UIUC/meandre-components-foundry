@@ -87,8 +87,13 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-	        description = "The HTML data",
-            name = Names.PORT_HTML
+	        name = Names.PORT_HTML,
+	        description = "The HTML data" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
     protected static final String IN_HTML = Names.PORT_HTML;
 

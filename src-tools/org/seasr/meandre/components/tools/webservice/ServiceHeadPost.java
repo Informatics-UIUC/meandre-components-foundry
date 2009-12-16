@@ -84,36 +84,41 @@ import org.seasr.meandre.components.tools.Names;
 		baseURL = "meandre://seasr.org/components/foundry/"
 )
 public class ServiceHeadPost extends AbstractExecutableComponent
-    implements WebUIFragmentCallback {
+                             implements WebUIFragmentCallback {
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			description = "A map object containing the key elements of the request and the associated values",
-			name = Names.PORT_REQUEST_DATA
+	        name = Names.PORT_REQUEST_DATA,
+			description = "A map object containing the key elements of the request and the associated values" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.BytesMap"
 	)
 	protected static final String OUT_REQUEST = Names.PORT_REQUEST_DATA;
 
 	@ComponentOutput(
-			description = "The response to be sent to the Service Tail Post.",
-			name = Names.PORT_RESPONSE_HANDLER
+	        name = Names.PORT_RESPONSE_HANDLER,
+			description = "The response to be sent to the Service Tail Post." +
+			    "<br>TYPE: javax.servlet.http.HttpServletResponse"
 	)
 	protected static final String OUT_RESPONSE = Names.PORT_RESPONSE_HANDLER;
 
 	@ComponentOutput(
-			description = "The semaphore to signal the response was sent.",
-			name = Names.PORT_SEMAPHORE
+	        name = Names.PORT_SEMAPHORE,
+			description = "The semaphore to signal the response was sent." +
+			    "<br>TYPE: java.util.concurrent.Semaphore"
 	)
 	protected static final String OUT_SEMAPHORE = Names.PORT_SEMAPHORE;
 
 
     //--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    console.info("Service location: " + ccp.getWebUIUrl(true) + ccp.getExecutionInstanceID());
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 	    cc.startWebUIFragment(this);
 
 		console.info("Starting service head for " + cc.getFlowID());
@@ -126,6 +131,7 @@ public class ServiceHeadPost extends AbstractExecutableComponent
 		cc.stopWebUIFragment(this);
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 

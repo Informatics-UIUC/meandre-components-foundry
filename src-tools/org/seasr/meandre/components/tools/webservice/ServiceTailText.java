@@ -81,30 +81,38 @@ public class ServiceTailText extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			description = "A string containing the output to send to client",
-			name = Names.PORT_TEXT
+	        name = Names.PORT_TEXT,
+			description = "A string containing the output to send to client" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_TEXT = Names.PORT_TEXT;
 
 	@ComponentInput(
-			description = "The response sent by the Service Head.",
-			name = Names.PORT_RESPONSE_HANDLER
+	        name = Names.PORT_RESPONSE_HANDLER,
+			description = "The response sent by the Service Head." +
+			    "<br>TYPE: javax.servlet.http.HttpServletResponse"
 	)
 	protected static final String IN_RESPONSE = Names.PORT_RESPONSE_HANDLER;
 
 	@ComponentInput(
-			description = "The semaphore to signal the response was sent.",
-			name = Names.PORT_SEMAPHORE
+	        name = Names.PORT_SEMAPHORE,
+			description = "The semaphore to signal the response was sent." +
+			    "<br>TYPE: java.util.concurrent.Semaphore"
 	)
 	protected static final String IN_SEMAPHORE = Names.PORT_SEMAPHORE;
 
-
     //--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 		if (inputs.length > 1)
 		    throw new Exception("Cannot process multiple responses at one time");
@@ -121,6 +129,7 @@ public class ServiceTailText extends AbstractExecutableComponent {
 		sem.release();
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }

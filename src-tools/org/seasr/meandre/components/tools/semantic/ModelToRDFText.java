@@ -85,15 +85,23 @@ public class ModelToRDFText extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_DOCUMENT,
-			description = "The model containing the semantic document to convert"
-		)
+			description = "The model containing the semantic document to convert" +
+                "<br>TYPE: com.hp.hpl.jena.rdf.model.Model" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL"
+	)
 	protected static final String IN_DOCUMENT = Names.PORT_DOCUMENT;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "The semantic document converted into text"
+			description = "The semantic document converted into text" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 		)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
@@ -117,16 +125,19 @@ public class ModelToRDFText extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.sRDFDialect = ccp.getProperty(PROP_RDF_DIALECT);
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		Model model = DataTypeParser.parseAsModel(cc.getDataComponentFromInput(IN_DOCUMENT));
 		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(
 		        ModelUtils.modelToDialect(model, sRDFDialect)));
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.sRDFDialect = null;
     }

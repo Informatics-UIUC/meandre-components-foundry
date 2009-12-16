@@ -40,7 +40,6 @@
  * WITH THE SOFTWARE.
  */
 
-
 package org.seasr.meandre.components.transform.text;
 
 import org.meandre.annotations.Component;
@@ -64,8 +63,8 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-
 public class TextCleaner extends AbstractExecutableComponent{
+
 	//------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
@@ -86,8 +85,8 @@ public class TextCleaner extends AbstractExecutableComponent{
 
 	@ComponentProperty(
 			description = "The characters to remove or replace. " +
-			"If the replacement leaves blank, the characters are cleaned out.",
-			name=Names.PROP_FIND,
+			    "If the replacement leaves blank, the characters are cleaned out.",
+			name = Names.PROP_FIND,
 			defaultValue = ""
 	)
 	protected static final String PROP_FIND = Names.PROP_FIND;
@@ -102,10 +101,12 @@ public class TextCleaner extends AbstractExecutableComponent{
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		String theFind = cc.getProperty(PROP_FIND);
 		String theReplace = cc.getProperty(PROP_REPLACE);
 
@@ -118,6 +119,7 @@ public class TextCleaner extends AbstractExecutableComponent{
 		 }
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 }

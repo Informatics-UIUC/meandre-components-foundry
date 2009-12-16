@@ -44,25 +44,34 @@ public class PDFTextExtractor extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The location of the PDF file, or the raw byte content",
-            name = Names.PORT_LOCATION
+            name = Names.PORT_LOCATION,
+            description = "The location of the PDF file, or the raw byte content" +
+                "<br>TYPE: java.net.URI" +
+                "<br>TYPE: java.net.URL" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes"
     )
     protected static final String IN_PDF_LOCATION = Names.PORT_LOCATION;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The text extracted from the PDF file",
-            name = Names.PORT_TEXT
+            name = Names.PORT_TEXT,
+            description = "The text extracted from the PDF file" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object input = cc.getDataComponentFromInput(IN_PDF_LOCATION);
 
@@ -96,6 +105,7 @@ public class PDFTextExtractor extends AbstractExecutableComponent {
         cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }

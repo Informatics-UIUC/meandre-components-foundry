@@ -1,56 +1,54 @@
-package org.seasr.meandre.components.vis.flash;
-
 /**
-*
-* University of Illinois/NCSA
-* Open Source License
-*
-* Copyright (c) 2008, NCSA.  All rights reserved.
-*
-* Developed by:
-* The Automated Learning Group
-* University of Illinois at Urbana-Champaign
-* http://www.seasr.org
-*
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-* "Software"), to deal with the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject
-* to the following conditions:
-*
-* Redistributions of source code must retain the above copyright
-* notice, this list of conditions and the following disclaimers.
-*
-* Redistributions in binary form must reproduce the above copyright
-* notice, this list of conditions and the following disclaimers in
-* the documentation and/or other materials provided with the distribution.
-*
-* Neither the names of The Automated Learning Group, University of
-* Illinois at Urbana-Champaign, nor the names of its contributors may
-* be used to endorse or promote products derived from this Software
-* without specific prior written permission.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
-* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
-*
-*/
+ *
+ * University of Illinois/NCSA
+ * Open Source License
+ *
+ * Copyright (c) 2008, NCSA.  All rights reserved.
+ *
+ * Developed by:
+ * The Automated Learning Group
+ * University of Illinois at Urbana-Champaign
+ * http://www.seasr.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal with the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject
+ * to the following conditions:
+ *
+ * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimers.
+ *
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimers in
+ * the documentation and/or other materials provided with the distribution.
+ *
+ * Neither the names of The Automated Learning Group, University of
+ * Illinois at Urbana-Champaign, nor the names of its contributors may
+ * be used to endorse or promote products derived from this Software
+ * without specific prior written permission.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+ *
+ */
 
+package org.seasr.meandre.components.vis.flash;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 
-import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 
 import org.meandre.annotations.Component;
@@ -61,18 +59,17 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.components.tools.text.io.GenericTemplate;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 
 /**
  * @author Mike Haberman
- * 
+ *
  * Latest version:  now the dataURL is an input not a property
  * Push Text -> StackedAreaViewer
- * 
+ *
  */
 
 @Component(
@@ -86,23 +83,21 @@ import org.seasr.meandre.components.tools.text.io.GenericTemplate;
         baseURL = "meandre://seasr.org/components/foundry/",
         resources = { "StackedAreaViewer.vm", "StackedAreaViewer.swf"}
 )
-
 public class StackedAreaViewer extends GenericTemplate {
 
-    // the swf file will be unjar'ed and written to public_resources/SWF_DIR/SWF_FILE
-	protected static String SWF_DIR  = "flash";
-	protected static String SWF_FILE = "StackedAreaViewer.swf";
+    //------------------------------ INPUTS ------------------------------------------------------
 
-	
 	@ComponentInput(
 			name = "dataUrl",
-			description = "data url"
+			description = "data url" +
+    		      "<br>TYPE: java.net.URI" +
+                  "<br>TYPE: java.net.URL" +
+                  "<br>TYPE: java.lang.String" +
+                  "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String INPUT_URL = "dataUrl";
-	
-	
-	//------------------------------ OUTPUTS -----------------------------------------------------
-	
+
+
     //------------------------------ PROPERTIES --------------------------------------------------
 
 	//
@@ -121,7 +116,7 @@ public class StackedAreaViewer extends GenericTemplate {
 	        defaultValue = "anger,fear,joy,love,sadness,surprise"
 	)
 	protected static final String PROP_NODE_NAMES = "nodeNames";
-	
+
 	@ComponentProperty(
 	        description = "field name for the column that is the label category",
 	        name = "nodeNameField",
@@ -137,7 +132,7 @@ public class StackedAreaViewer extends GenericTemplate {
 	)
 	protected static final String PROP_DATA_URL= "dataUrl";
 	*/
-	
+
 
 	@ComponentProperty(
 	        description = "x axis column",
@@ -164,11 +159,15 @@ public class StackedAreaViewer extends GenericTemplate {
     //--------------------------------------------------------------------------------------------
 
 
+	// the swf file will be unjar'ed and written to public_resources/SWF_DIR/SWF_FILE
+    protected static String SWF_DIR  = "flash";
+    protected static String SWF_FILE = "StackedAreaViewer.swf";
 
+
+    //--------------------------------------------------------------------------------------------
 
 	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-	{
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
 
 	    //
@@ -177,7 +176,7 @@ public class StackedAreaViewer extends GenericTemplate {
 	    String destination = ccp.getPublicResourcesDirectory();
 	    String path = unjarFlashSWF(destination);
 
-	    
+
 	    /*
 	    String url = ccp.getProperty(PROP_DATA_URL).trim();
 	    if (url.length() == 0) {
@@ -185,7 +184,7 @@ public class StackedAreaViewer extends GenericTemplate {
 	    }
 	    context.put(PROP_DATA_URL,url);
 	    */
-	    
+
 
 	    context.put("swf",           path);
 	    context.put(PROP_TITLE,      ccp.getProperty(PROP_TITLE));
@@ -194,56 +193,53 @@ public class StackedAreaViewer extends GenericTemplate {
 	    context.put(PROP_NODE_NAMES, ccp.getProperty(PROP_NODE_NAMES));
 	    context.put(PROP_NODE_NAME_FIELD, ccp.getProperty(PROP_NODE_NAME_FIELD));
 	}
-	
-	
-    @Override
-	public void executeCallBack(ComponentContext cc) throws Exception 
-	{
-        Strings inputURL = (Strings) cc.getDataComponentFromInput(INPUT_URL);
-		String[] in = BasicDataTypesTools.stringsToStringArray (inputURL);
-		
-		String fileOrURL = in[0];
 
-		
+    @Override
+	public void executeCallBack(ComponentContext cc) throws Exception {
+        URI uri = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(INPUT_URL));
+		String fileOrURL = uri.toString();
+
 		// if this is a fullURL, we are done, we assume the data is available
 		// via http
 		//
 		if (! fileOrURL.startsWith("http")) {
-			
+
 			fileOrURL = "/public/resources/" + fileOrURL;
-			
+
 			/* if you need to prepend the host :
 			URL host = cc.getWebUIUrl(true);
 			console.info("Host " + host);
 			fileOrURL = host.toString() + fileOrURL;
 			*/
-		
+
 		}
-		
+
 		console.info("Resource is at " + fileOrURL);
 		context.put(INPUT_URL, fileOrURL);
-		  
-		super.executeCallBack(cc);  
+
+		super.executeCallBack(cc);
 	}
 
+    //--------------------------------------------------------------------------------------------
+
 	@Override
-	protected boolean processRequest(HttpServletRequest request) throws IOException
-	{
+	protected boolean processRequest(HttpServletRequest request) throws IOException {
 	    return true;
 	}
 
-	protected String unjarFlashSWF(String dir)
-	{
+    //--------------------------------------------------------------------------------------------
+
+	protected String unjarFlashSWF(String dir) {
 	    dir = dir + File.separator + SWF_DIR;
 
 	    File swfDir = new File(dir);
 	    if (! swfDir.exists()) {
 
-	    	if (! swfDir.mkdir() ) {
-	    		String msg = "Unable to create " + dir;
-	    		console.info(msg);
-	    		throw new RuntimeException(msg);
-	    	}
+	        if (! swfDir.mkdir() ) {
+	            String msg = "Unable to create " + dir;
+	            console.info(msg);
+	            throw new RuntimeException(msg);
+	        }
 
 	    }
 
@@ -254,35 +250,32 @@ public class StackedAreaViewer extends GenericTemplate {
 	    InputStream  in = null;
 	    OutputStream out = null;
 
-	    try{
-            in = this.getClass().getResourceAsStream(SWF_FILE);
-		    out = new FileOutputStream(dest);
+	    try {
+	        in = this.getClass().getResourceAsStream(SWF_FILE);
+	        out = new FileOutputStream(dest);
 
-            byte[] buf = new byte[4096];
-            int len;
-            while ((len = in.read(buf)) != -1){
-                out.write(buf, 0, len);
-            }
+	        byte[] buf = new byte[4096];
+	        int len;
+	        while ((len = in.read(buf)) != -1){
+	            out.write(buf, 0, len);
+	        }
 
-		 }catch (IOException e){
-			 throw new RuntimeException(e);
-		 }
-		 finally {
+	    }
+	    catch (IOException e){
+	        throw new RuntimeException(e);
+	    }
+	    finally {
 
-			 try {
-				 in.close();
-		         out.close();
-			 }
-			 catch (Exception ignore){}
-		 }
+	        try {
+	            in.close();
+	            out.close();
+	        }
+	        catch (Exception ignore){}
+	    }
 
-
-		 return SWF_DIR + File.separator + SWF_FILE;
+	    return SWF_DIR + File.separator + SWF_FILE;
 	}
-
 }
-
-
 
 /*
 //
@@ -301,7 +294,7 @@ console.info("new path " + idx + " " + fileOrURL + " " + File.separator);
 
 if (idx > 0) {
 	fileOrURL = fileOrURL.substring(idx+1);
-	
+
 }
 File dst = new File(fileOrURL);
 

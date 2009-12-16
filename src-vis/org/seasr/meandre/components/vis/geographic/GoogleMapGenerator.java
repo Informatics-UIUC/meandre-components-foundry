@@ -57,6 +57,7 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.geographic.GeoLocation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -81,34 +82,41 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The source XML document",
-            name = Names.PORT_XML
+            name = Names.PORT_XML,
+            description = "The source XML document" +
+                "<br>TYPE: org.w3c.dom.Document" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String IN_XML = Names.PORT_XML;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "Output latitude",
-	        name = Names.PORT_LATITUDE_VECTOR
+            name = Names.PORT_LATITUDE_VECTOR,
+            description = "Output latitude" +
+                "<br>TYPE: java.util.Vector<java.lang.String>"
     )
 	protected static final String OUT_LATITUDE = Names.PORT_LATITUDE_VECTOR;
 
     @ComponentOutput(
-            description = "Output longitude",
-            name = Names.PORT_LONGITUDE_VECTOR
+            name = Names.PORT_LONGITUDE_VECTOR,
+            description = "Output longitude" +
+                "<br>TYPE: java.util.Vector<java.lang.String>"
     )
 	protected static final String OUT_LONGITUDE = Names.PORT_LONGITUDE_VECTOR;
 
     @ComponentOutput(
-            description = "Output location.",
-            name = Names.PORT_LOCATION_VECTOR
+            name = Names.PORT_LOCATION_VECTOR,
+            description = "Output location." +
+                "<br>TYPE: java.util.Vector<java.lang.String>"
     )
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION_VECTOR;
 
     @ComponentOutput(
-            description = "Output context",
-            name = Names.PORT_CONTEXT_VECTOR
+            name = Names.PORT_CONTEXT_VECTOR,
+            description = "Output context" +
+                "<br>TYPE: java.util.Vector<java.lang.String>"
     )
 	protected static final String OUT_CONTEXT = Names.PORT_CONTEXT_VECTOR;
 
@@ -189,7 +197,8 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
             		lat.add(String.valueOf(geo.getLatitude()));
             		lon.add(String.valueOf(geo.getLongitude()));
             	}
-            }catch(java.io.IOException e) {
+            }
+            catch(java.io.IOException e) {
             	console.info("unable to find location " + aLoc);
             	continue;
             }

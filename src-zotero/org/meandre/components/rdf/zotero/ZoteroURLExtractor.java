@@ -92,22 +92,26 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			description = "A map object containing the key elements of the request and the associated values",
-			name = Names.PORT_REQUEST_DATA
+	        name = Names.PORT_REQUEST_DATA,
+			description = "A map object containing the key elements of the request and the associated values" +
+    			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.BytesMap" +
+    			"<br>TYPE: java.util.Map<java.lang.String, byte[]>"
 	)
 	protected static final String IN_REQUEST = Names.PORT_REQUEST_DATA;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			description = "Item location",
-			name = Names.PORT_LOCATION
+	        name = Names.PORT_LOCATION,
+			description = "Item location" +
+			    "<br>TYPE: java.lang.String"
 	)
 	protected static final String OUT_ITEM_LOCATION = Names.PORT_LOCATION;
 
 	@ComponentOutput(
-			description = "Item title",
-			name = Names.PORT_TEXT
+	        name = Names.PORT_TEXT,
+			description = "Item title" +
+                "<br>TYPE: java.lang.String"
 	)
 	protected static final String OUT_ITEM_TITLE = Names.PORT_TEXT;
 

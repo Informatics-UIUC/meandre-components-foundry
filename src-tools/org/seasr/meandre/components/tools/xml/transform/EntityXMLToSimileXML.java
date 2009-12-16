@@ -70,11 +70,11 @@ import org.w3c.dom.NodeList;
 @Component(
         creator = "Lily Dong",
         description = "Conforms the input XML document, such as, " +
-        "<date id=\"date:2001\" value=\"2001\"> " +
-        "<sentence> ... </sentence> " +
-        "</date>" +
-        ",to the standard which Simile Timeline requires, such as, " +
-        "<event start=\"2001\" title=\"2001(2)\"> ... </event>",
+            "<date id=\"date:2001\" value=\"2001\"> " +
+            "<sentence> ... </sentence> " +
+            "</date>" +
+            ",to the standard which Simile Timeline requires, such as, " +
+            "<event start=\"2001\" title=\"2001(2)\"> ... </event>",
         name = "Entity XML To Simile XML",
         tags = "date, entity, simile, xml, convert",
         rights = Licenses.UofINCSA,
@@ -86,33 +86,38 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 	//------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-	        description = "The XML document from entity extraction.",
-	        name = Names.PORT_XML
+	        name = Names.PORT_XML,
+	        description = "The XML document from entity extraction." +
+                "<br>TYPE: org.w3c.dom.Document" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
     protected static final String IN_XML = Names.PORT_XML;
 
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-	        description = "The output XML document in the Simile Timeline format.",
-	        name = Names.PORT_TEXT
+	        name = Names.PORT_TEXT,
+	        description = "The output XML document in the Simile Timeline format." +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_XML = Names.PORT_TEXT;
 
 	@ComponentOutput(
-	        description = "The minimum year in input xml document",
-	        name = Names.PORT_MIN_VALUE
+	        name = Names.PORT_MIN_VALUE,
+	        description = "The minimum year in input xml document" +
+	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Integers"
 	)
 	protected static final String OUT_MIN_YEAR = Names.PORT_MIN_VALUE;
 
 	@ComponentOutput(
-	        description = "The maximum year in input xml document",
-	        name = Names.PORT_MAX_VALUE
+	        name = Names.PORT_MAX_VALUE,
+	        description = "The maximum year in input xml document" +
+	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Integers"
 	)
 	protected static final String OUT_MAX_YEAR = Names.PORT_MAX_VALUE;
 
 	//--------------------------------------------------------------------------------------------
-
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
