@@ -64,7 +64,8 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_TEXT,
-            description = "Text containing the human readable text of the analysis results"
+            description = "Text containing the human readable text of the analysis results" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 

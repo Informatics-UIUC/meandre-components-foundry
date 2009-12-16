@@ -82,7 +82,8 @@ public class TokenCountsToText extends AnalysisToText {
 
     @ComponentInput(
             name = Names.PORT_TOKEN_COUNTS,
-            description = "The token counts to convert to text"
+            description = "The token counts to convert to text" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
     )
     protected static final String INPUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
