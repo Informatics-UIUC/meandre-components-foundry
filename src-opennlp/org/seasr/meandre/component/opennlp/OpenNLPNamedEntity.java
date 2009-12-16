@@ -105,7 +105,8 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	@ComponentInput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
-			description = "The sequence of tokenized sentences"
+			description = "The sequence of tokenized sentences" +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENIZED_SENTENCES;
 
@@ -113,13 +114,15 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples: (sentenceId,type,textStart,textEnd,text)"
+			description = "set of tuples: (sentenceId,type,textStart,textEnd,text)" +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples: (sentenceId,type,textStart,textEnd,text)"
+			description = "meta data for tuples: (sentenceId,type,textStart,textEnd,text)" +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 

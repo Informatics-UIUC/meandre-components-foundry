@@ -101,7 +101,8 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 
 	@ComponentInput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
-			description = "The sequence of tokenized sentences"
+			description = "The sequence of tokenized sentences" +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENIZED_SENTENCES;
 
@@ -109,13 +110,15 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples: (pos,sentenceId,offset,token)"
+			description = "set of tuples: (pos,sentenceId,offset,token)" +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples: (pos,sentenceId,offset,token)"
+			description = "meta data for tuples: (pos,sentenceId,offset,token)" +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
