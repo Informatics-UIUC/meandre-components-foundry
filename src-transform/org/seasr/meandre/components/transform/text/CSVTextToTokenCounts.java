@@ -71,7 +71,12 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 	//------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The text to be converted",
+            description = "The text to be converted" +
+            "<br>TYPE: java.lang.String" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+            "<br>TYPE: byte[]" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+            "<br>TYPE: java.lang.Object",
             name = Names.PORT_TEXT
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
@@ -80,7 +85,8 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_COUNTS,
-			description = "The token counts"
+			description = "The token counts" +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 

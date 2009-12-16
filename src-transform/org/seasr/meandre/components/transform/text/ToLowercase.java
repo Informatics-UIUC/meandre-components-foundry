@@ -74,7 +74,12 @@ public class ToLowercase extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The text to be converted",
+            description = "The text to be converted" +
+            "<br>TYPE: java.lang.String" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+            "<br>TYPE: byte[]" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+            "<br>TYPE: java.lang.Object",
             name = Names.PORT_TEXT
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
@@ -82,7 +87,8 @@ public class ToLowercase extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The lowercase text",
+            description = "The lowercase text" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
             name = Names.PORT_TEXT
     )
     protected static final String OUT_LOWERCASE_TEXT = Names.PORT_TEXT;

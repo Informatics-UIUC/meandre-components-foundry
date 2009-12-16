@@ -92,24 +92,32 @@ public class TupleToXML extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "Set of tuples."
+			description = "Set of tuples." +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentInput(
 			name = Names.PORT_META_TUPLE,
-			description = "Meta data for tuples."
+			description = "Meta data for tuples." +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 
 	@ComponentInput(
 			name = Names.PORT_TOKENS,
-			description = "The sequence of tokens"
+			description = "The sequence of tokens" +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENS;
 
 	@ComponentInput(
-			description = "The document location",
+			description = "The document location" +
+			 "<br>TYPE: java.lang.String" +
+             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+             "<br>TYPE: byte[]" +
+             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+             "<br>TYPE: java.lang.Object",
 	        name = Names.PORT_LOCATION
 	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
@@ -117,7 +125,8 @@ public class TupleToXML extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-	        description = "XML document created from tuples.",
+	        description = "XML document created from tuples." +
+	        "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
 	        name = Names.PORT_TEXT
 	)
 	protected static final String OUT_XML = Names.PORT_TEXT;

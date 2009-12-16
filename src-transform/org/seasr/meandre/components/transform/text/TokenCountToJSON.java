@@ -75,7 +75,8 @@ public class TokenCountToJSON extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------
 
     @ComponentInput(
-            description = "The token counts",
+            description = "The token counts" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap",
             name = Names.PORT_TOKEN_COUNTS
     )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
@@ -83,7 +84,8 @@ public class TokenCountToJSON extends AbstractExecutableComponent {
    //------------------------------ OUTPUTS ------------------------------
 
     @ComponentOutput(
-            description = "Output JSON object.",
+            description = "Output JSON object." +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
             name = Names.PORT_JSON
     )
     protected static final String OUT_JSON = Names.PORT_JSON;
