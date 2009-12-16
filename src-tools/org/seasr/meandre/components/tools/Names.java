@@ -119,6 +119,7 @@ public abstract class Names {
 	public static final String PROP_EXPRESSION = "expression";
 	public static final String PROP_FIELD_NAME ="field_name";
 	public static final String PROP_FILTER_REGEX  = "filter_regex";
+	public static final String PROP_FIND = "find";
 	public static final String PROP_FONT_NAME = "font_name";
 	public static final String PROP_GOOGLE_APIS_KEY = "google_apis_key";
 	public static final String PROP_HAS_COLUMN_LABEL_HEADER = "has_column_label_header";
