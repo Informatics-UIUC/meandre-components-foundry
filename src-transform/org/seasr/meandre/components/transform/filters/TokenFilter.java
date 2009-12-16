@@ -104,25 +104,38 @@ public class TokenFilter extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TOKEN_BLACKLIST,
-			description = "The list of tokens defining the blacklist."
+			description = "The list of tokens defining the blacklist." +
+			 "<br>TYPE: java.lang.String" +
+             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+             "<br>TYPE: byte[]" +
+             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+             "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_TOKEN_BLACKLIST = Names.PORT_TOKEN_BLACKLIST;
 
 	@ComponentInput(
 			name = Names.PORT_TOKENS,
-			description = "The sequence of tokens to filter."
+			description = "The sequence of tokens to filter." +
+			 "<br>TYPE: java.lang.String" +
+             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+             "<br>TYPE: byte[]" +
+             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+             "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENS;
 
 	@ComponentInput(
 			name = Names.PORT_TOKEN_COUNTS,
-			description = "The token counts to filter."
+			description = "The token counts to filter." +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap" +
+			"<br>TYPE: java.util.Map"
 	)
 	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
 	@ComponentInput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
-			description = "The tokenized sentences to filter."
+			description = "The tokenized sentences to filter." +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String IN_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
 
@@ -130,19 +143,22 @@ public class TokenFilter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TOKENS,
-			description = "The filtered tokens."
+			description = "The filtered tokens." +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TOKENS = Names.PORT_TOKENS;
 
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_COUNTS,
-			description = "The filtered token counts."
+			description = "The filtered token counts." +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
 	@ComponentOutput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
-			description = "The filtered tokenized sentences."
+			description = "The filtered tokenized sentences." +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String OUT_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
 

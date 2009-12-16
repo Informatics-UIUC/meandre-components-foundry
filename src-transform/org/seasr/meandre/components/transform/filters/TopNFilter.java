@@ -81,7 +81,8 @@ public class TopNFilter extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "Token counts.",
+            description = "Token counts." +
+            "<br>TYPE: java.util.Map<String, Integer>",
             name = Names.PORT_TOKEN_COUNTS
     )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
@@ -89,7 +90,8 @@ public class TopNFilter extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "Filtered token counts.",
+            description = "Filtered token counts." +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap",
             name = Names.PORT_TOKEN_COUNTS
     )
     protected static final String OUT_FILTERED_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
