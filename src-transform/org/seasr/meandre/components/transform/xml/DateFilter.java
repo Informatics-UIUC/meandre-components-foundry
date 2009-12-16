@@ -76,19 +76,22 @@ public class DateFilter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_XSL,
-			description = "The XSL template for filtering dates."
+			description = "The XSL template for filtering dates." +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	private final static String OUT_XSL = Names.PORT_XSL;
 
 	@ComponentOutput(
 			name = Names.PORT_MIN_YEAR,
-			description = "The minimum year."
+			description = "The minimum year." +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	private final static String OUT_MIN_YEAR = Names.PORT_MIN_YEAR;
 
 	@ComponentOutput(
 			name = Names.PORT_MAX_YEAR,
-			description = "The maximum year."
+			description = "The maximum year." +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	private final static String OUT_MAX_YEAR = Names.PORT_MAX_YEAR;
 

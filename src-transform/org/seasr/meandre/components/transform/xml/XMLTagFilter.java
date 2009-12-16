@@ -76,7 +76,8 @@ public class XMLTagFilter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_XSL,
-			description = "The XSL template for filtering dates."
+			description = "The XSL template for filtering dates." +
+			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	private final static String OUT_XSL = Names.PORT_XSL;
 
