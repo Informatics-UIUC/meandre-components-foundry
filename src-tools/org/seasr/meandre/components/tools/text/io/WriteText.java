@@ -161,8 +161,10 @@ public class WriteText extends AbstractExecutableComponent {
 		// NOTE, if the path contains directories that do NOT exist, the following will fail
 		// TODO: build the directories if they do not exist see FileResourceUtility
 		
-		
+		//
 		// append the date .. TODO: this should be a property to this component
+		// could be: append date, use date as a subdirectory, etc
+		//
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 		int index = sLocation.toString().lastIndexOf(".");
 		if (index == -1) {
