@@ -221,10 +221,12 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 
 
 		// create/build the cache file name
-		this.cacheFileName     = FileResourceUtility.buildResourcePath(ccp, ccp.getProperty(DATA_PROPERTY_CACHE));
-		this.wordMapFileName   = FileResourceUtility.buildResourcePath(ccp, ccp.getProperty(DATA_PROPERTY_WORDMAP));
-		this.noConceptFileName = FileResourceUtility.buildResourcePath(ccp, ccp.getProperty(DATA_PROPERTY_IGNORE));
+		String defaultDir = ccp.getPublicResourcesDirectory();
+		this.cacheFileName     = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_CACHE));
+		this.wordMapFileName   = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_WORDMAP));
+		this.noConceptFileName = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_IGNORE));
 
+		
 		FileResourceUtility.createPathToResource(cacheFileName,     console);
 		FileResourceUtility.createPathToResource(wordMapFileName,   console);
 		FileResourceUtility.createPathToResource(noConceptFileName, console);
