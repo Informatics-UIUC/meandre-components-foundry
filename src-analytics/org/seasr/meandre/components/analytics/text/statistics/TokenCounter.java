@@ -86,7 +86,12 @@ public class TokenCounter extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TOKENS,
-			description = "The tokens to be counted"
+			description = "The tokens to be counted" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENS;
 
@@ -94,7 +99,8 @@ public class TokenCounter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_COUNTS,
-			description = "The token counts"
+			description = "The token counts" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 

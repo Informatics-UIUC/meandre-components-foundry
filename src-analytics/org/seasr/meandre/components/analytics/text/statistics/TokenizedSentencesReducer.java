@@ -88,7 +88,9 @@ public class TokenizedSentencesReducer extends AbstractExecutableComponent {
 
     @ComponentInput(
             name = Names.PORT_TOKENIZED_SENTENCES,
-            description = "The tokenized sentences to accumulate"
+            description = "The tokenized sentences to accumulate" +
+                "<br>TYPE: java.util.Map<java.lang.String, java.lang.String[]>" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
     )
     protected static final String IN_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
 
@@ -96,7 +98,8 @@ public class TokenizedSentencesReducer extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_TOKENIZED_SENTENCES,
-            description = "The accumulated tokenized sentences"
+            description = "The accumulated tokenized sentences" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
     )
     protected static final String OUT_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
 

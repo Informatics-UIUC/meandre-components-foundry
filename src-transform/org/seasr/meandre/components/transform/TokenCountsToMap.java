@@ -42,8 +42,6 @@
 
 package org.seasr.meandre.components.transform;
 
-import java.util.Map;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -53,10 +51,8 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.meandre.components.tools.Names;
-
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 /**
  * This component transforms a token count into a map.
@@ -65,6 +61,7 @@ import org.seasr.meandre.components.tools.Names;
  * @author Boris Capitanu
  *
  */
+
 @Component(
 		name = "Token Counts To Map",
 		creator = "Xavier Llora",
@@ -84,7 +81,8 @@ public class TokenCountsToMap extends AbstractExecutableComponent {
 	@ComponentInput(
 			name = Names.PORT_TOKEN_COUNTS,
 			description = "The token counts to convert to text" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
+			    "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
@@ -100,15 +98,18 @@ public class TokenCountsToMap extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		cc.pushDataComponentToOutput(OUT_TOKEN_MAP,
-		        BasicDataTypesTools.IntegerMapToMap(
-		                (IntegersMap)cc.getDataComponentFromInput(IN_TOKEN_COUNTS)));
+		        DataTypeParser.parseAsStringIntegerMap(
+		                cc.getDataComponentFromInput(IN_TOKEN_COUNTS)));
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 }

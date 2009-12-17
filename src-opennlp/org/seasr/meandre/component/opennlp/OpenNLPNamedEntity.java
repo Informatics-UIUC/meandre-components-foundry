@@ -106,7 +106,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 	@ComponentInput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
 			description = "The sequence of tokenized sentences" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENIZED_SENTENCES;
 
@@ -115,14 +115,14 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
 			description = "set of tuples: (sentenceId,type,textStart,textEnd,text)" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
 			description = "meta data for tuples: (sentenceId,type,textStart,textEnd,text)" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
@@ -132,41 +132,34 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			name = "NETypes",
 			description = "Named Entties types (e.g person,location,date)",
 		    defaultValue = "person,location,date,organization"
-		)
+	)
 	protected static final String PROP_NE_TYPES = "NETypes";
 
 	//--------------------------------------------------------------------------------------------
 
 
-	// money, percentage, time
+	SimpleTuplePeer tuplePeer;
+
+    public static final String TYPE_FIELD        = "type";
+    public static final String SENTENCE_ID_FIELD = "sentenceId";
+    public static final String TEXT_START_FIELD  = "textStart";
+    public static final String TEXT_END_FIELD    = "textEnd";
+    public static final String TEXT_FIELD        = "text";
+
+    int TYPE_IDX        ;
+    int SENTENCE_ID_IDX ;
+    int TEXT_START_IDX  ;
+    int TEXT_END_IDX    ;
+    int TEXT_IDX        ;
+
+    // money, percentage, time
 	String[] finderTypes = {"person", "location", "date", "organization"};
 
     NameFinderME[] finders = null;
 
 	//--------------------------------------------------------------------------------------------
 
-
-    public static NameFinderME[] build(String sOpenNLPDir, String[] finderTypes)
-    throws IOException
-    {
-    	NameFinderME[] finders = new NameFinderME[finderTypes.length];
-		for (int i = 0; i < finderTypes.length; i++) {
-			String tagPath          = // e.g.  /opennlp/models/English/namefind/location.bin.gz
-			    sOpenNLPDir + "namefind" + File.separator + finderTypes[i] + ".bin.gz";
-			File tagFile     = new File(tagPath);
-			if (! tagFile.canRead()) {
-				throw new IOException("Failed to open tag file for " + tagPath);
-			}
-
-			System.out.println("loaded " + tagPath);
-			BinaryGISModelReader reader = new BinaryGISModelReader(tagFile);
-			NameFinderME finder = new NameFinderME(reader.getModel());
-			finders[i] = finder;
-		}
-		return finders;
-    }
-
-	@Override
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 
 		super.initializeCallBack(ccp);
@@ -209,27 +202,154 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	}
 
-	SimpleTuplePeer tuplePeer;
-	public static final String TYPE_FIELD        = "type";
-	public static final String SENTENCE_ID_FIELD = "sentenceId";
-	public static final String TEXT_START_FIELD  = "textStart";
-	public static final String TEXT_END_FIELD    = "textEnd";
-	public static final String TEXT_FIELD        = "text";
+	@SuppressWarnings("unchecked")
+    @Override
+    public void executeCallBack(ComponentContext cc) throws Exception
+    {
+    	List<Strings> output = new ArrayList<Strings>();
 
-	int TYPE_IDX        ;
-	int SENTENCE_ID_IDX ;
-	int TEXT_START_IDX  ;
-	int TEXT_END_IDX    ;
-	int TEXT_IDX        ;
+    	// input was encoded via :
+    	// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
+    	//
 
-	public static TextSpan label(String sentence, String[] tokens, Span span) {
+    	StringsMap input = (StringsMap) cc.getDataComponentFromInput(IN_TOKENS);
+
+    	int count = input.getKeyCount();
+    	console.fine("Processing " + count + " tokenized sentences");
+    	int globalOffset = 0;
+
+    	List<SimpleTuple> list = new ArrayList<SimpleTuple>();
+    	TextSpan textSpan = new TextSpan();
+
+    	for (int i = 0; i < count; i++) {
+    		String key    = input.getKey(i);    // this is the entire sentence
+    		Strings value = input.getValue(i);  // this is the set of tokens for that sentence
+
+    		String[] tokens = DataTypeParser.parseAsString(value);
+    		// console.info("Tokens " + tokens.length + " .. " + tokens[0]);
+
+    		list.clear();
+    		for (int j = 0; j < finders.length; j++) {
+
+    			String type = finderTypes[j];
+    			Span[] span = finders[j].find(tokens);
+
+    			textSpan.reset();
+    			for (int k = 0; k < span.length; k++) {
+
+    				textSpan = label(key, tokens, span[k], textSpan);
+    				int beginIndex = textSpan.getStart();
+    				int endIndex   = textSpan.getEnd();
+    				String text    = textSpan.getText();
+
+    				SimpleTuple tuple = tuplePeer.createTuple();
+    				tuple.setValue(TYPE_IDX,        type);
+    				tuple.setValue(SENTENCE_ID_IDX, i);
+    				tuple.setValue(TEXT_START_IDX,  beginIndex + globalOffset);
+    				tuple.setValue(TEXT_END_IDX,    endIndex + globalOffset);
+    				tuple.setValue(TEXT_IDX,        text);
+
+    				list.add(tuple);
+
+    			}
+
+
+    		} // end finders
+
+    		//
+    		// bonus find the urls
+    		//
+    		// TODO: add a property to or finderTypes a URL type
+    		//
+
+    		List<TextSpan> urls = findURLS(key);
+    		for (TextSpan s : urls) {
+
+    			SimpleTuple tuple = tuplePeer.createTuple();
+    			tuple.setValue(TYPE_IDX,        "URL");
+    			tuple.setValue(SENTENCE_ID_IDX, i);
+    			tuple.setValue(TEXT_START_IDX,  s.getStart() + globalOffset);
+    			tuple.setValue(TEXT_END_IDX,    s.getEnd()   + globalOffset);
+    			tuple.setValue(TEXT_IDX,        s.getText());
+
+    			list.add(tuple);
+    		}
+
+
+    		//
+    		// at this point, sort all the tuples based
+    		// on their beginIndex
+    		// then add them to the output
+    		Collections.sort(list, new Comparator() {
+
+    			       public int compare(Object a, Object b) {
+    			    	   SimpleTuple at = (SimpleTuple)a;
+    			    	   SimpleTuple bt = (SimpleTuple)b;
+    			    	   int v = Integer.parseInt(at.getValue(TEXT_START_IDX));
+    			    	   int u = Integer.parseInt(bt.getValue(TEXT_START_IDX));
+    			    	   return v-u;
+    			       }
+
+    				}
+             );
+
+    		// add the sorted tuples to the output buffer
+    		for (SimpleTuple t:list) {
+    			output.add(t.convert());
+    		}
+
+    		globalOffset += key.length();
+
+
+    	}
+
+
+    	// push the whole collection, protocol safe
+        Strings[] results = new Strings[output.size()];
+        output.toArray(results);
+
+        StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
+        cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+
+        //
+    	// metaData for this tuple producer
+    	//
+        cc.pushDataComponentToOutput(OUT_META_TUPLE, tuplePeer.convert());
+    }
+
+    @Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.disposeCallBack(ccp);
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    public static NameFinderME[] build(String sOpenNLPDir, String[] finderTypes) throws IOException {
+
+    	NameFinderME[] finders = new NameFinderME[finderTypes.length];
+    	for (int i = 0; i < finderTypes.length; i++) {
+    		String tagPath          = // e.g.  /opennlp/models/English/namefind/location.bin.gz
+    		    sOpenNLPDir + "namefind" + File.separator + finderTypes[i] + ".bin.gz";
+    		File tagFile     = new File(tagPath);
+    		if (! tagFile.canRead()) {
+    			throw new IOException("Failed to open tag file for " + tagPath);
+    		}
+
+    		System.out.println("loaded " + tagPath);
+    		BinaryGISModelReader reader = new BinaryGISModelReader(tagFile);
+    		NameFinderME finder = new NameFinderME(reader.getModel());
+    		finders[i] = finder;
+    	}
+    	return finders;
+    }
+
+    public static TextSpan label(String sentence, String[] tokens, Span span) {
 
 		TextSpan out = new TextSpan();
 		return label(sentence, tokens, span, out);
 	}
 
-	public static TextSpan label(String sentence, String[] tokens, Span span, TextSpan out)
-	{
+	public static TextSpan label(String sentence, String[] tokens, Span span, TextSpan out) {
 
 		int s = span.getStart();
 		int e = span.getEnd();
@@ -296,130 +416,4 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		}
 	    return list;
 	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception
-	{
-		List<Strings> output = new ArrayList<Strings>();
-
-		// input was encoded via :
-		// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
-		//
-
-		//
-		// NEED a parser here ? DataTypeParser.parseAsMap ???
-		//
-		StringsMap input = (StringsMap) cc.getDataComponentFromInput(IN_TOKENS);
-
-		int count = input.getKeyCount();
-		console.fine("processing " + count);
-		int globalOffset = 0;
-
-		List<SimpleTuple> list = new ArrayList<SimpleTuple>();
-		TextSpan textSpan = new TextSpan();
-
-		for (int i = 0; i < count; i++) {
-			String key    = input.getKey(i);    // this is the entire sentence
-			Strings value = input.getValue(i);  // this is the set of tokens for that sentence
-
-			String[] tokens = DataTypeParser.parseAsString(value);
-			// console.info("Tokens " + tokens.length + " .. " + tokens[0]);
-
-			list.clear();
-			for (int j = 0; j < finders.length; j++) {
-
-				String type = finderTypes[j];
-				Span[] span = finders[j].find(tokens);
-
-				textSpan.reset();
-				for (int k = 0; k < span.length; k++) {
-
-					textSpan = label(key, tokens, span[k], textSpan);
-					int beginIndex = textSpan.getStart();
-					int endIndex   = textSpan.getEnd();
-					String text    = textSpan.getText();
-
-					SimpleTuple tuple = tuplePeer.createTuple();
-					tuple.setValue(TYPE_IDX,        type);
-					tuple.setValue(SENTENCE_ID_IDX, i);
-					tuple.setValue(TEXT_START_IDX,  beginIndex + globalOffset);
-					tuple.setValue(TEXT_END_IDX,    endIndex + globalOffset);
-					tuple.setValue(TEXT_IDX,        text);
-
-					list.add(tuple);
-
-				}
-
-
-			} // end finders
-
-			//
-			// bonus find the urls
-			//
-			// TODO: add a property to or finderTypes a URL type
-			//
-
-			List<TextSpan> urls = findURLS(key);
-			for (TextSpan s : urls) {
-
-				SimpleTuple tuple = tuplePeer.createTuple();
-				tuple.setValue(TYPE_IDX,        "URL");
-				tuple.setValue(SENTENCE_ID_IDX, i);
-				tuple.setValue(TEXT_START_IDX,  s.getStart() + globalOffset);
-				tuple.setValue(TEXT_END_IDX,    s.getEnd()   + globalOffset);
-				tuple.setValue(TEXT_IDX,        s.getText());
-
-				list.add(tuple);
-			}
-
-
-			//
-			// at this point, sort all the tuples based
-			// on their beginIndex
-			// then add them to the output
-			Collections.sort(list, new Comparator() {
-
-				       public int compare(Object a, Object b) {
-				    	   SimpleTuple at = (SimpleTuple)a;
-				    	   SimpleTuple bt = (SimpleTuple)b;
-				    	   int v = Integer.parseInt(at.getValue(TEXT_START_IDX));
-				    	   int u = Integer.parseInt(bt.getValue(TEXT_START_IDX));
-				    	   return v-u;
-				       }
-
-					}
-             );
-
-			// add the sorted tuples to the output buffer
-			for (SimpleTuple t:list) {
-				output.add(t.convert());
-			}
-
-			globalOffset += key.length();
-
-
-		}
-
-
-		// push the whole collection, protocol safe
-	    Strings[] results = new Strings[output.size()];
-	    output.toArray(results);
-
-	    StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
-	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
-
-	    //
-		// metaData for this tuple producer
-		//
-	    cc.pushDataComponentToOutput(OUT_META_TUPLE, tuplePeer.convert());
-	}
-
-    @Override
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        super.disposeCallBack(ccp);
-    }
-
-
-
 }

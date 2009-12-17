@@ -100,9 +100,9 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			name = Names.PORT_TOKENIZED_SENTENCES,
+	        name = Names.PORT_TOKENIZED_SENTENCES,
 			description = "The sequence of tokenized sentences" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENIZED_SENTENCES;
 
@@ -111,20 +111,16 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
 			description = "set of tuples: (sentenceId,text)" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
 			description = "meta data for tuples: (sentenceId,text)" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
-
-	//----------------------------- PROPERTIES ---------------------------------------------------
-
-
 
 	//--------------------------------------------------------------------------------------------
 
@@ -133,149 +129,76 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
 	private POSTaggerME tagger = null;
 	private ChunkerME chunker = null;
 
-   public static ChunkerME build(String sOpenNLPDir, String sLanguage) throws IOException
-   {
-
-	    // from maxent-models.jar
-	    // ==> opennlp.1.4.3/models/English/chunker/EnglishChunk.bin.gz
-	    // NOT opennlp/models/English/parser/chunk.bin.gz
-
-		String chunkPath =
-		    sOpenNLPDir + "chunker" + File.separator + "EnglishChunk.bin.gz";
-
-
-		File chunkFile = new File(chunkPath);
-
-		if (! chunkFile.canRead()) {
-			throw new IOException("Failed to open chunk file for " + chunkPath);
-		}
-
-		ChunkerME tagger = new TreebankChunker(chunkPath);
-		return tagger;
-
-   }
-
-   public static String toString(String[] tokens, String[] tags, String[] chunks)
-   {
-	    // see TreebankChunker.java
-		StringBuffer out = new StringBuffer();
-		for (int j=0; j < chunks.length; j++) {
-			if (j > 0 && !chunks[j].startsWith("I-") && !chunks[j-1].equals("O")) {
-				out.append("]");
-			}
-			if (chunks[j].startsWith("B-")) {
-				out.append("[" + chunks[j].substring(2) );
-			}
-			out.append(":" + tokens[j] + "/" + tags[j]);
-		}
-		if (!chunks[chunks.length-1].equals("O")) {
-			out.append("]");
-		}
-		return out.toString();
-   }
-
-   public static List<TextChunk> toChunks(String[] tokens, String[] tags, String[] chunks)
-   {
-	   List<TextChunk> allChunks = new ArrayList<TextChunk>();
-	   TextChunk currentChunk = new TextChunk();
-
-	    // see above
-		for (int j=0; j < chunks.length; j++) {
-			if (j > 0 && !chunks[j].startsWith("I-") && !chunks[j-1].equals("O")) {
-				// end of a chunk
-				allChunks.add(currentChunk);
-			}
-			if (chunks[j].startsWith("B-")) {
-				// start of a chunk
-				currentChunk = new TextChunk(chunks[j].substring(2));
-			}
-			currentChunk.add(tokens[j], tags[j]);
-		}
-		if (!chunks[chunks.length-1].equals("O")) {
-			// end of a chunk
-			allChunks.add(currentChunk);
-		}
-		return allChunks;
-   }
-
-	//--------------------------------------------------------------------------------------------
-
-	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-
-		super.initializeCallBack(ccp);
-
-		try {
-			tagger  = OpenNLPPosTagger.build(sOpenNLPDir, sLanguage);
-			chunker = build(sOpenNLPDir, sLanguage);
-		}
-		catch ( Throwable t ) {
-			console.severe("Failed to open tokenizer model for " + sLanguage);
-			throw new ComponentExecutionException(t);
-		}
-
-
-		String[] fields =
-			new String[] {SENTENCE_ID_FIELD, TEXT_FIELD};
-
-		this.tuplePeer = new SimpleTuplePeer(fields);
-
-	}
-
-
 	SimpleTuplePeer tuplePeer;
 
 	public static final String SENTENCE_ID_FIELD = "sentenceId";
 	public static final String TEXT_FIELD        = "text";
 
-	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception
-	{
 
-		List<Strings> output = new ArrayList<Strings>();
-		SimpleTuple tuple = tuplePeer.createTuple();
+    //--------------------------------------------------------------------------------------------
 
-		StringsMap input = (StringsMap) cc.getDataComponentFromInput(IN_TOKENS);
+    @Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+
+        super.initializeCallBack(ccp);
+
+        try {
+            tagger  = OpenNLPPosTagger.build(sOpenNLPDir, sLanguage);
+            chunker = build(sOpenNLPDir, sLanguage);
+        }
+        catch ( Throwable t ) {
+            console.severe("Failed to open tokenizer model for " + sLanguage);
+            throw new ComponentExecutionException(t);
+        }
+
+        String[] fields = new String[] {SENTENCE_ID_FIELD, TEXT_FIELD};
+
+        this.tuplePeer = new SimpleTuplePeer(fields);
+    }
+
+    @Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
+
+        List<Strings> output = new ArrayList<Strings>();
+        SimpleTuple tuple = tuplePeer.createTuple();
+
+        StringsMap input = (StringsMap) cc.getDataComponentFromInput(IN_TOKENS);
 
         int count = input.getKeyCount();
-		console.fine("processing " + count);
+        console.fine("processing " + count);
 
-		int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
-		int TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
+        int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
+        int TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
 
+        for (int i = 0; i < count; i++) {
+            //String key    = input.getKey(i);    // this is the entire sentence
+            Strings value = input.getValue(i);  // this is the set of tokens for that sentence
 
+            String[] tokens = DataTypeParser.parseAsString(value);
+            String[] tags   = tagger.tag(tokens);
+            String[] chunks = chunker.chunk(tokens, tags);
 
-		for (int i = 0; i < count; i++) {
-			String key    = input.getKey(i);    // this is the entire sentence
-			Strings value = input.getValue(i);  // this is the set of tokens for that sentence
+            // console.info(key);
+            String markUp = toString(tokens, tags, chunks);
 
-			String[] tokens = DataTypeParser.parseAsString(value);
-			String[] tags   = tagger.tag(tokens);
-			String[] chunks = chunker.chunk(tokens, tags);
+            tuple.setValue(SENTENCE_ID_IDX, i);
+            tuple.setValue(TEXT_IDX, markUp);
+            output.add(tuple.convert());
+        }
 
-			// console.info(key);
-		    String markUp = toString(tokens, tags, chunks);
+        // push the whole collection, protocol safe
+        Strings[] results = new Strings[output.size()];
+        output.toArray(results);
 
-		    tuple.setValue(SENTENCE_ID_IDX, i);
-		    tuple.setValue(TEXT_IDX, markUp);
-		    output.add(tuple.convert());
-		}
+        StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
+        cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 
-
-		// push the whole collection, protocol safe
-	    Strings[] results = new Strings[output.size()];
-	    output.toArray(results);
-
-	    StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
-	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
-
-	    //
-		// metaData for this tuple producer
-		//
-	    Strings metaData = tuplePeer.convert();
-	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
-
-	}
+        //
+        // metaData for this tuple producer
+        //
+        Strings metaData = tuplePeer.convert();
+        cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
+    }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -283,4 +206,71 @@ public class OpenNLPChunker extends OpenNLPBaseUtilities {
         this.tagger = null;
         this.chunker = null;
     }
+
+    //--------------------------------------------------------------------------------------------
+
+	public static ChunkerME build(String sOpenNLPDir, String sLanguage) throws IOException {
+
+	    // from maxent-models.jar
+	    // ==> opennlp.1.4.3/models/English/chunker/EnglishChunk.bin.gz
+	    // NOT opennlp/models/English/parser/chunk.bin.gz
+
+	    String chunkPath =
+	        sOpenNLPDir + "chunker" + File.separator + "EnglishChunk.bin.gz";
+
+
+	    File chunkFile = new File(chunkPath);
+
+	    if (! chunkFile.canRead()) {
+	        throw new IOException("Failed to open chunk file for " + chunkPath);
+	    }
+
+	    ChunkerME tagger = new TreebankChunker(chunkPath);
+	    return tagger;
+
+	}
+
+	public static String toString(String[] tokens, String[] tags, String[] chunks) {
+	    // see TreebankChunker.java
+	    StringBuffer out = new StringBuffer();
+	    for (int j=0; j < chunks.length; j++) {
+	        if (j > 0 && !chunks[j].startsWith("I-") && !chunks[j-1].equals("O")) {
+	            out.append("]");
+	        }
+	        if (chunks[j].startsWith("B-")) {
+	            out.append("[" + chunks[j].substring(2) );
+	        }
+	        out.append(":" + tokens[j] + "/" + tags[j]);
+	    }
+	    if (!chunks[chunks.length-1].equals("O")) {
+	        out.append("]");
+	    }
+	    return out.toString();
+	}
+
+	public static List<TextChunk> toChunks(String[] tokens, String[] tags, String[] chunks)
+	{
+	    List<TextChunk> allChunks = new ArrayList<TextChunk>();
+	    TextChunk currentChunk = new TextChunk();
+
+	    // see above
+	    for (int j=0; j < chunks.length; j++) {
+	        if (j > 0 && !chunks[j].startsWith("I-") && !chunks[j-1].equals("O")) {
+	            // end of a chunk
+	            allChunks.add(currentChunk);
+	        }
+	        if (chunks[j].startsWith("B-")) {
+	            // start of a chunk
+	            currentChunk = new TextChunk(chunks[j].substring(2));
+	        }
+	        currentChunk.add(tokens[j], tags[j]);
+	    }
+	    if (!chunks[chunks.length-1].equals("O")) {
+	        // end of a chunk
+	        allChunks.add(currentChunk);
+	    }
+	    return allChunks;
+	}
+
+
 }

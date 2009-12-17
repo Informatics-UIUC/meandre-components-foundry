@@ -90,37 +90,46 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-	        description = "Token counts for the analysis set of documents.",
-			name = Names.PORT_TOKEN_COUNTS
+	        name = Names.PORT_TOKEN_COUNTS,
+	        description = "Token counts for the analysis set of documents." +
+    	        "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>" +
+    	        "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
 	@ComponentInput(
-	        description = "Token counts for the reference set of documents.",
-			name = Names.PORT_TOKEN_COUNTS_REFERENCE
+	        name = Names.PORT_TOKEN_COUNTS_REFERENCE,
+	        description = "Token counts for the reference set of documents." +
+    	        "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>" +
+    	        "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String IN_REF_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS_REFERENCE;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-	        description = "Resulting analysis of dunning loglikelihood.",
-			name = Names.PORT_TOKEN_COUNTS
+	        name = Names.PORT_TOKEN_COUNTS,
+	        description = "Resulting analysis of dunning loglikelihood." +
+	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
     protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		Map<String, Number> analysisCounts = new HashMap<String, Number>();
 		Map<String, Number> referenceCounts = new HashMap<String, Number>();
 
-		Map<String, Integer> analysis = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
-		Map<String, Integer> reference = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_REF_TOKEN_COUNTS));
+		Map<String, Integer> analysis = DataTypeParser.parseAsStringIntegerMap(
+		        cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
+		Map<String, Integer> reference = DataTypeParser.parseAsStringIntegerMap(
+		        cc.getDataComponentFromInput(IN_REF_TOKEN_COUNTS));
 
 		Set<String> set = analysis.keySet();
 		Iterator<String> iterator = set.iterator();
@@ -158,6 +167,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
 	}
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 

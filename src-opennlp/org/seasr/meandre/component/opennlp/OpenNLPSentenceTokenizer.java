@@ -97,11 +97,11 @@ public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 	@ComponentInput(
 			name = Names.PORT_SENTENCES,
 			description = "The collection of sentence to be tokenized" +
-			 "<br>TYPE: java.lang.String" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-             "<br>TYPE: byte[]" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-             "<br>TYPE: java.lang.Object"
+    			 "<br>TYPE: java.lang.String" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                 "<br>TYPE: byte[]" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                 "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_SENTENCES = Names.PORT_SENTENCES;
 
@@ -110,7 +110,7 @@ public class OpenNLPSentenceTokenizer extends OpenNLPBaseUtilities {
 	@ComponentOutput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
 			description = "The tokenized sentences" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String OUT_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
 

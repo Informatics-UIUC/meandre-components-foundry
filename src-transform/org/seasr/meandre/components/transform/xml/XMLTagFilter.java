@@ -56,6 +56,12 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
+/**
+ *
+ * @author Lily Dong
+ *
+ */
+
 @Component(
 		name = "XML Tag Filter",
 		creator = "Lily Dong",
@@ -65,11 +71,10 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 		rights = Licenses.UofINCSA,
 		tags = "xml, tag, xsl, filter",
 		description = "This component generates an xsl template for extracting the structed content " +
-		"under the specific tag. The tag is set up through property.",
+		    "under the specific tag. The tag is set up through property.",
 		dependency = {"protobuf-java-2.2.0.jar", "velocity-1.6.2-dep.jar"},
 		resources = { "XMLTagFilter.vm" }
 )
-
 public class XMLTagFilter extends AbstractExecutableComponent {
 
    //------------------------------ OUTPUTS -----------------------------------------------------
@@ -77,34 +82,36 @@ public class XMLTagFilter extends AbstractExecutableComponent {
 	@ComponentOutput(
 			name = Names.PORT_XSL,
 			description = "The XSL template for filtering dates." +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
-	private final static String OUT_XSL = Names.PORT_XSL;
-
+	protected static final String OUT_XSL = Names.PORT_XSL;
 
 	//------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
-    		defaultValue="body",
-            name=Names.PROP_TAG,
-            description = "The tag to be extracted."
+            name = Names.PROP_TAG,
+            description = "The tag to be extracted.",
+            defaultValue = "body"
     )
     protected static final String PROP_TAG = Names.PROP_TAG;
 
-    //--------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
-    static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/transform/xml/XMLTagFilter.vm";
+    private static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/transform/xml/XMLTagFilter.vm";
+    private static final VelocityTemplateService velocity = VelocityTemplateService.getInstance();
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    private String tag;
+
+    //--------------------------------------------------------------------------------------------
+
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    tag = ccp.getProperty(PROP_TAG);
 	}
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
-		String tag = cc.getProperty(PROP_TAG);
-
-		VelocityTemplateService velocity = VelocityTemplateService.getInstance();
-		VelocityContext context;
-
-		context = velocity.getNewContext();
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
+		VelocityContext context = velocity.getNewContext();
 		context.put("tag", tag);
 
 		String xsl = velocity.generateOutput(context, DEFAULT_TEMPLATE);
@@ -112,6 +119,7 @@ public class XMLTagFilter extends AbstractExecutableComponent {
 		cc.pushDataComponentToOutput(OUT_XSL, BasicDataTypesTools.stringToStrings(xsl));
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 }

@@ -66,7 +66,7 @@ import edu.uci.ics.jung.algorithms.importance.NodeRanking;
 import edu.uci.ics.jung.graph.Graph;
 
 /**
- *  This class calculates author centrality based on a list of authors per entry. 
+ *  This class calculates author centrality based on a list of authors per entry.
  *  Originally developed to deal with author data from a Zotero RDF.
  *
  * @author Xavier Llor&agrave;
@@ -94,22 +94,25 @@ public class AuthorCentralityAnalysis extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			description = "A list of vectors containing the names of the authors. There is one vector for each entry.",
-			name = Names.PORT_AUTHOR_LIST
+	        name = Names.PORT_AUTHOR_LIST,
+			description = "A list of vectors containing the names of the authors. There is one vector for each entry." +
+			    "<br>TYPE: java.util.List<java.util.Vector<java.lang.String>>"
 	)
 	protected static final String IN_AUTHOR_LIST = Names.PORT_AUTHOR_LIST;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			description = "A report of the social network analysis.",
-			name = Names.PORT_HTML
+	        name = Names.PORT_HTML,
+			description = "A report of the social network analysis." +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_HTML_REPORT = Names.PORT_HTML;
 
 	@ComponentOutput(
-			description = "The graph generated.",
-			name = Names.PORT_GRAPH
+	        name = Names.PORT_GRAPH,
+			description = "The graph generated." +
+			    "<br>TYPE: edu.uci.ics.jung.graph.Graph"
 	)
 	protected static final String OUT_GRAPH = Names.PORT_GRAPH;
 

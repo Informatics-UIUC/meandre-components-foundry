@@ -82,25 +82,26 @@ public class TokenCountToTable extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
+            name = Names.PORT_TOKEN_COUNTS,
             description = "The token counts" +
-            "<br>TYPE: java.util.Map<String, Integer>",
-            name = Names.PORT_TOKEN_COUNTS
+                "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
     )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
     @ComponentInput(
+            name = Names.PROP_TABLE_FACTORY,
             description = "The TableFactory object" +
-            "<br>TYPE: org.seasr.datatypes.table.TableFactory",
-            name = Names.PROP_TABLE_FACTORY
+                "<br>TYPE: org.seasr.datatypes.table.TableFactory"
     )
     protected static final String IN_TABLE_FACTORY = Names.PROP_TABLE_FACTORY;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
+            name = Names.PROP_TABLE,
             description = "Output Table object." +
-            "<br>TYPE: org.seasr.datatypes.table.MutableTable",
-            name = Names.PROP_TABLE
+                "<br>TYPE: org.seasr.datatypes.table.MutableTable"
     )
     protected static final String OUT_TABLE = Names.PROP_TABLE;
 

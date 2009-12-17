@@ -93,7 +93,8 @@ public class AbstractPackedDataComponents extends HashMap<String,Object> {
 	 * @param rParameters
 	 * @return
 	 */
-	public static Map<String, String> convertObjectToMapStringString(Object packedMap){
+	@SuppressWarnings("unchecked")
+    public static Map<String, String> convertObjectToMapStringString(Object packedMap){
 		Map<String, String> requestParameters = new HashMap<String, String>();
 		if( packedMap instanceof  java.util.Map  ){
 			for( Entry<?, ?> e :((Map<?, ?>)(packedMap)).entrySet() ){
@@ -110,7 +111,8 @@ public class AbstractPackedDataComponents extends HashMap<String,Object> {
 	 * @param rParameters
 	 * @return
 	 */
-	public static Map<String, Object> convertObjectToMapStringObject(Object packedMap){
+	@SuppressWarnings("unchecked")
+    public static Map<String, Object> convertObjectToMapStringObject(Object packedMap){
 		Map<String, Object> packedInMap = new HashMap<String, Object>();
 		if( packedMap instanceof  java.util.Map  ){
 			for( Entry<?, ?> e :((Map<?, ?>)(packedMap)).entrySet() ){

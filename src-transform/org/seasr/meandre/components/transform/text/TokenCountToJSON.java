@@ -42,8 +42,10 @@
 
 package org.seasr.meandre.components.transform.text;
 
-import org.json.JSONObject;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.json.JSONObject;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -53,8 +55,8 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 /**
  * @author Lily Dong
@@ -70,47 +72,50 @@ import org.seasr.meandre.components.tools.Names;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-
 public class TokenCountToJSON extends AbstractExecutableComponent {
+
     //------------------------------ INPUTS ------------------------------
 
     @ComponentInput(
+            name = Names.PORT_TOKEN_COUNTS,
             description = "The token counts" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap",
-            name = Names.PORT_TOKEN_COUNTS
+                "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
     )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
    //------------------------------ OUTPUTS ------------------------------
 
     @ComponentOutput(
+            name = Names.PORT_JSON,
             description = "Output JSON object." +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
-            name = Names.PORT_JSON
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_JSON = Names.PORT_JSON;
 
     //--------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
     	JSONObject myObject = new JSONObject();
 
-    	IntegersMap im = (IntegersMap)cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
-    	for (int i = 0; i < im.getValueCount(); i++) {
-               String key = im.getKey(i);
-               int count = im.getValue(i).getValue(0);
-               myObject.put(key, new Integer(count));
-        }
+    	Map<String, Integer> sim = DataTypeParser.parseAsStringIntegerMap(
+    	        cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
-    	console.info(myObject.toString());
+    	for (Entry<String, Integer> entry : sim.entrySet())
+    	    myObject.put(entry.getKey(), entry.getValue());
+
+    	console.fine(myObject.toString());
 
     	cc.pushDataComponentToOutput(OUT_JSON,
     			BasicDataTypesTools.stringToStrings(myObject.toString()));
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }

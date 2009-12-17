@@ -44,7 +44,6 @@ package org.seasr.meandre.components.transform.text;
 
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-import java.util.regex.Pattern;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -66,18 +65,18 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-
 public class CSVTextToTokenCounts extends AbstractExecutableComponent{
-	//------------------------------ INPUTS ------------------------------------------------------
+
+    //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
+            name = Names.PORT_TEXT,
             description = "The text to be converted" +
-            "<br>TYPE: java.lang.String" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-            "<br>TYPE: byte[]" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-            "<br>TYPE: java.lang.Object",
-            name = Names.PORT_TEXT
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
 
@@ -86,15 +85,17 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_COUNTS,
 			description = "The token counts" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
-	  //--------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
     	Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>(1000);
 
@@ -118,6 +119,7 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
     	cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts,false));
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }

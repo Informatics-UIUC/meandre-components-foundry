@@ -92,8 +92,13 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			description = "Text content of the url page.",
-			name = Names.PORT_TEXT
+	        name = Names.PORT_TEXT,
+			description = "Text content of the url page." +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_CONTENT = Names.PORT_TEXT;
 
@@ -104,16 +109,22 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
 	protected static final String IN_ITEM_TITLE = Names.PORT_DOC_TITLE;
 
 	@ComponentInput(
-			description = "Item location",
-			name = Names.PORT_LOCATION
+	        name = Names.PORT_LOCATION,
+			description = "Item location" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_ITEM_URL = Names.PORT_LOCATION;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			description = "A report of the Flesch Kincaid readability measures.",
-			name = Names.PORT_HTML
+	        name = Names.PORT_HTML,
+			description = "A report of the Flesch Kincaid readability measures." +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_HTML_REPORT = Names.PORT_HTML;
 

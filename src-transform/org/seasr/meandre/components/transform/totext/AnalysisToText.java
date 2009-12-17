@@ -65,7 +65,7 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
     @ComponentOutput(
             name = Names.PORT_TEXT,
             description = "Text containing the human readable text of the analysis results" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 
@@ -118,14 +118,16 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.bHeaderAdded = Boolean.parseBoolean(ccp.getProperty(PROP_HEADER));
 		this.sHeader = ccp.getProperty(PROP_MESSAGE);
 		this.iOffset = Integer.parseInt(ccp.getProperty(PROP_OFFSET));
 		this.iCount = Integer.parseInt(ccp.getProperty(PROP_COUNT));
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.bHeaderAdded = false;
 		this.sHeader = null;
 	}

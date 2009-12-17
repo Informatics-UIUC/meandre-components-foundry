@@ -92,7 +92,9 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TOKEN_COUNTS,
-			description = "The token counts to accumulate"
+			description = "The token counts to accumulate" +
+    			"<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>" +
+    			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
@@ -100,7 +102,8 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TOKEN_COUNTS,
-			description = "The accumulated token counts"
+			description = "The accumulated token counts" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 

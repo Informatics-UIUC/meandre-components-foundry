@@ -93,41 +93,41 @@ public class TupleToXML extends AbstractExecutableComponent {
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
 			description = "Set of tuples." +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentInput(
 			name = Names.PORT_META_TUPLE,
 			description = "Meta data for tuples." +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 
 	@ComponentInput(
 			name = Names.PORT_TOKENS,
 			description = "The sequence of tokens" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENS;
 
 	@ComponentInput(
+	        name = Names.PORT_LOCATION,
 			description = "The document location" +
-			 "<br>TYPE: java.lang.String" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-             "<br>TYPE: byte[]" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-             "<br>TYPE: java.lang.Object",
-	        name = Names.PORT_LOCATION
+    			 "<br>TYPE: java.lang.String" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                 "<br>TYPE: byte[]" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                 "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
+	        name = Names.PORT_TEXT,
 	        description = "XML document created from tuples." +
-	        "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
-	        name = Names.PORT_TEXT
+	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_XML = Names.PORT_TEXT;
 

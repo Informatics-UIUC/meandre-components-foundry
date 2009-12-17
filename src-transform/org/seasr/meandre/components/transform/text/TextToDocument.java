@@ -82,22 +82,22 @@ public class TextToDocument extends AbstractExecutableComponent {
     @ComponentInput(
             name = Names.PORT_TEXT,
             description = "The text to be converted to a Document structure" +
-            "<br>TYPE: java.lang.String" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-            "<br>TYPE: byte[]" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-            "<br>TYPE: java.lang.Object"
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
 
     @ComponentInput(
             name = Names.PORT_DOC_TITLE,
             description = "The title to associate with this Document" +
-            "<br>TYPE: java.lang.String" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-            "<br>TYPE: byte[]" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-            "<br>TYPE: java.lang.Object"
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_DOC_TITLE = Names.PORT_DOC_TITLE;
 
@@ -106,7 +106,7 @@ public class TextToDocument extends AbstractExecutableComponent {
     @ComponentOutput(
             name = Names.PORT_DOCUMENT,
             description = "The Document structure constructed from the input text" +
-            "<br>TYPE: org.seasr.components.text.datatype.corpora.Document"
+                "<br>TYPE: org.seasr.components.text.datatype.corpora.Document"
     )
     protected static final String OUT_DOCUMENT = Names.PORT_DOCUMENT;
 

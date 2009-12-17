@@ -74,37 +74,40 @@ public class ToLowercase extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
+            name = Names.PORT_TEXT,
             description = "The text to be converted" +
-            "<br>TYPE: java.lang.String" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-            "<br>TYPE: byte[]" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-            "<br>TYPE: java.lang.Object",
-            name = Names.PORT_TEXT
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
+            name = Names.PORT_TEXT,
             description = "The lowercase text" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
-            name = Names.PORT_TEXT
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_LOWERCASE_TEXT = Names.PORT_TEXT;
 
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         for (String text : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT)))
             cc.pushDataComponentToOutput(OUT_LOWERCASE_TEXT,
                     BasicDataTypesTools.stringToStrings(text.toLowerCase()));
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 }

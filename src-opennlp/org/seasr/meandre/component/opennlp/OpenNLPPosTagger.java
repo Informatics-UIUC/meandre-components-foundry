@@ -102,7 +102,7 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 	@ComponentInput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
 			description = "The sequence of tokenized sentences" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENIZED_SENTENCES;
 
@@ -111,14 +111,14 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
 			description = "set of tuples: (pos,sentenceId,offset,token)" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
 			description = "meta data for tuples: (pos,sentenceId,offset,token)" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
@@ -138,89 +138,6 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 	private POSTaggerME tagger = null;
 	Pattern pattern = null;
 
-   public static POSTaggerME build(String sOpenNLPDir, String sLanguage) throws IOException
-   {
-
-	    // from maxent-models.jar
-		String tagPath          = // e.g.  /opennlp/models/English/parser/tag.bin.gz
-		    sOpenNLPDir + "parser" + File.separator+"tag.bin.gz";
-
-//		String dictionaryPath    = // e.g. /opennlp/models/English/parser/dict.bin.gz
-//			sOpenNLPDir + "parser"+ File.separator+"dict.bin.gz";
-
-		String tagDictionaryPath = // e.g. /opennlp/models/English/parser/tagdict
-			sOpenNLPDir + "parser"+ File.separator+"tagdict";
-
-		File tagFile     = new File(tagPath);
-//		File dictFile    = new File(dictionaryPath);
-		File tagDictFile = new File(tagDictionaryPath);
-
-		if (! tagFile.canRead()) {
-			throw new IOException("Failed to open tag file for " + tagPath);
-		}
-
-		if (! tagDictFile.canRead()) {
-			throw new IOException("Failed to open tag dictionary model for " + tagDictionaryPath);
-		}
-
-		/*
-		if (! dictFile.canRead()) {
-			console.severe("Failed to open dictionary model for " + dictionaryPath);
-			throw new ComponentExecutionException();
-		}
-		InputStream dIs  = new FileInputStream(dictFile);
-		*/
-
-
-		/*  NEW WAY  */
-
-		POSTaggerME tagger = new PosTagger(tagPath,
-				               // new Dictionary(dIs),
-				               new POSDictionary(tagDictionaryPath, true));
-
-
-		return tagger;
-
-
-
-		/* OLD WAY  using the ngram Dictionary (which no longer exists)
-		tagger = new PosTagger(tagPath,
-				               new Dictionary(dictionaryPath),
-				               new POSDictionary(tagDictionaryPath, true));
-	     */
-
-   }
-
-	//--------------------------------------------------------------------------------------------
-
-	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-
-		super.initializeCallBack(ccp);
-
-		String regex = ccp.getProperty(PROP_POS_FILTER_REGEX).trim();
-		if (regex.length() > 0) {
-			pattern = Pattern.compile(regex);
-		}
-
-
-		try {
-			tagger = build(sOpenNLPDir, sLanguage);
-		}
-		catch ( Throwable t ) {
-			console.severe("Failed to open tokenizer model for " + sLanguage);
-			throw new ComponentExecutionException(t);
-		}
-
-
-		String[] fields =
-			new String[] {POS_FIELD, SENTENCE_ID_FIELD, TOKEN_START_FIELD, TOKEN_FIELD};
-
-		this.tuplePeer = new SimpleTuplePeer(fields);
-
-	}
-
-
 	SimpleTuplePeer tuplePeer;
 
 	public static final String POS_FIELD         = "pos";
@@ -228,7 +145,37 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
 	public static final String TOKEN_START_FIELD = "tokenStart";
 	public static final String TOKEN_FIELD       = "token";
 
-	@Override
+
+	//--------------------------------------------------------------------------------------------
+
+    @Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+
+    	super.initializeCallBack(ccp);
+
+    	String regex = ccp.getProperty(PROP_POS_FILTER_REGEX).trim();
+    	if (regex.length() > 0) {
+    		pattern = Pattern.compile(regex);
+    	}
+
+
+    	try {
+    		tagger = build(sOpenNLPDir, sLanguage);
+    	}
+    	catch ( Throwable t ) {
+    		console.severe("Failed to open tokenizer model for " + sLanguage);
+    		throw new ComponentExecutionException(t);
+    	}
+
+
+    	String[] fields =
+    		new String[] {POS_FIELD, SENTENCE_ID_FIELD, TOKEN_START_FIELD, TOKEN_FIELD};
+
+    	this.tuplePeer = new SimpleTuplePeer(fields);
+
+    }
+
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception
 	{
 
@@ -327,5 +274,60 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         super.disposeCallBack(ccp);
         this.tagger = null;
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    public static POSTaggerME build(String sOpenNLPDir, String sLanguage) throws IOException
+    {
+
+        // from maxent-models.jar
+        String tagPath          = // e.g.  /opennlp/models/English/parser/tag.bin.gz
+            sOpenNLPDir + "parser" + File.separator+"tag.bin.gz";
+
+        //		String dictionaryPath    = // e.g. /opennlp/models/English/parser/dict.bin.gz
+        //			sOpenNLPDir + "parser"+ File.separator+"dict.bin.gz";
+
+        String tagDictionaryPath = // e.g. /opennlp/models/English/parser/tagdict
+            sOpenNLPDir + "parser"+ File.separator+"tagdict";
+
+        File tagFile     = new File(tagPath);
+        //		File dictFile    = new File(dictionaryPath);
+        File tagDictFile = new File(tagDictionaryPath);
+
+        if (! tagFile.canRead()) {
+            throw new IOException("Failed to open tag file for " + tagPath);
+        }
+
+        if (! tagDictFile.canRead()) {
+            throw new IOException("Failed to open tag dictionary model for " + tagDictionaryPath);
+        }
+
+        /*
+    	if (! dictFile.canRead()) {
+    		console.severe("Failed to open dictionary model for " + dictionaryPath);
+    		throw new ComponentExecutionException();
+    	}
+    	InputStream dIs  = new FileInputStream(dictFile);
+         */
+
+
+        /*  NEW WAY  */
+
+        POSTaggerME tagger = new PosTagger(tagPath,
+                // new Dictionary(dIs),
+                new POSDictionary(tagDictionaryPath, true));
+
+
+        return tagger;
+
+
+
+        /* OLD WAY  using the ngram Dictionary (which no longer exists)
+    	tagger = new PosTagger(tagPath,
+    			               new Dictionary(dictionaryPath),
+    			               new POSDictionary(tagDictionaryPath, true));
+         */
+
     }
 }

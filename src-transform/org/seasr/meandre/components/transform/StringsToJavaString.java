@@ -80,7 +80,7 @@ public class StringsToJavaString extends AbstractExecutableComponent {
     @ComponentInput(
             name = Names.PORT_TEXT,
             description = "The Google string to convert" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
 
@@ -89,10 +89,9 @@ public class StringsToJavaString extends AbstractExecutableComponent {
     @ComponentOutput(
             name = Names.PORT_JAVA_STRING,
             description = "The converted string" +
-            "<br>TYPE: java.lang.String"
+                "<br>TYPE: java.lang.String"
     )
     protected static final String OUT_JAVA_STRING = Names.PORT_JAVA_STRING;
-
 
     //--------------------------------------------------------------------------------------------
 

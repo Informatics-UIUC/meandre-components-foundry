@@ -81,18 +81,18 @@ public class TopNFilter extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
+            name = Names.PORT_TOKEN_COUNTS,
             description = "Token counts." +
-            "<br>TYPE: java.util.Map<String, Integer>",
-            name = Names.PORT_TOKEN_COUNTS
+                "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>"
     )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
+            name = Names.PORT_TOKEN_COUNTS,
             description = "Filtered token counts." +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap",
-            name = Names.PORT_TOKEN_COUNTS
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
     )
     protected static final String OUT_FILTERED_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
@@ -120,11 +120,13 @@ public class TopNFilter extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _upperLimit = Integer.parseInt(ccp.getProperty(PROP_UPPER_LIMIT));
         _bottomN = Boolean.parseBoolean(ccp.getProperty(PROP_BOTTOM_N));
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Map<String, Integer> inputMap = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
@@ -138,7 +140,7 @@ public class TopNFilter extends AbstractExecutableComponent {
             outputMap = new Hashtable<String, Integer>();
             while (upperLimit > 0) {
                 String key = _bottomN ? sortedMap.lastKey() : sortedMap.firstKey();
-                Integer value = (Integer)sortedMap.get(key);
+                Integer value = sortedMap.get(key);
                 outputMap.put(key, value);
                 sortedMap.remove(key);
                 --upperLimit;
@@ -149,6 +151,7 @@ public class TopNFilter extends AbstractExecutableComponent {
         cc.pushDataComponentToOutput(OUT_FILTERED_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 

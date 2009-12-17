@@ -80,7 +80,7 @@ public class JavaStringToStrings extends AbstractExecutableComponent {
 	@ComponentInput(
 	        name = Names.PORT_JAVA_STRING,
 			description = "The Java string to convert" +
-			"<br>TYPE: java.lang.String"
+			    "<br>TYPE: java.lang.String"
 	)
 	protected static final String IN_JAVA_STRING = Names.PORT_JAVA_STRING;
 
@@ -89,22 +89,25 @@ public class JavaStringToStrings extends AbstractExecutableComponent {
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
 			description = "The converted text" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 
 	//--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 	    cc.pushDataComponentToOutput(OUT_TEXT,
 	            BasicDataTypesTools.stringToStrings(
 	                    (String)cc.getDataComponentFromInput(IN_JAVA_STRING)));
 	}
 
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	@Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 }

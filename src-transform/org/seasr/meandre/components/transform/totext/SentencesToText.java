@@ -83,11 +83,11 @@ public class SentencesToText extends AnalysisToText {
     @ComponentInput(
             name = Names.PORT_SENTENCES,
             description = "The sentences to convert to text" +
-            "<br>TYPE: java.lang.String" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-            "<br>TYPE: byte[]" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-            "<br>TYPE: java.lang.Object"
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_SENTENCES = Names.PORT_SENTENCES;
 
@@ -103,7 +103,8 @@ public class SentencesToText extends AnalysisToText {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 	    String[] sentences = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_SENTENCES));
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		PrintStream ps = new PrintStream(baos);

@@ -97,7 +97,8 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
-			description = "The tokenized sentences"
+			description = "The tokenized sentences" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String IN_TOKENIZED_SENTENCES = Names.PORT_TOKENIZED_SENTENCES;
 
@@ -105,13 +106,15 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_SENTENCES,
-			description = "Sorted sentences"
+			description = "Sorted sentences" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_SENTENCES = Names.PORT_SENTENCES;
 
 	@ComponentOutput(
 			name = Names.PORT_TOKENS,
-			description = "Sorted tokens"
+			description = "Sorted tokens" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 		)
 	private final static String OUT_TOKENS = Names.PORT_TOKENS;
 

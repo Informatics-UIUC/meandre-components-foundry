@@ -105,22 +105,22 @@ public class TokenFilter extends AbstractExecutableComponent {
 	@ComponentInput(
 			name = Names.PORT_TOKEN_BLACKLIST,
 			description = "The list of tokens defining the blacklist." +
-			 "<br>TYPE: java.lang.String" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-             "<br>TYPE: byte[]" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-             "<br>TYPE: java.lang.Object"
+    			 "<br>TYPE: java.lang.String" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                 "<br>TYPE: byte[]" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                 "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_TOKEN_BLACKLIST = Names.PORT_TOKEN_BLACKLIST;
 
 	@ComponentInput(
 			name = Names.PORT_TOKENS,
 			description = "The sequence of tokens to filter." +
-			 "<br>TYPE: java.lang.String" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-             "<br>TYPE: byte[]" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-             "<br>TYPE: java.lang.Object"
+    			 "<br>TYPE: java.lang.String" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                 "<br>TYPE: byte[]" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                 "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_TOKENS = Names.PORT_TOKENS;
 
@@ -128,7 +128,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 			name = Names.PORT_TOKEN_COUNTS,
 			description = "The token counts to filter." +
 			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap" +
-			"<br>TYPE: java.util.Map"
+			"<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>"
 	)
 	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 

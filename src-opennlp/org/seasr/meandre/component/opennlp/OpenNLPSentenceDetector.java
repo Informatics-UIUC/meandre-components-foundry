@@ -93,11 +93,11 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	@ComponentInput(
 			name = Names.PORT_TEXT,
 			description = "The text to be split into sentences" +
-			 "<br>TYPE: java.lang.String" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-             "<br>TYPE: byte[]" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-             "<br>TYPE: java.lang.Object"
+    			 "<br>TYPE: java.lang.String" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                 "<br>TYPE: byte[]" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                 "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_TEXT = Names.PORT_TEXT;
 
@@ -106,7 +106,7 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	@ComponentOutput(
 			name = Names.PORT_SENTENCES,
 			description = "The sequence of sentences" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_SENTENCES = Names.PORT_SENTENCES;
 
@@ -116,26 +116,11 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	/** The OpenNLP tokenizer to use */
 	private SentenceDetectorME sdetector;
 
-	public static SentenceDetectorME build(String sOpenNLPDir, String sLanguage)
-	   throws IOException
-	{
-		String path = sOpenNLPDir+"sentdetect"+File.separator+
-	    sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"SD.bin.gz";
 
-		try {
-		    return new SentenceDetector(path);
-		}
-		catch (Throwable t) {
-			throw new IOException("unable to build sentence dectector using " + path);
-		}
-
-	}
-
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-    {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		super.initializeCallBack(ccp);
 
 		try {
@@ -148,8 +133,7 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 	}
 
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception
-    {
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		/*
 		String rawText = (String) cc.getDataComponentFromInput(IN_TEXT);
 		console.info("Converting " + rawText);
@@ -173,7 +157,21 @@ public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
         this.sdetector = null;
     }
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
+
+    public static SentenceDetectorME build(String sOpenNLPDir, String sLanguage) throws IOException {
+    	String path = sOpenNLPDir+"sentdetect"+File.separator+
+        sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"SD.bin.gz";
+
+    	try {
+    	    return new SentenceDetector(path);
+    	}
+    	catch (Throwable t) {
+    		throw new IOException("unable to build sentence dectector using " + path);
+    	}
+
+    }
+
 
 //	public static void main ( String [] saArgs ) throws IOException {
 //		new OpenNLPSentenceDetector();

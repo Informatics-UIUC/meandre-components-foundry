@@ -86,18 +86,20 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	@ComponentInput(
 			name = Names.PORT_XML,
 			description = "The XML document" +
-			"<br>TYPE: org.w3c.dom.Document"
+                "<br>TYPE: org.w3c.dom.Document" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_XML = Names.PORT_XML;
 
 	@ComponentInput(
 			name = Names.PORT_XSL,
 			description = "The XSL document" +
-			 "<br>TYPE: java.lang.String" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-             "<br>TYPE: byte[]" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-             "<br>TYPE: java.lang.Object"
+    			 "<br>TYPE: java.lang.String" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                 "<br>TYPE: byte[]" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                 "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_XSL = Names.PORT_XSL;
 
@@ -106,7 +108,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
 			description = "The transformed XML document." +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	private final static String OUT_XML = Names.PORT_TEXT;
 

@@ -87,11 +87,11 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 	@ComponentInput(
 			name = Names.PORT_TEXT,
 			description = "The text to be tokenized" +
-			 "<br>TYPE: java.lang.String" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-             "<br>TYPE: byte[]" +
-             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-             "<br>TYPE: java.lang.Object"
+    			 "<br>TYPE: java.lang.String" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                 "<br>TYPE: byte[]" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                 "<br>TYPE: java.lang.Object"
 	)
 	protected static final String IN_TEXT = Names.PORT_TEXT;
 
@@ -100,7 +100,7 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 	@ComponentOutput(
 			name = Names.PORT_TOKENS,
 			description = "The sequence of tokens" +
-			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TOKENS = Names.PORT_TOKENS;
 
@@ -110,13 +110,7 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 	/** The OpenNLP tokenizer to use */
 	private Tokenizer tokenizer;
 
-
-	//--------------------------------------------------------------------------------------------
-    public static Tokenizer build(String sOpenNLPDir, String sLanguage) throws Exception
-    {
-    	return new Tokenizer(sOpenNLPDir+"tokenize"+File.separator+
-				sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"Tok.bin.gz");
-    }
+    //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -154,7 +148,12 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
         this.tokenizer = null;
     }
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
+
+    public static Tokenizer build(String sOpenNLPDir, String sLanguage) throws Exception {
+    	return new Tokenizer(sOpenNLPDir+"tokenize"+File.separator+
+    			sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"Tok.bin.gz");
+    }
 
 //	public static void main ( String [] saArgs ) throws IOException {
 //		LineNumberReader lnr = new LineNumberReader(new FileReader("/Users/xavier/Desktop/1342.txt"));

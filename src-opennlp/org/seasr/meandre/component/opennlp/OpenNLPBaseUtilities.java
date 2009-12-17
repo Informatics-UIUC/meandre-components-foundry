@@ -86,33 +86,61 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 			name = Names.PROP_LANGUAGE,
 			description = "The language to use in the tokenizer. ",
 		    defaultValue = "english"
-		)
+	)
 	protected static final String PROP_LANGUAGE = Names.PROP_LANGUAGE;
 
 	@ComponentProperty(
 			name = "openNLPdir",
 			description = "OpenNLP directory, if non-empty, skip install",
 		    defaultValue = ""
-		)
+	)
 	protected static final String PROP_OPENNLP_DIR = "openNLPdir";
 
 	//--------------------------------------------------------------------------------------------
 
 
 	protected String sOpenNLPDir;
+
 	/** The language of the text being processed */
 	protected String sLanguage;
 
     protected String modelJarFile = "maxent-models.jar";
+
+
 	//--------------------------------------------------------------------------------------------
 
-    public static void installModelsFromJarFile(String dir, String filename, Logger console, Class caller) throws Exception
-    {
+    @Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+
+        this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
+
+        sOpenNLPDir = ccp.getProperty(PROP_OPENNLP_DIR).trim();
+        if (sOpenNLPDir.length() == 0)
+            sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
+
+        installModelsFromJarFile(sOpenNLPDir, modelJarFile, console, getClass());
+        console.fine("Installed " + sLanguage + " models into: " + sOpenNLPDir);
+
+        // constructs the final OpenNLP models path based on the language chosen
+        // example:  <sOpenNLPDir>/models/English/
+        sOpenNLPDir += (sOpenNLPDir.endsWith(File.separator) ? "" : File.separator) + "models" + File.separator
+                        + sLanguage.substring(0,1).toUpperCase() + sLanguage.substring(1) + File.separator;
+    }
+
+    @Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        this.sLanguage = null;
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @SuppressWarnings("unchecked")
+    public static void installModelsFromJarFile(String dir, String filename, Logger console, Class caller) throws Exception {
     	File modelsJar = null;
-	    URL modelsDepURL = ClasspathUtils.findDependencyInClasspath(filename,caller);
+	    URL modelsDepURL = ClasspathUtils.findDependencyInClasspath(filename, caller);
 	    if (modelsDepURL != null)
 	        modelsJar = new File(modelsDepURL.toURI());
-		
+
 
 		if (modelsJar == null || !modelsJar.exists())
 		    modelsJar = new File(dir + File.separator + filename);
@@ -127,31 +155,5 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 
 		if (status == InstallStatus.FAILED)
 			throw new ComponentContextException("Failed to install models at " + new File(dir).getAbsolutePath());
-
     }
-    
-	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
-    {
-
-		this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
-
-		sOpenNLPDir = ccp.getProperty(PROP_OPENNLP_DIR).trim();
-		if (sOpenNLPDir.length() == 0)
-		    sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
-		
-		installModelsFromJarFile(sOpenNLPDir, modelJarFile, console, getClass());
-		console.fine("Installed " + sLanguage + " models into: " + sOpenNLPDir);
-		
-		// constructs the final OpenNLP models path based on the language chosen
-		// example:  <sOpenNLPDir>/models/English/
-		sOpenNLPDir += (sOpenNLPDir.endsWith(File.separator) ? "" : File.separator) + "models" + File.separator
-		                + sLanguage.substring(0,1).toUpperCase() + sLanguage.substring(1) + File.separator;
-	}
-
-
-	@Override
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.sLanguage = null;
-	}
 }

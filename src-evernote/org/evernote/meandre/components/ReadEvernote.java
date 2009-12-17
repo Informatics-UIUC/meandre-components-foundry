@@ -64,6 +64,12 @@ import com.evernote.edam.type.User;
 import com.evernote.edam.userstore.AuthenticationResult;
 import com.evernote.edam.userstore.UserStore;
 
+/**
+ *
+ * @author Lily Dong
+ *
+ */
+
 @Component(
         creator = "Lily Dong",
         description = "Demomstrates how to write a interface " +
@@ -80,18 +86,18 @@ public class ReadEvernote extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
+            name = Names.PORT_TITLE,
             description = "Outputs note's title." +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
-            name = Names.PORT_TITLE
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    public final static String OUT_TITLE = Names.PORT_TITLE;
+    protected static final String OUT_TITLE = Names.PORT_TITLE;
 
     @ComponentOutput(
+            name = Names.PORT_TEXT,
             description = "Output note's content as XML text." +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
-            name = Names.PORT_TEXT
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    public final static String OUT_XML = Names.PORT_TEXT;
+    protected static final String OUT_XML = Names.PORT_TEXT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -129,22 +135,22 @@ public class ReadEvernote extends AbstractExecutableComponent {
     protected static final String userStoreUrl = "https://sandbox.evernote.com/edam/user";
     protected static final String noteStoreUrlBase = "http://sandbox.evernote.com/edam/note/";
 
+    private String username, password;
+    private String consumerKey, consumerSecret;
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        username = ccp.getProperty(PROP_USERNAME);
+        password = ccp.getProperty(PROP_PASSWORD);
+
+        consumerKey = ccp.getProperty(PROP_CONSUMER_KEY);
+        consumerSecret = ccp.getProperty(PROP_CONSUMER_SECERT);
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	String username = cc.getProperty(PROP_USERNAME),
-         	   password = cc.getProperty(PROP_PASSWORD);
-
-    	String consumerKey = cc.getProperty(PROP_CONSUMER_KEY),
-  	      	   consumerSecret = cc.getProperty(PROP_CONSUMER_SECERT);
-
-
     	THttpClient userStoreTrans = new THttpClient(userStoreUrl);
     	TBinaryProtocol userStoreProt = new TBinaryProtocol(userStoreTrans);
     	UserStore.Client userStore = new UserStore.Client(userStoreProt, userStoreProt);
@@ -153,9 +159,9 @@ public class ReadEvernote extends AbstractExecutableComponent {
     	        "Evernote's Local Client API Usage",
     	        com.evernote.edam.userstore.Constants.EDAM_VERSION_MAJOR,
     	        com.evernote.edam.userstore.Constants.EDAM_VERSION_MINOR);
-    	if (!versionOk) {
-    	    throw new Exception("Incomatible EDAM client protocol version");
-    	}
+
+    	if (!versionOk)
+    	    throw new Exception("Incompatible EDAM client protocol version");
 
     	AuthenticationResult authResult = userStore.authenticate(
     	        username, password, consumerKey, consumerSecret);
