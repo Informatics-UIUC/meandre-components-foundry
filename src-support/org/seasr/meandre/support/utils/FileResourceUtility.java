@@ -60,19 +60,19 @@ public class FileResourceUtility {
 	
 	/* 
 	 * returns the path name to the resource in published resources if filename is not absolute
-	 * 
+	 * removes any file:// protocol
 	 */
-	public static String buildResourcePath(ComponentContextProperties ccp, String filename)
+	public static String buildResourcePath(String defaultDir, String filename)
 	{
+		filename = filename.replaceFirst("file://", "");
 		if (filename.startsWith(File.separator) || filename.startsWith(".")) {
 			// it's an absolute path
 			return filename;
 		}
 		
-		return ccp.getPublicResourcesDirectory() + File.separator + filename;
+		// usually this will be the public resources directory
+		return defaultDir + File.separator + filename;
 	}
-	
-	
 	
 	//
 	// convenience method for components to create directories inside published resources
@@ -82,28 +82,10 @@ public class FileResourceUtility {
 			                                            Logger console)
 	{
 		String destination = ccp.getPublicResourcesDirectory();
-		return createPathToResource(destination, filename, console);
+		String path = buildResourcePath(destination, filename);
+		return createPathToResource(path, console);
 	}
 	
-	
-	
-	public static String createPathToResource(String dir, String filename, Logger console)
-	{
-		if (filename.startsWith(File.separator) || filename.startsWith(".")) {
-			return filename;
-		}
-
-		
-		//
-		// user did not specify an absolute path e.g. /tmp/file.stuff
-		// if user does "data/data.csv" 
-		// need to create that path
-		//
-		String path = dir + File.separator + filename;
-		FileResourceUtility.createPathToResource(path, console);
-
-		return path;
-	}
 	
 	
 	public static String createPathToResource(String path) 
@@ -131,3 +113,25 @@ public class FileResourceUtility {
 	}
 
 }
+
+
+/*
+public static String createPathToResource(String dir, String filename, Logger console)
+{
+	filename = filename.replaceFirst("file://", "");
+	if (filename.startsWith(File.separator) || filename.startsWith(".")) {
+		return filename;
+	}
+
+	
+	//
+	// user did not specify an absolute path e.g. /tmp/file.stuff
+	// if user does "data/data.csv" 
+	// need to create that path
+	//
+	String path = dir + File.separator + filename;
+	FileResourceUtility.createPathToResource(path, console);
+
+	return path;
+}
+*/
