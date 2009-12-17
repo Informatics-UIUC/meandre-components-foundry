@@ -42,7 +42,9 @@
 
 package org.seasr.meandre.components.tools.text.io;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
@@ -66,6 +68,7 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.generic.io.IOUtils;
+import org.seasr.meandre.support.utils.FileResourceUtility;
 
 /**
  * Writes a text to a location
@@ -140,31 +143,67 @@ public class WriteText extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		URI objLoc = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
+		
 		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 
 		if (inputs.length > 1)
 		    throw new ComponentExecutionException("Cannot process multiple inputs per execute()");
-
-		Date now = new Date();
+		String sText = inputs[0];
+		
+		//
+        // build the location to which to write:
+		//
+		String[] locations = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION));
+		String sLocation = locations[0];
+		
+		// determine where the file should be written
+		sLocation = FileResourceUtility.buildResourcePath(cc.getPublicResourcesDirectory(), sLocation);
+		// NOTE, if the path contains directories that do NOT exist, the following will fail
+		// TODO: build the directories if they do not exist see FileResourceUtility
+		
+		
+		// append the date .. TODO: this should be a property to this component
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+		int index = sLocation.toString().lastIndexOf(".");
+		if (index == -1) {
+			// append the date
+			sLocation += formatter.format(new Date());
+		}
+		else {
+			// insert the date
+			String prefix = sLocation.substring(0,index);
+			String suffix = sLocation.substring(index);
+			sLocation = prefix + formatter.format(new Date()) + suffix;
+		}
+		
+		
+		/* OLD CODE, removed M.E.H
+		String sLocation = 
+		URI objLoc = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
+		Date now = new Date();
+		
 		int index = objLoc.toString().lastIndexOf(".");
 		String sLocation;
 		if (index == -1)
 			 sLocation = objLoc.toString()+formatter.format(now);
 		else
 			 sLocation = objLoc.toString().substring(0, index)+formatter.format(now)+objLoc.toString().substring(index);
-
-		String sText = inputs[0];
-
-		Writer wrtr = IOUtils.getWriterForResource(new URI(cc.getPublicResourcesDirectory()+File.separator+sLocation));
+		Writer wrtr = IOUtils.getWriterForResource(new URI(cc.getPublicResourcesDirectory()+File.separator+sLocation)); 
+	    
 		wrtr.write(sText);
 		wrtr.close();
-
 		URL outputURL = new URL(cc.getProxyWebUIUrl(true), "/public/resources/" + sLocation);
 		console.info("File written! Accessible at "+ outputURL);
-
-		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(outputURL.toString()));
+			 
+		*/
+		
+		BufferedWriter out = new BufferedWriter(new FileWriter(sLocation));
+		out.write(sText);
+		out.close();
+		
+		console.info("File written to " + sLocation);
+		
+		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(sLocation));
 		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sText));
 	}
 
