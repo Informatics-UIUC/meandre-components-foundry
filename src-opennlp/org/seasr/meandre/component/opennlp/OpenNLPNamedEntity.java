@@ -222,11 +222,19 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     	TextSpan textSpan = new TextSpan();
 
     	for (int i = 0; i < count; i++) {
-    		String key    = input.getKey(i);    // this is the entire sentence
+    		
+    		String[] tokens = null;
+    		String sentence = null;
+    		
+
+    		sentence      = input.getKey(i);    // this is the entire sentence (the key)
     		Strings value = input.getValue(i);  // this is the set of tokens for that sentence
 
-    		String[] tokens = DataTypeParser.parseAsString(value);
+    		tokens = DataTypeParser.parseAsString(value);
     		// console.info("Tokens " + tokens.length + " .. " + tokens[0]);
+
+
+
 
     		list.clear();
     		for (int j = 0; j < finders.length; j++) {
@@ -237,7 +245,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     			textSpan.reset();
     			for (int k = 0; k < span.length; k++) {
 
-    				textSpan = label(key, tokens, span[k], textSpan);
+    				textSpan = label(sentence, tokens, span[k], textSpan);
     				int beginIndex = textSpan.getStart();
     				int endIndex   = textSpan.getEnd();
     				String text    = textSpan.getText();
@@ -262,7 +270,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     		// TODO: add a property to or finderTypes a URL type
     		//
 
-    		List<TextSpan> urls = findURLS(key);
+    		List<TextSpan> urls = findURLS(sentence);
     		for (TextSpan s : urls) {
 
     			SimpleTuple tuple = tuplePeer.createTuple();
@@ -298,7 +306,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     			output.add(t.convert());
     		}
 
-    		globalOffset += key.length();
+    		globalOffset += sentence.length();
 
 
     	}
