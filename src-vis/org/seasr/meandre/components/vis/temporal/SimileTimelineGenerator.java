@@ -55,12 +55,15 @@ import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
@@ -138,6 +141,15 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_HTML = Names.PORT_HTML;
 
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+	@ComponentProperty(
+            name = "timeline_api_url",
+            description = "The URL to the Simile Timline API, or leave empty to use the embedded one",
+            defaultValue = ""
+    )
+    protected static final String PROP_TIMELINE_API_URL = "timeline_api_url";
+
     //--------------------------------------------------------------------------------------------
 
 	protected static final String SIMILE_API_PATH = "simile-timeline-api";   // this path is assumed to be appended to the published_resources location
@@ -158,31 +170,38 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        String timelineAPI = ccp.getProperty(PROP_TIMELINE_API_URL).trim();
+
     	_context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
 
-        File simileApiJar = null;
-        URL simileJarDepUrl = ClasspathUtils.findDependencyInClasspath("simile-timeline.jar", getClass());
-        if (simileJarDepUrl != null)
-            simileApiJar = new File(simileJarDepUrl.toURI());
+        if (timelineAPI.length() == 0) {
+            File simileApiJar = null;
+            URL simileJarDepUrl = ClasspathUtils.findDependencyInClasspath("simile-timeline.jar", getClass());
+            if (simileJarDepUrl != null)
+                simileApiJar = new File(simileJarDepUrl.toURI());
 
-        if (!simileApiJar.exists())
-            throw new ComponentContextException("Could not find simile-timeline.jar");
+            if (!simileApiJar.exists())
+                throw new ComponentContextException("Could not find simile-timeline.jar");
 
-        console.fine("Installing Simile Timeline API from: " + simileApiJar.toString());
+            console.fine("Installing Simile Timeline API from: " + simileApiJar.toString());
 
-        String simileApiDir = ccp.getPublicResourcesDirectory() + File.separator + SIMILE_API_PATH;
-        InstallStatus status = JARInstaller.installFromStream(new FileInputStream(simileApiJar), simileApiDir, false);
-        switch (status) {
-            case SKIPPED:
-                console.fine("Installation skipped - Simile Timeline API is already installed");
-                break;
+            String simileApiDir = ccp.getPublicResourcesDirectory() + File.separator + SIMILE_API_PATH;
+            InstallStatus status = JARInstaller.installFromStream(new FileInputStream(simileApiJar), simileApiDir, false);
+            switch (status) {
+                case SKIPPED:
+                    console.fine("Installation skipped - Simile Timeline API is already installed");
+                    break;
 
-            case FAILED:
-                throw new ComponentContextException("Failed to install the Simile Timeline API at " + new File(simileApiDir).getAbsolutePath());
+                case FAILED:
+                    throw new ComponentContextException("Failed to install the Simile Timeline API at " + new File(simileApiDir).getAbsolutePath());
+            }
+
+            _context.put("simileTimelineAPI", "/public/resources/" + SIMILE_API_PATH + "/timeline-api.js");
+        } else {
+            console.fine("Using Simile Timline API from: " + timelineAPI);
+            _context.put("simileTimelineAPI", timelineAPI);
         }
-
-        _context.put("simileTimelineAPI", "/public/resources/" + SIMILE_API_PATH + "/timeline-api.js");
     }
 
     @Override
@@ -240,6 +259,20 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_XML);
+        componentContext.pushDataComponentToOutput(OUT_HTML, si);
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_XML);
+        componentContext.pushDataComponentToOutput(OUT_HTML, st);
     }
 
     //--------------------------------------------------------------------------------------------

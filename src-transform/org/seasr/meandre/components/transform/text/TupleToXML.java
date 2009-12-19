@@ -66,6 +66,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.seasr.meandre.support.generic.text.XMLUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -250,11 +251,15 @@ public class TupleToXML extends AbstractExecutableComponent {
         if (!_gotInitiator)
             throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
-        String xmlString = DOMUtils.getString(mergeXmlDocuments(), _xmlProperties);
-        xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
-
         componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
-        componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(xmlString));
+
+        Document xmlDoc = mergeXmlDocuments();
+        if (xmlDoc != null) {
+            String xmlString = DOMUtils.getString(xmlDoc, _xmlProperties);
+            xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
+            componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(xmlString));
+        }
+
         componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator());
 
         _gotInitiator = false;

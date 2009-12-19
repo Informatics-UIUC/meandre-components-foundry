@@ -52,8 +52,11 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
@@ -327,5 +330,23 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_XML);
+        componentContext.pushDataComponentToOutput(OUT_XML, si);
+        componentContext.pushDataComponentToOutput(OUT_MIN_YEAR, ComponentUtils.cloneStreamDelimiter(si));
+        componentContext.pushDataComponentToOutput(OUT_MAX_YEAR, ComponentUtils.cloneStreamDelimiter(si));
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_XML);
+        componentContext.pushDataComponentToOutput(OUT_XML, st);
+        componentContext.pushDataComponentToOutput(OUT_MIN_YEAR, ComponentUtils.cloneStreamDelimiter(st));
+        componentContext.pushDataComponentToOutput(OUT_MAX_YEAR, ComponentUtils.cloneStreamDelimiter(st));
     }
 }

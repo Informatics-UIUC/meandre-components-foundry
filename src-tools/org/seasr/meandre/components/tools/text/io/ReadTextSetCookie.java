@@ -148,7 +148,6 @@ public class ReadTextSetCookie extends AbstractExecutableComponent {
             for (int i = 0; i < cookies.length; i++)
                 console.fine("Cookies: " + cookies[i].toExternalForm());
 
-            method.releaseConnection();
             cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
             cc.pushDataComponentToOutput(OUT_COOKIE, cookies);
         }

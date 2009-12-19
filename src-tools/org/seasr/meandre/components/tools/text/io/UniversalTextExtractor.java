@@ -64,6 +64,7 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.generic.io.StreamUtils;
+import org.seasr.meandre.support.generic.jstor.JSTORUtils;
 import org.seasr.meandre.support.generic.text.handlers.TextContentHandlerFactory;
 
 /**
@@ -134,6 +135,7 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
     private int connectionTimeout;
     private int readTimeout;
 
+
     //--------------------------------------------------------------------------------------------
 
     @Override
@@ -153,11 +155,24 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
         connection.setConnectTimeout(connectionTimeout);
         connection.setReadTimeout(readTimeout);
 
+        if (location.getHost().equalsIgnoreCase("www.jstor.org")) {
+            console.fine("JSTOR URL detected, applying workaround...");
+            try {
+                connection = JSTORUtils.getURLConnection(connection);
+            }
+            catch (Exception e) {
+                outputError(String.format("Cannot read from location '%s'", location.toString()), e, Level.WARNING);
+                return;
+            }
+
+            console.fine("Reading JSTOR document: " + connection.getURL().toString());
+        }
+
         String encoding = connection.getContentEncoding();
         String mimeType = connection.getContentType();
 
-        console.finest("Content type: " + mimeType);
-        console.finest("    Encoding: " + encoding);
+        console.finer("Content type: " + mimeType);
+        console.finer("    Encoding: " + encoding);
 
         String text;
 
@@ -172,7 +187,7 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
             if (handler == null)
                 throw new UnsupportedOperationException("Do not know how to handle MIME type: " + mimeType);
 
-            console.finest("Content handler set to: " + handler.getClass().getSimpleName());
+            console.finer("Content handler set to: " + handler.getClass().getSimpleName());
             try {
                 text = (String)handler.getContent(connection);
             }
