@@ -97,11 +97,11 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-	        name = Names.PORT_TEXT,
+	        name = Names.PORT_XML,
 	        description = "The output XML document in the Simile Timeline format." +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
-	protected static final String OUT_XML = Names.PORT_TEXT;
+	protected static final String OUT_XML = Names.PORT_XML;
 
 	@ComponentOutput(
 	        name = Names.PORT_MIN_VALUE,

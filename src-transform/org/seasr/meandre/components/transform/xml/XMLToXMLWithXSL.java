@@ -106,11 +106,11 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			name = Names.PORT_TEXT,
+			name = Names.PORT_XML,
 			description = "The transformed XML document." +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
-	private final static String OUT_XML = Names.PORT_TEXT;
+	private final static String OUT_XML = Names.PORT_XML;
 
 	//--------------------------------------------------------------------------------------------
 

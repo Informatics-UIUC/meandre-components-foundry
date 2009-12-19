@@ -105,11 +105,11 @@ public class AnnotationToXML extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-	        name = Names.PORT_TEXT,
+	        name = Names.PORT_XML,
 	        description = "Extracted annotations as XML document." +
 	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
-	protected static final String OUT_XML_ANNOTATIONS = Names.PORT_TEXT;
+	protected static final String OUT_XML_ANNOTATIONS = Names.PORT_XML;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 

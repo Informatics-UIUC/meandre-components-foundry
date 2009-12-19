@@ -119,7 +119,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     protected static final String IN_MAX_YEAR = Names.PORT_MAX_VALUE;
 
 	@ComponentInput(
-	        name = Names.PORT_TEXT,
+	        name = Names.PORT_XML,
 	        description = "The source XML document" +
                 "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
@@ -127,16 +127,16 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
                 "<br>TYPE: java.lang.Object"
 	)
-    protected static final String IN_XML = Names.PORT_TEXT;
+    protected static final String IN_XML = Names.PORT_XML;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-	        name = Names.PORT_TEXT,
+	        name = Names.PORT_HTML,
 	        description = "The HTML for the Simile Timeline viewer" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
-	protected static final String OUT_HTML = Names.PORT_TEXT;
+	protected static final String OUT_HTML = Names.PORT_HTML;
 
     //--------------------------------------------------------------------------------------------
 

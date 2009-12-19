@@ -93,11 +93,11 @@ public class ReadEvernote extends AbstractExecutableComponent {
     protected static final String OUT_TITLE = Names.PORT_TITLE;
 
     @ComponentOutput(
-            name = Names.PORT_TEXT,
+            name = Names.PORT_XML,
             description = "Output note's content as XML text." +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String OUT_XML = Names.PORT_TEXT;
+    protected static final String OUT_XML = Names.PORT_XML;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
