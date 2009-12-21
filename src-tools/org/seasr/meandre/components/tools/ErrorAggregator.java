@@ -185,7 +185,7 @@ public class ErrorAggregator extends AbstractExecutableComponent {
                     console.warning("There was no data received on port '" + IN_OBJECT + "'! Nothing to forward.");
                     componentContext.pushDataComponentToOutput(OUT_ERROR,
                             BasicDataTypesTools.stringToStrings("There was an error detected while processing your request. " +
-                            		"We are sorry for the inconvenience. [ERROR: " + getClass().getSimpleName() + ": No data to forward"));
+                            		"We are sorry for the inconvenience. [ERROR: " + getClass().getSimpleName() + ": No data to forward]"));
                 }
             } else
                 pushAccumulatedErrors();
