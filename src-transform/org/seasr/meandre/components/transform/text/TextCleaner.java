@@ -42,6 +42,10 @@
 
 package org.seasr.meandre.components.transform.text;
 
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -88,24 +92,78 @@ public class TextCleaner extends AbstractExecutableComponent{
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
+    @ComponentProperty(
+	        description = "The regular expression to clean out the matched substring. " +
+	        "For example, if specifying the regular expression as [~|||^]+, " +
+	        "~, |, ^ are removed.",
+            name = Names.PROP_REMOVE,
+            defaultValue = ""
+	)
+	protected static final String PROP_REMOVE = Names.PROP_REMOVE;
 
 	@ComponentProperty(
-			description = "The characters to remove or replace. " +
-			    "If the replacement leaves blank, the characters are cleaned out.",
-			name = Names.PROP_FIND,
-			defaultValue = ""
+	        description = "The regular expression to find the matched substring. " +
+	        "For example, if specifying the regular expression as \bpush\b and " +
+	        "the replacement as pushing, push is substituted with pushing",
+            name = Names.PROP_FIND,
+            defaultValue = ""
 	)
 	protected static final String PROP_FIND = Names.PROP_FIND;
 
 	@ComponentProperty(
-	        description = "The character to use for replacement(default is space).",
+	        description = "The replacement to substitute the matched substring found by find.",
             name = Names.PROP_REPLACE,
-            defaultValue = " "
+            defaultValue = ""
 	)
 	protected static final String PROP_REPLACE = Names.PROP_REPLACE;
 
+	@ComponentProperty(
+	        description = "The regular expression to find the matched substring.",
+            name = Names.PROP_FIND_2,
+            defaultValue = ""
+	)
+	protected static final String PROP_FIND_2 = Names.PROP_FIND_2;
+
+	@ComponentProperty(
+	        description = "The replacement to substitute the matched substring found by find2.",
+            name = Names.PROP_REPLACE_2,
+            defaultValue = ""
+	)
+	protected static final String PROP_REPLACE_2 = Names.PROP_REPLACE_2;
+
+	@ComponentProperty(
+	        description = "The regular expression to find the matched substring.",
+            name = Names.PROP_FIND_3,
+            defaultValue = ""
+	)
+	protected static final String PROP_FIND_3 = Names.PROP_FIND_3;
+
+	@ComponentProperty(
+	        description = "The replacement to substitute the matched substring found by find3.",
+            name = Names.PROP_REPLACE_3,
+            defaultValue = ""
+	)
+	protected static final String PROP_REPLACE_3 = Names.PROP_REPLACE_3;
+
+	@ComponentProperty(
+	        description = "The regular expression to find the matched substring.",
+            name = Names.PROP_FIND_4,
+            defaultValue = ""
+	)
+	protected static final String PROP_FIND_4 = Names.PROP_FIND_4;
+
+	@ComponentProperty(
+	        description = "The replacement to substitute the matched substring found by find4.",
+            name = Names.PROP_REPLACE_4,
+            defaultValue = ""
+	)
+	protected static final String PROP_REPLACE_4 = Names.PROP_REPLACE_4;
 
 	//--------------------------------------------------------------------------------------------
+
+	private static final int NUM = 4; //the number of find-replace pairs
+	private static final String FIND = "find";
+	private static final String REPLACE = "replace";
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -113,16 +171,41 @@ public class TextCleaner extends AbstractExecutableComponent{
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		String theFind = cc.getProperty(PROP_FIND);
-		String theReplace = cc.getProperty(PROP_REPLACE);
+		String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
 
-		 for (String text : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))) {
-			text = text.replaceAll("\t|\r|\n", " ");
-			text = text.replaceAll(theFind, theReplace);
-			cc.pushDataComponentToOutput(
-					OUT_TEXT,
-					BasicDataTypesTools.stringToStrings(text));
-		 }
+		Pattern pattern;
+		Matcher matcher;
+
+		String regex = cc.getProperty(PROP_REMOVE).trim();
+		if(regex!=null && regex.trim().length()!=0) {
+			pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+			matcher = pattern.matcher(text);
+			text = matcher.replaceAll("");
+		}
+
+		for(int i=1; i<=NUM; i++) {
+			String propertyName = FIND;
+			propertyName = (i==1)? propertyName: propertyName+"_"+Integer.toString(i);
+			regex = cc.getProperty(propertyName);
+
+			if(regex!=null && regex.trim().length()!=0) {
+				propertyName = REPLACE;
+				propertyName = (i==1)? propertyName: propertyName+"_"+Integer.toString(i);
+
+				String replacement = cc.getProperty(propertyName);
+
+				if(replacement!=null && replacement.trim().length()!=0) {
+					pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+					matcher = pattern.matcher(text);
+					text = matcher.replaceAll(replacement);
+				}
+			}
+		}
+
+		text = text.replaceAll("[\\s]+", " ");
+
+		cc.pushDataComponentToOutput(
+				OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
 	}
 
 	@Override
