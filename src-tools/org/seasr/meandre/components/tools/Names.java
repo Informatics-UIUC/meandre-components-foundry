@@ -120,6 +120,9 @@ public abstract class Names {
 	public static final String PROP_FIELD_NAME ="field_name";
 	public static final String PROP_FILTER_REGEX  = "filter_regex";
 	public static final String PROP_FIND = "find";
+	public static final String PROP_FIND_2 = "find2";
+	public static final String PROP_FIND_3 = "find3";
+	public static final String PROP_FIND_4 = "find4";
 	public static final String PROP_FONT_NAME = "font_name";
 	public static final String PROP_GOOGLE_APIS_KEY = "google_apis_key";
 	public static final String PROP_HAS_COLUMN_LABEL_HEADER = "has_column_label_header";
@@ -149,7 +152,11 @@ public abstract class Names {
 	public static final String PROP_READ_TIMEOUT = "read_timeout";
 	public static final String PROP_RECURSIVE = "recursive";
 	public static final String PROP_REFRESH = "refresh_after_execute";
+	public static final String PROP_REMOVE = "remove";
 	public static final String PROP_REPLACE = "replace";
+	public static final String PROP_REPLACE_2 = "replace2";
+	public static final String PROP_REPLACE_3 = "replace3";
+	public static final String PROP_REPLACE_4 = "replace4";
 	public static final String PROP_REPLICATION_METHOD = "replication_method_name";
 	public static final String PROP_REPLICATION_MODE = "replication_mode";
 	public static final String PROP_SEED = "seed";
