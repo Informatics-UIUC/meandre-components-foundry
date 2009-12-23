@@ -64,11 +64,15 @@ public class FileResourceUtility {
 	 */
 	public static String buildResourcePath(String defaultDir, String filename)
 	{
-		// for properly formatted RFC 1738
-		filename = filename.replaceFirst("file://", "");
-		// now handle any urls generated via File.toURL().toString()
-		// see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6351751
-		filename = filename.replaceFirst("file:","");
+		if (filename.startsWith("file:")) {
+			if (filename.startsWith("file://"))
+			   // for properly formatted RFC 1738
+			   filename = filename.replaceFirst("file://", "");
+			else 
+			   // now handle any urls generated via File.toURL().toString()
+			   // see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6351751
+			   filename = filename.replaceFirst("file:","");
+		}
 		if (filename.startsWith(File.separator) || filename.startsWith(".")) {
 			// it's an absolute path
 			return filename;
