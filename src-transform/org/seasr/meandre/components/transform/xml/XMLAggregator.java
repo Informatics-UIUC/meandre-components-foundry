@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.transform.xml;
 
 import java.io.StringWriter;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.meandre.annotations.Component;
@@ -111,6 +112,7 @@ public class XMLAggregator extends AbstractExecutableComponent {
 	private String docTitle;
 	private Element rootElement;
 	private boolean _gotInitiator;
+	private Hashtable<String, Element> table;
 
 	//--------------------------------------------------------------------------------------------
 
@@ -125,18 +127,18 @@ public class XMLAggregator extends AbstractExecutableComponent {
 		Document doc_in = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
 		doc_in.getDocumentElement().normalize();
 
-		NodeList nodes;
-
 		if(doc_out==null) {
-			nodes = doc_in.getElementsByTagName("TEI");
-			Element tei = (Element)nodes.item(0);
-			docTitle = tei.getAttribute("n");
-
 			doc_out = DOMUtils.createNewDocument();
 			rootElement = doc_out.createElement("root");
 			rootElement.setAttribute("docTitle", docTitle);
 	    	doc_out.appendChild(rootElement);
+
+	    	table = new Hashtable<String, Element>();
 		}
+
+		NodeList nodes =  doc_in.getElementsByTagName("TEI");
+		Element tei = (Element)nodes.item(0);
+		docTitle = tei.getAttribute("n");;
 
 		nodes = doc_in.getElementsByTagName("sourceDesc");
 		Element sourceDesc = (Element)nodes.item(0);
@@ -169,10 +171,16 @@ public class XMLAggregator extends AbstractExecutableComponent {
 		nodes = doc_in.getElementsByTagName("location");
 		for (int i=0, iMax=nodes.getLength(); i<iMax; i++) {
 			String location = ((Element)nodes.item(i)).getTextContent().trim();
-			Element locationElement = doc_out.createElement("location");
-			locationElement.setAttribute("id", "location:"+location);
-			locationElement.setAttribute("value", location);
-			rootElement.appendChild(locationElement);
+
+			Element locationElement;
+			if(table.get(location) == null) {
+				locationElement = doc_out.createElement("location");
+				locationElement.setAttribute("id", "location:"+location);
+				locationElement.setAttribute("value", location);
+				rootElement.appendChild(locationElement);
+				table.put(location, locationElement);
+			} else
+				locationElement = table.get(location);
 
 			Element sentenceElement = doc_out.createElement("sentence");
 			sentenceElement.setAttribute("docTitle", docTitle);
@@ -219,6 +227,9 @@ public class XMLAggregator extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
         componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(writer.toString()));
         componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator());
+
+        if(table!=null)
+        	table.clear();
 
         _gotInitiator = false;
     }
