@@ -169,7 +169,7 @@ public class XMLAggregator extends AbstractExecutableComponent {
 		String date = entity.getTextContent().trim();
 
 		nodes = doc_in.getElementsByTagName("location");
-		for (int i=0, iMax=nodes.getLength(); i<iMax; i++) {
+		for (int i=0, iMax=nodes.getLength(); i<iMax; i++) {//multiple locations
 			String location = ((Element)nodes.item(i)).getTextContent().trim();
 
 			Element locationElement;
@@ -198,6 +198,8 @@ public class XMLAggregator extends AbstractExecutableComponent {
 			DOMUtils.writeXML(doc_out, writer, null);
 			cc.pushDataComponentToOutput(OUT_XML,
 					BasicDataTypesTools.stringToStrings(writer.toString()));
+			if(table!=null)
+		        	table.clear();
 		}
 	}
 
