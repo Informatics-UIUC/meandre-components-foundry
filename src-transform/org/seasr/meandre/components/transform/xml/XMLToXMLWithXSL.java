@@ -42,11 +42,18 @@
 
 package org.seasr.meandre.components.transform.xml;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -60,17 +67,29 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeException;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+/**
+ * Loretta made this class use firing policy any instead of all.
+ *
+ * @author Lily Dong;
+ * @author Loretta Auvil
+ */
 
 @Component(
 		name = "XML To XML With XSL",
 		creator = "Lily Dong",
 		baseURL = "meandre://seasr.org/components/foundry/",
-		firingPolicy = FiringPolicy.all,
+		firingPolicy = FiringPolicy.any,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "xml, xsl, transform",
@@ -114,35 +133,100 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
+	/** The temporary initial queue */
+	protected Queue<Object> queues;
+	protected String inXsl;
+
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+		this.queues = new LinkedList<Object>();
+		this.inXsl = null;
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-	    Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
-	    String inXsl = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_XSL))[0];
-
-		StringReader xslReader = new StringReader(inXsl);
-
-		Source xmlSource = new DOMSource(doc);
-		Source xslSource = new StreamSource(xslReader);
-
-		StringWriter xmlWriter = new StringWriter();
-		StreamResult xmlResult = new StreamResult(xmlWriter);
-
-		TransformerFactory factory = TransformerFactory.newInstance();
-    	Transformer transformer = factory.newTransformer(xslSource);
-    	transformer.transform(xmlSource, xmlResult);
-    	String outXml = xmlWriter.getBuffer().toString();
-
-		cc.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(outXml));
-
-		xslReader.close();
-		xmlWriter.close();
+		if ( this.inXsl == null && cc.isInputAvailable(IN_XML) ) {
+			// No xsl received yet, so queue the objects
+			queueObjects();
+		}
+		else if ( this.inXsl == null && cc.isInputAvailable(IN_XSL) ) {
+			// Process xsl and pending
+			processXSL();
+			processQueued();
+		}
+		else {
+			// Process normally with the incoming information
+			processNormally();
+		}
 	}
 
 	@Override
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+		queues = null;
+		inXsl = null;
 	}
+
+	private void queueObjects() throws ComponentContextException {
+		if ( componentContext.isInputAvailable(IN_XML) )
+			this.queues.offer(componentContext.getDataComponentFromInput(IN_XML));
+	}
+
+	protected void processQueued() throws Exception {
+		Iterator<Object> iterTok = this.queues.iterator();
+		while ( iterTok.hasNext() ) processXML(iterTok.next());
+	}
+
+	protected void processNormally() throws ComponentContextException, UnsupportedDataTypeException, SAXException, IOException, ParserConfigurationException, TransformerException{
+		if ( componentContext.isInputAvailable(IN_XSL)) {
+			processXSL();
+		}
+		if ( componentContext.isInputAvailable(IN_XML) ) {
+			processXML(componentContext.getDataComponentFromInput(IN_XML));
+		}
+	}
+
+	protected void processXSL() throws UnsupportedDataTypeException, ComponentContextException, TransformerConfigurationException {
+	    inXsl = DataTypeParser.parseAsString(componentContext.getDataComponentFromInput(IN_XSL))[0];
+	}
+
+	protected void processXML(Object obj) throws UnsupportedDataTypeException, SAXException, IOException, ParserConfigurationException, ComponentContextException, TransformerException {
+	    Document doc = DataTypeParser.parseAsDomDocument(componentContext.getDataComponentFromInput(IN_XML));
+
+		Source xmlSource = new DOMSource(doc);
+
+		StringWriter xmlWriter = new StringWriter();
+		StreamResult xmlResult = new StreamResult(xmlWriter);
+
+		Transformer transformer;
+		StringReader xslReader;
+
+		xslReader = new StringReader(inXsl);
+		Source xslSource = new StreamSource(xslReader);
+		TransformerFactory factory = TransformerFactory.newInstance();
+    	transformer = factory.newTransformer(xslSource);
+		transformer.transform(xmlSource, xmlResult);
+    	String outXml = xmlWriter.getBuffer().toString();
+
+    	componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(outXml));
+
+		xmlWriter.close();
+		xslReader.close();
+	}
+
+
+	@Override
+    protected void handleStreamInitiators() throws Exception {
+        if (inputPortsWithInitiators.contains(IN_XML))
+            componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
+        else
+            throw new Exception("Unbalanced or unexpected StreamInitiator received");
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (inputPortsWithTerminators.contains(IN_XML))
+            componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator());
+        else
+            throw new Exception("Unbalanced or unexpected StreamTerminator received");
+    }
 }
