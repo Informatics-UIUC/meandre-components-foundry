@@ -103,7 +103,7 @@ public class TextCleaner extends AbstractExecutableComponent{
 
 	@ComponentProperty(
 	        description = "The regular expression to find the matched substring. " +
-	        "For example, if specifying the regular expression as \bpush\b and " +
+	        "For example, if specifying the regular expression as push and " +
 	        "the replacement as pushing, push is substituted with pushing",
             name = Names.PROP_FIND,
             defaultValue = ""
