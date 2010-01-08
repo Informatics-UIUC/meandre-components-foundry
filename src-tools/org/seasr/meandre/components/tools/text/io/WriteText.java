@@ -42,11 +42,12 @@
 
 package org.seasr.meandre.components.tools.text.io;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
-import java.net.URI;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,6 +55,7 @@ import java.util.Date;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
@@ -67,30 +69,22 @@ import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.generic.io.IOUtils;
-import org.seasr.meandre.support.utils.FileResourceUtility;
 
 /**
  * Writes a text to a location
  *
- * @author Xavier Llor&agrave;
  * @author Boris Capitanu
- * @author Lily Dong
  */
 
 @Component(
 		name = "Write Text",
-		creator = "Xavier Llora",
+		creator = "Boris Capitanu",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "semantic, io, read, text",
-		description = "This component write text into a file. The component outputs the text. " +
-				      "A property allows to control " +
-				      "the behaviour of the component in front of an IO error, allowing to continue " +
-				      "pushing and empty model or throwing and exception forcing the finalization of " +
-				      "the flow execution.",
+		description = "This component writes text to a file.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class WriteText extends AbstractExecutableComponent {
@@ -99,7 +93,7 @@ public class WriteText extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the model to write" +
+			description = "The URL or file name specifying where the text will be written" +
                 "<br>TYPE: java.net.URI" +
                 "<br>TYPE: java.net.URL" +
                 "<br>TYPE: java.lang.String" +
@@ -122,7 +116,7 @@ public class WriteText extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the written XML" +
+			description = "The URL or file name containing the written text" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
@@ -134,79 +128,98 @@ public class WriteText extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_TEXT= Names.PORT_TEXT;
 
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_DEFAULT_FOLDER,
+            description = "The folder to write to for relatively specified locations; " +
+            		"absolute locations will be respected. This value can be specified relative " +
+            		"to the published_resources folder",
+            defaultValue = ""
+    )
+    protected static final String PROP_DEFAULT_FOLDER = Names.PROP_DEFAULT_FOLDER;
+
+    @ComponentProperty(
+            name = Names.PROP_APPEND_TIMESTAMP,
+            description = "Append the current timestamp to the file specified in the location?",
+            defaultValue = "false"
+    )
+    protected static final String PROP_APPEND_TIMESTAMP = Names.PROP_APPEND_TIMESTAMP;
 
 	//--------------------------------------------------------------------------------------------
 
+
+    private String defaultFolder;
+    private boolean appendTimestamp;
+
+
+    //--------------------------------------------------------------------------------------------
+
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    defaultFolder = ccp.getProperty(PROP_DEFAULT_FOLDER).trim();
+	    if (defaultFolder.length() == 0)
+	        defaultFolder = ccp.getPublicResourcesDirectory();
+	    else
+	        if (!defaultFolder.startsWith(File.separator))
+	            defaultFolder = new File(ccp.getPublicResourcesDirectory(), defaultFolder).getAbsolutePath();
+
+	    console.fine("Default folder set to: " + defaultFolder);
+
+	    appendTimestamp = Boolean.parseBoolean(ccp.getProperty(PROP_APPEND_TIMESTAMP));
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		
-		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+	    String[] inputLocation = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION));
+	    String[] inputText = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+	    if (inputLocation.length > 1 || inputText.length > 1)
+	        throw new Exception("Cannot process multiple inputs per execute()");
 
-		if (inputs.length > 1)
-		    throw new ComponentExecutionException("Cannot process multiple inputs per execute()");
-		String sText = inputs[0];
-		
-		//
-        // build the location to which to write:
-		//
-		String[] locations = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION));
-		String sLocation = locations[0];
-		
-		// determine where the file should be written
-		sLocation = FileResourceUtility.buildResourcePath(cc.getPublicResourcesDirectory(), sLocation);
-		// NOTE, if the path contains directories that do NOT exist, the following will fail
-		// TODO: build the directories if they do not exist see FileResourceUtility
-		
-		//
-		// append the date .. TODO: this should be a property to this component
-		// could be: append date, use date as a subdirectory, etc
-		//
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-		int index = sLocation.toString().lastIndexOf(".");
-		if (index == -1) {
-			// append the date
-			sLocation += formatter.format(new Date());
-		}
-		else {
-			// insert the date
-			String prefix = sLocation.substring(0,index);
-			String suffix = sLocation.substring(index);
-			sLocation = prefix + formatter.format(new Date()) + suffix;
-		}
-		
-		
-		/* OLD CODE, removed M.E.H
-		String sLocation = 
-		URI objLoc = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
-		Date now = new Date();
-		
-		int index = objLoc.toString().lastIndexOf(".");
-		String sLocation;
-		if (index == -1)
-			 sLocation = objLoc.toString()+formatter.format(now);
-		else
-			 sLocation = objLoc.toString().substring(0, index)+formatter.format(now)+objLoc.toString().substring(index);
-		Writer wrtr = IOUtils.getWriterForResource(new URI(cc.getPublicResourcesDirectory()+File.separator+sLocation)); 
-	    
-		wrtr.write(sText);
-		wrtr.close();
-		URL outputURL = new URL(cc.getProxyWebUIUrl(true), "/public/resources/" + sLocation);
-		console.info("File written! Accessible at "+ outputURL);
-			 
-		*/
-		
-		BufferedWriter out = new BufferedWriter(new FileWriter(sLocation));
-		out.write(sText);
-		out.close();
-		
-		console.info("File written to " + sLocation);
-		
-		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(sLocation));
-		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sText));
+	    String location = inputLocation[0].trim();
+	    String text = inputText[0];
+
+	    File file = getLocation(location, defaultFolder);
+	    File parentDir = file.getParentFile();
+
+	    if (!parentDir.exists()) {
+	        if (parentDir.mkdirs())
+	            console.finer("Created directory: " + parentDir);
+	    } else
+	        if (!parentDir.isDirectory())
+	            throw new IOException(parentDir.toString() + " must be a directory!");
+
+	    if (appendTimestamp) {
+	        String name = file.getName();
+	        String timestamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+
+	        int pos = name.lastIndexOf(".");
+	        if (pos < 0)
+	            name += "_" + timestamp;
+	        else
+	            name = String.format("%s_%s%s", name.substring(0, pos), timestamp, name.substring(pos));
+
+	        file = new File(parentDir, name);
+	    }
+
+	    console.fine(String.format("Writing file %s", file));
+
+	    // Write the text to file
+	    Writer writer = new FileWriter(file);
+	    writer.write(text);
+	    writer.close();
+
+	    String publicResourcesDir = new File(cc.getPublicResourcesDirectory()).getAbsolutePath();
+	    if (!publicResourcesDir.endsWith(File.separator)) publicResourcesDir += File.separator;
+
+	    if (file.getAbsolutePath().startsWith(publicResourcesDir)) {
+	        String publicLoc = file.getAbsolutePath().substring(publicResourcesDir.length());
+	        URL outputURL = new URL(cc.getProxyWebUIUrl(true), "/public/resources/" + publicLoc);
+	        console.info("File accessible at: " + outputURL);
+	    }
+
+		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(file.toString()));
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
 	}
 
     @Override
@@ -278,4 +291,33 @@ public class WriteText extends AbstractExecutableComponent {
             }
 		}
 	}
+
+    //--------------------------------------------------------------------------------------------
+
+	/**
+	 * Gets a file reference to the location specified
+	 *
+	 * @param location The location; can be a full file:/// URL, or an absolute or relative pathname
+	 * @param defaultFolder The folder to use as base for relatively specified pathnames, or null to use current folder
+	 * @return The File reference to the location
+	 * @throws MalformedURLException
+	 * @throws URISyntaxException
+	 */
+    protected File getLocation(String location, String defaultFolder) throws MalformedURLException, URISyntaxException {
+        // Check if the location is a fully-specified URL
+        URL locationURL;
+        try {
+            locationURL = new URL(location);
+        }
+        catch (IllegalArgumentException e) {
+            // Not a fully-specified URL, check if absolute location
+            if (location.startsWith(File.separator))
+                locationURL = new File(location).toURI().toURL();
+            else
+                // Relative location
+                locationURL = new File(defaultFolder, location).toURI().toURL();
+        }
+
+        return new File(locationURL.toURI());
+    }
 }

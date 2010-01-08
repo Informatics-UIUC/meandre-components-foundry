@@ -104,6 +104,7 @@ public abstract class Names {
 	public static final String PORT_XSL = "xsl";
 
 	// PROPERTIES
+	public static final String PROP_APPEND_TIMESTAMP = "append_timestamp";
     public static final String PROP_BASE_URI = "base_uri";
 	public static final String PROP_BOTTOM_N = "bottom_n";
 	public static final String PROP_CONNECTION_TIMEOUT = "connection_timeout";
@@ -113,6 +114,7 @@ public abstract class Names {
 	public static final String PROP_CSS = "css";
 	public static final String PROP_DEBUG_LEVEL = "debug_level";
 	public static final String PROP_DEFAULT = "default_value";
+	public static final String PROP_DEFAULT_FOLDER = "default_folder";
 	public static final String PROP_ENCODING = "encoding";
 	public static final String PROP_ENTITIES = "entities";
 	public static final String PROP_ERROR_HANDLING = "ignore_errors";
