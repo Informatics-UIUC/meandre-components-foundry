@@ -55,6 +55,8 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.geographic.GeoLocation;
@@ -248,6 +250,30 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
         mapData.location_vector = location;
 
         return mapData;
+    }
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (inputPortsWithInitiators.contains(IN_XML)) {
+            componentContext.pushDataComponentToOutput(OUT_LATITUDE, new StreamInitiator());
+            componentContext.pushDataComponentToOutput(OUT_LONGITUDE, new StreamInitiator());
+            componentContext.pushDataComponentToOutput(OUT_LOCATION, new StreamInitiator());
+            componentContext.pushDataComponentToOutput(OUT_CONTEXT, new StreamInitiator());
+        }
+        else
+            throw new Exception("Unbalanced or unexpected StreamInitiator received");
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (inputPortsWithTerminators.contains(IN_XML)){
+            componentContext.pushDataComponentToOutput(OUT_LATITUDE, new StreamTerminator());
+            componentContext.pushDataComponentToOutput(OUT_LONGITUDE, new StreamTerminator());
+            componentContext.pushDataComponentToOutput(OUT_LOCATION, new StreamTerminator());
+            componentContext.pushDataComponentToOutput(OUT_CONTEXT, new StreamTerminator());
+        }
+        else
+            throw new Exception("Unbalanced or unexpected StreamTerminator received");
     }
 }
 

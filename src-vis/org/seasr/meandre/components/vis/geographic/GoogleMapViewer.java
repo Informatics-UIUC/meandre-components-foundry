@@ -55,6 +55,8 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
@@ -127,7 +129,6 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
 
     private VelocityContext _context;
 
-
     //--------------------------------------------------------------------------------------------
 
     @Override
@@ -172,5 +173,23 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (inputPortsWithInitiators.contains(IN_LATITUDE)) {
+            componentContext.pushDataComponentToOutput(OUT_HTML, new StreamInitiator());
+         }
+        else
+            throw new Exception("Unbalanced or unexpected StreamInitiator received");
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (inputPortsWithTerminators.contains(IN_LATITUDE)){
+            componentContext.pushDataComponentToOutput(OUT_HTML, new StreamTerminator());
+        }
+        else
+            throw new Exception("Unbalanced or unexpected StreamTerminator received");
     }
 }
