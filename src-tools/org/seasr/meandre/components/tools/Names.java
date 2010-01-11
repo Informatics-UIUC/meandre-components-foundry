@@ -54,6 +54,7 @@ public abstract class Names {
     public static final String PORT_AUTHOR_LIST = "author_list";
     public static final String PORT_CLUSTER_MODEL = "cluster_model";
 	public static final String PORT_CONTEXT_VECTOR = "context_vector";
+	public static final String PORT_CONNECTION = "connection";
 	public static final String PORT_DICTIONARY = "dictionary";
 	public static final String PORT_DIRECTORY = "directory";
 	public static final String PORT_DOC_TITLE = "document_title";
@@ -133,6 +134,7 @@ public abstract class Names {
 	public static final String PROP_HEIGHT = "height";
 	public static final String PROP_ID = "id";
 	public static final String PROP_ITERATIONS = "iterations";
+	public static final String PROP_JNDI_NAME = "jndi_name";
 	public static final String PROP_LANGUAGE = "language";
 	public static final String PROP_LOCATION = "location";
 	public static final String PROP_MAX_SIZE = "max_size";
@@ -174,5 +176,6 @@ public abstract class Names {
 	public static final String PROP_USERNAME = "username";
 	public static final String PROP_WIDTH = "width";
 	public static final String PROP_WRAP_STREAM = "wrap_stream";
+	public static final String PROP_XML_LOCATION = "xml_location";
 	public static final String PROP_YAHOO_API_KEY = "yahoo_api_key";
 }
