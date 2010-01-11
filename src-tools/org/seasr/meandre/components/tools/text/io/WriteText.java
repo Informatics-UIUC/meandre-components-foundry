@@ -47,6 +47,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -307,7 +308,7 @@ public class WriteText extends AbstractExecutableComponent {
         // Check if the location is a fully-specified URL
         URL locationURL;
         try {
-            locationURL = new URL(location);
+            locationURL = new URI(location).toURL();
         }
         catch (IllegalArgumentException e) {
             // Not a fully-specified URL, check if absolute location
