@@ -50,6 +50,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
+import java.util.List;
+import java.util.ArrayList;
 
 /*
 37.843075,-122.27787
@@ -62,6 +64,8 @@ public class GeoLocation {
 	double latitude;
 	double longitude;
 
+	String city,state,country;
+	
 	public GeoLocation()
 	{
 		this(-1.0f, -1.0f);
@@ -89,7 +93,24 @@ public class GeoLocation {
 		return (this.latitude != -1 || this.longitude != -1);
 	}
 
+	public void setCity(String c)    {this.city = c;}
+	public void setState(String s)   {this.state = s;}
+	public void setCountry(String c) {this.country = c;}
+	public String getCity()    {return this.city;}
+	public String getState()   {return this.state;}
+	public String getCountry() {return this.country;}
+	
+	public String toString()
+	{
+		return this.latitude  + "," + 
+		       this.longitude + "," +
+		       this.city      + "," +
+		       this.state     + "," + 
+		       this.country;
+	}
 
+	
+	// GeoLocation Service
 
     public static final String defaultAPIKey = "yFUeASDV34FRJWiaM8pxF0eJ7d2MizbUNVB2K6in0Ybwji5YB0D4ZODR2y3LqQ--";
 
@@ -99,8 +120,24 @@ public class GeoLocation {
     {
     	return getLocation(location, defaultAPIKey);
     }
-
+    
     public static GeoLocation getLocation(String location, String yahooAPIKey)
+    throws IOException
+    {
+    	List<GeoLocation> all = getAllLocations(location, yahooAPIKey);
+    	if (all.size() == 0) {
+    		return new GeoLocation();
+    	}
+    	return all.get(0);
+    }
+
+    public static List<GeoLocation> getAllLocations(String location)
+    throws IOException
+    {
+    	return getAllLocations(location, defaultAPIKey);
+    }
+    
+    public static List<GeoLocation> getAllLocations(String location, String yahooAPIKey)
     throws IOException
 
     {
@@ -118,35 +155,55 @@ public class GeoLocation {
         conn.setDoOutput(true);
 
         InputStream is;
-
+        List<GeoLocation> locations = new ArrayList<GeoLocation>();
+        
         try {
         	is = conn.getInputStream();
         }
         catch (IOException e) {
         	// HttpURLConnection http = (HttpURLConnection)conn;
         	// http.getResponseCode();
-        	return new GeoLocation();
+        	return locations;
         }
 
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
 
+ 
 		String inputLine;
 		sb = new StringBuffer();
-		while ((inputLine = in.readLine()) != null)
+		while ((inputLine = in.readLine()) != null) {
 			sb.append(inputLine);
+		}
 		in.close();
+		
+		
+		
+		String[] results = sb.toString().split("</Result>");
+		for (String xml: results) {
+			if (! xml.trim().startsWith("<Result")) {
+				continue;
+			}
+			
+			// parse the response
+			String lat = simpleXMLParse(xml, "Latitude");
+			String lng = simpleXMLParse(xml, "Longitude");
+			String city    = simpleXMLParse(xml, "City");
+			String state   = simpleXMLParse(xml, "State");
+			String country = simpleXMLParse(xml, "Country");
 
-		// parse the response
-		String xml = sb.toString();
-		String lat = simpleXMLParse(xml, "Latitude");
-		String lng = simpleXMLParse(xml, "Longitude");
+			if (lat != null && lng != null) {
+				GeoLocation geo =
+					new GeoLocation(Double.parseDouble(lat), Double.parseDouble(lng));
 
+				geo.setCity(city);
+				geo.setState(state);
+				geo.setCountry(country);
 
-		GeoLocation geo =
-			new GeoLocation(Double.parseDouble(lat), Double.parseDouble(lng));
-
-
-        return geo;
+				locations.add(geo);
+			}
+		}
+		
+        return locations;
 
     }
 
@@ -156,7 +213,11 @@ public class GeoLocation {
 		String eToken = "</" + token + ">";
 
 		int sIdx = xml.indexOf(sToken) + sToken.length();
+		if (sIdx == -1) return null;
+		
 		int eIdx = xml.indexOf(eToken, sIdx);
+		if (eIdx == -1) return null;
+		
 		return xml.substring(sIdx, eIdx);
 
     }
