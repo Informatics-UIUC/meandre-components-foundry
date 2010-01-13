@@ -320,6 +320,9 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 		StringWriter writer = new StringWriter();
 		DOMUtils.writeXML(doc_out, writer, null);
 
+        console.info("Minimum date found: " + minYear);
+        console.info("Maximum date found: " + maxYear);
+
 	    cc.pushDataComponentToOutput(OUT_MIN_YEAR,
 	            BasicDataTypesTools.integerToIntegers(new Integer(minYear)));
 	    cc.pushDataComponentToOutput(OUT_MAX_YEAR,
