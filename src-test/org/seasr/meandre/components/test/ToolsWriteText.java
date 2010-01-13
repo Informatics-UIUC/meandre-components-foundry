@@ -42,26 +42,20 @@
 
 package org.seasr.meandre.components.test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.PrintStream;
-import java.io.StringReader;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.meandre.components.test.framework.ComponentTesterBase;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 /** The base class for performing component testing.
  *
@@ -94,25 +88,22 @@ public class ToolsWriteText {
 		//ctb.destroy();
 	}
 
-	/** The test of the basic writing to file at url file:///tmp/write-text/test.txt. */
+	/** The test of the basic writing to file at uri file:///tmp/write-text/test.txt. */
 	@Test
 	public void testWriteText1() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
-		//delete file
-		String fileName = "/tmp"+File.separator+"write-text"+File.separator+"test.txt";
-		File f = new File(fileName);
+		String dirName = File.separator+"tmp"+File.separator+"write-text"+File.separator;
+		String fileName = dirName+"test.txt";
 
 		// Make sure the file or directory does not exist
+		File f = new File(fileName);
 		if (!f.exists()){
-			fileName = "/tmp"+File.separator+"write-text";
-			File dir = new File(fileName);
 
 			// Make sure the file or directory exists and isn't write protected
+			File dir = new File(dirName);
 			if (!dir.exists()){
-
-				fileName = "file:///tmp"+File.separator+"write-text"+File.separator+"test.txt";
 
 				//run test
 				ctb.runZigZag(ctb.getZigZag("write_text_1.zz"),out,err);
@@ -128,14 +119,16 @@ public class ToolsWriteText {
 					String sRes = baos.toString();
 					assertTrue(sRes.startsWith("Hello World!"));
 					//need to remove file
-					deleteFile("/tmp"+File.separator+"write-text"+File.separator+"test.txt");
-					deleteFile("/tmp"+File.separator+"write-text");
+					deleteFile(fileName);
+					deleteFile(dirName);
 				}
 				catch ( Throwable t ){
 					fail(t.getMessage());
 				}
 			}
+			else fail ("Directory already exists: "+fileName);
 		}
+		else fail ("Filename already exists: "+dirName);
 	}
 
 	/** The test of the basic writing to file with full path at /tmp/write-text/test.txt. */
@@ -144,19 +137,16 @@ public class ToolsWriteText {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
-		//delete file
-		String fileName = File.separator+"tmp"+File.separator+"write-text"+File.separator+"test.txt";
-		File f = new File(fileName);
+		String dirName = File.separator+"tmp"+File.separator+"write-text"+File.separator;
+		String fileName = dirName+"test.txt";
 
 		// Make sure the file or directory does not exist
+		File f = new File(fileName);
 		if (!f.exists()){
-			fileName = File.separator+"tmp"+File.separator+"write-text";
-			File dir = new File(fileName);
 
 			// Make sure the file or directory exists and isn't write protected
+			File dir = new File(dirName);
 			if (!dir.exists()){
-
-				fileName = File.separator+"tmp"+File.separator+"write-text"+File.separator+"test.txt";
 
 				//run test
 				ctb.runZigZag(ctb.getZigZag("write_text_2.zz"),out,err);
@@ -171,35 +161,36 @@ public class ToolsWriteText {
 					isr.close();
 					String sRes = baos.toString();
 					assertTrue(sRes.startsWith("Hello World!"));
-					deleteFile("/tmp"+File.separator+"write-text"+File.separator+"test.txt");
-					deleteFile("/tmp"+File.separator+"write-text");
+					deleteFile(fileName);
+					deleteFile(dirName);
 				}
 				catch ( Throwable t ){
 					fail(t.getMessage());
 				}
 			}
+			else fail ("Directory already exists: "+fileName);
 		}
+		else fail ("FileName already exists: "+dirName);
 	}
 
-	/** The test of the basic writing to file at relative path write-text/test.txt. */
+	/** The test of the basic writing to file at relative path write-text/test.txt,
+	 *  which will write the file in published_resources. */
 	@Test
 	public void testWriteText3() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
 		//delete file
-		String fileName = "write-text"+File.separator+"test.txt";
-		File f = new File(fileName);
+		String dirName = "published_resources"+File.separator+"write-text"+File.separator;
+		String fileName = dirName+"test.txt";
 
 		// Make sure the file or directory does not exist
+		File f = new File(fileName);
 		if (!f.exists()){
-			fileName = "write-text";
-			File dir = new File(fileName);
 
 			// Make sure the file or directory exists and isn't write protected
+			File dir = new File(dirName);
 			if (!dir.exists()){
-
-				fileName = "write-text"+File.separator+"test.txt";
 
 				//run test
 				ctb.runZigZag(ctb.getZigZag("write_text_3.zz"),out,err);
@@ -214,15 +205,17 @@ public class ToolsWriteText {
 					isr.close();
 					String sRes = baos.toString();
 					assertTrue(sRes.startsWith("Hello World!"));
-					deleteFile("write-text"+File.separator+"test.txt");
-					deleteFile("write-text");
+					deleteFile(fileName);
+					deleteFile(dirName);
 
 				}
 				catch ( Throwable t ){
 					fail(t.getMessage());
 				}
 			}
+			else fail ("Directory already exists: "+fileName);
 		}
+		else fail ("FileName already exists:"+dirName);
 	}
 
 	public void deleteFile(String fileName){
