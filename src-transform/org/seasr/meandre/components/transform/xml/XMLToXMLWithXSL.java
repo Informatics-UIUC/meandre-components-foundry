@@ -136,28 +136,29 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	/** The temporary initial queue */
 	protected Queue<Object> queues;
 	protected String inXsl;
+	private boolean _gotInitiator;
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.queues = new LinkedList<Object>();
 		this.inXsl = null;
+
+		_gotInitiator = false;
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		if ( this.inXsl == null && cc.isInputAvailable(IN_XML) ) {
+		if (cc.isInputAvailable(IN_XML) )
 			// No xsl received yet, so queue the objects
 			queueObjects();
-		}
-		else if ( this.inXsl == null && cc.isInputAvailable(IN_XSL) ) {
+
+		if ( this.inXsl == null && cc.isInputAvailable(IN_XSL) )
 			// Process xsl and pending
 			processXSL();
-			processQueued();
-		}
-		else {
-			// Process normally with the incoming information
-			processNormally();
-		}
+
+		if(!_gotInitiator) // Process normally with the incoming information
+			if(inXsl != null && queues.size() != 0)
+				processQueued();
 	}
 
 	@Override
@@ -174,15 +175,6 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	protected void processQueued() throws Exception {
 		Iterator<Object> iterTok = this.queues.iterator();
 		while ( iterTok.hasNext() ) processXML(iterTok.next());
-	}
-
-	protected void processNormally() throws ComponentContextException, UnsupportedDataTypeException, SAXException, IOException, ParserConfigurationException, TransformerException{
-		if ( componentContext.isInputAvailable(IN_XSL)) {
-			processXSL();
-		}
-		if ( componentContext.isInputAvailable(IN_XML) ) {
-			processXML(componentContext.getDataComponentFromInput(IN_XML));
-		}
 	}
 
 	protected void processXSL() throws UnsupportedDataTypeException, ComponentContextException, TransformerConfigurationException {
@@ -216,17 +208,21 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 	@Override
     protected void handleStreamInitiators() throws Exception {
-        if (inputPortsWithInitiators.contains(IN_XML))
-            componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
-        else
-            throw new Exception("Unbalanced or unexpected StreamInitiator received");
-    }
+        if (_gotInitiator)
+            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
+
+        _gotInitiator = true;
+	}
 
     @Override
     protected void handleStreamTerminators() throws Exception {
-        if (inputPortsWithTerminators.contains(IN_XML))
-            componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator());
-        else
-            throw new Exception("Unbalanced or unexpected StreamTerminator received");
+    	 if (!_gotInitiator)
+             throw new Exception("Received StreamTerminator without receiving StreamInitiator");
+
+    	componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
+    	processQueued();
+    	componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator());
+    
+    	_gotInitiator = false;
     }
 }
