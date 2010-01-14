@@ -217,39 +217,29 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
 		        theSentence = theSentence.replaceAll("\t|\r|\n", " ");
 		        aLoc = aLoc.replaceAll("\t|\r|\n", " ");
 
-		        String normalizedSentence = theSentence.toLowerCase();
-		        String normalizedLocation = aLoc.toLowerCase();
-
 		        //look for location only with word boundary and eliminate mismatching
-		        p = Pattern.compile("\\b"+normalizedLocation+"\\b");
-		        m = p.matcher(normalizedSentence);
+		        p = Pattern.compile("\\b"+aLoc+"\\b", Pattern.CASE_INSENSITIVE);
+		        m = p.matcher(theSentence);
 
-		        int locPos = -1;
+		        boolean isLocAvailable = true;
 
 		        if(m.find())
-		        	locPos = m.start();
+		        	theSentence = m.replaceAll("<font color='red'>"+aLoc+"</font>");
 		        else {
-		        	 p = Pattern.compile("\\b"+normalizedLocation);
-				     m = p.matcher(normalizedSentence);
-				     if(m.find())
-				    	 locPos = m.start();
+		        	p = Pattern.compile("\\b"+aLoc, Pattern.CASE_INSENSITIVE);
+				    m = p.matcher(theSentence);
+				    if(m.find())
+				    	theSentence = m.replaceAll("<font color='red'>"+aLoc+"</font>");
+				    else
+				    	isLocAvailable = false;
 		        }
 
-		        //int locPos = normalizedSentence.indexOf(normalizedDate);
-
-		        if (locPos < 0) {
+		        if (!isLocAvailable) {
 		            console.warning("Could not find the position of the date in the sentence! This should not happen!");
-		            console.warning("   sentence: '" + normalizedSentence + "'");
-		            console.warning("   date: '" + normalizedLocation + "'");
+		            console.warning("   sentence: '" + theSentence + "'");
+		            console.warning("   date: '" + aLoc + "'");
 		        }
 
-		        String sentBefore = theSentence.substring(0, locPos);
-
-		        String sentAfter = theSentence.substring(locPos + aLoc.length());
-
-		        theSentence = StringEscapeUtils.escapeHtml(sentBefore) +
-		                      "<font color='red'>" + StringEscapeUtils.escapeHtml(aLoc) + "</font>" +
-		                      StringEscapeUtils.escapeHtml(sentAfter);
                 sbHtml.append("<div onclick='toggleVisibility(this)' style='position:relative' align='left'><b>Sentence ").append(++nr);
                 if (docTitle != null && docTitle.length() > 0)
                     sbHtml.append(" from '" + StringEscapeUtils.escapeHtml(docTitle) + "'");
