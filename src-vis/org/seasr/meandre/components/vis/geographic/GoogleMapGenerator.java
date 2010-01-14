@@ -218,17 +218,35 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
 		        aLoc = aLoc.replaceAll("\t|\r|\n", " ");
 
 		        String normalizedSentence = theSentence.toLowerCase();
-		        String normalizedDate = aLoc.toLowerCase();
+		        String normalizedLocation = aLoc.toLowerCase();
 
-		        int datePos = normalizedSentence.indexOf(normalizedDate);
-		        if (datePos < 0) {
-		            console.warning("Could not find the position of the date in the sentence! This should not happen!");
-		            console.warning("   sentence: '" + normalizedSentence + "'");
-		            console.warning("   date: '" + normalizedDate + "'");
+		        //look for location only with word boundary and eliminate mismatching
+		        p = Pattern.compile("\\b"+normalizedLocation+"\\b");
+		        m = p.matcher(normalizedSentence);
+
+		        int locPos = -1;
+
+		        if(m.find())
+		        	locPos = m.start();
+		        else {
+		        	 p = Pattern.compile("\\b"+normalizedLocation);
+				     m = p.matcher(normalizedSentence);
+				     if(m.find())
+				    	 locPos = m.start();
 		        }
 
-		        String sentBefore = theSentence.substring(0, datePos);
-		        String sentAfter = theSentence.substring(datePos + aLoc.length());
+		        //int locPos = normalizedSentence.indexOf(normalizedDate);
+
+		        if (locPos < 0) {
+		            console.warning("Could not find the position of the date in the sentence! This should not happen!");
+		            console.warning("   sentence: '" + normalizedSentence + "'");
+		            console.warning("   date: '" + normalizedLocation + "'");
+		        }
+
+		        String sentBefore = theSentence.substring(0, locPos);
+
+		        String sentAfter = theSentence.substring(locPos + aLoc.length());
+
 		        theSentence = StringEscapeUtils.escapeHtml(sentBefore) +
 		                      "<font color='red'>" + StringEscapeUtils.escapeHtml(aLoc) + "</font>" +
 		                      StringEscapeUtils.escapeHtml(sentAfter);
