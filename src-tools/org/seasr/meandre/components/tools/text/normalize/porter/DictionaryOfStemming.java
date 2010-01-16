@@ -157,9 +157,6 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
         		map.put(key, str);
         }
 
-        /*PrintWriter out
-		   = new PrintWriter(new BufferedWriter(new FileWriter("result.txt")));*/
-
         if (!_gotInitiator) {
         	org.seasr.datatypes.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
             Set<String> set = map.keySet();
@@ -168,12 +165,7 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
             	sres.addValue(map.get(s));
             	mres.addKey(s);
     			mres.addValue(sres.build());
-
-    			//out.println("key = " + s + "\tvalue = " + map.get(s));
             }
-
-            //out.flush();
-            //out.close();
 
             componentContext.pushDataComponentToOutput(OUT_DICTIONARY, mres.build());
 

@@ -184,18 +184,10 @@ public class Stem extends AbstractExecutableComponent {
 
         org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 
-    	/*PrintWriter out
-		   = new PrintWriter(new BufferedWriter(new FileWriter("result.txt")));*/
-
 		for (String sToken : tokens ) {
 			String stem = stemmer.normalizeTerm(sToken);
 			res.addValue(stem);
-
-			//out.println("token = " + sToken + "\tstem = " + stem );
 		}
-
-		//out.flush();
-		//out.close();
 
 		componentContext.pushDataComponentToOutput(OUT_TOKENS, res.build());
 	}
