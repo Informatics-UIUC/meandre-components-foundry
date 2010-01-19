@@ -72,12 +72,13 @@ public class GeoLocation {
 	// country > state > city > zip* > street > address
 	//    0        1       2     3       4       5
 	// 
-	static int P_COUNTRY = 0;
-	static int P_STATE   = 1;
-	static int P_CITY    = 2;
-	static int P_ZIP     = 3;
-	static int P_STREET  = 4;
-	static int P_ADDRESS = 5;
+	static public final int P_COUNTRY = 0;
+	static public final int P_STATE   = 1;
+	static public final int P_CITY    = 2;
+	static public final int P_ZIP     = 3;
+	static public final int P_STREET  = 4;
+	static public final int P_ADDRESS = 5;
+	static public final int P_LOCATION = -1;
 	static String[] pKeys = {"country", "state", "city", "zip", "street", "address"};
 	static Map<String,Integer> precisionMap = new HashMap<String, Integer>();
 	static {
@@ -95,7 +96,7 @@ public class GeoLocation {
 	double latitude;
 	double longitude;
 
-	String city,state,country;
+	String[] values; // country, state, city, etc
 	int precision;
 	
 	public GeoLocation()
@@ -108,6 +109,8 @@ public class GeoLocation {
 
 		this.latitude  = lat;
 		this.longitude = lng;
+		
+		this.values = new String[pKeys.length];
 
 	}
 
@@ -126,12 +129,12 @@ public class GeoLocation {
 		return (this.latitude != -1 || this.longitude != -1);
 	}
 
-	public void setCity(String c)    {this.city = c;}
-	public void setState(String s)   {this.state = s;}
-	public void setCountry(String c) {this.country = c;}
-	public String getCity()    {return this.city;}
-	public String getState()   {return this.state;}
-	public String getCountry() {return this.country;}
+	public void setCity(String c)    {this.values[P_CITY] = c;}
+	public void setState(String s)   {this.values[P_STATE] = s;}
+	public void setCountry(String c) {this.values[P_COUNTRY] = c;}
+	public String getCity()    {return this.values[P_CITY];}
+	public String getState()   {return this.values[P_STATE];}
+	public String getCountry() {return this.values[P_COUNTRY];}
 	
 	public boolean isState()  {return this.precision == P_STATE;}
 	public boolean isFoundWithin(GeoLocation other) {
@@ -146,11 +149,22 @@ public class GeoLocation {
 		// e.g. other == {USA, WI}          precision == STATE [1]
 		//      this  == {USA, WI, Madison} precision == CITY  [2]
 		
+		// e.g this  == Richmond, VA  precision == ZIP   [3]
+		//     other == Virginia      precision == STATE [1]
 
 		// need to have the same labels
 		for (int i = 0; i <= other.precision; i++) {  // YES i mean <= 
-			String a = pKeys[this.precision];
+			
+			String a = this.values[i];
+			String b = other.values[i];
+			
+			/*
+			String a = pKeys[this.precision];  // zip, state, etc
 			String b = pKeys[other.precision];
+			// System.out.println("compare " + a + " to " + b);
+			*/
+			
+			
 			if (! a.equals(b)) {
 				return false;
 			}
@@ -163,7 +177,7 @@ public class GeoLocation {
 	{
 		return this.location + "\n" + this.latitude  + "," + this.longitude + "," +
 		       getPrecisionAsString() + ":" +
-		       this.country      + "," + this.state     + "," + this.city;
+		       getCountry()     + "," + getState()     + "," + getCity();
 	}
 	
 	public void setPrecision(String precision) 
@@ -179,6 +193,10 @@ public class GeoLocation {
 				}
 			}
 		}
+	}
+	public int getPrecision()
+	{
+		return this.precision;
 	}
 	
 	public String getPrecisionAsString()
@@ -200,6 +218,8 @@ public class GeoLocation {
 
     public static final String defaultAPIKey = "yFUeASDV34FRJWiaM8pxF0eJ7d2MizbUNVB2K6in0Ybwji5YB0D4ZODR2y3LqQ--";
 
+    
+    // depreciate these two calls:
 
     public static GeoLocation getLocation(String location)
     throws IOException
@@ -210,24 +230,36 @@ public class GeoLocation {
     public static GeoLocation getLocation(String location, String yahooAPIKey)
     throws IOException
     {
-    	List<GeoLocation> all = getAllLocations(location, yahooAPIKey);
+    	List<GeoLocation> all = getAllLocations(P_LOCATION, location, yahooAPIKey);
     	if (all.size() == 0) {
     		return new GeoLocation();
     	}
     	return all.get(0);
     }
 
+    
+    
     public static List<GeoLocation> getAllLocations(String location)
     throws IOException
     {
-    	return getAllLocations(location, defaultAPIKey);
+    	return getAllLocations(P_LOCATION, location, defaultAPIKey);
     }
     
-    public static List<GeoLocation> getAllLocations(String location, String yahooAPIKey)
+    public static List<GeoLocation> getAllLocations(int type, String location)
+    throws IOException
+    {
+    	return getAllLocations(type, location, defaultAPIKey);
+    }
+    
+    public static List<GeoLocation> getAllLocations(int type, String location, String yahooAPIKey)
     throws IOException
 
     {
-    	String param = URLEncoder.encode("location", "UTF-8") + "=" + URLEncoder.encode(location, "UTF-8");
+    	String pName = "location";
+    	if (type != P_LOCATION) {
+    		pName = pKeys[type];
+    	}
+    	String param = URLEncoder.encode(pName, "UTF-8") + "=" + URLEncoder.encode(location, "UTF-8");
 
     	StringBuffer sb = new StringBuffer();
         sb.append("http://local.yahooapis.com/MapsService/V1/geocode?appid=");
