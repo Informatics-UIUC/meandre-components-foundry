@@ -161,11 +161,9 @@ public class GeoLocation {
 	
 	public String toString()
 	{
-		return this.location + "\n" + this.latitude  + "," + 
-		       this.longitude + "," +
-		       this.city      + "," +
-		       this.state     + "," + 
-		       this.country   + ":" + getPrecisionAsString();
+		return this.location + "\n" + this.latitude  + "," + this.longitude + "," +
+		       getPrecisionAsString() + ":" +
+		       this.country      + "," + this.state     + "," + this.city;
 	}
 	
 	public void setPrecision(String precision) 
