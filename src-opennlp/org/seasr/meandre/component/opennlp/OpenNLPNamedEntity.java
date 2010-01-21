@@ -252,12 +252,15 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     				int beginIndex = textSpan.getStart();
     				int endIndex   = textSpan.getEnd();
     				String text    = textSpan.getText();
+    				
+    				// clean the text
+    				text = text.replace("\n"," ");
 
     				SimpleTuple tuple = tuplePeer.createTuple();
     				tuple.setValue(TYPE_IDX,        type);
     				tuple.setValue(SENTENCE_ID_IDX, i);
     				tuple.setValue(TEXT_START_IDX,  beginIndex + globalOffset);
-    				tuple.setValue(TEXT_END_IDX,    endIndex + globalOffset);
+    				tuple.setValue(TEXT_END_IDX,    endIndex   + globalOffset);
     				tuple.setValue(TEXT_IDX,        text);
 
     				list.add(tuple);
