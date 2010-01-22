@@ -42,8 +42,10 @@
 
 package org.seasr.meandre.components.tools.text.normalize.porter;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Hashtable;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -53,11 +55,8 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
-import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.text.normalize.porter.PorterStemmer;
@@ -68,8 +67,8 @@ import org.seasr.meandre.support.components.text.normalize.porter.PorterStemmer;
 
 @Component(
         creator = "Lily Dong",
-		description = "Replaces tokens with their representatives from the dictionary. " +
-		    "If several tokens have the same representative, their counts are aggregated.",
+		description = "Replaces tokens with their entries from the dictionary. " +
+		    "If several tokens have the same entry, their counts are aggregated.",
 		firingPolicy = FiringPolicy.all,
 		name = "Transform Token From Dictionary",
 		tags = "token transform",
@@ -105,53 +104,97 @@ public class TransformTokenFromDictionary extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+	private Hashtable<String, String> dictionary;
+	private Hashtable<String, Integer> pool;
+	private PorterStemmer stemmer;
+
+	//--------------------------------------------------------------------------------------------
+
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+		dictionary = new Hashtable<String, String>();
+		pool = new Hashtable<String, Integer>();
+
+		stemmer = new PorterStemmer();
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		Map<String, Integer> res = new HashMap<String, Integer>();
-
-		StringsMap sm = (StringsMap)cc.getDataComponentFromInput(IN_DICTIONARY);
-		HashMap<String, Strings> hm = new HashMap<String, Strings>();
-		for(int i=0; i<sm.getValueCount(); i++) //for quicker lookup
-			hm.put(sm.getKey(i), sm.getValue(i));
-
-		PorterStemmer stemmer = new PorterStemmer();
-
-		Object data = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
-		IntegersMap im = (IntegersMap)data;
-		for (int i = 0; i < im.getValueCount(); i++) {
-
-			String word = im.getKey(i);
-		    int   count = im.getValue(i).getValue(0);
-
-		    String stemmedWord= stemmer.normalizeTerm(word);
-		    if(hm.get(stemmedWord) != null) {
-		    	String originalWord = hm.get(stemmedWord).getValue(0);
-		    	if(res.get(originalWord) != null)
-		    		count += res.get(originalWord).intValue();
-		    	res.put(originalWord, count);
-		    }
+		if(cc.isInputAvailable(IN_TOKEN_COUNTS)) {
+			IntegersMap iMap = (IntegersMap)cc.getDataComponentFromInput(IN_TOKEN_COUNTS);;
+			processCount(iMap);
 		}
-		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
-				BasicDataTypesTools.mapToIntegerMap(res, false));
+
+		if(cc.isInputAvailable(IN_DICTIONARY)) {
+			StringsMap sMap = (StringsMap)cc.getDataComponentFromInput(IN_DICTIONARY);
+			processDictionary(sMap);
+		}
+
+		if(dictionary.size()!=0 && pool.size()!=0)
+			processTransform();
 	}
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+		if(dictionary != null) {
+			dictionary.clear();
+	        dictionary = null;
+	    }
+
+		if(pool != null) {
+			pool.clear();
+			pool = null;
+		}
 	}
 
-    //--------------------------------------------------------------------------------------------
+	/**
+	 * Transforms the stemmed words to their original words.
+	 */
+	private void processTransform() throws Exception {
+		Map<String, Integer> res = new HashMap<String, Integer>();
 
-	@Override
-	protected void handleStreamInitiators() throws Exception {
-        componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, new StreamInitiator());
+		Enumeration<String> list = pool.keys();
+		while(list.hasMoreElements()) {
+			String word = list.nextElement();
+			int count = pool.get(word).intValue();
+
+			String stemmedWord = stemmer.normalizeTerm(word);
+
+			if(dictionary.containsKey(stemmedWord)) //transform
+			    word = dictionary.get(stemmedWord);
+
+			if(res.get(word) != null) {
+			    count += res.get(word).intValue();
+			    res.put(word, count);
+			} else {//just let it go
+				res.put(word, count);
+			}
+		}
+
+		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
+				BasicDataTypesTools.mapToIntegerMap(res, false));
 	}
 
-	@Override
-	protected void handleStreamTerminators() throws Exception {
-        componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, new StreamTerminator());
+	/**
+	 * @param sMap<String, Stirings>
+	 */
+	private void processDictionary(StringsMap sMap) {
+		for(int i=0; i<sMap.getValueCount(); i++)  {//for quicker lookup
+			String key = sMap.getKey(i);
+			String word = sMap.getValue(i).getValue(0);
+			dictionary.put(key, word);
+		}
+	}
+
+
+	/**
+	 * @param iMap<String, Integers>
+	 */
+	private void processCount(IntegersMap iMap) {
+		for (int i = 0; i < iMap.getValueCount(); i++) {
+			String word  = iMap.getKey(i);
+		    int    count = iMap.getValue(i).getValue(0);
+		    pool.put(word, new Integer(count));
+		}
 	}
 }
