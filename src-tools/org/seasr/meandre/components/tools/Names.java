@@ -106,7 +106,8 @@ public abstract class Names {
 
 	// PROPERTIES
 	public static final String PROP_APPEND_TIMESTAMP = "append_timestamp";
-    public static final String PROP_BASE_URI = "base_uri";
+    public static final String PROP_BASE_DN = "base_dn";
+	public static final String PROP_BASE_URI = "base_uri";
 	public static final String PROP_BOTTOM_N = "bottom_n";
 	public static final String PROP_CONNECTION_TIMEOUT = "connection_timeout";
 	public static final String PROP_CONSUMER_KEY = "consumer_key";
@@ -143,6 +144,7 @@ public abstract class Names {
     public static final String PROP_MIN_SIZE = "min_size";
     public static final String PROP_MIN_VALUE = "min_value";
     public static final String PROP_N_SLICES = "n_slices";
+    public static final String PROP_N_STREAMS = "n_streams";
 	public static final String PROP_N_TOP_SENTENCES = "n_top_sentences";
 	public static final String PROP_N_TOP_TOKENS = "n_top_tokens";
 	public static final String PROP_OFFSET = "offset";
