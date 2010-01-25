@@ -228,13 +228,17 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 
 			// convert to a geo location
 			try {
-
-				GeoLocation g = GeoLocation.getLocation(location);
-				if (g.isValid()) {
-					geo.add(g);
-				}
-				else {
-					console.info("Unable to find " + location);
+				
+				List<GeoLocation> locations = GeoLocation.getAllLocations(location);
+				for (GeoLocation g: locations) {
+					// console.info("found " + g.toString());
+					if (g.isValid()) {
+						geo.add(g);
+					}
+					else {
+						console.info("Unable to find " + location);
+					}
+					
 				}
 
 			}
