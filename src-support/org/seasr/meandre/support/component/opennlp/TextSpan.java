@@ -75,6 +75,11 @@ public class TextSpan {
 		endIdx = e;
 	}
 	
+	public void setText(String s) 
+	{
+		this.span = s;
+	}
+	
 	public void setSpan(String s) 
 	{
 		this.span = s.substring(startIdx, endIdx);
