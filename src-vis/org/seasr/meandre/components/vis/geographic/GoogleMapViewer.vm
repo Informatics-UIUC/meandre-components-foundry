@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
 <head>
 <style>
-.scrollable {
+.scrollable { 
 width: 150px;
 height: 450px;
 overflow: auto;
@@ -28,7 +28,8 @@ if (child.style.display=='none'){
 child.style.display='';
 }
 else {
-child.style.display='none';
+child.style.display='';
+//child.style.display='none';
 }
 }
 
