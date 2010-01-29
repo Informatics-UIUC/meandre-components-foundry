@@ -47,4 +47,5 @@ import java.util.List;
 public interface StaticTextSpanFinder 
 {
 	public List<TextSpan> labelSentence(String sentence);
+	public String getType(); // URL, location, person, date, time, etc
 }

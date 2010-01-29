@@ -53,15 +53,13 @@ import java.util.StringTokenizer;
 public class StaticLocationFinder implements StaticTextSpanFinder {
 
 	Map<String,String> locationMap;
+	String type;
 	
-	private String normalize(String in) 
-	{
-		return in.toLowerCase().trim();
-	}
 	
-	public StaticLocationFinder(Map<String,String> map) 
+	public StaticLocationFinder(String t, Map<String,String> map) 
 	{
 		this.locationMap = new HashMap<String,String>();
+		this.type = t;
 		
 		for (Map.Entry<String, String> e : map.entrySet()) {
 			
@@ -75,11 +73,33 @@ public class StaticLocationFinder implements StaticTextSpanFinder {
 		}
 	}
 	
+	public String getType() {
+		return this.type;
+	}
+	
+	
+	private String normalize(String in) 
+	{
+		return in.toLowerCase().trim();
+	}
+	
+	
+	
 	public List<TextSpan> labelSentence(String sentence) 
 	{
-
+		//
+		// make the StringTokenizer a better splitter
+		// keep periods -- abbreviations
+		// important to replace a single char with another
+		// so offsets are not messed up
+		// get rid of:  " ' ! , ; ? 
+		// tokens that might mark an end of sentence or be part
+		// of a location e.g. Springfield, Ill.
+		//
+        String v = sentence.replaceAll("[\"'!,;\\?]", " ");
 		List<TextSpan> list = new ArrayList<TextSpan>();
-
+		sentence = v;
+		
 		StringTokenizer tokens = new StringTokenizer(sentence);
 		int sIdx = 0;
 		int eIdx = 0;
@@ -105,6 +125,7 @@ public class StaticLocationFinder implements StaticTextSpanFinder {
 				span.setEnd(eIdx);
 				span.setText(location);
 
+				
 				list.add(span);
 
 			}

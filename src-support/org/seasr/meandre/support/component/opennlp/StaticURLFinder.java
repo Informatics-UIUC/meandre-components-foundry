@@ -49,6 +49,17 @@ import java.util.StringTokenizer;
 
 public class StaticURLFinder implements StaticTextSpanFinder {
 	
+	String type = "URL";
+	
+	public StaticURLFinder(String t) 
+	{
+		this.type = t;
+	}
+	
+	public String getType() {
+		return this.type;
+	}
+	
 	public int urlIndex(String s) 
 	{
 		return s.toLowerCase().indexOf("http");
