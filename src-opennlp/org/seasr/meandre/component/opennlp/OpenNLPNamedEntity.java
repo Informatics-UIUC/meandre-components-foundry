@@ -162,9 +162,9 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 	protected static final String PROP_EX_NE_TYPES = "ExtendedNETypes";
 	
 	@ComponentProperty(
+			name = "LocationMap",
 	        description = "values for locations to be remapped. These are values missed or skipped by OpenNLP. " + 
 	        "values are comma separated:  <text to find> = <replacement>, ",
-	        name = "LocationMap",
 	        defaultValue = "Ill.=Illinois, VA=Virginia"
 	)
     protected static final String PROP_LOCATION_MAP = "LocationMap";
@@ -188,7 +188,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 
 	String[] finderTypes     = {"person", "location", "date", "organization"};    // money, percentage, time
-	String[] extendedFinders = {"locationMap", "url"};
+	String[] extendedFinders = {"location", "url"};
 	
 
     TokenNameFinder[] finders = null;
@@ -244,12 +244,22 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 						simpleFinders[i] = new StaticURLFinder("URL");
 					}
 					else if (value.equals("location")){
-						Map<String,String> map = parseLocationData(ccp.getProperty(PROP_LOCATION_MAP));		
+						console.info("look " + ccp);
+						String data = ccp.getProperty(PROP_LOCATION_MAP);
+						if (data == null) {
+							console.info("NOT prop specified " + PROP_LOCATION_MAP);
+							throw new RuntimeException("missing " + PROP_LOCATION_MAP);
+						}
+						console.info("parsing " + data);
+						Map<String,String> map = parseLocationData(data);		
 						simpleFinders[i] = new StaticLocationFinder("location",  map);			
 					}
 				}
 			}	
-			
+			else {
+				simpleFinders = new StaticTextSpanFinder[0];
+			}
+		
 			console.info("extended finders " + simpleFinders.length);
 			
 			
