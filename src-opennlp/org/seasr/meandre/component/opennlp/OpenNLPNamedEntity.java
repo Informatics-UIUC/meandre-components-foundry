@@ -48,11 +48,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
 import opennlp.maxent.io.BinaryGISModelReader;
 import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.util.Span;
 
 import org.meandre.annotations.Component;
@@ -73,10 +76,21 @@ import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
+
 import org.seasr.meandre.support.component.opennlp.TextSpan;
+import org.seasr.meandre.support.component.opennlp.StaticTextSpanFinder;
+import org.seasr.meandre.support.component.opennlp.StaticURLFinder;
+import org.seasr.meandre.support.component.opennlp.StaticLocationFinder;
+
+
+
+
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+
+
+
 
 
 /**
@@ -133,10 +147,27 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	@ComponentProperty(
 			name = "NETypes",
-			description = "Named Entties types (e.g person,location,date)",
+			description = "Named Entties types (e.g person,location,date,money,time,percentage)",
 		    defaultValue = "person,location,date,organization"
 	)
 	protected static final String PROP_NE_TYPES = "NETypes";
+	
+	
+	
+	@ComponentProperty(
+			name = "ExtendedNETypes",
+			description = "Extended Named Entties types:(location,url).  Location requires the locationMap property.",
+		    defaultValue = "location,url"
+	)
+	protected static final String PROP_EX_NE_TYPES = "ExtendedNETypes";
+	
+	@ComponentProperty(
+	        description = "values for locations to be remapped. These are values missed or skipped by OpenNLP. " + 
+	        "values are comma separated:  <text to find> = <replacement>, ",
+	        name = "LocationMap",
+	        defaultValue = "Ill.=Illinois, VA=Virginia"
+	)
+    protected static final String PROP_LOCATION_MAP = "LocationMap";
 
 	//--------------------------------------------------------------------------------------------
 
@@ -155,15 +186,32 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     int TEXT_END_IDX    ;
     int TEXT_IDX        ;
 
-    // money, percentage, time
-	String[] finderTypes = {"person", "location", "date", "organization"};
 
-    NameFinderME[] finders = null;
+	String[] finderTypes     = {"person", "location", "date", "organization"};    // money, percentage, time
+	String[] extendedFinders = {"locationMap", "url"};
+	
+
+    TokenNameFinder[] finders = null;
+    StaticTextSpanFinder[] simpleFinders = null;
 
 	//--------------------------------------------------------------------------------------------
-
+    private Map<String,String> parseLocationData(String toParse) 
+    {
+    	Map<String,String> map = new HashMap<String,String>();
+    	StringTokenizer tokens = new StringTokenizer(toParse,",");
+    	while (tokens.hasMoreTokens()) {
+    		String[] parts = tokens.nextToken().split("=");
+    		String key   = parts[0].trim();
+    		String value = parts[1].trim();
+    		
+    		map.put(key, value);
+    	}
+    	return map;
+    }
+    
     @Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
 
 		super.initializeCallBack(ccp);
 
@@ -180,7 +228,32 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 
 		try {
+			
 			finders = build(sOpenNLPDir, finderTypes);
+			
+			// now do the extended (home brewed) entities
+			
+			types = ccp.getProperty(PROP_EX_NE_TYPES).trim();
+			if (types.length() > 1) {
+				String[] toParse = types.split(",");
+				simpleFinders = new StaticTextSpanFinder[toParse.length];
+				for (int i = 0; i < toParse.length; i++) {
+					String value = toParse[i].toLowerCase().trim();
+					
+					if (value.equals("url")){						
+						simpleFinders[i] = new StaticURLFinder("URL");
+					}
+					else if (value.equals("location")){
+						Map<String,String> map = parseLocationData(ccp.getProperty(PROP_LOCATION_MAP));		
+						simpleFinders[i] = new StaticLocationFinder("location",  map);			
+					}
+				}
+			}	
+			
+			console.info("extended finders " + simpleFinders.length);
+			
+			
+			
 		}
 		catch ( Throwable t ) {
 			console.severe("Failed to open tokenizer model for " + sLanguage);
@@ -270,25 +343,31 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
     		} // end finders
 
-    		//
-    		// bonus find the urls
-    		//
-    		// TODO: add a property to or finderTypes a URL type
-    		//
+    		
+            // do custom finders
+    		for (StaticTextSpanFinder finder : simpleFinders) {
+    			
+    			List<TextSpan> items = finder.labelSentence(sentence);
+    			
+    			if (items.size() > 0) {
+    				console.fine("Found " + items.size() + " " + sentence);
+    			}
+    			
+    			for (TextSpan s : items) {
 
-    		List<TextSpan> urls = findURLS(sentence);
-    		for (TextSpan s : urls) {
+        			SimpleTuple tuple = tuplePeer.createTuple();
+        			tuple.setValue(TYPE_IDX,        finder.getType());
+        			tuple.setValue(SENTENCE_ID_IDX, i);
+        			tuple.setValue(TEXT_START_IDX,  s.getStart() + globalOffset);
+        			tuple.setValue(TEXT_END_IDX,    s.getEnd()   + globalOffset);
+        			tuple.setValue(TEXT_IDX,        s.getText());
 
-    			SimpleTuple tuple = tuplePeer.createTuple();
-    			tuple.setValue(TYPE_IDX,        "URL");
-    			tuple.setValue(SENTENCE_ID_IDX, i);
-    			tuple.setValue(TEXT_START_IDX,  s.getStart() + globalOffset);
-    			tuple.setValue(TEXT_END_IDX,    s.getEnd()   + globalOffset);
-    			tuple.setValue(TEXT_IDX,        s.getText());
-
-    			list.add(tuple);
+        			list.add(tuple);
+        		}
+    			
     		}
-
+    		
+    	
 
     		//
     		// at this point, sort all the tuples based
@@ -415,7 +494,32 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	}
 
-	public static List<TextSpan> findURLS(String sentence) {
+	
+}
+
+
+
+
+/*
+//
+// bonus find the urls
+//
+// TODO: add a property to or finderTypes a URL type
+//
+List<TextSpan> urls = findURLS(sentence);
+for (TextSpan s : urls) {
+
+	SimpleTuple tuple = tuplePeer.createTuple();
+	tuple.setValue(TYPE_IDX,        "URL");
+	tuple.setValue(SENTENCE_ID_IDX, i);
+	tuple.setValue(TEXT_START_IDX,  s.getStart() + globalOffset);
+	tuple.setValue(TEXT_END_IDX,    s.getEnd()   + globalOffset);
+	tuple.setValue(TEXT_IDX,        s.getText());
+
+	list.add(tuple);
+}
+
+public static List<TextSpan> findURLS(String sentence) {
 
 		List<TextSpan> list = new ArrayList<TextSpan>();
 
@@ -446,4 +550,4 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		}
 	    return list;
 	}
-}
+*/
