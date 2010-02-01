@@ -139,7 +139,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
 
             // Check whether Velocity should be used
             if (_templateName != null) {
-                String fName = Crypto.getHexString(Crypto.createMD5Checksum(_html.getBytes())) + ".html";
+                String fName = Crypto.getHexString(Crypto.createMD5Hash(_html.getBytes())) + ".html";
                 String baseDir = cc.getPublicResourcesDirectory() + File.separator + "html_viewer";
                 new File(baseDir).mkdirs();
 
