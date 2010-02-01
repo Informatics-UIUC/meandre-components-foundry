@@ -210,22 +210,29 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 			        theSentence = theSentence.replaceAll("\t|\r|\n", " ");
 			        aDate = aDate.replaceAll("\t|\r|\n", " ");
 
-			        String normalizedSentence = theSentence.toLowerCase();
-			        String normalizedDate = aDate.toLowerCase();
+			        //look for date only with word boundary and eliminate mismatching
+			        Pattern p = Pattern.compile("\\b"+aDate+"\\b", Pattern.CASE_INSENSITIVE);
+			        Matcher m = p.matcher(theSentence);
 
-			        int datePos = normalizedSentence.indexOf(normalizedDate);
+			        boolean isDateAvailable = true;
 
-			        if (datePos < 0) {
-			            console.warning("Could not find the position of the date in the sentence! This should not happen!");
-			            console.warning("   sentence: '" + normalizedSentence + "'");
-			            console.warning("   date: '" + normalizedDate + "'");
+			        if(m.find())
+			        	theSentence = m.replaceAll("<font color='red'>"+aDate+"</font>");
+			        else {
+			        	p = Pattern.compile("\\b"+aDate, Pattern.CASE_INSENSITIVE);
+					    m = p.matcher(theSentence);
+					    if(m.find())
+					    	theSentence = m.replaceAll("<font color='red'>"+aDate+"</font>");
+					    else
+					    	isDateAvailable = false;
 			        }
 
-			        String sentBefore = theSentence.substring(0, datePos);
-			        String sentAfter = theSentence.substring(datePos + aDate.length());
-			        theSentence = StringEscapeUtils.escapeHtml(sentBefore) +
-			                      "<font color='red'>" + StringEscapeUtils.escapeHtml(aDate) + "</font>" +
-			                      StringEscapeUtils.escapeHtml(sentAfter);
+			        if (!isDateAvailable) {
+			            console.warning("Could not find the position of the date in the sentence! This should not happen!");
+			            console.warning("   sentence: '" + theSentence + "'");
+			            console.warning("   date: '" + aDate + "'");
+			        }
+
                     sbHtml.append("<div onclick='toggleVisibility(this)' style='position:relative' align='left'><b>Sentence ").append(++nr);
                     if (docTitle != null && docTitle.length() > 0)
                         sbHtml.append(" from '" + StringEscapeUtils.escapeHtml(docTitle) + "'");
