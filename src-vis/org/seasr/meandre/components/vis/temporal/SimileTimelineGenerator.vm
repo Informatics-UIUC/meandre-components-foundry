@@ -23,7 +23,7 @@
 	        if (child.style.display == 'none')
 	            child.style.display = '';
 	        else
-	        	child.style.display='none';
+	        	child.style.display='';
         }
 
 		function getViewportWidth() {
