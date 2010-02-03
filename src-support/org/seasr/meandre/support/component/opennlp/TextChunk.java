@@ -45,6 +45,10 @@ package org.seasr.meandre.support.component.opennlp;
 import java.util.ArrayList;
 import java.util.List;
 
+// helper class for OpenNLPChunker
+// the openNLPChunker prints out text chunks as a single string
+// this helper class is used to parse that string into managable "chuncks"
+//
 
 public class TextChunk {
 
@@ -73,7 +77,8 @@ public class TextChunk {
     	return tokens;
     }
     
-	public void add(String text, String pos) {
+	public void add(String text, String pos) 
+	{
 		tokens.add(text);
 		tokensPos.add(pos);
 	}
