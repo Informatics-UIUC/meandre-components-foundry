@@ -139,11 +139,15 @@ public class XMLToText extends AbstractExecutableComponent {
 	    String sXml = "";
 
 	    try {
-            Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
+	    	Object xml = cc.getDataComponentFromInput(IN_XML);
+	    	if (xml == null) {
+	    		console.info("NO PROPERTY "+ IN_XML);
+	    	}
+            Document doc = DataTypeParser.parseAsDomDocument(xml);
             sXml = DOMUtils.getString(doc, outputProps);
         }
         catch (Exception e) {
-            console.log(Level.WARNING, e.getMessage(), e);
+            console.log(Level.WARNING, "XMLToText " + e.getMessage(), e);
 
             if (ignoreErrors)
                 sXml = "";
