@@ -143,8 +143,12 @@ public class XMLToText extends AbstractExecutableComponent {
 	    	if (xml == null) {
 	    		console.info("NO PROPERTY "+ IN_XML);
 	    	}
+	    	
+	    	console.fine("before " + xml);
             Document doc = DataTypeParser.parseAsDomDocument(xml);
+            
             sXml = DOMUtils.getString(doc, outputProps);
+            console.fine("got XML:\n" + sXml);
         }
         catch (Exception e) {
             console.log(Level.WARNING, "XMLToText " + e.getMessage(), e);
