@@ -345,7 +345,7 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     //
     public Map<String,GeoLocation> resolve(List<String> locations)
     {
-    	console.fine("request to resolve " + locations.size());
+    	console.fine("request to resolve: " + locations.size());
     	
     	Map<String,GeoLocation> out = new HashMap<String,GeoLocation>();
     	
@@ -382,8 +382,8 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     			// even though we requested state precision, the result may not be
     			
     			
-    			console.fine("A " + a + " " + geosA.size());
-    			console.fine("B " + b + " " + geosB.size());
+    			console.fine(i + " A " + a + " " + geosA.size());
+    			console.fine(i + " B " + b + " " + geosB.size());
     			
     			GeoLocation geoA = null;
 				GeoLocation geoB = null;
@@ -474,7 +474,7 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     				// Bolivia, Illinois ==> returns "zip" precision
     				if (geo.getPrecision() > GeoLocation.P_ZIP) {
     					// not what we want
-    					more.add(a); i--; // reprocess the b
+    					more.add(a); i--; // reprocess b
     					continue;
     				}
     				
@@ -489,12 +489,18 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     			    	String stateB = geoB.getState();
     			    	String stateC = geo.getState();
     			    	
-    			    	console.fine("b " + stateB + " " + geoB.toString());
-    			    	console.fine("c " + stateC + " " + geo.toString());
+    			    	console.fine("b " + stateB + " ==> " + geoB.toString());
+    			    	console.fine("c " + stateC + " ==> " + geo.toString());
     			    	
     			    	if (stateB.equals(stateC)) {
+    			    		console.fine(a + " AND " + b + " map to " + geo.toString());
     			    		out.put(a, geo);
     	    				out.put(b, geo);
+    			    	}
+    			    	else {
+    			    		console.info("save for later " + a);
+    			    		more.add(a); i--; // reprocess b
+    			    		continue;
     			    	}
     			    	
     			    } else { // geoB == null (i.e. geoB.size() > 0)
