@@ -190,9 +190,9 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	    Document doc = DataTypeParser.parseAsDomDocument(componentContext.getDataComponentFromInput(IN_XML));
 	    
 	    // debug
-	    String sXml = DOMUtils.getString(doc, null);
-        console.info("Before transform\n" + sXml);
-        console.info("XSL\n" + inXsl);
+	    //String sXml = DOMUtils.getString(doc, null);
+        //console.info("Before transform\n" + sXml);
+        //console.info("XSL\n" + inXsl);
         
 		Source xmlSource = new DOMSource(doc);
 
@@ -209,7 +209,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 		transformer.transform(xmlSource, xmlResult);
     	String outXml = xmlWriter.getBuffer().toString();
     	
-    	console.info("finished " + outXml);
+    	console.fine("finished transform\n" + outXml);
     	componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(outXml));
 
 		xmlWriter.close();
