@@ -107,16 +107,24 @@ public class HTMLTextExtractor extends AbstractExecutableComponent {
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object input = cc.getDataComponentFromInput(IN_HTML);
-
+        
         String[] htmlDocs;
 
-        if (input instanceof Document)
+        if (input instanceof Document) {
+        	console.info("found document");
             htmlDocs = new String[] { DOMUtils.getString((Document)input, null) };
-        else
+        }
+        else {
             htmlDocs = DataTypeParser.parseAsString(input);
+        }
 
         for (String html : htmlDocs) {
             String text = HTMLUtils.extractText(html);
+            if (text == null) {
+            	String msg = "Unable to get any text from " + html;
+            	console.info(msg);
+            	throw new RuntimeException(msg);
+            }
             cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
         }
     }
