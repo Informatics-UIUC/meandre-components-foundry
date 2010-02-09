@@ -111,7 +111,6 @@ public class HTMLTextExtractor extends AbstractExecutableComponent {
         String[] htmlDocs;
 
         if (input instanceof Document) {
-        	console.info("found document");
             htmlDocs = new String[] { DOMUtils.getString((Document)input, null) };
         }
         else {
