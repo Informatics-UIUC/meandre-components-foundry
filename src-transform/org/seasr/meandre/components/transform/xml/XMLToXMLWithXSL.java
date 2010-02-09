@@ -75,6 +75,7 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeException;
+import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -181,9 +182,18 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	    inXsl = DataTypeParser.parseAsString(componentContext.getDataComponentFromInput(IN_XSL))[0];
 	}
 
-	protected void processXML(Object obj) throws UnsupportedDataTypeException, SAXException, IOException, ParserConfigurationException, ComponentContextException, TransformerException {
+	protected void processXML(Object obj) 
+	   throws UnsupportedDataTypeException, SAXException, IOException, 
+	          ParserConfigurationException, ComponentContextException, TransformerException 
+	{
+		
 	    Document doc = DataTypeParser.parseAsDomDocument(componentContext.getDataComponentFromInput(IN_XML));
-
+	    
+	    // debug
+	    String sXml = DOMUtils.getString(doc, null);
+        console.info("Before transform\n" + sXml);
+        console.info("XSL\n" + inXsl);
+        
 		Source xmlSource = new DOMSource(doc);
 
 		StringWriter xmlWriter = new StringWriter();
@@ -198,7 +208,8 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
     	transformer = factory.newTransformer(xslSource);
 		transformer.transform(xmlSource, xmlResult);
     	String outXml = xmlWriter.getBuffer().toString();
-
+    	
+    	console.info("finished " + outXml);
     	componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(outXml));
 
 		xmlWriter.close();
