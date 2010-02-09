@@ -53,8 +53,11 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.meandre.components.tools.Names;
 
 /**
@@ -343,5 +346,33 @@ public class ForkX5 extends AbstractExecutableComponent {
                                        "instance of the input object.");
         }
         return obj;
+    }
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_OBJECT);
+        componentContext.pushDataComponentToOutput(OUT_OBJECT, si);
+        componentContext.pushDataComponentToOutput(OUT_OBJECT_2,
+                ComponentUtils.cloneStreamDelimiter(si));
+        componentContext.pushDataComponentToOutput(OUT_OBJECT_3,
+                ComponentUtils.cloneStreamDelimiter(si));
+        componentContext.pushDataComponentToOutput(OUT_OBJECT_4,
+                ComponentUtils.cloneStreamDelimiter(si));
+        componentContext.pushDataComponentToOutput(OUT_OBJECT_5,
+                ComponentUtils.cloneStreamDelimiter(si));
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_OBJECT);
+        componentContext.pushDataComponentToOutput(OUT_OBJECT, st);
+        componentContext.pushDataComponentToOutput(OUT_OBJECT_2,
+                ComponentUtils.cloneStreamDelimiter(st));
+        componentContext.pushDataComponentToOutput(OUT_OBJECT_3,
+                ComponentUtils.cloneStreamDelimiter(st));
+        componentContext.pushDataComponentToOutput(OUT_OBJECT_4,
+                ComponentUtils.cloneStreamDelimiter(st));
+        componentContext.pushDataComponentToOutput(OUT_OBJECT_5,
+                ComponentUtils.cloneStreamDelimiter(st));
     }
 }
