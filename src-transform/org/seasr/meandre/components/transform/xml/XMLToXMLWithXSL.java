@@ -71,6 +71,7 @@ import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
@@ -149,9 +150,10 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		if (cc.isInputAvailable(IN_XML) )
+		if (cc.isInputAvailable(IN_XML) ) {
 			// No xsl received yet, so queue the objects
 			queueObjects();
+		}
 
 		if ( this.inXsl == null && cc.isInputAvailable(IN_XSL) )
 			// Process xsl and pending
@@ -169,8 +171,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	}
 
 	private void queueObjects() throws ComponentContextException {
-		if ( componentContext.isInputAvailable(IN_XML) )
-			this.queues.offer(componentContext.getDataComponentFromInput(IN_XML));
+		this.queues.offer(componentContext.getDataComponentFromInput(IN_XML));
 	}
 
 	protected void processQueued() throws Exception {
@@ -179,7 +180,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	}
 
 	protected void processXSL() throws UnsupportedDataTypeException, ComponentContextException, TransformerConfigurationException {
-	    inXsl = DataTypeParser.parseAsString(componentContext.getDataComponentFromInput(IN_XSL))[0];
+		inXsl = DataTypeParser.parseAsString(componentContext.getDataComponentFromInput(IN_XSL))[0];
 	}
 
 	protected void processXML(Object obj) 
@@ -187,7 +188,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	          ParserConfigurationException, ComponentContextException, TransformerException 
 	{
 		
-	    Document doc = DataTypeParser.parseAsDomDocument(componentContext.getDataComponentFromInput(IN_XML));
+		Document doc = DataTypeParser.parseAsDomDocument(obj);
 	    
 	    // debug
 	    //String sXml = DOMUtils.getString(doc, null);
@@ -219,7 +220,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 	@Override
     protected void handleStreamInitiators() throws Exception {
-        if (_gotInitiator)
+		if (_gotInitiator)
             throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
 
         _gotInitiator = true;
@@ -227,13 +228,13 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
     @Override
     protected void handleStreamTerminators() throws Exception {
-    	 if (!_gotInitiator)
-             throw new Exception("Received StreamTerminator without receiving StreamInitiator");
+    	if (!_gotInitiator)
+    		throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
     	componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
     	processQueued();
     	componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator());
-    
+
     	_gotInitiator = false;
     }
 }
