@@ -46,11 +46,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -61,8 +64,11 @@ import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 
 
@@ -152,6 +158,15 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 		    defaultValue = ""
 		)
 	protected static final String PROP_MODELS_DIR = "modelsDir";
+	
+
+	@ComponentProperty(
+			name = Names.PROP_FILTER_REGEX,
+			description = "optional regular expression to inline filter POS (e.g. JJ|RB)",
+		    defaultValue = ""
+		)
+	protected static final String PROP_POS_FILTER_REGEX = Names.PROP_FILTER_REGEX;
+	
 
 	//--------------------------------------------------------------------------------------------
 
@@ -170,6 +185,42 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 
     protected String modelJarFile = "stanfordModels.jar";
 	//--------------------------------------------------------------------------------------------
+    
+    
+    //------------------------------ OUTPUTS ------------------------------------------------------
+
+
+	@ComponentOutput(
+			name = Names.PORT_TUPLES,
+			description = "set of tuples: (pos,sentenceId,offset,token)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+	)
+	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+
+	@ComponentOutput(
+			name = Names.PORT_META_TUPLE,
+			description = "meta data for tuples: (pos,sentenceId,offset,token)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+	)
+	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
+	
+	
+	
+
+	SimpleTuplePeer tuplePeer;
+
+	public static final String POS_FIELD         = "pos";
+	public static final String SENTENCE_ID_FIELD = "sentenceId";
+	public static final String TOKEN_START_FIELD = "tokenStart";
+	public static final String TOKEN_FIELD       = "token";
+	
+	int count = 0;
+	int sentenceId = 0;
+	int globalOffset = 0;
+	int startIdx = 0;
+	
+	
+	Pattern pattern = null;
 
     MaxentTagger tagger = null;
 	@Override
@@ -188,28 +239,97 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 		this.taggerFile = ccp.getProperty(PROP_TAGGER).trim().toLowerCase();
 		tagger = new MaxentTagger(modelsDir + File.separator + taggerFile);
 		
+		
+		sentenceId   = 0;
+		startIdx     = 0;
+		
+		String[] fields =
+    		new String[] {POS_FIELD, SENTENCE_ID_FIELD, TOKEN_START_FIELD, TOKEN_FIELD};
+
+    	this.tuplePeer = new SimpleTuplePeer(fields);
+    	
+    	
+    	
+    	String regex = ccp.getProperty(PROP_POS_FILTER_REGEX).trim();
+    	if (regex.length() > 0) {
+    		pattern = Pattern.compile(regex);
+    		console.info("will filter on " + regex);
+    	}
+    	else {
+    		console.info("No REG EX being used");
+    	}
+    	
+    	
+		
 	}
 	
-	int count = 0;
+
+	
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception 
     {
 		Strings input = (Strings) cc.getDataComponentFromInput(IN_TEXT);
 		String[] val = BasicDataTypesTools.stringsToStringArray (input);
-		console.info(count++ + " attempt to parse " + val[0]);
+		console.info(count++ + " attempt to parse\n" + val[0]);
 		
-		StringReader reader = new StringReader(val[0]);
+		String originalText = val[0];
+		
+		StringReader reader = new StringReader(originalText);
 		List<Sentence<? extends HasWord>> sentences = MaxentTagger.tokenizeText(reader);
 		
+		SimpleTuple tuple   = tuplePeer.createTuple();
+		int POS_IDX         = tuplePeer.getIndexForFieldName(POS_FIELD);
+		int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
+		int TOKEN_START_IDX = tuplePeer.getIndexForFieldName(TOKEN_START_FIELD);
+		int TOKEN_IDX       = tuplePeer.getIndexForFieldName(TOKEN_FIELD);
+		
+		List<Strings> output = new ArrayList<Strings>();
 		for (Sentence<? extends HasWord> sentence : sentences) {
-			  
+			
+			//String sText = sentence.toString();
+			//console.info("text is " + sText);
+			
 		      Sentence<TaggedWord> tSentence = MaxentTagger.tagSentence(sentence);
 		      
 		      for (TaggedWord word : tSentence) {
-		    	  console.info(word.value() + "/" + word.tag());
+		    	  
+		    	   String text = word.value();
+		    	   int indexOfLastWord = originalText.indexOf(text, startIdx);
+		    	  
+		    	   tuple.setValue(POS_IDX,         word.tag());
+				   tuple.setValue(SENTENCE_ID_IDX, sentenceId);  // keep this zero based
+				   tuple.setValue(TOKEN_START_IDX, startIdx);
+				   tuple.setValue(TOKEN_IDX,       text);
+
+		    	  
+		    	   // console.info(tuple.toString());
+		    	   
+		    	   startIdx = indexOfLastWord + text.length();
+		    	   
+		    	   if ( pattern == null || pattern.matcher(word.tag()).matches())
+				   {
+		    		   output.add(tuple.convert());
+		    	   }
+		    	  
+		    	   
 		      }
+		      sentenceId++;
 		      //console.info(tSentence.toString(false));
 		}
+		
+		
+		// push the whole collection, protocol safe
+	    Strings[] results = new Strings[output.size()];
+	    output.toArray(results);
+
+	    StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
+	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+
+	    //
+		// metaData for this tuple producer
+		//
+	    Strings metaData = tuplePeer.convert();
+	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
 
 		
 		
