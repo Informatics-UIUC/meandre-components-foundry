@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<script type="text/javascript">
+
+var listForTokens = new Array();
+var listForSentences = new Array();
+
+#set($index = 0)
+#foreach ($item in $tokens_list)
+listForTokens[$index] = "$item";
+#set( $index = $index + 1 )
+#end
+
+#set($index = 0)
+#foreach ($item in $sentences_list)
+listForSentences[$index] = "$item";
+#set( $index = $index + 1 )
+#end
+
+function fillTable() {
+	var table = document.getElementById('tokens');
+	for(var i=0; i<listForTokens.length; i++) {
+		var rowCount = table.rows.length;
+		var row = table.insertRow(rowCount);
+
+		## left cell
+		var cellLeft = row.insertCell(0);
+		var textNodeLeft = document.createTextNode(i+1);
+		cellLeft.appendChild(textNodeLeft);
+
+		## right cell
+		var cellRight = row.insertCell(1);
+		var textNodeRight = document.createTextNode(listForTokens[i]);
+		cellRight.appendChild(textNodeRight);
+		
+	}
+
+	table = document.getElementById('sentences');
+	for(var i=0; i<listForSentences.length; i++) {
+		var rowCount = table.rows.length;
+		var row = table.insertRow(rowCount);
+
+		## left cell
+		var cellLeft = row.insertCell(0);
+		var textNodeLeft = document.createTextNode(i+1);
+		cellLeft.appendChild(textNodeLeft);
+
+		## right cell
+		var cellRight = row.insertCell(1);
+		var textNodeRight = document.createTextNode(listForSentences[i]);
+		cellRight.appendChild(textNodeRight);
+		
+	}
+}
+
+</script>
+</head>
+
+<body onload="fillTable();">
+
+<br/>
+
+<table border="1" cellspacing="0" cellpadding="3" id="tokens">
+<tr><th bgcolor="#FFF4F4" colspan="2">Top Tokens</th></tr>
+</table> 
+
+<br/>
+ 
+<table border="1" cellspacing="0" cellpadding="3" id="sentences">
+<tr><th bgcolor="#FFF4F4" colspan="2">Top Sentences</th></tr>
+</table> 
+ 
+</body>
+</html>
+
+
