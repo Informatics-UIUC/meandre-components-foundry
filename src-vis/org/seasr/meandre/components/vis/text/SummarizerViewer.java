@@ -76,7 +76,8 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         mode = Mode.webui,
         rights = Licenses.UofINCSA,
         tags = "tokens, sentences, visualization",
-        description = "Visualizes tokens and sentences from HitsSummarizer.",
+        description = "Visualizes tokens and sentences from HitsSummarizer. " +
+        "Its inputs should be connected into HitsSummarizer directly.",
         dependency = {"protobuf-java-2.2.0.jar"},
         resources = {"SummarizerViewer.vm"}
 )

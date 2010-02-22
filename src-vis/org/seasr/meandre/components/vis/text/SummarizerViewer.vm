@@ -72,6 +72,8 @@ function fillTable() {
 <tr><th bgcolor="#FFF4F4" colspan="2">Top Sentences</th></tr>
 </table> 
  
+<br/>
+
 </body>
 </html>
 
