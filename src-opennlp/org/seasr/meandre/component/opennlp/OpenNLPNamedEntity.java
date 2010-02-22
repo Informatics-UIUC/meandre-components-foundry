@@ -233,8 +233,8 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			
 			// now do the extended (home brewed) entities
 			
-			types = ccp.getProperty(PROP_EX_NE_TYPES).trim();
-			if (types.length() > 1) {
+			types = ccp.getProperty(PROP_EX_NE_TYPES);
+			if (types != null && types.trim().length() > 1) {
 				String[] toParse = types.split(",");
 				simpleFinders = new StaticTextSpanFinder[toParse.length];
 				for (int i = 0; i < toParse.length; i++) {
