@@ -349,6 +349,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     		} // end finders
 
     		
+    		
             // do custom finders
     		for (StaticTextSpanFinder finder : simpleFinders) {
     			
