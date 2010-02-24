@@ -84,7 +84,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 //
 
 @Component(
-		name = "OpenNLP POS Tagger",
+		name = "Stanford Named Entity Tagger",
 		creator = "Mike Haberman",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
