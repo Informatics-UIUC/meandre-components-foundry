@@ -87,7 +87,7 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 /*  
  * NOTES:   
  * 
- * there is a problem with the jar files from the stanford NER project
+ *  there is a problem with the jar files from the stanford NER project
  *  at this time you cannot have BOTH in the classpath:
  *  stanford-postagger.jar and stanford-ner.jar
  *  
@@ -305,7 +305,7 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 		    	  
 		    	   tuple.setValue(POS_IDX,         word.tag());
 				   tuple.setValue(SENTENCE_ID_IDX, sentenceId);  // keep this zero based
-				   tuple.setValue(TOKEN_START_IDX, startIdx);
+				   tuple.setValue(TOKEN_START_IDX, indexOfLastWord);
 				   tuple.setValue(TOKEN_IDX,       text);
 
 		    	  
