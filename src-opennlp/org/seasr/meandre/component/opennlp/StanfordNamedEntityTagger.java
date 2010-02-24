@@ -320,14 +320,9 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
         	  
             String ne = word.get(AnswerAnnotation.class);
             String type = null;
-            if ("LOCATION".equals(ne)) {
-            	type = "location";
-            }
-            else if ("PERSON".equals(ne)) {
-            	type = "person";
-            }
-            else if ("ORGANIZATION".equals(ne)) {
-            	type = "organization";
+            if ("LOCATION".equals(ne) || "PERSON".equals(ne) || "ORGANIZATION".equals(ne)) {
+            	type = ne.toLowerCase();
+            	// consistent with openNLP
             }
             
             String text = word.word();
