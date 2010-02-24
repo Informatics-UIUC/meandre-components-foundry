@@ -85,7 +85,15 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 
 /*  
- * DO NOT USE THIS COMPONENT .. YET
+ * NOTES:   
+ * 
+ * there is a problem with the jar files from the stanford NER project
+ *  at this time you cannot have BOTH in the classpath:
+ *  stanford-postagger.jar and stanford-ner.jar
+ *  
+ *  the jars contain conflicting classes.
+ *  
+ *  
  * 
  * Based on stanford-postagger-full-2009-12-24 distribution
  * 
@@ -182,7 +190,6 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 
 	protected String modelsDir;
 	protected String taggerFile;
-
     protected String modelJarFile = "stanfordModels.jar";
 	//--------------------------------------------------------------------------------------------
     
@@ -236,7 +243,7 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 		console.fine("Installed models into: " + modelsDir);
 		
 		
-		this.taggerFile = ccp.getProperty(PROP_TAGGER).trim().toLowerCase();
+		this.taggerFile = ccp.getProperty(PROP_TAGGER).trim(); // .toLowerCase();
 		tagger = new MaxentTagger(modelsDir + File.separator + taggerFile);
 		
 		
