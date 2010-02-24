@@ -131,14 +131,14 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples: (sentenceId,type,textStart,textEnd,text)" +
+			description = "set of tuples: (sentenceId,type,textStart,text)" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples: (sentenceId,type,textStart,textEnd,text)" +
+			description = "meta data for tuples: (sentenceId,type,textStart,text)" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
