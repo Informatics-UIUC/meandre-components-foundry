@@ -195,7 +195,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     StaticTextSpanFinder[] simpleFinders = null;
 
 	//--------------------------------------------------------------------------------------------
-    private Map<String,String> parseLocationData(String toParse) 
+    private static Map<String,String> parseLocationData(String toParse) 
     {
     	Map<String,String> map = new HashMap<String,String>();
     	StringTokenizer tokens = new StringTokenizer(toParse,",");
@@ -207,6 +207,35 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     		map.put(key, value);
     	}
     	return map;
+    }
+    
+    public static StaticTextSpanFinder[] buildExtendedFinders(String types, String locationMapData) 
+    {
+    	StaticTextSpanFinder[] finders;
+    	
+    	if (types != null && types.trim().length() > 1) {
+			String[] toParse = types.split(",");
+			finders = new StaticTextSpanFinder[toParse.length];
+			for (int i = 0; i < toParse.length; i++) {
+				String value = toParse[i].toLowerCase().trim();
+				
+				if (value.equals("url")){						
+					finders[i] = new StaticURLFinder("URL");
+				}
+				else if (value.equals("location")){
+					if (locationMapData == null) {
+						throw new RuntimeException("missing LocationMapData");
+					}
+					Map<String,String> map = parseLocationData(locationMapData);		
+					finders[i] = new StaticLocationFinder("location",  map);			
+				}
+			}
+		}	
+		else {
+			finders = new StaticTextSpanFinder[0];
+		}
+    	return finders;
+	
     }
     
     @Override
@@ -226,44 +255,16 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			console.info("added type " + finderTypes[i]);
 		}
 
-
 		try {
 			
 			finders = build(sOpenNLPDir, finderTypes);
 			
-			// now do the extended (home brewed) entities
+			// now do the extended (home brewed) entities			
+			types       = ccp.getProperty(PROP_EX_NE_TYPES);
+			String data = ccp.getProperty(PROP_LOCATION_MAP);
+			simpleFinders = OpenNLPNamedEntity.buildExtendedFinders(types,data);
 			
-			types = ccp.getProperty(PROP_EX_NE_TYPES);
-			if (types != null && types.trim().length() > 1) {
-				String[] toParse = types.split(",");
-				simpleFinders = new StaticTextSpanFinder[toParse.length];
-				for (int i = 0; i < toParse.length; i++) {
-					String value = toParse[i].toLowerCase().trim();
-					
-					if (value.equals("url")){						
-						simpleFinders[i] = new StaticURLFinder("URL");
-					}
-					else if (value.equals("location")){
-						console.info("look " + ccp);
-						String data = ccp.getProperty(PROP_LOCATION_MAP);
-						if (data == null) {
-							console.info("NOT prop specified " + PROP_LOCATION_MAP);
-							throw new RuntimeException("missing " + PROP_LOCATION_MAP);
-						}
-						console.info("parsing " + data);
-						Map<String,String> map = parseLocationData(data);		
-						simpleFinders[i] = new StaticLocationFinder("location",  map);			
-					}
-				}
-			}	
-			else {
-				simpleFinders = new StaticTextSpanFinder[0];
-			}
-		
 			console.info("extended finders " + simpleFinders.length);
-			
-			
-			
 		}
 		catch ( Throwable t ) {
 			console.severe("Failed to open tokenizer model for " + sLanguage);
