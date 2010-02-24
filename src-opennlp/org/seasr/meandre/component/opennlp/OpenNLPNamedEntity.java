@@ -177,14 +177,14 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     public static final String TYPE_FIELD        = "type";
     public static final String SENTENCE_ID_FIELD = "sentenceId";
     public static final String TEXT_START_FIELD  = "textStart";
-    public static final String TEXT_END_FIELD    = "textEnd";
     public static final String TEXT_FIELD        = "text";
 
     int TYPE_IDX        ;
     int SENTENCE_ID_IDX ;
     int TEXT_START_IDX  ;
-    int TEXT_END_IDX    ;
     int TEXT_IDX        ;
+    
+   
 
 
 	String[] finderTypes     = {"person", "location", "date", "organization"};    // money, percentage, time
@@ -274,15 +274,13 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		// build the tuple (output) data
 		//
 		String[] fields =
-			new String[] {SENTENCE_ID_FIELD, TYPE_FIELD,
-				          TEXT_START_FIELD, TEXT_END_FIELD, TEXT_FIELD};
+			new String[] {SENTENCE_ID_FIELD, TYPE_FIELD, TEXT_START_FIELD, TEXT_FIELD};
 
 		tuplePeer = new SimpleTuplePeer(fields);
 
 		TYPE_IDX        = tuplePeer.getIndexForFieldName(TYPE_FIELD);
 		SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
 		TEXT_START_IDX  = tuplePeer.getIndexForFieldName(TEXT_START_FIELD);
-		TEXT_END_IDX    = tuplePeer.getIndexForFieldName(TEXT_END_FIELD);
 		TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
 
 
@@ -320,8 +318,6 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     		// console.info("Tokens " + tokens.length + " .. " + tokens[0]);
 
 
-
-
     		list.clear();
     		for (int j = 0; j < finders.length; j++) {
 
@@ -333,7 +329,6 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
     				textSpan = label(sentence, tokens, span[k], textSpan);
     				int beginIndex = textSpan.getStart();
-    				int endIndex   = textSpan.getEnd();
     				String text    = textSpan.getText();
     				
     				// clean the text
@@ -343,7 +338,6 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     				tuple.setValue(TYPE_IDX,        type);
     				tuple.setValue(SENTENCE_ID_IDX, i);
     				tuple.setValue(TEXT_START_IDX,  beginIndex + globalOffset);
-    				tuple.setValue(TEXT_END_IDX,    endIndex   + globalOffset);
     				tuple.setValue(TEXT_IDX,        text);
 
     				list.add(tuple);
@@ -369,7 +363,6 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
         			tuple.setValue(TYPE_IDX,        finder.getType());
         			tuple.setValue(SENTENCE_ID_IDX, i);
         			tuple.setValue(TEXT_START_IDX,  s.getStart() + globalOffset);
-        			tuple.setValue(TEXT_END_IDX,    s.getEnd()   + globalOffset);
         			tuple.setValue(TEXT_IDX,        s.getText());
 
         			list.add(tuple);
@@ -507,6 +500,18 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 	
 }
 
+
+
+
+// removed
+/* 
+ * public static final String TEXT_END_FIELD    = "textEnd";
+   int TEXT_END_IDX    ;
+   TEXT_END_IDX    = tuplePeer.getIndexForFieldName(TEXT_END_FIELD);
+   tuple.setValue(TEXT_END_IDX,    endIndex   + globalOffset);
+   tuple.setValue(TEXT_END_IDX,    s.getEnd()   + globalOffset);
+ * 
+ */
 
 
 
