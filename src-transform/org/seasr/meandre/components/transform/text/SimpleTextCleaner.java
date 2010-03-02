@@ -201,7 +201,7 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
 		
 		
 		//
-		// Option B: use Pattern (RegEx) and just do a replaceAll
+		// Option B: use Pattern (RegEx) and just do a replaceAll or match
 		// not implemented, yet
 		//
 		
