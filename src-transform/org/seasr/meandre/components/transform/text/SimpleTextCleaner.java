@@ -52,6 +52,7 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
+import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
@@ -66,6 +67,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         description = "Performs simple text replacement, based on input configuration",
         name = "Simple Text Cleaner",
         tags = "text, remove, replace",
+        firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
