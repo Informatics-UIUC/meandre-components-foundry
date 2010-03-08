@@ -63,6 +63,7 @@ public abstract class Names {
 	public static final String PORT_FILENAME = "file_name";
 	public static final String PORT_GRAPH = "graph";
 	public static final String PORT_HTML = "html";
+	public static final String PORT_INPUT_STREAM = "input_stream";
 	public static final String PORT_JAVA_STRING = "java_string";
 	public static final String PORT_JSON = "json";
 	public static final String PORT_LATITUDE_VECTOR = "latitude_vector";
@@ -109,6 +110,7 @@ public abstract class Names {
     public static final String PROP_BASE_DN = "base_dn";
 	public static final String PROP_BASE_URI = "base_uri";
 	public static final String PROP_BOTTOM_N = "bottom_n";
+	public static final String PROP_COMMAND = "command";
 	public static final String PROP_CONNECTION_TIMEOUT = "connection_timeout";
 	public static final String PROP_CONSUMER_KEY = "consumer_key";
 	public static final String PROP_CONSUMER_SECRET = "consumer_secret";
@@ -133,6 +135,7 @@ public abstract class Names {
 	public static final String PROP_HAS_COLUMN_TYPE_HEADER = "has_column_type_header";
 	public static final String PROP_HEADER = "header";
 	public static final String PROP_HEIGHT = "height";
+	public static final String PROP_HOSTNAME = "hostname";
 	public static final String PROP_ID = "id";
 	public static final String PROP_ITERATIONS = "iterations";
 	public static final String PROP_JNDI_NAME = "jndi_name";
@@ -152,6 +155,7 @@ public abstract class Names {
 	public static final String PROP_OUTPUT_HTML = "output_html";
 	public static final String PROP_PAGE_SIZE = "page_size";
 	public static final String PROP_PASSWORD = "password";
+	public static final String PROP_PORT_NUMBER = "port_number";
 	public static final String PROP_PROPERTIES = "properties";
 	public static final String PROP_QUERY = "query";
 	public static final String PROP_RDF_DIALECT = "rdf_dialect";
