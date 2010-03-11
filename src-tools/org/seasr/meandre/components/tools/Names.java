@@ -124,6 +124,7 @@ public abstract class Names {
 	public static final String PROP_ERROR_HANDLING = "ignore_errors";
 	public static final String PROP_EXPRESSION = "expression";
 	public static final String PROP_FIELD_NAME ="field_name";
+	public static final String PROP_FILENAME = "filename";
 	public static final String PROP_FILTER_REGEX  = "filter_regex";
 	public static final String PROP_FIND = "find";
 	public static final String PROP_FIND_2 = "find2";
@@ -154,6 +155,7 @@ public abstract class Names {
 	public static final String PROP_ORDERED = "ordered";
 	public static final String PROP_OUTPUT_HTML = "output_html";
 	public static final String PROP_PAGE_SIZE = "page_size";
+	public static final String PROP_PASSPHRASE = "passphrase";
 	public static final String PROP_PASSWORD = "password";
 	public static final String PROP_PORT_NUMBER = "port_number";
 	public static final String PROP_PROPERTIES = "properties";
