@@ -141,6 +141,8 @@ public abstract class Names {
 	public static final String PROP_ITERATIONS = "iterations";
 	public static final String PROP_JNDI_NAME = "jndi_name";
 	public static final String PROP_LANGUAGE = "language";
+	public static final String PROP_LOCAL_FILENAME_GET = "local_filename_get";
+	public static final String PROP_LOCAL_FILENAME_PUT = "local_filename_put";
 	public static final String PROP_LOCATION = "location";
 	public static final String PROP_MAX_SIZE = "max_size";
 	public static final String PROP_MAX_VALUE = "max_value";
@@ -164,6 +166,8 @@ public abstract class Names {
 	public static final String PROP_READ_TIMEOUT = "read_timeout";
 	public static final String PROP_RECURSIVE = "recursive";
 	public static final String PROP_REFRESH = "refresh_after_execute";
+	public static final String PROP_REMOTE_FILENAME_GET = "remote_filename_get";
+	public static final String PROP_REMOTE_FILENAME_PUT = "remote_filename_put";
 	public static final String PROP_REMOVE = "remove";
 	public static final String PROP_REPLACE = "replace";
 	public static final String PROP_REPLACE_2 = "replace2";
