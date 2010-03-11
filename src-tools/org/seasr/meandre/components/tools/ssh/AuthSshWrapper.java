@@ -42,7 +42,8 @@
 
 package org.seasr.meandre.components.tools.ssh;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.InputStream;
 
 import org.meandre.annotations.Component;
@@ -56,92 +57,116 @@ import org.seasr.meandre.components.tools.Names;
 
 import com.sshtools.j2ssh.SshClient;
 import com.sshtools.j2ssh.authentication.AuthenticationProtocolState;
-import com.sshtools.j2ssh.authentication.PasswordAuthenticationClient;
 import com.sshtools.j2ssh.authentication.PublicKeyAuthenticationClient;
 import com.sshtools.j2ssh.session.SessionChannelClient;
 import com.sshtools.j2ssh.transport.IgnoreHostKeyVerification;
+import com.sshtools.j2ssh.transport.publickey.SshPrivateKey;
+import com.sshtools.j2ssh.transport.publickey.SshPrivateKeyFile;
 
 @Component(
         creator = "Lily Dong",
         description = "Executes a command based on SSH and returns result.",
-        name = "SSH Wrapper",
-        tags = "SSH, command",
+        name = "Auth SSH Wrapper",
+        tags = "authentication, SSH, command",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 
-public class SshWrapper extends AbstractExecutableComponent {
+public class AuthSshWrapper extends AbstractExecutableComponent {
 	//------------------------------ OUTPUTS -----------------------------------------------------
-	 @ComponentOutput(
-	            description = "The result stream" +
-	                "<br>TYPE: java.io.InputStream",
-	            name = Names.PORT_INPUT_STREAM
-	    )
-	    protected static final String OUT_STREAM = Names.PORT_INPUT_STREAM;
+	@ComponentOutput(
+			description = "The result stream" +
+			"<br>TYPE: java.io.InputStream",
+	        name = Names.PORT_INPUT_STREAM
+	)
+	protected static final String OUT_STREAM = Names.PORT_INPUT_STREAM;
 
-    //------------------------------ PROPERTIES --------------------------------------------------
-    @ComponentProperty(
-	        description = "Hostname.",
-            name = Names.PROP_HOSTNAME,
-            defaultValue = ""
+	//------------------------------ PROPERTIES --------------------------------------------------
+	@ComponentProperty(
+			description = "Hostname.",
+			name = Names.PROP_HOSTNAME,
+			defaultValue = ""
 	)
 	protected static final String PROP_HOSTNAME = Names.PROP_HOSTNAME;
 
-    @ComponentProperty(
+	@ComponentProperty(
 	        description = "Port number.",
-            name = Names.PROP_PORT_NUMBER,
-            defaultValue = "22"
+	        name = Names.PROP_PORT_NUMBER,
+	        defaultValue = "22"
 	)
 	protected static final String PROP_PORT_NUMBER = Names.PROP_PORT_NUMBER;
 
-    @ComponentProperty(
+	@ComponentProperty(
 	        description = "Username.",
-            name = Names.PROP_USERNAME,
-            defaultValue = ""
+	        name = Names.PROP_USERNAME,
+	        defaultValue = ""
 	)
 	protected static final String PROP_USERNAME = Names.PROP_USERNAME;
 
-    @ComponentProperty(
+	@ComponentProperty(
 	        description = "Password.",
-            name = Names.PROP_PASSWORD,
-            defaultValue = ""
+	        name = Names.PROP_PASSWORD,
+	        defaultValue = ""
 	)
 	protected static final String PROP_PASSWORD = Names.PROP_PASSWORD;
 
-    @ComponentProperty(
+	@ComponentProperty(
+	        description = "Private key file.",
+	        name = Names.PROP_FILENAME,
+	        defaultValue = ""
+	)
+	protected static final String PROP_FILE_NAME = Names.PROP_FILENAME;
+
+	@ComponentProperty(
 	        description = "Command to execute.",
-            name = Names.PROP_COMMAND,
-            defaultValue = "ls"
+	        name = Names.PROP_COMMAND,
+	        defaultValue = "ls"
 	)
 	protected static final String PROP_COMMAND = Names.PROP_COMMAND;
 
-    //--------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
 		//initialize
+		console.info("initialize");
 		String hostname   = cc.getProperty(PROP_HOSTNAME);
 		String portnumber = cc.getProperty(PROP_PORT_NUMBER);
 		String username   = cc.getProperty(PROP_USERNAME);
 		String password   = cc.getProperty(PROP_PASSWORD);
+		String filename   = cc.getProperty(PROP_FILE_NAME);
 		String command    = cc.getProperty(PROP_COMMAND);
 
 		//construct connection
+		console.info("construct connection");
 		SshClient ssh = new SshClient();
 		ssh.connect(hostname,
 					Integer.parseInt(portnumber),
 					new IgnoreHostKeyVerification());
 
-		PasswordAuthenticationClient pwd = new PasswordAuthenticationClient();
-		pwd.setUsername(username);
-		pwd.setPassword(password); // Authenticate the user
-		int result = ssh.authenticate(pwd);
+		//authentication
+		console.info("authenticate");
+		PublicKeyAuthenticationClient pk = new PublicKeyAuthenticationClient();
+		pk.setUsername(username);
 
-		if(result == AuthenticationProtocolState.COMPLETE) {
+		BufferedReader reader = new BufferedReader(new FileReader(filename));
+		StringBuffer buf = new StringBuffer();
+		String line;
+		while((line=reader.readLine())!=null)
+			buf.append(line).append("\n");
+		String privateKey = buf.toString();
+
+		SshPrivateKeyFile spkf = SshPrivateKeyFile.parse(
+				privateKey.getBytes());
+		SshPrivateKey key = spkf.toPrivateKey(password);
+        pk.setKey(key);
+
+        int result = ssh.authenticate(pk);
+        if(result == AuthenticationProtocolState.COMPLETE) { // Authentication complete
 			console.info("The authentication is complete");
 
 			SessionChannelClient session = ssh.openSessionChannel();
@@ -149,19 +174,17 @@ public class SshWrapper extends AbstractExecutableComponent {
 			session.executeCommand(command+"\n");
 
 			InputStream in = session.getInputStream();
-
-			//snippet for how to use stream
-			/*byte buffer[] = new byte[255];
+			byte buffer[] = new byte[255];
 			int read;
 			while((read = in.read(buffer)) > 0) {
    				String out = new String(buffer, 0, read);
-   				System.out.println(out);
-			}*/
+   				console.info(out);
+			}
 
 			session.close();
 
 			cc.pushDataComponentToOutput(OUT_STREAM, in);
-		}
+        }
 	}
 
 	@Override
