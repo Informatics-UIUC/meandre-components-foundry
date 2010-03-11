@@ -105,11 +105,11 @@ public class AuthSshWrapper extends AbstractExecutableComponent {
 	protected static final String PROP_USERNAME = Names.PROP_USERNAME;
 
 	@ComponentProperty(
-	        description = "Password.",
-	        name = Names.PROP_PASSWORD,
+	        description = "Passphrase.",
+	        name = Names.PROP_PASSPHRASE,
 	        defaultValue = ""
 	)
-	protected static final String PROP_PASSWORD = Names.PROP_PASSWORD;
+	protected static final String PROP_PASSPHRASE = Names.PROP_PASSPHRASE;
 
 	@ComponentProperty(
 	        description = "Private key file.",
@@ -137,7 +137,7 @@ public class AuthSshWrapper extends AbstractExecutableComponent {
 		String hostname   = cc.getProperty(PROP_HOSTNAME);
 		String portnumber = cc.getProperty(PROP_PORT_NUMBER);
 		String username   = cc.getProperty(PROP_USERNAME);
-		String password   = cc.getProperty(PROP_PASSWORD);
+		String passphrase = cc.getProperty(PROP_PASSPHRASE);
 		String filename   = cc.getProperty(PROP_FILE_NAME);
 		String command    = cc.getProperty(PROP_COMMAND);
 
@@ -162,28 +162,26 @@ public class AuthSshWrapper extends AbstractExecutableComponent {
 
 		SshPrivateKeyFile spkf = SshPrivateKeyFile.parse(
 				privateKey.getBytes());
-		SshPrivateKey key = spkf.toPrivateKey(password);
+		SshPrivateKey key = spkf.toPrivateKey(passphrase);
         pk.setKey(key);
 
         int result = ssh.authenticate(pk);
         if(result == AuthenticationProtocolState.COMPLETE) { // Authentication complete
 			console.info("The authentication is complete");
 
-			SessionChannelClient session = ssh.openSessionChannel();
-
-			session.executeCommand(command+"\n");
-
-			InputStream in = session.getInputStream();
-			byte buffer[] = new byte[255];
-			int read;
-			while((read = in.read(buffer)) > 0) {
-   				String out = new String(buffer, 0, read);
-   				console.info(out);
+			if(command!=null && command.length()!=0) {
+				SessionChannelClient session = ssh.openSessionChannel();
+				session.executeCommand(command+"\n");
+				InputStream in = session.getInputStream();
+				byte buffer[] = new byte[255];
+				int read;
+				while((read = in.read(buffer)) > 0) {
+					String out = new String(buffer, 0, read);
+					console.info(out);
+				}
+				session.close();
+				cc.pushDataComponentToOutput(OUT_STREAM, in);
 			}
-
-			session.close();
-
-			cc.pushDataComponentToOutput(OUT_STREAM, in);
         }
 	}
 
