@@ -63,6 +63,7 @@ public abstract class Names {
 	public static final String PORT_FILENAME = "file_name";
 	public static final String PORT_GRAPH = "graph";
 	public static final String PORT_HTML = "html";
+    public static final String PORT_INPUT_STREAM = "input_stream";
 	public static final String PORT_JAVA_STRING = "java_string";
 	public static final String PORT_JSON = "json";
 	public static final String PORT_LATITUDE_VECTOR = "latitude_vector";
