@@ -42,19 +42,15 @@
 
 package org.seasr.meandre.components.transform.xml;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -67,18 +63,14 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
-import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 /**
  * Loretta made this class use firing policy any instead of all.
@@ -135,91 +127,89 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-	/** The temporary initial queue */
-	protected Queue<Object> queues;
-	protected String inXsl;
+
+	protected Queue<Document> queue;
+	protected Templates xslt;
 	private boolean _gotInitiator;
+
+
+	//--------------------------------------------------------------------------------------------
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.queues = new LinkedList<Object>();
-		this.inXsl = null;
+		queue = new LinkedList<Document>();
+		xslt = null;
 
 		_gotInitiator = false;
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		if (cc.isInputAvailable(IN_XML) ) {
-			// No xsl received yet, so queue the objects
-			queueObjects();
+		if (cc.isInputAvailable(IN_XML))
+		    queue.offer(DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML)));
+
+		if (cc.isInputAvailable(IN_XSL)) {
+		    if (xslt == null) {
+		        String sXsl = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_XSL))[0];
+		        xslt = DOMUtils.TRANS_FACT.newTemplates(new StreamSource(new StringReader(sXsl)));
+		    } else
+		        console.warning("XSL transformation already set - ignoring new XSL data input");
 		}
 
-		if ( this.inXsl == null && cc.isInputAvailable(IN_XSL) )
-			// Process xsl and pending
-			processXSL();
-
-		if(!_gotInitiator) // Process normally with the incoming information
-			if(inXsl != null && queues.size() != 0)
-				processQueued();
+		if(!_gotInitiator && xslt != null && queue.size() > 0)
+		    // Process in non-streaming mode
+		    processQueued();
 	}
 
 	@Override
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		queues = null;
-		inXsl = null;
+		queue = null;
+		xslt = null;
 	}
 
-	private void queueObjects() throws ComponentContextException {
-		this.queues.offer(componentContext.getDataComponentFromInput(IN_XML));
-	}
+	//--------------------------------------------------------------------------------------------
 
 	protected void processQueued() throws Exception {
-		Iterator<Object> iterTok = this.queues.iterator();
-		while ( iterTok.hasNext() ) processXML(iterTok.next());
+	    console.fine(String.format("Processing %d queued XML documents...", queue.size()));
+
+	    for (Document doc : queue) {
+	        String transformResult = transformXml(doc);
+	        console.finest("XSL transformation finished. Output:\n" + transformResult);
+
+	        componentContext.pushDataComponentToOutput(OUT_XML,
+	                BasicDataTypesTools.stringToStrings(transformResult));
+	    }
+
+	    queue.clear();
 	}
 
-	protected void processXSL() throws UnsupportedDataTypeException, ComponentContextException, TransformerConfigurationException {
-		inXsl = DataTypeParser.parseAsString(componentContext.getDataComponentFromInput(IN_XSL))[0];
-	}
-
-	protected void processXML(Object obj) 
-	   throws UnsupportedDataTypeException, SAXException, IOException, 
-	          ParserConfigurationException, ComponentContextException, TransformerException 
-	{
-		
-		Document doc = DataTypeParser.parseAsDomDocument(obj);
-	    
-	    // debug
-	    //String sXml = DOMUtils.getString(doc, null);
-        //console.info("Before transform\n" + sXml);
-        //console.info("XSL\n" + inXsl);
-        
+	protected String transformXml(Document doc) throws TransformerException {
 		Source xmlSource = new DOMSource(doc);
 
 		StringWriter xmlWriter = new StringWriter();
 		StreamResult xmlResult = new StreamResult(xmlWriter);
 
-		Transformer transformer;
-		StringReader xslReader;
-
-		xslReader = new StringReader(inXsl);
-		Source xslSource = new StreamSource(xslReader);
-		TransformerFactory factory = TransformerFactory.newInstance();
-    	transformer = factory.newTransformer(xslSource);
+    	Transformer transformer = xslt.newTransformer();
 		transformer.transform(xmlSource, xmlResult);
-    	String outXml = xmlWriter.getBuffer().toString();
-    	
-    	console.fine("finished transform\n" + outXml);
-    	componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(outXml));
 
-		xmlWriter.close();
-		xslReader.close();
+		String result = xmlWriter.toString();
+
+		try {
+		    xmlWriter.close();
+		} catch (Exception e) {}
+
+		return result;
 	}
 
+    //--------------------------------------------------------------------------------------------
 
 	@Override
     protected void handleStreamInitiators() throws Exception {
+	    if (!inputPortsWithInitiators.contains(IN_XML))
+	        return;
+
+	    console.finest("Received stream initiator");
+
 		if (_gotInitiator)
             throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
 
@@ -228,6 +218,11 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
     @Override
     protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.contains(IN_XML))
+            return;
+
+        console.finest("Received stream terminator");
+
     	if (!_gotInitiator)
     		throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 

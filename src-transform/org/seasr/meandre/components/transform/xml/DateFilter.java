@@ -52,6 +52,8 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
@@ -117,6 +119,13 @@ public class DateFilter extends AbstractExecutableComponent {
     )
     protected static final String PROP_MAX_VALUE = Names.PROP_MAX_VALUE;
 
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the pushed message be wrapped as a stream. ",
+            defaultValue = "false"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -126,6 +135,8 @@ public class DateFilter extends AbstractExecutableComponent {
     /** The min year and max year to use */
     private int minYear, maxYear;
 
+    private boolean streamOutput = false;
+
 
     //--------------------------------------------------------------------------------------------
 
@@ -133,6 +144,8 @@ public class DateFilter extends AbstractExecutableComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         minYear = Integer.parseInt(ccp.getProperty(PROP_MIN_VALUE));
         maxYear = Integer.parseInt(ccp.getProperty(PROP_MAX_VALUE));
+
+        streamOutput = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
     }
 
     @Override
@@ -145,9 +158,23 @@ public class DateFilter extends AbstractExecutableComponent {
 
         String xsl = velocity.generateOutput(context, DEFAULT_TEMPLATE);
 
+        if (streamOutput) {
+            StreamInitiator si = new StreamInitiator();
+            cc.pushDataComponentToOutput(OUT_MIN_YEAR, si);
+            cc.pushDataComponentToOutput(OUT_MAX_YEAR, si);
+            cc.pushDataComponentToOutput(OUT_XSL, si);
+        }
+
         cc.pushDataComponentToOutput(OUT_MIN_YEAR, BasicDataTypesTools.integerToIntegers(minYear));
         cc.pushDataComponentToOutput(OUT_MAX_YEAR, BasicDataTypesTools.integerToIntegers(maxYear));
         cc.pushDataComponentToOutput(OUT_XSL, BasicDataTypesTools.stringToStrings(xsl));
+
+        if (streamOutput) {
+            StreamTerminator st = new StreamTerminator();
+            cc.pushDataComponentToOutput(OUT_MIN_YEAR, st);
+            cc.pushDataComponentToOutput(OUT_MAX_YEAR, st);
+            cc.pushDataComponentToOutput(OUT_XSL, st);
+        }
     }
 
     @Override
