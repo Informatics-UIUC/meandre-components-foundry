@@ -61,6 +61,7 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
+import org.seasr.meandre.component.opennlp.OpenNLPNamedEntity;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -198,13 +199,19 @@ public class TupleToXML extends AbstractExecutableComponent {
         if (docTitle != null)
             root.setAttribute("docTitle", docTitle);
 
+        int TYPE_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TYPE_FIELD);
+		int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.SENTENCE_ID_FIELD);
+		int TEXT_START_IDX  = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_START_FIELD);
+		int TEXT_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_FIELD);
+		int TEXT_END_IDX    = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_END_FIELD);
+		
 		for (Strings ss: in) {
 			String[] s = BasicDataTypesTools.stringsToStringArray(ss);
-			int index = Integer.parseInt(s[0]);
-			String type = s[1];
+			int index = Integer.parseInt(s[TYPE_IDX]);
+			String type = s[SENTENCE_ID_IDX];
 			if(_entities.indexOf(type) != -1) {
 				String sentence = sm.getKey(index);
-				String value = s[4];
+				String value = s[TEXT_IDX];
 				Element elSentence =
 					createSentenceNode(doc_out, sentence, docId, docTitle);
 
