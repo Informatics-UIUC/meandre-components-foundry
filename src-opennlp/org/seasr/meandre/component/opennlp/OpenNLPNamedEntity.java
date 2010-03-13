@@ -48,9 +48,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import opennlp.maxent.io.BinaryGISModelReader;
@@ -76,22 +76,13 @@ import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
-
-import org.seasr.meandre.support.component.opennlp.TextSpan;
+import org.seasr.meandre.support.component.opennlp.StaticLocationFinder;
 import org.seasr.meandre.support.component.opennlp.StaticTextSpanFinder;
 import org.seasr.meandre.support.component.opennlp.StaticURLFinder;
-import org.seasr.meandre.support.component.opennlp.StaticLocationFinder;
-
-
-
-
+import org.seasr.meandre.support.component.opennlp.TextSpan;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-
-
-
-
 
 /**
  * This component perform Named Entity Extraction via OpenNLP.
@@ -131,7 +122,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples: (sentenceId,type,textStart,textEnd,text)" +
+			description = "set of tuples: (sentenceId,type,textStart,text)" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
@@ -151,8 +142,6 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		    defaultValue = "person,location,date,organization"
 	)
 	protected static final String PROP_NE_TYPES = "NETypes";
-
-
 
 	@ComponentProperty(
 			name = "ExtendedNETypes",
@@ -174,19 +163,15 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	SimpleTuplePeer tuplePeer;
 
+	public static final String SENTENCE_ID_FIELD = "sentenceId";
     public static final String TYPE_FIELD        = "type";
-    public static final String SENTENCE_ID_FIELD = "sentenceId";
     public static final String TEXT_START_FIELD  = "textStart";
-    public static final String TEXT_END_FIELD    = "textEnd";
     public static final String TEXT_FIELD        = "text";
 
-    int TYPE_IDX        ;
     int SENTENCE_ID_IDX ;
+    int TYPE_IDX        ;
     int TEXT_START_IDX  ;
-    int TEXT_END_IDX    ;
     int TEXT_IDX        ;
-
-
 
 
 	String[] finderTypes     = {"person", "location", "date", "organization"};    // money, percentage, time
@@ -197,8 +182,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     StaticTextSpanFinder[] simpleFinders = null;
 
 	//--------------------------------------------------------------------------------------------
-    private static Map<String,String> parseLocationData(String toParse)
-    {
+    private static Map<String,String> parseLocationData(String toParse) {
     	Map<String,String> map = new HashMap<String,String>();
     	StringTokenizer tokens = new StringTokenizer(toParse,",");
     	while (tokens.hasMoreTokens()) {
@@ -211,8 +195,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     	return map;
     }
 
-    public static StaticTextSpanFinder[] buildExtendedFinders(String types, String locationMapData)
-    {
+    public static StaticTextSpanFinder[] buildExtendedFinders(String types, String locationMapData) {
     	StaticTextSpanFinder[] finders;
 
     	if (types != null && types.trim().length() > 1) {
@@ -237,15 +220,12 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			finders = new StaticTextSpanFinder[0];
 		}
     	return finders;
-
     }
 
     @Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-    {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 
 		super.initializeCallBack(ccp);
-
 
 		// parse up the Named Entity types
 		String types = ccp.getProperty(PROP_NE_TYPES).trim();
@@ -258,12 +238,11 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		}
 
 		try {
-
 			finders = build(sOpenNLPDir, finderTypes);
 
 			// now do the extended (home brewed) entities
-			types       = ccp.getProperty(PROP_EX_NE_TYPES);
-			String data = ccp.getProperty(PROP_LOCATION_MAP);
+			types         = ccp.getProperty(PROP_EX_NE_TYPES);
+			String data   = ccp.getProperty(PROP_LOCATION_MAP);
 			simpleFinders = OpenNLPNamedEntity.buildExtendedFinders(types,data);
 
 			console.info("extended finders " + simpleFinders.length);
@@ -277,17 +256,14 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		// build the tuple (output) data
 		//
 		String[] fields =
-			new String[] {SENTENCE_ID_FIELD, TYPE_FIELD, TEXT_START_FIELD, TEXT_END_FIELD, TEXT_FIELD};
+			new String[] { SENTENCE_ID_FIELD, TYPE_FIELD, TEXT_START_FIELD, TEXT_FIELD };
 
 		tuplePeer = new SimpleTuplePeer(fields);
 
-		TYPE_IDX        = tuplePeer.getIndexForFieldName(TYPE_FIELD);
 		SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
+		TYPE_IDX        = tuplePeer.getIndexForFieldName(TYPE_FIELD);
 		TEXT_START_IDX  = tuplePeer.getIndexForFieldName(TEXT_START_FIELD);
 		TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
-		TEXT_END_IDX    = tuplePeer.getIndexForFieldName(TEXT_END_FIELD);
-
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -314,13 +290,11 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     		String[] tokens = null;
     		String sentence = null;
 
-
     		sentence      = input.getKey(i);    // this is the entire sentence (the key)
     		Strings value = input.getValue(i);  // this is the set of tokens for that sentence
 
     		tokens = DataTypeParser.parseAsString(value);
     		// console.info("Tokens " + tokens.length + " .. " + tokens[0]);
-
 
     		list.clear();
     		for (int j = 0; j < finders.length; j++) {
@@ -333,27 +307,20 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
     				textSpan = label(sentence, tokens, span[k], textSpan);
     				int beginIndex = textSpan.getStart();
-    				int endIndex   = textSpan.getEnd();
     				String text    = textSpan.getText();
 
     				// clean the text
     				text = text.replace("\n"," ");
 
     				SimpleTuple tuple = tuplePeer.createTuple();
-    				tuple.setValue(TYPE_IDX,        type);
     				tuple.setValue(SENTENCE_ID_IDX, i);
+    				tuple.setValue(TYPE_IDX,        type);
     				tuple.setValue(TEXT_START_IDX,  beginIndex + globalOffset);
-    				tuple.setValue(TEXT_END_IDX,    endIndex + globalOffset);
     				tuple.setValue(TEXT_IDX,        text);
 
     				list.add(tuple);
-
     			}
-
-
     		} // end finders
-
-
 
             // do custom finders
     		for (StaticTextSpanFinder finder : simpleFinders) {
@@ -367,10 +334,9 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     			for (TextSpan s : items) {
 
         			SimpleTuple tuple = tuplePeer.createTuple();
-        			tuple.setValue(TYPE_IDX,        finder.getType());
         			tuple.setValue(SENTENCE_ID_IDX, i);
+        			tuple.setValue(TYPE_IDX,        finder.getType());
         			tuple.setValue(TEXT_START_IDX,  s.getStart() + globalOffset);
-        			tuple.setValue(TEXT_END_IDX,    s.getEnd()   + globalOffset);
         			tuple.setValue(TEXT_IDX,        s.getText());
 
         			list.add(tuple);

@@ -182,9 +182,13 @@ public class TupleToXML extends AbstractExecutableComponent {
 		String docTitle = DataTypeParser.parseAsString(location)[0];
 
 		StringsMap sm = (StringsMap) cc.getDataComponentFromInput(IN_TOKENS);
-
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+
 		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
+        int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.SENTENCE_ID_FIELD);
+        int TYPE_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TYPE_FIELD);
+        int TEXT_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_FIELD);
+
 		console.fine(tuplePeer.toString());
 
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
@@ -199,16 +203,11 @@ public class TupleToXML extends AbstractExecutableComponent {
         if (docTitle != null)
             root.setAttribute("docTitle", docTitle);
 
-        int TYPE_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TYPE_FIELD);
-		int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.SENTENCE_ID_FIELD);
-		int TEXT_START_IDX  = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_START_FIELD);
-		int TEXT_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_FIELD);
-		int TEXT_END_IDX    = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_END_FIELD);
-		
+
 		for (Strings ss: in) {
 			String[] s = BasicDataTypesTools.stringsToStringArray(ss);
-			int index = Integer.parseInt(s[TYPE_IDX]);
-			String type = s[SENTENCE_ID_IDX];
+			int index = Integer.parseInt(s[SENTENCE_ID_IDX]);
+			String type = s[TYPE_IDX];
 			if(_entities.indexOf(type) != -1) {
 				String sentence = sm.getKey(index);
 				String value = s[TEXT_IDX];
