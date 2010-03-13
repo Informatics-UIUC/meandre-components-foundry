@@ -53,8 +53,11 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
@@ -161,5 +164,15 @@ public class SummarizerViewer extends AbstractExecutableComponent {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
-    //-----------------------------------------------------------------
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_TOKENS);
+        componentContext.pushDataComponentToOutput(OUT_HTML, si);
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_TOKENS);
+        componentContext.pushDataComponentToOutput(OUT_HTML, st);
+    }
 }
