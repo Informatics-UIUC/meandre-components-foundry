@@ -157,24 +157,24 @@ public class DateFilter extends AbstractExecutableComponent {
         context.put("max_year", maxYear);
 
         String xsl = velocity.generateOutput(context, DEFAULT_TEMPLATE);
-
+/*
         if (streamOutput) {
             StreamInitiator si = new StreamInitiator();
             cc.pushDataComponentToOutput(OUT_MIN_YEAR, si);
             cc.pushDataComponentToOutput(OUT_MAX_YEAR, si);
             cc.pushDataComponentToOutput(OUT_XSL, si);
         }
-
+*/
         cc.pushDataComponentToOutput(OUT_MIN_YEAR, BasicDataTypesTools.integerToIntegers(minYear));
         cc.pushDataComponentToOutput(OUT_MAX_YEAR, BasicDataTypesTools.integerToIntegers(maxYear));
         cc.pushDataComponentToOutput(OUT_XSL, BasicDataTypesTools.stringToStrings(xsl));
-
+/*
         if (streamOutput) {
             StreamTerminator st = new StreamTerminator();
             cc.pushDataComponentToOutput(OUT_MIN_YEAR, st);
             cc.pushDataComponentToOutput(OUT_MAX_YEAR, st);
             cc.pushDataComponentToOutput(OUT_XSL, st);
-        }
+        }*/
     }
 
     @Override
