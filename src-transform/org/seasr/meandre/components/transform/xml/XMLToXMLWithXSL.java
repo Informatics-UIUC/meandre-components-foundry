@@ -64,8 +64,6 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
@@ -156,7 +154,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 		        console.warning("XSL transformation already set - ignoring new XSL data input");
 		}
 
-		if(!_gotInitiator && xslt != null && queue.size() > 0)
+		if (xslt != null && queue.size() > 0)
 		    // Process in non-streaming mode
 		    processQueued();
 	}
@@ -213,6 +211,9 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 		if (_gotInitiator)
             throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
 
+		// Forward the stream initiator we received downstream
+		componentContext.pushDataComponentToOutput(OUT_XML, componentContext.getDataComponentFromInput(IN_XML));
+
         _gotInitiator = true;
 	}
 
@@ -226,9 +227,8 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
     	if (!_gotInitiator)
     		throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
-    	componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
-    	processQueued();
-    	componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator());
+    	// Forward the stream terminator we received downstream
+        componentContext.pushDataComponentToOutput(OUT_XML, componentContext.getDataComponentFromInput(IN_XML));
 
     	_gotInitiator = false;
     }
