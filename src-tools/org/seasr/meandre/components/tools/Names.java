@@ -99,6 +99,7 @@ public abstract class Names {
 	public static final String PORT_TOKEN_MAP = "token_map";
 	public static final String PORT_TOKENIZED_SENTENCES = "tokenized_sentences";
 	public static final String PORT_TOKENS = "tokens";
+	public static final String PORT_TRIGGER = "trigger";
 	public static final String PORT_TUPLE  = "tuple";
 	public static final String PORT_TUPLES = "tuples";
 	public static final String PORT_WORDS = "words";

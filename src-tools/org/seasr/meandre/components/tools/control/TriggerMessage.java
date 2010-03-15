@@ -54,12 +54,14 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.meandre.components.tools.Names;
 
 /**
  * Trigger message.
  *
  * @author Loretta Auvil
+ * @author Boris Capitanu
  *
  */
 
@@ -72,110 +74,110 @@ import org.seasr.meandre.components.tools.Names;
         rights = Licenses.UofINCSA,
         tags = "message, trigger",
         description = "This component will receive a message and a trigger."+
-        "The message is saved so that it can be output for every trigger received."+
-        "If a new message is received, then it replaces the previous message.",
+                      "The message is saved so that it can be output for every trigger received."+
+                      "If a new message is received, then it replaces the previous message.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-
 public class TriggerMessage extends AbstractExecutableComponent {
+
 	//------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
             name = Names.PORT_OBJECT,
             description = "Object that is saved and forwarded when trigger is received." +
-                "<br>TYPE: java.lang.Object"
+                          "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_OBJECT = Names.PORT_OBJECT;
 
     @ComponentInput(
-            name = "Trigger",
+            name = Names.PORT_TRIGGER,
             description = "Trigger indicating that the message is to be output." +
-                "<br>TYPE: java.lang.Object"
+                          "<br>TYPE: java.lang.Object"
     )
-    protected static final String IN_TRIGGER = "Trigger";
+    protected static final String IN_TRIGGER = Names.PORT_TRIGGER;
 
-    //-------------------------- OUTPUTS --------------------------
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 	        name = Names.PORT_OBJECT,
 	        description = "THe Object that has been saved." +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_OBJECT = Names.PORT_OBJECT;
 
+	@ComponentOutput(
+            name = Names.PORT_TRIGGER,
+            description = "Trigger indicating that the message is to be output." +
+                          "<br>TYPE: java.lang.Object"
+    )
+    protected static final String OUT_TRIGGER = Names.PORT_TRIGGER;
+
     //--------------------------------------------------------------------------------------------
-	protected Queue<Object> queue;
-	protected Object message;
-	private boolean _gotInitiator;
+
+
+	protected Queue<Object> triggerQueue;
+	protected Object object;
+
+
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		queue = new LinkedList<Object>();
-		_gotInitiator = false;
+		triggerQueue = new LinkedList<Object>();
+		object = null;
 	}
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Object input_message = cc.getDataComponentFromInput(IN_OBJECT);
-        Object input_trigger = cc.getDataComponentFromInput(IN_TRIGGER);
+
+        if (cc.isInputAvailable(IN_OBJECT)) {
+            if (object != null)
+                console.fine("Object already set - overwriting it. This behavior is susceptible to race conditions!");
+            object = cc.getDataComponentFromInput(IN_OBJECT);
+        }
 
 		if (cc.isInputAvailable(IN_TRIGGER))
-		    queue.offer(input_trigger);
+		    triggerQueue.offer(cc.getDataComponentFromInput(IN_TRIGGER));
 
-		if (cc.isInputAvailable(IN_OBJECT)) {
-		    if (message == null) {
-		        message = input_message;
-		    } else {
-		    	message = input_message;
-		        console.warning("Replacing message with new one received.");
-		    }
-		}
-
-		if (message != null && queue.size() > 0){
-
-			for (Object obj : queue) {
-				cc.pushDataComponentToOutput(OUT_OBJECT, message);
+		if (object != null && triggerQueue.size() > 0) {
+			for (Object trigger : triggerQueue) {
+				cc.pushDataComponentToOutput(OUT_OBJECT, object);
+				cc.pushDataComponentToOutput(OUT_TRIGGER, trigger);
 			}
-			queue.clear();
+
+			triggerQueue.clear();
 		}
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		queue = null;
-		message = null;
+		triggerQueue = null;
+		object = null;
     }
+
+    //--------------------------------------------------------------------------------------------
 
     @Override
     protected void handleStreamInitiators() throws Exception {
-    	if (!inputPortsWithInitiators.contains(IN_TRIGGER))
-	        return;
+        // Only forward delimiters received through the 'trigger' port
+        if (!inputPortsWithInitiators.contains(IN_TRIGGER))
+            return;
 
-	    console.finest("Received stream initiator");
-
-		if (_gotInitiator)
-            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
-
-		// Forward the stream initiator we received downstream
-		componentContext.pushDataComponentToOutput(OUT_OBJECT, componentContext.getDataComponentFromInput(IN_TRIGGER));
-
-        _gotInitiator = true;
+		// Forward the stream delimiter we received downstream
+        StreamDelimiter sd = (StreamDelimiter)componentContext.getDataComponentFromInput(IN_TRIGGER);
+        componentContext.pushDataComponentToOutput(OUT_OBJECT, sd);
+		componentContext.pushDataComponentToOutput(OUT_TRIGGER, sd);
     }
 
     @Override
     protected void handleStreamTerminators() throws Exception {
+        // Only forward delimiters received through the 'trigger' port
     	if (!inputPortsWithTerminators.contains(IN_TRIGGER))
             return;
 
-        console.finest("Received stream terminator");
-
-    	if (!_gotInitiator)
-    		throw new Exception("Received StreamTerminator without receiving StreamInitiator");
-
-    	// Forward the stream terminator we received downstream
-        componentContext.pushDataComponentToOutput(OUT_OBJECT, componentContext.getDataComponentFromInput(IN_TRIGGER));
-
-    	_gotInitiator = false;
+        // Forward the stream delimiter we received downstream
+        StreamDelimiter sd = (StreamDelimiter)componentContext.getDataComponentFromInput(IN_TRIGGER);
+        componentContext.pushDataComponentToOutput(OUT_OBJECT, sd);
+        componentContext.pushDataComponentToOutput(OUT_TRIGGER, sd);
     }
 }

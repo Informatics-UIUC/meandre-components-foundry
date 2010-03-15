@@ -81,6 +81,9 @@ import de.schlichtherle.io.FileInputStream;
 /**
  * @author Lily Dong
  * @author Boris Capitanu
+ *
+ * NOTE: If this component is used in a flow for the Zotero environment do not forget to
+ *       set the 'timeline_api_url' property to http://simile.mit.edu/timeline/api/timeline-api.js
  */
 
 @Component(
