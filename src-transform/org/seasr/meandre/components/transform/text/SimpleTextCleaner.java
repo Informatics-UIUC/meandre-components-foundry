@@ -42,11 +42,10 @@
 
 package org.seasr.meandre.components.transform.text;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -61,6 +60,19 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+
+//
+// FORMAT:  newText = {old1, old2, old3}; newText2 = {old4,old5}; newText3=old6"
+// newValue = {oldValueA, oldValueB} OR newValue=oldValue
+//
+// lines are separated with ';'
+// {} are optional
+// ',' separate the values
+
+/**
+ * @author Mike Haberman
+ * @author Boris Capitanu
+ */
 
 @Component(
         creator = "Mike Haberman",
@@ -86,7 +98,7 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
             name = Names.PORT_TEXT
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
-    
+
     @ComponentInput(
             description = "configuation map format: newText = {old1, old2, old3}; newText2 = {old4,old5}; newText3=old6; = deleteText" +
                 "<br>TYPE: java.lang.String" +
@@ -114,75 +126,42 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
 		    defaultValue = "true"
 		)
 	protected static final String PROP_IGNORE_CASE = "ignoreCase";
-    
-    //
-    // FORMAT:  newText = {old1, old2, old3}; newText2 = {old4,old5}; newText3=old6"
-    // newValue = {oldValueA, oldValueB} OR newValue=oldValue
-    //
-    // lines are separated with ';'
-    // {} are optional
-    // ',' separate the values
-   
-    public  Map<String,String> buildDictionary(String configData, boolean ignoreCase) 
-    {
-    	Map<String,String> map = new HashMap<String,String>();
-    	StringTokenizer tokens = new StringTokenizer(configData,";");
-    	while (tokens.hasMoreTokens()) {
-    		String line = tokens.nextToken();
-    		String[] parts = line.split("=");
-    		String key    = parts[0].trim();
-    		String values = parts[1].trim();
-    		
-    		if (ignoreCase) {
-    			values = values.toLowerCase();
-    		}
-    		
-    		values = values.replace("{","");
-    		values = values.replace("}","");
-    		StringTokenizer vTokens = new StringTokenizer(values,",");
-    		while(vTokens.hasMoreTokens()) {
-    			String value = vTokens.nextToken().trim();
-    			// this is a reverse map
-    			// e.g. the KEY is the value, the value is the key
-    			map.put(value, key);
-    			// console.info("mapping " + value + " to " + key);
-    		}
-    	}
-    	return map;
-    }
-    
+
+    //--------------------------------------------------------------------------------------------
+
+
     boolean ignoreCase = true;
-    
+    Map<String,String> dictionary;
+
+
+    //--------------------------------------------------------------------------------------------
+
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
-    {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		String ic = ccp.getProperty(PROP_IGNORE_CASE).trim();
 		ignoreCase = Boolean.valueOf(ic);
 		console.info(PROP_IGNORE_CASE + " " + ignoreCase);
 	}
 
-	Map<String,String> dictionary;
-	
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception 
-    {
+    public void executeCallBack(ComponentContext cc) throws Exception {
+
 		if (dictionary == null) {
-			
+
 			Strings input = (Strings) cc.getDataComponentFromInput(IN_MAP_DATA);
 			String[] val = BasicDataTypesTools.stringsToStringArray (input);
-			
+
 			dictionary = buildDictionary(val[0], ignoreCase);
-			
+
 		}
-		
+
 		String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
-		
-		
+
 		//
-		// TODO: measure for speed:  cycle through the dictionary keys, doing a replaceAll 
+		// TODO: measure for speed:  cycle through the dictionary keys, doing a replaceAll
 		// OR cycle through the tokens, do an individual lookup/replace
 		//
-		
+
 		//
 		// Option A, parse the text based on whitespace and punctuation
 		// cycle through these tokens, match against the dictionary
@@ -190,30 +169,78 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
 		StringTokenizer tokens = new StringTokenizer(text, " \t\n\r\f.,;!?\"\':()", true);
 		StringBuilder sb = new StringBuilder();
 		while(tokens.hasMoreTokens()) {
-			
+
 			String t = tokens.nextToken();
 			String key = t;
 			if (ignoreCase) {
 				key = key.toLowerCase();
 			}
-			String r = dictionary.get(key);			
+			String r = dictionary.get(key);
 			r = (r == null ? (t) : (r));
 			sb.append(r);
 		}
-		
-		
+
 		//
 		// Option B: use Pattern (RegEx) and just do a replaceAll or match
 		// not implemented, yet
 		//
-		
+
 		// push the output
 		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sb.toString()));
-		
+
 		// console.info(sb.toString());
 	}
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
+
+    //--------------------------------------------------------------------------------------------
+
+	@Override
+	protected void handleStreamInitiators() throws Exception {
+	    if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TEXT, IN_MAP_DATA })))
+	        console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+	    componentContext.pushDataComponentToOutput(OUT_TEXT,
+	            componentContext.getDataComponentFromInput(IN_TEXT));
+	}
+
+	@Override
+	protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_TEXT, IN_MAP_DATA })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+	    componentContext.pushDataComponentToOutput(OUT_TEXT,
+                componentContext.getDataComponentFromInput(IN_TEXT));
+	}
+
+    //--------------------------------------------------------------------------------------------
+
+    public Map<String,String> buildDictionary(String configData, boolean ignoreCase) {
+        Map<String,String> map = new HashMap<String,String>();
+        StringTokenizer tokens = new StringTokenizer(configData,";");
+        while (tokens.hasMoreTokens()) {
+            String line = tokens.nextToken();
+            String[] parts = line.split("=");
+            String key    = parts[0].trim();
+            String values = parts[1].trim();
+
+            if (ignoreCase) {
+                values = values.toLowerCase();
+            }
+
+            values = values.replace("{","");
+            values = values.replace("}","");
+            StringTokenizer vTokens = new StringTokenizer(values,",");
+            while(vTokens.hasMoreTokens()) {
+                String value = vTokens.nextToken().trim();
+                // this is a reverse map
+                // e.g. the KEY is the value, the value is the key
+                map.put(value, key);
+                // console.info("mapping " + value + " to " + key);
+            }
+        }
+        return map;
+    }
 }
