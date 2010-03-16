@@ -123,11 +123,7 @@ public class TokenCountToJSON extends AbstractExecutableComponent {
     	JSONObject myObject = new JSONObject(sim);
     	String str = myObject.toString(indentFactor);
 
-    	if(!isVerbose) {
-    		cc.pushDataComponentToOutput(OUT_JSON,
-    				BasicDataTypesTools.stringToStrings(str));
-    		console.fine(str);
-    	} else {//verbose output
+    	if(isVerbose) { //verbose output
     		StringBuffer buf = new StringBuffer();
     		for (Entry<String, Integer> entry : sim.entrySet())
     			buf.append("<data word=\"").append(entry.getKey()).append("\" ").
@@ -136,8 +132,10 @@ public class TokenCountToJSON extends AbstractExecutableComponent {
     		str = myObject.toString(indentFactor);
     		str = str.replace("\"data\": [", "");
     		str = str.replace("]", "");
-    		console.fine(str);
     	}
+
+    	cc.pushDataComponentToOutput(OUT_JSON,
+				BasicDataTypesTools.stringToStrings(str));
     }
 
     @Override
