@@ -132,12 +132,13 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
 
     boolean ignoreCase = true;
     Map<String,String> dictionary;
-
+    Map<String,String> phraseReplaceDictionary;
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
 		String ic = ccp.getProperty(PROP_IGNORE_CASE).trim();
 		ignoreCase = Boolean.valueOf(ic);
 		console.info(PROP_IGNORE_CASE + " " + ignoreCase);
@@ -151,8 +152,27 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
 			Strings input = (Strings) cc.getDataComponentFromInput(IN_MAP_DATA);
 			String[] val = BasicDataTypesTools.stringsToStringArray (input);
 
-			dictionary = buildDictionary(val[0], ignoreCase);
-
+			dictionary = buildDictionary(val[0]);
+			phraseReplaceDictionary = new HashMap<String,String>();
+			for (String key : dictionary.keySet()) {
+				if (key.indexOf(" ") > 1) {
+					String value = dictionary.get(key);
+					phraseReplaceDictionary.put(key, value);
+				}
+			}
+			for (String key : phraseReplaceDictionary.keySet()) {
+				dictionary.remove(key);
+			}
+			
+			
+			if (ignoreCase) {
+				HashMap<String,String>tmp = new HashMap<String,String>();
+				for (String key : dictionary.keySet()) {
+					String v = dictionary.get(key);
+					dictionary.put(key, v.toLowerCase());
+				}
+				//dictionary = tmp;
+			}
 		}
 
 		String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
@@ -179,6 +199,11 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
 			r = (r == null ? (t) : (r));
 			sb.append(r);
 		}
+		
+		text = cleanPhrases(sb.toString());
+		
+		
+		
 
 		//
 		// Option B: use Pattern (RegEx) and just do a replaceAll or match
@@ -186,9 +211,18 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
 		//
 
 		// push the output
-		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sb.toString()));
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
 
 		// console.info(sb.toString());
+	}
+	
+	String cleanPhrases(String text) 
+	{
+		for (String key : phraseReplaceDictionary.keySet()) {
+			String replace = phraseReplaceDictionary.get(key);
+			text = text.replaceAll(key, replace);
+		}
+		return text;
 	}
 
 	@Override
@@ -217,7 +251,7 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
 
     //--------------------------------------------------------------------------------------------
 
-    public Map<String,String> buildDictionary(String configData, boolean ignoreCase) {
+    public Map<String,String> buildDictionary(String configData) {
         Map<String,String> map = new HashMap<String,String>();
         StringTokenizer tokens = new StringTokenizer(configData,";");
         while (tokens.hasMoreTokens()) {
@@ -226,9 +260,7 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
             String key    = parts[0].trim();
             String values = parts[1].trim();
 
-            if (ignoreCase) {
-                values = values.toLowerCase();
-            }
+            // if (ignoreCase) {values = values.toLowerCase();}
 
             values = values.replace("{","");
             values = values.replace("}","");
