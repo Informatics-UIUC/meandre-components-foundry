@@ -46,9 +46,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.json.JSONObject;
+import org.json.XML;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
@@ -84,7 +87,7 @@ public class TokenCountToJSON extends AbstractExecutableComponent {
     )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
-   //------------------------------ OUTPUTS ------------------------------
+    //------------------------------ OUTPUTS ------------------------------
 
     @ComponentOutput(
             name = Names.PORT_JSON,
@@ -92,6 +95,15 @@ public class TokenCountToJSON extends AbstractExecutableComponent {
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_JSON = Names.PORT_JSON;
+
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+	@ComponentProperty(
+	        description = "Verbose output.",
+            name = Names.PROP_VERBOSE_JSON_OUTPUT,
+            defaultValue =  "false"
+	)
+	protected static final String PROP_VERBOSE_JSON_OUTPUT = Names.PROP_VERBOSE_JSON_OUTPUT;
 
     //--------------------------------------------------------------------
 
@@ -101,18 +113,31 @@ public class TokenCountToJSON extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	JSONObject myObject = new JSONObject();
+    	boolean isVerbose = Boolean.parseBoolean(cc.getProperty(PROP_VERBOSE_JSON_OUTPUT));
+
+    	int indentFactor = 2;
 
     	Map<String, Integer> sim = DataTypeParser.parseAsStringIntegerMap(
     	        cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
-    	for (Entry<String, Integer> entry : sim.entrySet())
-    	    myObject.put(entry.getKey(), entry.getValue());
+    	JSONObject myObject = new JSONObject(sim);
+    	String str = myObject.toString(indentFactor);
 
-    	console.fine(myObject.toString());
-
-    	cc.pushDataComponentToOutput(OUT_JSON,
-    			BasicDataTypesTools.stringToStrings(myObject.toString()));
+    	if(!isVerbose) {
+    		cc.pushDataComponentToOutput(OUT_JSON,
+    				BasicDataTypesTools.stringToStrings(str));
+    		console.fine(str);
+    	} else {//verbose output
+    		StringBuffer buf = new StringBuffer();
+    		for (Entry<String, Integer> entry : sim.entrySet())
+    			buf.append("<data word=\"").append(entry.getKey()).append("\" ").
+    				append("count=").append(entry.getValue()).append("/>");
+    		myObject = XML.toJSONObject(buf.toString());
+    		str = myObject.toString(indentFactor);
+    		str = str.replace("\"data\": [", "");
+    		str = str.replace("]", "");
+    		console.fine(str);
+    	}
     }
 
     @Override
