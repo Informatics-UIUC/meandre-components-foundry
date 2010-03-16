@@ -63,7 +63,6 @@ public abstract class Names {
 	public static final String PORT_FILENAME = "file_name";
 	public static final String PORT_GRAPH = "graph";
 	public static final String PORT_HTML = "html";
-    public static final String PORT_INPUT_STREAM = "input_stream";
 	public static final String PORT_JAVA_STRING = "java_string";
 	public static final String PORT_JSON = "json";
 	public static final String PORT_LATITUDE_VECTOR = "latitude_vector";
@@ -187,6 +186,7 @@ public abstract class Names {
 	public static final String PROP_TITLE = "title";
 	public static final String PROP_URL_CONTEXT_PATH = "url_context_path";
 	public static final String PROP_USERNAME = "username";
+	public static final String PROP_VERBOSE_JSON_OUTPUT = "verbose_json_output";
 	public static final String PROP_WIDTH = "width";
 	public static final String PROP_WRAP_STREAM = "wrap_stream";
 	public static final String PROP_XML_LOCATION = "xml_location";

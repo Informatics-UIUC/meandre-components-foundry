@@ -52,6 +52,7 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 
 import com.sshtools.j2ssh.SshClient;
@@ -73,12 +74,12 @@ import com.sshtools.j2ssh.transport.IgnoreHostKeyVerification;
 
 public class SshWrapper extends AbstractExecutableComponent {
 	//------------------------------ OUTPUTS -----------------------------------------------------
-	 @ComponentOutput(
-	            description = "The result stream" +
-	                "<br>TYPE: java.io.InputStream",
-	            name = Names.PORT_INPUT_STREAM
-	    )
-	    protected static final String OUT_STREAM = Names.PORT_INPUT_STREAM;
+	@ComponentOutput(
+			description = "The return value of command." +
+			"<br><br>TYPE: org.seasr.datatypes.BasicDataTypes.String",
+	        name = Names.PORT_TEXT
+	)
+	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
     @ComponentProperty(
@@ -149,18 +150,18 @@ public class SshWrapper extends AbstractExecutableComponent {
 			session.executeCommand(command+"\n");
 
 			InputStream in = session.getInputStream();
-
-			//snippet for how to use stream
-			/*byte buffer[] = new byte[255];
+			byte buffer[] = new byte[255];
 			int read;
+			StringBuffer buf = new StringBuffer();
 			while((read = in.read(buffer)) > 0) {
    				String out = new String(buffer, 0, read);
-   				System.out.println(out);
-			}*/
-
+   				buf.append(out).append("\n");
+			}
 			session.close();
-
-			cc.pushDataComponentToOutput(OUT_STREAM, in);
+			console.info(buf.toString());
+			cc.pushDataComponentToOutput(
+					OUT_TEXT,
+					BasicDataTypesTools.stringToStrings(buf.toString()));
 		}
 	}
 
