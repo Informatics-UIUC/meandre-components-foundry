@@ -166,12 +166,10 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
 			
 			
 			if (ignoreCase) {
-				HashMap<String,String>tmp = new HashMap<String,String>();
 				for (String key : dictionary.keySet()) {
 					String v = dictionary.get(key);
 					dictionary.put(key, v.toLowerCase());
 				}
-				//dictionary = tmp;
 			}
 		}
 
