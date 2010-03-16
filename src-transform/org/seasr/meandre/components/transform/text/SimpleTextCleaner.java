@@ -166,11 +166,20 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
 			
 			
 			if (ignoreCase) {
+				HashMap<String,String>tmp = new HashMap<String,String>();
 				for (String key : dictionary.keySet()) {
 					String v = dictionary.get(key);
-					dictionary.put(key, v.toLowerCase());
+					tmp.put(key.toLowerCase(),v);
 				}
+				dictionary = tmp;
 			}
+			
+			/*
+			for (String key : dictionary.keySet()) {
+				String v = dictionary.get(key);
+				console.info(key + "-->" + v);
+			}
+			*/
 		}
 
 		String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
@@ -194,7 +203,7 @@ public class SimpleTextCleaner extends AbstractExecutableComponent{
 				key = key.toLowerCase();
 			}
 			String r = dictionary.get(key);
-			r = (r == null ? (t) : (r));
+			r = (r == null) ? (t) : (r);
 			sb.append(r);
 		}
 		
