@@ -75,6 +75,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import edu.stanford.nlp.ling.Sentence;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.ling.HasWord;
+
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 /**
@@ -153,10 +154,12 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
     // left3words-wsj-0-18.tagger
 	// bidirectional-wsj-0-18.tagger
 	
+	static final String DEFAULT_TAGGER = "modelsEnglish/left3words-wsj-0-18.tagger";
+	
 	@ComponentProperty(
 			name = "taggerModel",
 			description = "The tagger model to be used ",
-		    defaultValue = "modelsEnglish/left3words-wsj-0-18.tagger"
+		    defaultValue = DEFAULT_TAGGER
 		)
 	protected static final String PROP_TAGGER = "taggerModel";
 
@@ -186,11 +189,7 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 	)
 	protected static final String IN_TEXT = Names.PORT_TEXT;
 	
-	
 
-	protected String modelsDir;
-	protected String taggerFile;
-    protected String modelJarFile = "stanfordModels.jar";
 	//--------------------------------------------------------------------------------------------
     
     
@@ -212,7 +211,25 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 	
 	
-	
+	@SuppressWarnings("unchecked")
+	static MaxentTagger buildTagger(ComponentContextProperties ccp, Logger console, Class myClass)
+	   throws Exception
+	{
+		String modelJarFile = "stanfordModels.jar";
+		
+		String modelsDir = ccp.getProperty(PROP_MODELS_DIR).trim();
+		if (modelsDir.length() == 0)
+		    modelsDir = ccp.getRunDirectory()+File.separator+"stanfordNLP";
+		
+		OpenNLPBaseUtilities.installModelsFromJarFile(modelsDir, modelJarFile, console, myClass);
+		console.fine("Installed models into: " + modelsDir);
+		
+		String taggerFile = ccp.getProperty(PROP_TAGGER);// .toLowerCase();
+		if (taggerFile == null) {
+			taggerFile = DEFAULT_TAGGER;
+		}
+		return new MaxentTagger(modelsDir + File.separator + taggerFile.trim());
+	}
 
 	SimpleTuplePeer tuplePeer;
 
@@ -234,18 +251,7 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
     {
 		
-		modelsDir = ccp.getProperty(PROP_MODELS_DIR).trim();
-		if (modelsDir.length() == 0)
-		    modelsDir = ccp.getRunDirectory()+File.separator+"stanfordNLP";
-		
-		
-		OpenNLPBaseUtilities.installModelsFromJarFile(modelsDir, modelJarFile, console, getClass());
-		console.fine("Installed models into: " + modelsDir);
-		
-		
-		this.taggerFile = ccp.getProperty(PROP_TAGGER).trim(); // .toLowerCase();
-		tagger = new MaxentTagger(modelsDir + File.separator + taggerFile);
-		
+		tagger = buildTagger(ccp, console, getClass());
 		
 		sentenceId   = 0;
 		startIdx     = 0;
@@ -254,8 +260,6 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
     		new String[] {POS_FIELD, SENTENCE_ID_FIELD, TOKEN_START_FIELD, TOKEN_FIELD};
 
     	this.tuplePeer = new SimpleTuplePeer(fields);
-    	
-    	
     	
     	String regex = ccp.getProperty(PROP_POS_FILTER_REGEX).trim();
     	if (regex.length() > 0) {
@@ -266,8 +270,6 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
     		console.info("No REG EX being used");
     	}
     	
-    	
-		
 	}
 	
 
