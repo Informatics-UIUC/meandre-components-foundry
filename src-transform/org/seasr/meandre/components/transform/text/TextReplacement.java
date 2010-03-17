@@ -265,7 +265,7 @@ public class TextReplacement extends AbstractExecutableComponent{
 
     public Map<String,String> buildDictionary(String configData) 
     {
-    	configData = configData.replaceAll("/n","");
+    	configData = configData.replaceAll("\n","");
         Map<String,String> map = new HashMap<String,String>();
         StringTokenizer tokens = new StringTokenizer(configData,";");
         while (tokens.hasMoreTokens()) {
