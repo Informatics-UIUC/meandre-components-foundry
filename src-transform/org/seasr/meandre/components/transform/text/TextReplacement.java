@@ -264,29 +264,29 @@ public class TextReplacement extends AbstractExecutableComponent{
     //--------------------------------------------------------------------------------------------
 
     public Map<String,String> buildDictionary(String configData) 
-    {
-    	configData = configData.replaceAll("\n","");
-        Map<String,String> map = new HashMap<String,String>();
-        StringTokenizer tokens = new StringTokenizer(configData,";");
-        while (tokens.hasMoreTokens()) {
-            String line = tokens.nextToken();
-            String[] parts = line.split("=");
-            String key    = parts[0].trim();
-            String values = parts[1].trim();
-
-            // if (ignoreCase) {values = values.toLowerCase();}
-
-            values = values.replace("{","");
-            values = values.replace("}","");
-            StringTokenizer vTokens = new StringTokenizer(values,",");
-            while(vTokens.hasMoreTokens()) {
-                String value = vTokens.nextToken().trim();
-                // this is a reverse map
-                // e.g. the KEY is the value, the value is the key
-                map.put(value, key);
-                // console.info("mapping " + value + " to " + key);
-            }
-        }
-        return map;
-    }
+	{
+		configData = configData.replaceAll("\n","");
+	    Map<String,String> map = new HashMap<String,String>();
+	    StringTokenizer tokens = new StringTokenizer(configData,";");
+	    while (tokens.hasMoreTokens()) {
+	        String line = tokens.nextToken();
+	        String[] parts = line.split("=");
+	        String key    = parts[0].trim();
+	        String values = parts[1].trim();
+	
+	        // if (ignoreCase) {values = values.toLowerCase();}
+	
+	        values = values.replace("{","");
+	        values = values.replace("}","");
+	        StringTokenizer vTokens = new StringTokenizer(values,",");
+	        while(vTokens.hasMoreTokens()) {
+	            String value = vTokens.nextToken().trim();
+	            // this is a reverse map
+	            // e.g. the KEY is the value, the value is the key
+	            map.put(value, key);
+	            // console.info("mapping " + value + " to " + key);
+	        }
+	    }
+	    return map;
+	}
 }
