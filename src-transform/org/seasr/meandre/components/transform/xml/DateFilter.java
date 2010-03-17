@@ -164,7 +164,7 @@ public class DateFilter extends AbstractExecutableComponent {
 
         if (propMinYear > propMaxYear)
             throw new ComponentContextException(
-                    String.format("%d > %d: Minimum value should be smaller or equal to max value",
+                    String.format("%s > %s: Minimum value should be smaller or equal to max value",
                             PROP_MIN_VALUE, PROP_MAX_VALUE));
     }
 
@@ -182,7 +182,7 @@ public class DateFilter extends AbstractExecutableComponent {
             int inMaxYear = inputMax[i];
 
             if (inMinYear > inMaxYear)
-                console.warning(String.format("%d > %d: Input minimum value should be smaller or equal to input max value",
+                console.warning(String.format("%s > %s: Input minimum value should be smaller or equal to input max value",
                         IN_MIN_YEAR, IN_MAX_YEAR));
 
             int minYear = Math.max(inMinYear, propMinYear);
