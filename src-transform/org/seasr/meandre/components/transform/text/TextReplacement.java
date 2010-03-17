@@ -227,6 +227,11 @@ public class TextReplacement extends AbstractExecutableComponent{
 	{
 		for (String key : phraseReplaceDictionary.keySet()) {
 			String replace = phraseReplaceDictionary.get(key);
+			
+			//
+			// TODO: for ignoreCase, you have to make a new RegEx 
+			// out of key such that case is ignored
+			//
 			text = text.replaceAll(key, replace);
 		}
 		return text;
