@@ -42,10 +42,11 @@
 
 package org.seasr.meandre.components.tools.text.normalize.porter;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -63,12 +64,13 @@ import org.seasr.meandre.support.components.text.normalize.porter.PorterStemmer;
 
 /**
  * @author Lily Dong
+ * @author Boris Capitanu
  */
 
 @Component(
         creator = "Lily Dong",
 		description = "Replaces tokens with their entries from the dictionary. " +
-		    "If several tokens have the same entry, their counts are aggregated.",
+		              "If several tokens have the same entry, their counts are aggregated.",
 		firingPolicy = FiringPolicy.all,
 		name = "Transform Token From Dictionary",
 		tags = "token transform",
@@ -120,32 +122,52 @@ public class TransformTokenFromDictionary extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		if(cc.isInputAvailable(IN_TOKEN_COUNTS)) {
+		if (cc.isInputAvailable(IN_TOKEN_COUNTS)) {
 			IntegersMap iMap = (IntegersMap)cc.getDataComponentFromInput(IN_TOKEN_COUNTS);;
 			processCount(iMap);
 		}
 
-		if(cc.isInputAvailable(IN_DICTIONARY)) {
+		if (cc.isInputAvailable(IN_DICTIONARY)) {
 			StringsMap sMap = (StringsMap)cc.getDataComponentFromInput(IN_DICTIONARY);
 			processDictionary(sMap);
 		}
 
-		if(dictionary.size()!=0 && pool.size()!=0)
+		if (dictionary.size()!=0 && pool.size()!=0)
 			processTransform();
 	}
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		if(dictionary != null) {
+		if (dictionary != null) {
 			dictionary.clear();
 	        dictionary = null;
 	    }
 
-		if(pool != null) {
+		if (pool != null) {
 			pool.clear();
 			pool = null;
 		}
 	}
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TOKEN_COUNTS, IN_DICTIONARY })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_TOKEN_COUNTS, IN_DICTIONARY })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
+    }
+
+    //--------------------------------------------------------------------------------------------
 
 	/**
 	 * Transforms the stemmed words to their original words.
@@ -154,16 +176,16 @@ public class TransformTokenFromDictionary extends AbstractExecutableComponent {
 		Map<String, Integer> res = new HashMap<String, Integer>();
 
 		Enumeration<String> list = pool.keys();
-		while(list.hasMoreElements()) {
+		while (list.hasMoreElements()) {
 			String word = list.nextElement();
 			int count = pool.get(word).intValue();
 
 			String stemmedWord = stemmer.normalizeTerm(word);
 
-			if(dictionary.containsKey(stemmedWord)) //transform
+			if (dictionary.containsKey(stemmedWord)) //transform
 			    word = dictionary.get(stemmedWord);
 
-			if(res.get(word) != null) {
+			if (res.get(word) != null) {
 			    count += res.get(word).intValue();
 			    res.put(word, count);
 			} else {//just let it go
@@ -176,16 +198,15 @@ public class TransformTokenFromDictionary extends AbstractExecutableComponent {
 	}
 
 	/**
-	 * @param sMap<String, Stirings>
+	 * @param sMap<String, Strings>
 	 */
 	private void processDictionary(StringsMap sMap) {
-		for(int i=0; i<sMap.getValueCount(); i++)  {//for quicker lookup
+		for (int i=0; i<sMap.getValueCount(); i++)  {//for quicker lookup
 			String key = sMap.getKey(i);
 			String word = sMap.getValue(i).getValue(0);
 			dictionary.put(key, word);
 		}
 	}
-
 
 	/**
 	 * @param iMap<String, Integers>
