@@ -184,21 +184,18 @@ public class TextCleaner extends AbstractExecutableComponent{
 		}
 
 		for(int i=1; i<=NUM; i++) {
-			String propertyName = FIND;
-			propertyName = (i==1)? propertyName: propertyName+"_"+Integer.toString(i);
+			String propertyName = "find";
+			propertyName = (i==1)? propertyName: propertyName+Integer.toString(i);
 			regex = cc.getProperty(propertyName);
+			if(regex!=null) {
+				pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+				matcher = pattern.matcher(text);
 
-			if(regex!=null && regex.trim().length()!=0) {
-				propertyName = REPLACE;
-				propertyName = (i==1)? propertyName: propertyName+"_"+Integer.toString(i);
-
+				propertyName = "replace";
+				propertyName = (i==1)? propertyName: propertyName+Integer.toString(i);
 				String replacement = cc.getProperty(propertyName);
-
-				if(replacement!=null && replacement.trim().length()!=0) {
-					pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-					matcher = pattern.matcher(text);
+				if(replacement!=null)
 					text = matcher.replaceAll(replacement);
-				}
 			}
 		}
 
