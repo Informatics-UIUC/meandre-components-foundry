@@ -48,6 +48,7 @@ import java.net.URI;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.Level;
 
@@ -62,8 +63,6 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
@@ -268,14 +267,18 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     protected void handleStreamInitiators() throws Exception {
-        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_XML);
-        componentContext.pushDataComponentToOutput(OUT_HTML, si);
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_MIN_YEAR, IN_MAX_YEAR, IN_XML })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_HTML, componentContext.getDataComponentFromInput(IN_XML));
     }
 
     @Override
     protected void handleStreamTerminators() throws Exception {
-        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_XML);
-        componentContext.pushDataComponentToOutput(OUT_HTML, st);
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_MIN_YEAR, IN_MAX_YEAR, IN_XML })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_HTML, componentContext.getDataComponentFromInput(IN_XML));
     }
 
     //--------------------------------------------------------------------------------------------

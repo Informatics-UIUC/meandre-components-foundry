@@ -70,11 +70,9 @@ public abstract class Names {
 	public static final String PORT_LOCATION_VECTOR = "location_vector";
 	public static final String PORT_LONGITUDE_VECTOR = "longitude_vector";
 	public static final String PORT_MAX_VALUE = "max_value";
-	public static final String PORT_MAX_YEAR = "max_year";
 	public static final String PORT_META_TUPLE = "meta_tuple";
 	public static final String PORT_MIME_TYPE = "mime_type";
 	public static final String PORT_MIN_VALUE = "min_value";
-	public static final String PORT_MIN_YEAR = "min_year";
 	public static final String PORT_NO_DATA = "no_data";
 	public static final String PORT_OBJECT = "object";
 	public static final String PORT_OBJECT_2 = "object2";

@@ -42,8 +42,11 @@
 
 package org.seasr.meandre.components.transform.xml;
 
+import java.util.Arrays;
+
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
+import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -51,11 +54,12 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
 /**
@@ -73,12 +77,34 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "date, xsl, filter",
-        description = "This component generates an xsl template to filter an xml file and include only "
-            + "the dates between the minimum and maximum year. This is used to filter the Simile xml file that is generated.",
+        description = "This component generates an xsl template to filter an xml file and include only " +
+                      "the dates between the minimum and maximum year. This is used to filter the Simile xml file that is generated.",
         dependency = { "protobuf-java-2.2.0.jar", "velocity-1.6.2-dep.jar" },
         resources = { "DateFilter.vm" }
 )
 public class DateFilter extends AbstractExecutableComponent {
+
+    //------------------------------ INPUTS ------------------------------------------------------
+
+    @ComponentInput(
+            name = Names.PORT_MIN_VALUE,
+            description = "The minimum year in input document." +
+                "<br>TYPE: java.lang.Integer" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Integers" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String IN_MIN_YEAR = Names.PORT_MIN_VALUE;
+
+    @ComponentInput(
+            name = Names.PORT_MAX_VALUE,
+            description = "The maximum year in input document." +
+                "<br>TYPE: java.lang.Integer" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Integers" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String IN_MAX_YEAR = Names.PORT_MAX_VALUE;
 
     // ------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -90,41 +116,34 @@ public class DateFilter extends AbstractExecutableComponent {
     protected static final String OUT_XSL = Names.PORT_XSL;
 
     @ComponentOutput(
-            name = Names.PORT_MIN_YEAR,
+            name = Names.PORT_MIN_VALUE,
             description = "The minimum year." +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String OUT_MIN_YEAR = Names.PORT_MIN_YEAR;
+    protected static final String OUT_MIN_YEAR = Names.PORT_MIN_VALUE;
 
     @ComponentOutput(
-            name = Names.PORT_MAX_YEAR,
+            name = Names.PORT_MAX_VALUE,
             description = "The maximum year." +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String OUT_MAX_YEAR = Names.PORT_MAX_YEAR;
+    protected static final String OUT_MAX_YEAR = Names.PORT_MAX_VALUE;
 
     // ------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
             name = Names.PROP_MIN_VALUE,
-            description = "The minimum year to include in the xsl template.",
+            description = "The minimum year cutoff value.",
             defaultValue = "1600"
     )
     protected static final String PROP_MIN_VALUE = Names.PROP_MIN_VALUE;
 
     @ComponentProperty(
             name = Names.PROP_MAX_VALUE,
-            description = "The maximum year to include in the xsl template.",
+            description = "The maximum year cutoff value.",
             defaultValue = "1800"
     )
     protected static final String PROP_MAX_VALUE = Names.PROP_MAX_VALUE;
-
-    @ComponentProperty(
-            name = Names.PROP_WRAP_STREAM,
-            description = "Should the pushed message be wrapped as a stream. ",
-            defaultValue = "false"
-    )
-    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
     //--------------------------------------------------------------------------------------------
 
@@ -133,51 +152,77 @@ public class DateFilter extends AbstractExecutableComponent {
     private static final VelocityTemplateService velocity = VelocityTemplateService.getInstance();
 
     /** The min year and max year to use */
-    private int minYear, maxYear;
-
-    private boolean streamOutput = false;
+    private int propMinYear, propMaxYear;
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        minYear = Integer.parseInt(ccp.getProperty(PROP_MIN_VALUE));
-        maxYear = Integer.parseInt(ccp.getProperty(PROP_MAX_VALUE));
+        propMinYear = Integer.parseInt(ccp.getProperty(PROP_MIN_VALUE));
+        propMaxYear = Integer.parseInt(ccp.getProperty(PROP_MAX_VALUE));
 
-        streamOutput = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
+        if (propMinYear > propMaxYear)
+            throw new ComponentContextException(
+                    String.format("%d > %d: Minimum value should be smaller or equal to max value",
+                            PROP_MIN_VALUE, PROP_MAX_VALUE));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
 
-        VelocityContext context = velocity.getNewContext();
+        Integer[] inputMin = DataTypeParser.parseAsInteger(cc.getDataComponentFromInput(IN_MIN_YEAR));
+        Integer[] inputMax = DataTypeParser.parseAsInteger(cc.getDataComponentFromInput(IN_MAX_YEAR));
 
-        context.put("min_year", minYear);
-        context.put("max_year", maxYear);
+        if (inputMin.length != inputMax.length)
+            throw new ComponentExecutionException("Inputs are not properly balanced. Both inputs should contain the same number of elements.");
 
-        String xsl = velocity.generateOutput(context, DEFAULT_TEMPLATE);
-/*
-        if (streamOutput) {
-            StreamInitiator si = new StreamInitiator();
-            cc.pushDataComponentToOutput(OUT_MIN_YEAR, si);
-            cc.pushDataComponentToOutput(OUT_MAX_YEAR, si);
-            cc.pushDataComponentToOutput(OUT_XSL, si);
+        for (int i = 0, iMax = inputMin.length; i < iMax; i++) {
+            int inMinYear = inputMin[i];
+            int inMaxYear = inputMax[i];
+
+            if (inMinYear > inMaxYear)
+                console.warning(String.format("%d > %d: Input minimum value should be smaller or equal to input max value",
+                        IN_MIN_YEAR, IN_MAX_YEAR));
+
+            int minYear = Math.max(inMinYear, propMinYear);
+            int maxYear = Math.min(inMaxYear, propMaxYear);
+
+            VelocityContext context = velocity.getNewContext();
+
+            context.put("min_year", minYear);
+            context.put("max_year", maxYear);
+
+            String xsl = velocity.generateOutput(context, DEFAULT_TEMPLATE);
+
+            cc.pushDataComponentToOutput(OUT_MIN_YEAR, BasicDataTypesTools.integerToIntegers(minYear));
+            cc.pushDataComponentToOutput(OUT_MAX_YEAR, BasicDataTypesTools.integerToIntegers(maxYear));
+            cc.pushDataComponentToOutput(OUT_XSL, BasicDataTypesTools.stringToStrings(xsl));
         }
-*/
-        cc.pushDataComponentToOutput(OUT_MIN_YEAR, BasicDataTypesTools.integerToIntegers(minYear));
-        cc.pushDataComponentToOutput(OUT_MAX_YEAR, BasicDataTypesTools.integerToIntegers(maxYear));
-        cc.pushDataComponentToOutput(OUT_XSL, BasicDataTypesTools.stringToStrings(xsl));
-/*
-        if (streamOutput) {
-            StreamTerminator st = new StreamTerminator();
-            cc.pushDataComponentToOutput(OUT_MIN_YEAR, st);
-            cc.pushDataComponentToOutput(OUT_MAX_YEAR, st);
-            cc.pushDataComponentToOutput(OUT_XSL, st);
-        }*/
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_MIN_YEAR, IN_MAX_YEAR })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_MIN_YEAR, componentContext.getDataComponentFromInput(IN_MIN_YEAR));
+        componentContext.pushDataComponentToOutput(OUT_MAX_YEAR, componentContext.getDataComponentFromInput(IN_MAX_YEAR));
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_MIN_YEAR, IN_MAX_YEAR })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_MIN_YEAR, componentContext.getDataComponentFromInput(IN_MIN_YEAR));
+        componentContext.pushDataComponentToOutput(OUT_MAX_YEAR, componentContext.getDataComponentFromInput(IN_MAX_YEAR));
+    }
+
 }
