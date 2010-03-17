@@ -5,27 +5,27 @@ version="1.0">
 <xsl:template match="/">
 <data>
 	<xsl:for-each select="data/event">
-	
+
 	<xsl:variable name="len" select="string-length(@start)-3" />
 	<xsl:choose>
 
 	<xsl:when test="$len &lt;= 1">
 		<xsl:if test="@start &gt;= $min_year">
-			<xsl:if test="@start &lt; $max_year">
-				<xsl:copy-of select="."/> 
+			<xsl:if test="@start &lt;= $max_year">
+				<xsl:copy-of select="."/>
 			</xsl:if>
-		</xsl:if>	
+		</xsl:if>
 	</xsl:when>
-	
+
 	<xsl:otherwise>
 		<xsl:variable name="year" select="normalize-space(substring(@start, $len, 4))" />
 		<xsl:if test="$year &gt;= $min_year">
-			<xsl:if test="$year &lt; $max_year">
-				<xsl:copy-of select="."/> 
+			<xsl:if test="$year &lt;= $max_year">
+				<xsl:copy-of select="."/>
 			</xsl:if>
-		</xsl:if>	
+		</xsl:if>
 	</xsl:otherwise>
-	
+
 	</xsl:choose>
 	</xsl:for-each>
 </data>
