@@ -168,6 +168,15 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
     
     //------------------------------ OUTPUTS ------------------------------------------------------
 
+	@ComponentOutput(
+			name = Names.PORT_TEXT,
+			description = "The processed text (this will be replaced with tuples soon"
+	)
+	protected static final String OUT_TEXT = Names.PORT_TEXT;
+	
+	 //--------------------------------------------------------------------------------------------
+	
+	
 /*
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
@@ -175,14 +184,15 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
-
+*/
+	
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples: (pos,sentenceId,offset,token)" +
+			description = "meta data for tuples: (text)" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;	
-	*/
+	
 
 	SimpleTuplePeer tuplePeer;
 
@@ -230,8 +240,9 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 		sentenceId   = 0;
 		startIdx     = 0;
 		
-		String[] fields =
-    		new String[] {POS_FIELD, SENTENCE_ID_FIELD, TOKEN_START_FIELD, TOKEN_FIELD};
+		String[] fields = new String[]{"text"};
+		
+    		// new String[] {POS_FIELD, SENTENCE_ID_FIELD, TOKEN_START_FIELD, TOKEN_FIELD};
 
     	this.tuplePeer = new SimpleTuplePeer(fields);
 	}
@@ -304,12 +315,13 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 		StringReader reader = new StringReader(text);
 		List<Sentence<? extends HasWord>> sentences = MaxentTagger.tokenizeText(reader);
 		
-		
+		/*
 		SimpleTuple tuple   = tuplePeer.createTuple();
 		int POS_IDX         = tuplePeer.getIndexForFieldName(POS_FIELD);
 		int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
 		int TOKEN_START_IDX = tuplePeer.getIndexForFieldName(TOKEN_START_FIELD);
 		int TOKEN_IDX       = tuplePeer.getIndexForFieldName(TOKEN_FIELD);
+		*/
 		
         
 		List<Strings> output = new ArrayList<Strings>();
@@ -328,18 +340,14 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 			Tree parse = (Tree) parser.apply(fixed);
 			List<String[]> parts = singleSentenceParse(parse);
 			
-			
+			sb.setLength(0);
 	        for (String[] col : parts) {
 	        	String rest = StringUtils.join(col, SEP);
-	        	
 	        	sb.append(prefix);
 	 	        sb.append(rest);
-	 	        sb.append(SEP + "\n");
+	 	        sb.append(SEP).append("\n");
 	        }
-	        
-	       
-	          
-
+	        output.add(BasicDataTypesTools.stringToStrings(sb.toString()));
 
 			//String sText = sentence.toString();
 			//console.info("text is " + sText);
@@ -374,7 +382,14 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 		      //console.info(tSentence.toString(false));
 		}
 		
-		console.info(sb.toString());
+		
+		 Strings[] results = new Strings[output.size()];
+		 output.toArray(results);
+
+		 StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
+		 cc.pushDataComponentToOutput(OUT_TEXT, outputSafe);
+		 
+		    
 		
 		/*
 		// push the whole collection, protocol safe
@@ -383,13 +398,14 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 
 	    StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
 	    cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+	    */
 
 	    //
 		// metaData for this tuple producer
 		//
 	    Strings metaData = tuplePeer.convert();
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
-	    */
+	   
     }
 
 	@Override
