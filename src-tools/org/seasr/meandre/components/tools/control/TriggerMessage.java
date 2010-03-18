@@ -100,8 +100,8 @@ public class TriggerMessage extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 	        name = Names.PORT_OBJECT,
-	        description = "THe Object that has been saved." +
-                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+	        description = "The Object that has been saved." +
+                          "<br>TYPE: java.lang.Object"
 	)
 	protected static final String OUT_OBJECT = Names.PORT_OBJECT;
 
