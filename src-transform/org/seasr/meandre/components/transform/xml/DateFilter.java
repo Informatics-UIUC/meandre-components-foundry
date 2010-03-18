@@ -214,6 +214,7 @@ public class DateFilter extends AbstractExecutableComponent {
 
         componentContext.pushDataComponentToOutput(OUT_MIN_YEAR, componentContext.getDataComponentFromInput(IN_MIN_YEAR));
         componentContext.pushDataComponentToOutput(OUT_MAX_YEAR, componentContext.getDataComponentFromInput(IN_MAX_YEAR));
+        componentContext.pushDataComponentToOutput(OUT_XSL, componentContext.getDataComponentFromInput(IN_MIN_YEAR));
     }
 
     @Override
@@ -223,6 +224,7 @@ public class DateFilter extends AbstractExecutableComponent {
 
         componentContext.pushDataComponentToOutput(OUT_MIN_YEAR, componentContext.getDataComponentFromInput(IN_MIN_YEAR));
         componentContext.pushDataComponentToOutput(OUT_MAX_YEAR, componentContext.getDataComponentFromInput(IN_MAX_YEAR));
+        componentContext.pushDataComponentToOutput(OUT_XSL, componentContext.getDataComponentFromInput(IN_MIN_YEAR));
     }
 
 }
