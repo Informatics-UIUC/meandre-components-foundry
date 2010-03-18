@@ -305,7 +305,7 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 		
 		String text = val[0];
 		int idx = text.lastIndexOf(SEP);
-		String prefix = text.substring(0,idx+1);
+		String prefix = text.substring(0,idx+1); // safe even if idx == -1
 		text = text.substring(idx+1);
 		
 		
@@ -336,7 +336,7 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 			
 			Sentence<? extends HasWord> fixed = fixSentence(sentence);
 			
-			console.info("Processing\n" + fixed);
+			console.fine("Processing\n" + fixed);
 			Tree parse = (Tree) parser.apply(fixed);
 			List<String[]> parts = singleSentenceParse(parse);
 			
