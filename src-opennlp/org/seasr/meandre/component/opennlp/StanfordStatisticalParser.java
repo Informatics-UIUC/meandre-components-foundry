@@ -91,7 +91,8 @@ import edu.stanford.nlp.trees.TreePrint;
 
 /**
  * Provides a statistical parser using the Stanford's NER components.
- *
+ *  DO NOT USE.  It is a hack job for a specific use case.
+ *  This component will be refactored into an actual usable statistical parser
  * @author Mike Haberman
  */
 
@@ -126,7 +127,7 @@ import edu.stanford.nlp.trees.TreePrint;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
-		description = "This component performs pos tagging using Stanford's NLP facilities",
+		description = "This component is NOT for general Use. DO NOT USE.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "stanfordParsers.jar", "seasr-commons.jar"}
 )
 public class StanfordStatisticalParser extends AbstractExecutableComponent {
