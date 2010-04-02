@@ -134,14 +134,14 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	
 	@ComponentProperty(
 			name = "hostURL",
-			description = "protocol://host/database: eg. jdbc:mysql://localhost/testDB",
+			description = "protocol://host/database eg. jdbc:mysql://localhost/testDB",
 		    defaultValue = ""
 	)
 	protected static final String PROP_URL = "hostURL";
 	
 	@ComponentProperty(
 			name = "select",
-			description = "e.g. select * from a,b where a.id = b.id",
+			description = "select statement whose contents will be pushed out e.g. select * from a,b where a.id = b.id",
 		    defaultValue = ""
 	)
 	protected static final String PROP_SELECT = "select";
