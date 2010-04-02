@@ -117,7 +117,13 @@ public class SQLToTuple extends AbstractExecutableComponent {
 
 
 	//----------------------------- PROPERTIES ---------------------------------------------------
-
+	@ComponentProperty(
+			name = "select",
+			description = "select statement whose contents will be pushed out e.g. select * from a,b where a.id = b.id",
+		    defaultValue = ""
+	)
+	protected static final String PROP_SELECT = "select";
+	
 	@ComponentProperty(
 			name = "user",
 			description = "user",
@@ -133,19 +139,18 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	protected static final String PROP_PASSWORD = "password";
 	
 	@ComponentProperty(
-			name = "hostURL",
-			description = "protocol://host/database eg. jdbc:mysql://localhost/testDB",
+			name = "hostDB",
+			description = "host/database eg. localhost/testDB",
 		    defaultValue = ""
 	)
-	protected static final String PROP_URL = "hostURL";
+	protected static final String PROP_DB = "hostDB";
 	
 	@ComponentProperty(
-			name = "select",
-			description = "select statement whose contents will be pushed out e.g. select * from a,b where a.id = b.id",
-		    defaultValue = ""
+			name = "protocol",
+			description = "jdbc protocol for hostURL",
+		    defaultValue = "jdbc:mysql://"
 	)
-	protected static final String PROP_SELECT = "select";
-	
+	protected static final String PROP_PROTOCOL = "protocol";
 	
 	@ComponentProperty(
 			name = "JDBCDriver",
@@ -171,16 +176,20 @@ public class SQLToTuple extends AbstractExecutableComponent {
     {
 		String user        = ccp.getProperty(PROP_USER).trim();
 	    String password    = ccp.getProperty(PROP_PASSWORD).trim();
-	    String hostURL     = ccp.getProperty(PROP_URL).trim();
+	    String protocol    = ccp.getProperty(PROP_PROTOCOL).trim();
+	    String hostDB     = ccp.getProperty(PROP_DB).trim();
 	    String JDBC_DRIVER = ccp.getProperty(PROP_JDBC).trim();
 	    
-	    SQL    = ccp.getProperty(PROP_SELECT).trim();
+	    SQL = ccp.getProperty(PROP_SELECT).trim();
+	    
+	    String fullURL = protocol + hostDB + "?" + "user="+user + "&password="+password;
+	    console.info("connect using " + fullURL);
 	    
 		// This will load the MySQL driver, each DB has its own driver
 		Class.forName(JDBC_DRIVER);
 		
 		// Setup the connection with the DB
-		connect = DriverManager.getConnection(hostURL + "?" + "user="+user + "&password="+password);
+		connect = DriverManager.getConnection(fullURL);
 	}
 
 	@Override
