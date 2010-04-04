@@ -182,14 +182,16 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	    
 	    SQL = ccp.getProperty(PROP_SELECT).trim();
 	    
-	    String fullURL = protocol + hostDB + "?" + "user="+user + "&password="+password;
+	    //String fullURL = protocol + hostDB + "?" + "user="+user + "&password="+password;
+	    String fullURL = protocol + hostDB;
+	    
 	    console.info("connect using " + fullURL);
 	    
 		// This will load the MySQL driver, each DB has its own driver
 		Class.forName(JDBC_DRIVER);
 		
 		// Setup the connection with the DB
-		connect = DriverManager.getConnection(fullURL);
+		connect = DriverManager.getConnection(fullURL, user, password);
 	}
 
 	@Override
