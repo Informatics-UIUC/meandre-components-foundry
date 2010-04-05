@@ -201,18 +201,19 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 		
 		if (LAT_IDX == -1 || LONG_IDX == -1) {
 			
-			console.info("no fields " + latField + " " + lngField);
-			console.info("trying type/text and location");
+			console.info("tuple has no fields " + latField + " " + lngField);
+			console.info("trying location");
 			
-			TYPE_IDX = tuplePeer.getIndexForFieldName("type");
-			TEXT_IDX = tuplePeer.getIndexForFieldName("text");
-
 			LOCATION_IDX = tuplePeer.getIndexForFieldName("location");
 			if (LOCATION_IDX == -1) {
+				
+				console.info("tuple has no field named location");
+				TYPE_IDX = tuplePeer.getIndexForFieldName("type");
+				TEXT_IDX = tuplePeer.getIndexForFieldName("text");
 
 				if (TYPE_IDX == -1 || TEXT_IDX == -1) {
 					console.info(tuplePeer.toString());
-					throw new RuntimeException("no type/text field");
+					throw new RuntimeException("tuple has no field type,text");
 				}
 			}
 		}
@@ -232,7 +233,7 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 				String lat = tuple.getValue(LAT_IDX);
 				String lng = tuple.getValue(LONG_IDX);
 				
-				GeoLocation geo = new GeoLocation(Long.parseLong(lat), Long.parseLong(lng));
+				GeoLocation geo = new GeoLocation(Double.parseDouble(lat), Double.parseDouble(lng));
 				geos.add(geo);
 				
 				continue;
