@@ -172,6 +172,9 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 	    console.info("max locations " + maxLocations);
 	}
 
+	String latField = "latitude";
+	String lngField = "longitude";
+	
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
     	//
@@ -190,25 +193,50 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 		// we can get location values directly from the data
 		// or by looking at a "type" and "text" values
 		//
-		int TYPE_IDX = tuplePeer.getIndexForFieldName("type");
-		int TEXT_IDX = tuplePeer.getIndexForFieldName("text");
+		int LAT_IDX  = tuplePeer.getIndexForFieldName(latField);
+		int LONG_IDX = tuplePeer.getIndexForFieldName(lngField);
+		int TYPE_IDX = -1;
+		int TEXT_IDX = -1;
+		int LOCATION_IDX = -1;
+		
+		if (LAT_IDX == -1 || LONG_IDX == -1) {
+			
+			console.info("no fields " + latField + " " + lngField);
+			console.info("trying type/text and location");
+			
+			TYPE_IDX = tuplePeer.getIndexForFieldName("type");
+			TEXT_IDX = tuplePeer.getIndexForFieldName("text");
 
-		int LOCATION_IDX = tuplePeer.getIndexForFieldName("location");
-		if (LOCATION_IDX == -1) {
+			LOCATION_IDX = tuplePeer.getIndexForFieldName("location");
+			if (LOCATION_IDX == -1) {
 
-			if (TYPE_IDX == -1 || TEXT_IDX == -1) {
-				console.info(tuplePeer.toString());
-				throw new RuntimeException("no type/text field");
+				if (TYPE_IDX == -1 || TEXT_IDX == -1) {
+					console.info(tuplePeer.toString());
+					throw new RuntimeException("no type/text field");
+				}
 			}
 		}
 
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-		List<GeoLocation> geo = new ArrayList<GeoLocation>();
+		List<GeoLocation> geos = new ArrayList<GeoLocation>();
 
 		for (int i = 0; i < in.length; i++) {
+			
 			tuple.setValues(in[i]);
+			
+			
+			if (LAT_IDX != -1 && LONG_IDX != -1) {
+				
+				String lat = tuple.getValue(LAT_IDX);
+				String lng = tuple.getValue(LONG_IDX);
+				
+				GeoLocation geo = new GeoLocation(Long.parseLong(lat), Long.parseLong(lng));
+				geos.add(geo);
+				
+				continue;
+			}
 
 			//
 			// get the location data
@@ -233,7 +261,7 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 				for (GeoLocation g: locations) {
 					// console.info("found " + g.toString());
 					if (g.isValid()) {
-						geo.add(g);
+						geos.add(g);
 					}
 					else {
 						console.info("Unable to find " + location);
@@ -247,15 +275,15 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 				break;
 			}
 
-			if (maxLocations > 0 && geo.size() > maxLocations) {
+			if (maxLocations > 0 && geos.size() > maxLocations) {
 				break;
 			}
 
 		}
 
-		context.put("geoList", geo);
+		context.put("geoList", geos);
 
-		console.info("Ready to view google maps with locations " + geo.size());
+		console.info("Ready to view google maps with locations " + geos.size());
 
 		//
     	// now wait for the user to access the webUI
