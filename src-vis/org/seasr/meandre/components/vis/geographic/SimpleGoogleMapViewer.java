@@ -56,6 +56,7 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
@@ -224,7 +225,7 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 
 				if (TYPE_IDX == -1 || TEXT_IDX == -1) {
 					console.info(tuplePeer.toString());
-					throw new RuntimeException("tuple has no fields: " + typeField + "," + textField);
+					throw new ComponentExecutionException("tuple has no fields: " + typeField + "," + textField);
 				}
 			}
 		}
