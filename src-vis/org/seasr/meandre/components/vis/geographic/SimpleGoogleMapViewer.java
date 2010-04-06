@@ -172,11 +172,25 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 	    console.info("max locations " + maxLocations);
 	}
 
-	String latField = "latitude";
-	String lngField = "longitude";
+	
+	//
+	// TODO: type/text/location should be properties
+	//
+	// the tuple must have either:
+	// 1. a latitude and longitude field
+	// 2. location field (who's value is be looked up)
+	// 3. type field (who's value is "location") and a text field (who's value is to be looked up)
+	//
+	
+	String locationField = "location";
+	String typeField     = "type";
+	String textField     = "text";
+	String latField      = "latitude";
+	String lngField      = "longitude";
 	
     @Override
-    public void executeCallBack(ComponentContext cc) throws Exception {
+    public void executeCallBack(ComponentContext cc) throws Exception 
+    {
     	//
     	// fetch the input, push it to the context
     	//
@@ -186,34 +200,31 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 		SimpleTuple tuple = tuplePeer.createTuple();
 
 		//
-		// TODO: type/text/location should be properties
-		//
-
-		//
 		// we can get location values directly from the data
 		// or by looking at a "type" and "text" values
 		//
 		int LAT_IDX  = tuplePeer.getIndexForFieldName(latField);
 		int LONG_IDX = tuplePeer.getIndexForFieldName(lngField);
-		int TYPE_IDX = -1;
-		int TEXT_IDX = -1;
+		
+		int TYPE_IDX     = -1;
+		int TEXT_IDX     = -1;
 		int LOCATION_IDX = -1;
 		
 		if (LAT_IDX == -1 || LONG_IDX == -1) {
 			
 			console.info("tuple has no fields " + latField + " " + lngField);
-			console.info("trying location");
+			console.info("trying " + locationField);
 			
-			LOCATION_IDX = tuplePeer.getIndexForFieldName("location");
+			LOCATION_IDX = tuplePeer.getIndexForFieldName(locationField);
 			if (LOCATION_IDX == -1) {
 				
-				console.info("tuple has no field named location");
-				TYPE_IDX = tuplePeer.getIndexForFieldName("type");
-				TEXT_IDX = tuplePeer.getIndexForFieldName("text");
+				console.info("tuple has no field named " + locationField);
+				TYPE_IDX = tuplePeer.getIndexForFieldName(typeField);
+				TEXT_IDX = tuplePeer.getIndexForFieldName(textField);
 
 				if (TYPE_IDX == -1 || TEXT_IDX == -1) {
 					console.info(tuplePeer.toString());
-					throw new RuntimeException("tuple has no field type,text");
+					throw new RuntimeException("tuple has no fields: " + typeField + "," + textField);
 				}
 			}
 		}
@@ -248,7 +259,7 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 			}
 			else {
 				String type = tuple.getValue(TYPE_IDX);
-				if (! type.equals("location")) {
+				if (! type.equals(locationField)) {
 					continue;
 				}
 				location = tuple.getValue(TEXT_IDX);
