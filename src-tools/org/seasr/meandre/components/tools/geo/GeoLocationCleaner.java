@@ -57,6 +57,7 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
@@ -213,10 +214,10 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 
 		if (KEY_IDX == -1){
 			console.info(inPeer.toString());
-			throw new RuntimeException("tuple has no key field " + keyField);
+			throw new ComponentExecutionException("tuple has no key field " + keyField);
 		}
 		if (START_IDX == -1){
-			throw new RuntimeException("tuple has no window field " + windowField);
+			throw new ComponentExecutionException("tuple has no window field " + windowField);
 		}
 
 		List<Strings> output = new ArrayList<Strings>();
@@ -393,6 +394,7 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 				if (geosB.size() == 1) {
 					geoB = geosB.get(0);
 				}
+		
 				
     			if (geoA != null && geoB != null) {
     				

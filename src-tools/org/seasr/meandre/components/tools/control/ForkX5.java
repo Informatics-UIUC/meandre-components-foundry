@@ -56,6 +56,7 @@ import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.meandre.components.tools.Names;
@@ -165,7 +166,7 @@ public class ForkX5 extends AbstractExecutableComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         fn = ccp.getProperty(PROP_REPLICATION_MODE);
         if (fn == null || fn.length() == 0)
-            throw new RuntimeException("No replication mode given.");
+            throw new ComponentExecutionException("No replication mode given.");
     }
 
     public void executeCallBack(ComponentContext cc) throws Exception {

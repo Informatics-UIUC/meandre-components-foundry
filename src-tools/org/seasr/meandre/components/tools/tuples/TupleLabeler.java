@@ -57,6 +57,7 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
@@ -189,10 +190,10 @@ public class TupleLabeler extends AbstractExecutableComponent {
 		String v = ccp.getProperty(DATA_PROPERTY_FIELDNAME_HASH_VALUE);
 
 		if (k == null || k.trim().length() == 0) {
-			throw new RuntimeException("invalid property value " + DATA_PROPERTY_FIELDNAME_HASH_KEY);
+			throw new ComponentExecutionException("invalid property value " + DATA_PROPERTY_FIELDNAME_HASH_KEY);
 		}
 		if (v == null || v.trim().length() == 0) {
-			throw new RuntimeException("invalid property value " + DATA_PROPERTY_FIELDNAME_HASH_VALUE);
+			throw new ComponentExecutionException("invalid property value " + DATA_PROPERTY_FIELDNAME_HASH_VALUE);
 		}
 
 		this.hashKeyFieldName   = k;
@@ -221,10 +222,10 @@ public class TupleLabeler extends AbstractExecutableComponent {
 		int VALUE_IDX = inPeer.getIndexForFieldName(hashValueFieldName);  // value
 
 		if (KEY_IDX == -1) {
-			throw new RuntimeException("hash tuple has no field named " + hashKeyFieldName);
+			throw new ComponentExecutionException("hash tuple has no field named " + hashKeyFieldName);
 		}
 		if (VALUE_IDX == -1) {
-			throw new RuntimeException("has tuple have no field named " + hashValueFieldName);
+			throw new ComponentExecutionException("has tuple have no field named " + hashValueFieldName);
 		}
 
 		Map<String,String> wordToConceptMap = new HashMap<String,String>();
@@ -251,7 +252,7 @@ public class TupleLabeler extends AbstractExecutableComponent {
 
 		KEY_IDX = inPeer.getIndexForFieldName(keyFieldName);
 		if (KEY_IDX == -1) {
-			throw new RuntimeException("tuple has no field named " + keyFieldName);
+			throw new ComponentExecutionException("tuple has no field named " + keyFieldName);
 		}
 
 		console.info("output peer " + outPeer.toString());

@@ -49,6 +49,7 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
@@ -122,7 +123,7 @@ public class HTMLTextExtractor extends AbstractExecutableComponent {
             if (text == null) {
             	String msg = "Unable to get any text from " + html;
             	console.info(msg);
-            	throw new RuntimeException(msg);
+            	throw new ComponentExecutionException(msg);
             }
             cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
         }

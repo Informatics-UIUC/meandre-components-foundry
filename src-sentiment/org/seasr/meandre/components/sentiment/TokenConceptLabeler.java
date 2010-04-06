@@ -65,6 +65,7 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
@@ -284,7 +285,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 		int CONCEPT_IDX = outPeer.getIndexForFieldName("concept");
 
 		if (TOKEN_IDX == -1) {
-			throw new RuntimeException("incoming tuple has no field named " + keyFieldName);
+			throw new ComponentExecutionException("incoming tuple has no field named " + keyFieldName);
 		}
 
 		console.info("tuple count to label " + in.length);

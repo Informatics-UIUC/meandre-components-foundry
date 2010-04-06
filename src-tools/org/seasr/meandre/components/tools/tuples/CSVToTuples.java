@@ -57,6 +57,7 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
@@ -143,7 +144,7 @@ public class CSVToTuples extends AbstractExecutableComponent {
 		String[] vals = colNames.split(",");
 
 		if (colNames.length() == 0 || vals.length == 0) {
-			throw new RuntimeException(DATA_PROPERTY_COLUMN_NAMES + " needs to be set");
+			throw new ComponentExecutionException(DATA_PROPERTY_COLUMN_NAMES + " needs to be set");
 		}
 
 		outPeer = new SimpleTuplePeer(vals);

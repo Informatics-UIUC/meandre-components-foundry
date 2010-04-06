@@ -52,6 +52,7 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
@@ -144,7 +145,7 @@ public class TupleValueToString extends AbstractExecutableComponent {
 
 		int FIELD_IDX = tuplePeer.getIndexForFieldName(fieldname);
 		if (FIELD_IDX == -1) {
-			throw new RuntimeException("tuple has no field named " + fieldname);
+			throw new ComponentExecutionException("tuple has no field named " + fieldname);
 		}
 
 		SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] {fieldname});

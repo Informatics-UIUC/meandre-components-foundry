@@ -116,7 +116,8 @@ public class TupleLogger  extends AbstractExecutableComponent {
 	}
 
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception {
+    public void executeCallBack(ComponentContext cc) throws Exception 
+    {
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
 		console.info(tuplePeer.toString());
