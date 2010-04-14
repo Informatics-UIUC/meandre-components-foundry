@@ -78,7 +78,6 @@ import java.sql.ResultSetMetaData;
 
 
 
-
 /**
  * This component reads from an sql SELECT pushes its content inside of a tuple
  *
