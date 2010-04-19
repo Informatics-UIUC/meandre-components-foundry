@@ -53,7 +53,16 @@ public class TupleUtilities {
 
 	}
 
-
+    public static int getFieldIndexFromName(SimpleTuplePeer peer, 
+    		                                String fieldName,
+    		                                Map<String,String> map)
+    {
+    	if (map.containsKey(fieldName)) {
+    		fieldName = map.get(fieldName);
+    	}
+    	return peer.getIndexForFieldName(fieldName);
+    }
+    
 	static String regEx = "[\"\'()]+";
 	public static String normalizeText(String text)
 	{
