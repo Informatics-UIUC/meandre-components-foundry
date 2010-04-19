@@ -42,9 +42,14 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
+import java.util.StringTokenizer;
+import java.util.List;
+import java.util.ArrayList;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
@@ -110,9 +115,32 @@ public class TupleLogger  extends AbstractExecutableComponent {
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
     //--------------------------------------------------------------------------------------------
+	
+	@ComponentProperty(
+			name = "columnSet",
+			description = "optional, specifiy a subset of fields to print (e.g 1,3,5) ",
+		    defaultValue = ""
+	)
+	protected static final String PROP_COL = "columnSet";
 
+	List<Integer> idxList = null;
+	String[] values = null;
+	
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
+		String cols = ccp.getProperty(PROP_COL);
+		if (cols != null && cols.trim().length() > 0) {
+			
+			idxList = new ArrayList<Integer>();
+			StringTokenizer tokens = new StringTokenizer(cols.trim(), ",");
+			while (tokens.hasMoreTokens()) {
+				int i = Integer.parseInt(tokens.nextToken());
+				idxList.add(new Integer(i));
+			}
+			
+			values = new String[idxList.size()];
+		}
 	}
 
 	@Override
@@ -121,13 +149,29 @@ public class TupleLogger  extends AbstractExecutableComponent {
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
 		console.info(tuplePeer.toString());
-
+		
 		SimpleTuple tuple = tuplePeer.createTuple();
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 		for (int i = 0; i < in.length; i++) {
 			tuple.setValues(in[i]);
-			console.info(tuple.toString());
+			if (idxList == null) {
+			   console.info(tuple.toString());
+			}
+			else {
+				
+				for (int j = 0; j < idxList.size(); j++) {
+					int idx = idxList.get(j);
+					if (idx < tuplePeer.size()) {
+					  values[j] = tuple.getValue(idx);
+					}
+					else {
+						console.info("WARNING, index beyond tuple field");
+					}
+				}
+				
+				console.info(SimpleTuplePeer.toString(values));
+			}
 		}
 
 		/*
