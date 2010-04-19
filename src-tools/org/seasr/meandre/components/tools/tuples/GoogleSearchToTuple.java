@@ -42,11 +42,7 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
-import java.io.BufferedReader;
 
-import java.io.File;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
