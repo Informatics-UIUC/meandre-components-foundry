@@ -114,7 +114,9 @@ public abstract class BasicDataTypesTools {
 	 */
 	public static Strings stringToStrings ( String [] sa ){
 		org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
-		for ( String s:sa) res.addValue(s);
+		for (String s:sa) {
+			if (s != null) res.addValue(s);
+		}
 		return res.build();
 	}
 
