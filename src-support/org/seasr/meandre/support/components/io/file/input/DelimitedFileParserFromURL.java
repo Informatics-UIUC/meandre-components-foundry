@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,7 +38,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.meandre.support.components.io.file.input;
 
@@ -52,10 +52,10 @@ import org.seasr.datatypes.table.*;
 /**
  * Reads data from a delimited file. The delimiter is found automatically, or
  * can be set.
- * <p><b>Note:</b>  This module is the same as deprecated module 
- * <i>DelimitedFileParser</i>, extended to access the data through 
+ * <p><b>Note:</b>  This module is the same as deprecated module
+ * <i>DelimitedFileParser</i>, extended to access the data through
  * <i>DataObjectProxy</i>.</p>
- * 
+ *
  * @author  $Author: dfleming $
  * @version $Revision: 1.2 $, $Date: 2007/01/23 23:09:35 $
  */
@@ -116,7 +116,7 @@ public class DelimitedFileParserFromURL implements FlatFileParser {
    /** The theClient to read. */
    //protected DataObjectProxy mDataObj;
    protected WebdavClient client;
-   
+
    /** the resource location. */
    protected String url;
 
@@ -125,7 +125,7 @@ public class DelimitedFileParserFromURL implements FlatFileParser {
 
    /** the number of data rows in the file (does not include meta rows). */
    protected int numRows;
-   
+
    //~ Constructors ************************************************************
 
    /**
@@ -142,7 +142,7 @@ public class DelimitedFileParserFromURL implements FlatFileParser {
     *
     * @throws Exception Description of exception Exception.
     */
-   public DelimitedFileParserFromURL(WebdavClient theClient, 
+   public DelimitedFileParserFromURL(WebdavClient theClient,
                                      String theURL) throws Exception {
       this(theClient, theURL, -1, -1, -1, -1);
    }
@@ -156,10 +156,10 @@ public class DelimitedFileParserFromURL implements FlatFileParser {
     *
     * @throws Exception Description of exception Exception.
     */
-   public DelimitedFileParserFromURL(WebdavClient theClient, 
-                                     String theURL, 
-                                     int _labelsRow) throws Exception { 
-       this(theClient, theURL, _labelsRow, -1, -1, -1); 
+   public DelimitedFileParserFromURL(WebdavClient theClient,
+                                     String theURL,
+                                     int _labelsRow) throws Exception {
+       this(theClient, theURL, _labelsRow, -1, -1, -1);
    }
 
    /**
@@ -172,9 +172,9 @@ public class DelimitedFileParserFromURL implements FlatFileParser {
     *
     * @throws Exception Description of exception Exception.
     */
-   public DelimitedFileParserFromURL(WebdavClient theClient, 
+   public DelimitedFileParserFromURL(WebdavClient theClient,
                                      String theURL,
-                                     int _labelsRow, 
+                                     int _labelsRow,
                                      int _typesRow) throws Exception {
        this(theClient, theURL, _labelsRow, _typesRow, -1, -1);
    }
@@ -190,11 +190,11 @@ public class DelimitedFileParserFromURL implements FlatFileParser {
     *
     * @throws Exception Description of exception Exception.
     */
-   public DelimitedFileParserFromURL(WebdavClient theClient, 
+   public DelimitedFileParserFromURL(WebdavClient theClient,
                                      String theURL,
                                      int _labelsRow,
-                                     int _typesRow, 
-                                     char delim) throws Exception { 
+                                     int _typesRow,
+                                     char delim) throws Exception {
        this(theClient, theURL, _labelsRow, _typesRow, -1, -1, delim); }
 
 
@@ -214,7 +214,7 @@ public class DelimitedFileParserFromURL implements FlatFileParser {
    public DelimitedFileParserFromURL(WebdavClient theClient,
                                      String theURL,
                                      int _labelsRow,
-                                     int _typesRow, 
+                                     int _typesRow,
                                      int _inOutRow,
                                      int _nomScalarRow) throws Exception {
       client = theClient;
@@ -287,12 +287,12 @@ public class DelimitedFileParserFromURL implements FlatFileParser {
     *
     * @throws Exception Description of exception Exception.
     */
-   public DelimitedFileParserFromURL(WebdavClient theClient, 
+   public DelimitedFileParserFromURL(WebdavClient theClient,
                                      String theURL,
                                      int _labelsRow,
-                                     int _typesRow, 
+                                     int _typesRow,
                                      int _inOutRow,
-                                     int _nomScalarRow, 
+                                     int _nomScalarRow,
                                      char delim) throws Exception {
       client = theClient;
       url = theURL;
@@ -737,7 +737,7 @@ public class DelimitedFileParserFromURL implements FlatFileParser {
          }
 
          if (!delimiterFound) {
-            throw new IOException("No delimiter could be found.");
+            throw new IOException("No delimiter could be found in "+url);
          }
       } // end if
 
@@ -1045,9 +1045,9 @@ public class DelimitedFileParserFromURL implements FlatFileParser {
    public void setDelimiter(char d) { delimiter = d; }
 
    public void finalize() {}
-   
+
    /**
-    * 
+    *
     * @return text read from WebDAV.
     */
    public String toText() {
