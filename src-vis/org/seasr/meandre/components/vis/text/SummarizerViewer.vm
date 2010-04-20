@@ -34,7 +34,7 @@ function fillTable() {
 		var cellRight = row.insertCell(1);
 		var textNodeRight = document.createTextNode(listForTokens[i]);
 		cellRight.appendChild(textNodeRight);
-		
+
 	}
 
 	table = document.getElementById('sentences');
@@ -51,7 +51,7 @@ function fillTable() {
 		var cellRight = row.insertCell(1);
 		var textNodeRight = document.createTextNode(listForSentences[i]);
 		cellRight.appendChild(textNodeRight);
-		
+
 	}
 }
 
@@ -63,16 +63,16 @@ function fillTable() {
 <table cellspacing="20">
 <tr>
 
-<td>
+<td valign="top">
 <table border="1" cellspacing="0" cellpadding="3" id="tokens">
 <tr><th bgcolor="#FFF4F4" colspan="2">Top Tokens</th></tr>
-</table> 
+</table>
 </td>
 
-<td valign="top"> 
+<td valign="top">
 <table border="1" cellspacing="0" cellpadding="3" id="sentences">
 <tr><th bgcolor="#FFF4F4" colspan="2">Top Sentences</th></tr>
-</table> 
+</table>
 </td>
 
 </tr>
