@@ -60,19 +60,23 @@ function fillTable() {
 
 <body onload="fillTable();">
 
-<br/>
+<table cellspacing="20">
+<tr>
 
+<td>
 <table border="1" cellspacing="0" cellpadding="3" id="tokens">
 <tr><th bgcolor="#FFF4F4" colspan="2">Top Tokens</th></tr>
 </table> 
+</td>
 
-<br/>
- 
+<td valign="top"> 
 <table border="1" cellspacing="0" cellpadding="3" id="sentences">
 <tr><th bgcolor="#FFF4F4" colspan="2">Top Sentences</th></tr>
 </table> 
- 
-<br/>
+</td>
+
+</tr>
+</table>
 
 </body>
 </html>
