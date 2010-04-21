@@ -52,6 +52,7 @@ import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
+import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -66,6 +67,7 @@ import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.tools.Names;
 
 
+import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.components.tuples.TupleUtilities;
@@ -90,8 +92,16 @@ import org.seasr.meandre.support.generic.io.HttpUtils;
 		description = "This component does a google search using the google search api ",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class GoogleSearchToTuple extends AbstractExecutableComponent {
+public class GoogleSearchToTuple extends AbstractExecutableComponent 
+{
 
+	//------------------------------ INPUTS -----------------------------------------------------
+	@ComponentInput(
+			name = "query",
+			description = "what to query for"
+	)
+	protected static final String IN_QUERY = "query";
+	
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
@@ -107,55 +117,86 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent {
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
-
+	
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
+	/*
 	@ComponentProperty(
 			name = "query",
 			description = "what to query for",
 		    defaultValue = ""
 	)
 	protected static final String PROP_QUERY = "query";
+	*/
+	
+	
+	@ComponentProperty(
+			name = "count",
+			description = "how many results to push to the output",
+		    defaultValue = "25"
+	)
+	protected static final String PROP_COUNT = "count";
 
 	//--------------------------------------------------------------------------------------------
 
 	SimpleTuplePeer tuplePeer;
 
 	//--------------------------------------------------------------------------------------------
-    String url;
     Map<String,String> columnMap = new HashMap<String,String>();
+    int count;
+    
+    
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
     {
-	    String query = ccp.getProperty(PROP_QUERY).trim();
+		count = Integer.parseInt(ccp.getProperty(PROP_COUNT).trim());
+		/*
+	    query = ccp.getProperty(PROP_QUERY).trim();
 	    query = URLEncoder.encode(query, "UTF-8");
-	    
-	    StringBuilder location = new StringBuilder();
-	    location.append("http://ajax.googleapis.com/ajax/services/search/web?v=1.0");
-	    location.append("&start=").append(0); // TODO, add a paging property ?
-	    location.append("&rsz=large");  // small == 4 results, large == 8 results
-	    location.append("&q=").append(query);
-	    	
-	    url = location.toString();
-	    console.info("reading location " + url);
+	    */    
 	    String fields[] = {"url","title", "content"};
 		tuplePeer = new SimpleTuplePeer(fields);
 		
 		columnMap.put("titleNoFormatting", "title");
 		
 	}
+	
+	int start = 0;
+	protected String buildURL(String query) 
+	{
+		StringBuilder location = new StringBuilder();
+	    location.append("http://ajax.googleapis.com/ajax/services/search/web?v=1.0");
+	    location.append("&start=").append(start); // TODO, add a paging property ?
+	    location.append("&rsz=large");            // small == 4 results, large == 8 results
+	    location.append("&q=").append(query);
+	    	
+	    String url = location.toString();
+	    start += 8; // 8 is what large
+	    
+	    return url;
+	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception 
     {
+		String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_QUERY));
+		String query = input[0];
+		query = URLEncoder.encode(query, "UTF-8");
 		
-		String json = HttpUtils.doGET(url, null);
-		 
-		List<SimpleTuple> tuples = jsonToTuples(json, tuplePeer, columnMap);	 
+		
 		List<Strings> output = new ArrayList<Strings>();
-		for (int i = 0; i < tuples.size(); i++) {
-			SimpleTuple tuple = tuples.get(i);
-			output.add(tuple.convert());
+		
+		while (output.size() < count) {
+			String url = buildURL(query);
+			console.info("reading location " + url);
+			String json = HttpUtils.doGET(url, null);
+
+			List<SimpleTuple> tuples = jsonToTuples(json, tuplePeer, columnMap);	 
+			
+			for (int i = 0; i < tuples.size(); i++) {
+				SimpleTuple tuple = tuples.get(i);
+				output.add(tuple.convert());
+			}
 		}
 		
 		Strings[] results = new Strings[output.size()];
