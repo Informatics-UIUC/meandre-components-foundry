@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.meandre.component.opennlp;
+package org.seasr.meandre.components.nlp.opennlp;
 
 import java.io.File;
 import java.util.logging.Level;

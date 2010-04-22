@@ -61,7 +61,7 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
-import org.seasr.meandre.component.opennlp.OpenNLPNamedEntity;
+import org.seasr.meandre.components.nlp.opennlp.OpenNLPNamedEntity;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
