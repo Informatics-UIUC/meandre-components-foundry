@@ -52,14 +52,14 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
-import org.meandre.components.abstracts.AbstractExecutableComponent;
-import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.components.utils.ComponentUtils;
 
 /**
  * <p>Title: Fork Times Two</p>

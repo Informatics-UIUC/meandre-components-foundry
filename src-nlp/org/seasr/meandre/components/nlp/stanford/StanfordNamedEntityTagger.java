@@ -62,8 +62,6 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
-import org.meandre.components.abstracts.AbstractExecutableComponent;
-import org.meandre.components.utils.ComponentUtils;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
@@ -73,8 +71,10 @@ import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.nlp.opennlp.OpenNLPBaseUtilities;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.components.utils.ComponentUtils;
 
 
 import org.seasr.meandre.support.component.opennlp.TextSpan;

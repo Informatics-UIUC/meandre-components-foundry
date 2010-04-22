@@ -48,9 +48,9 @@ import java.net.URL;
 import java.util.logging.Logger;
 
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.generic.io.ClasspathUtils;
 import org.seasr.meandre.support.generic.io.JARInstaller;

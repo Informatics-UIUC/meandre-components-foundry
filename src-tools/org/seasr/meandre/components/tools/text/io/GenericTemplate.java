@@ -56,11 +56,11 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
-import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.ConfigurableWebUIFragmentCallback;
 import org.meandre.webui.WebUIException;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 

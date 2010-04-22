@@ -46,9 +46,9 @@ import java.io.PrintStream;
 
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 
 /**

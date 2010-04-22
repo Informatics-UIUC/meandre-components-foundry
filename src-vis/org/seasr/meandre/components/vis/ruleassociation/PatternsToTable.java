@@ -7,7 +7,6 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.Licenses;
-import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.table.Column;
@@ -16,6 +15,7 @@ import org.seasr.datatypes.table.TableFactory;
 import org.seasr.datatypes.table.basic.BasicTableFactory;
 import org.seasr.datatypes.table.basic.IntColumn;
 import org.seasr.datatypes.table.basic.StringColumn;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.discovery.ruleassociation.fpgrowth.FPPattern;
 
 /**

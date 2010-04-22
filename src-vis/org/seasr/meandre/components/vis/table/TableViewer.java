@@ -60,7 +60,6 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
-import org.meandre.components.abstracts.AbstractGWTWebUIComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.WebUIException;
@@ -68,6 +67,7 @@ import org.seasr.datatypes.table.ColumnTypes;
 import org.seasr.datatypes.table.MutableTable;
 import org.seasr.datatypes.table.Column.SortMode;
 import org.seasr.datatypes.table.basic.AbstractColumn;
+import org.seasr.meandre.components.abstracts.AbstractGWTWebUIComponent;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 

@@ -51,7 +51,6 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
-import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -60,6 +59,7 @@ import org.seasr.datatypes.table.Column;
 import org.seasr.datatypes.table.ColumnTypes;
 import org.seasr.datatypes.table.MutableTable;
 import org.seasr.datatypes.table.TableFactory;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
