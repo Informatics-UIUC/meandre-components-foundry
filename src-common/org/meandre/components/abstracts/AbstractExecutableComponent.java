@@ -170,7 +170,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
 
         ignoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
         if (ignoreErrors)
-            console.info("Exceptions are being ignored per user's request.");
+            console.fine("Exceptions are being ignored per user's request.");
 
         connectedInputs = new HashSet<String>();
         for (String componentInput : ccp.getInputNames())
