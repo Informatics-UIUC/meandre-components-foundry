@@ -47,6 +47,7 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.ConfigurableWebUIFragmentCallback;
 import org.seasr.meandre.components.tools.Names;
 
@@ -77,8 +78,12 @@ public class ConfigurableServiceHeadPost extends ServiceHeadPost implements Conf
 
     //--------------------------------------------------------------------------------------------
 
-    public String getContextPath() {
-        return componentContext.getProperty(PROP_URL_CONTEXT_PATH);
+    @Override
+    public String getContextPath(ComponentContextProperties ccp) {
+        return ccp.getProperty(PROP_URL_CONTEXT_PATH);
     }
 
+    public String getContextPath() {
+        return getContextPath(componentContext);
+    }
 }

@@ -114,7 +114,15 @@ public class ServiceHeadPost extends AbstractExecutableComponent
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    console.info("Service location: " + ccp.getWebUIUrl(true) + ccp.getExecutionInstanceID());
+	    String webUIUrl = ccp.getWebUIUrl(true).toString();
+	    if (!webUIUrl.endsWith("/")) webUIUrl += "/";
+
+	    String contextPath = getContextPath(ccp);
+	    if (contextPath.startsWith("/")) contextPath = contextPath.substring(1);
+
+	    String serviceLocation = webUIUrl + contextPath;
+
+	    console.info("Service location: " +  serviceLocation);
 	}
 
 	@Override
@@ -180,5 +188,9 @@ public class ServiceHeadPost extends AbstractExecutableComponent
 		} catch (ComponentContextException e) {
 			throw new WebUIException(e);
 		}
+	}
+
+	public String getContextPath(ComponentContextProperties ccp) {
+	    return ccp.getExecutionInstanceID();
 	}
 }
