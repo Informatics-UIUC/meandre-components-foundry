@@ -330,4 +330,20 @@ public class OpenNLPPosTagger extends OpenNLPBaseUtilities {
          */
 
     }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        Object input = componentContext.getDataComponentFromInput(IN_TOKENS);
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, input);
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, input);
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        Object input = componentContext.getDataComponentFromInput(IN_TOKENS);
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, input);
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, input);
+    }
 }
