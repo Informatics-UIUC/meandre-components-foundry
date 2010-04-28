@@ -65,6 +65,18 @@ public class StaticURLFinder implements StaticTextSpanFinder {
 		return s.toLowerCase().indexOf("http");
 	}
 
+	String clean(String s) {
+		
+		int idx = s.indexOf("/>"); // possible end entity tag
+		if (idx > 0) {
+			s = s.substring(0,idx);
+		}
+		
+		String out = s.replaceAll("[\"']+$", ""); // remove any 
+		
+		return out;
+	}
+	
 	public List<TextSpan> labelSentence(String sentence) 
 	{
 
@@ -81,9 +93,14 @@ public class StaticURLFinder implements StaticTextSpanFinder {
 			if ( idx >= 0) {
 
 				String sub = s.substring(idx);
-
+				sub = clean(sub);
+				
+				//System.out.println("FOUND " + sub);
+ 
 				sIdx = sentence.indexOf(sub, eIdx);
 				eIdx = sIdx + sub.length();
+				
+				
 
 				TextSpan span = new TextSpan();
 				span.setStart(sIdx);
