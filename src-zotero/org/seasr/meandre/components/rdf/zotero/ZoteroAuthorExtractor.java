@@ -74,7 +74,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 		creator = "Xavier Llor&agrave",
 		description = "Extract the authors for each entry of a Zotero RDF",
 		name = "Zotero Author Extractor",
-		tags = "zotero, authors, information extraction",
+		tags = "zotero, author, information extraction",
 		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,

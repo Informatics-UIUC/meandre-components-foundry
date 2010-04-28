@@ -44,16 +44,8 @@ package org.seasr.meandre.components.nlp.stanford;
 
 
 import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
-import java.util.StringTokenizer;
-
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -64,30 +56,18 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
-import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.nlp.opennlp.OpenNLPBaseUtilities;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.components.utils.ComponentUtils;
-
-
-import org.seasr.meandre.support.component.opennlp.TextSpan;
 import org.seasr.meandre.support.component.opennlp.StaticTextSpanFinder;
-import org.seasr.meandre.support.component.opennlp.StaticURLFinder;
-import org.seasr.meandre.support.component.opennlp.StaticLocationFinder;
-
-
-import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-
-
 
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
@@ -114,7 +94,7 @@ import edu.stanford.nlp.ling.CoreAnnotations.AnswerAnnotation;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, opennlp, tokenizer, sentences, tagging",
+		tags = "semantic, text, nlp, information extraction, entity, entity extraction",
 		description = "This component performs named entity tagging using Stanford's NLP facilities",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "stanfordModels.jar", "seasr-commons.jar"}
 )
@@ -153,7 +133,7 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 		ner-eng-ie.crf-4-conll.ser.gz
 
 	 */
-	
+
 	@ComponentProperty(
 			name = "classifierModel",
 			description = "The classifier model to be used ",
@@ -167,19 +147,19 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 		    defaultValue = ""
 		)
 	protected static final String PROP_MODELS_DIR = "modelsDir";
-	
-	
-	
+
+
+
 	@ComponentProperty(
 			name = "ExtendedNETypes",
 			description = "Extended Named Entties types:(location,url).  Location requires the locationMap property.",
 		    defaultValue = "location,url"
 	)
 	protected static final String PROP_EX_NE_TYPES = "ExtendedNETypes";
-	
+
 	@ComponentProperty(
 			name = "LocationMap",
-	        description = "values for locations to be remapped. These are values missed or skipped by OpenNLP. " + 
+	        description = "values for locations to be remapped. These are values missed or skipped by OpenNLP. " +
 	        "values are comma separated:  <text to find> = <replacement>, ",
 	        defaultValue = "Ill.=Illinois, VA=Virginia"
 	)
@@ -199,53 +179,53 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
     int SENTENCE_ID_IDX ;
     int TEXT_START_IDX  ;
     int TEXT_IDX        ;
-    
+
 	String[] extendedFinders = {"location", "url"};
 	StaticTextSpanFinder[] simpleFinders = null;
-	
-	
+
+
 	protected String modelsDir;
 	protected String taggerFile;
     protected String modelJarFile = "stanfordModels.jar";
     AbstractSequenceClassifier classifier;
-    
+
 	//--------------------------------------------------------------------------------------------
     int count = 0;
 
-	
-    
+
+
     @Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
-		
+
 		modelsDir = ccp.getProperty(PROP_MODELS_DIR).trim();
 		if (modelsDir.length() == 0)
 		    modelsDir = ccp.getRunDirectory()+File.separator+"stanfordNLP";
-		
+
 		OpenNLPBaseUtilities.installModelsFromJarFile(modelsDir, modelJarFile, console, getClass());
 		console.fine("Installed models into: " + modelsDir);
-		
+
 		this.taggerFile = ccp.getProperty(PROP_TAGGER).trim().toLowerCase();
 		classifier = CRFClassifier.getClassifierNoExceptions(modelsDir + File.separator + taggerFile);
-		
+
 		sentenceId   = 0;
 		startIdx     = 0;
-		
+
 
 		/*
 		try {
-			
+
 			// now do the extended (home brewed) entities
-			
-			
+
+
 			types = ccp.getProperty(PROP_EX_NE_TYPES);
 			if (types != null && types.trim().length() > 1) {
 				String[] toParse = types.split(",");
 				simpleFinders = new StaticTextSpanFinder[toParse.length];
 				for (int i = 0; i < toParse.length; i++) {
 					String value = toParse[i].toLowerCase().trim();
-					
-					if (value.equals("url")){						
+
+					if (value.equals("url")){
 						simpleFinders[i] = new StaticURLFinder("URL");
 					}
 					else if (value.equals("location")){
@@ -256,20 +236,20 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 							throw new RuntimeException("missing " + PROP_LOCATION_MAP);
 						}
 						console.info("parsing " + data);
-						Map<String,String> map = parseLocationData(data);		
-						simpleFinders[i] = new StaticLocationFinder("location",  map);			
+						Map<String,String> map = parseLocationData(data);
+						simpleFinders[i] = new StaticLocationFinder("location",  map);
 					}
 				}
-			}	
+			}
 			else {
 				simpleFinders = new StaticTextSpanFinder[0];
 			}
-		
+
 			console.info("extended finders " + simpleFinders.length);
-			
-			
-			
-			
+
+
+
+
 		}
 		catch ( Throwable t ) {
 			console.severe("Failed to open tokenizer model for " + sLanguage);
@@ -292,7 +272,7 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 
 
 	}
-    
+
     int sentenceId = 0;
 	int startIdx = 0;
 	@SuppressWarnings("unchecked")
@@ -307,33 +287,33 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
     	Strings input = (Strings) cc.getDataComponentFromInput(IN_TEXT);
 		String[] val = BasicDataTypesTools.stringsToStringArray (input);
 		console.info(count++ + " attempt to parse\n" + val[0]);
-		
+
 		String originalText = val[0];
-		
-		
+
+
 		SimpleTuple tuple   = tuplePeer.createTuple();
-		
+
 		List<List<CoreLabel>> out = classifier.classify(originalText);
         for (List<CoreLabel> sentence : out) {
-        	
+
           for (CoreLabel word : sentence) {
-        	  
-        	  
+
+
             String ne = word.get(AnswerAnnotation.class);
             String type = null;
             if ("LOCATION".equals(ne) || "PERSON".equals(ne) || "ORGANIZATION".equals(ne)) {
             	type = ne.toLowerCase();
             	// consistent with openNLP
             }
-            
+
             String text = word.word();
-		   	int indexOfLastWord = originalText.indexOf(text, startIdx); 
-            
+		   	int indexOfLastWord = originalText.indexOf(text, startIdx);
+
             if (type != null) {
-            	
+
             	//int idx  = word.index();
                 //int sIdx = word.sentIndex();
-                
+
                // console.info(word.word() + '/' +  type);
                tuple.setValue(TYPE_IDX,        type);
 			   tuple.setValue(SENTENCE_ID_IDX, sentenceId);  // keep this zero based
@@ -341,24 +321,24 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 			   tuple.setValue(TEXT_IDX,        text);
 			   output.add(tuple.convert());
 
-       
+
             }
-            
+
             int len = text.length();
             if (len > 1 && text.endsWith(".")) {
-            	
+
             	// HACK for how the tokenizer works
             	// Ill. ==> tokenized into Ill.  and .
             	len--;
-            	
+
             }
             startIdx = indexOfLastWord + len;
-            
+
           }
           sentenceId++;
         }
-		
-    
+
+
 
         // push the whole collection, protocol safe
         Strings[] results = new Strings[output.size()];
@@ -395,6 +375,6 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-  
-	
+
+
 }

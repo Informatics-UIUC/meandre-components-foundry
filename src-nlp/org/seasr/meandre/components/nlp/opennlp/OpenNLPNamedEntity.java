@@ -102,9 +102,9 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, opennlp, tokenizer, sentences, tagging",
-		description = "This component tags the incoming set of tokenized sentences " +
-				      "unsing OpenNLP named entity facilities.",
+		tags = "opennlp, semantic, text, nlp, information extraction, entity, entity extraction",
+		description = "This component tags entities from the incoming set of tokenized sentences " +
+				      "using OpenNLP named entity facilities.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar", "seasr-commons.jar"}
 )
 public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {

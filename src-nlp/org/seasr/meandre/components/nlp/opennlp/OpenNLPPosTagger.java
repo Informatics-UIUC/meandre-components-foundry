@@ -90,9 +90,9 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
-		description = "This component tags the incoming set of tokenized sentences " +
-				      "unsing OpenNLP pos facilities.",
+		tags = "text, opennlp, nlp, tokenized sentence, pos",
+		description = "This component tags the tokens of the incoming set of tokenized sentences " +
+				      "using OpenNLP pos facilities.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar", "seasr-commons.jar"}
 )
 public class OpenNLPPosTagger extends OpenNLPBaseUtilities {

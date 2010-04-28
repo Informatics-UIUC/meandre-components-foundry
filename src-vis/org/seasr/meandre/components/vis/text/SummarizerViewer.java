@@ -43,7 +43,6 @@
 package org.seasr.meandre.components.vis.text;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
@@ -56,11 +55,9 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
-
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.components.utils.ComponentUtils;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
@@ -78,9 +75,9 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         firingPolicy = FiringPolicy.all,
         mode = Mode.webui,
         rights = Licenses.UofINCSA,
-        tags = "tokens, sentences, visualization",
+        tags = "token, sentence, viewer",
         description = "Visualizes tokens and sentences from HitsSummarizer. " +
-        "Its inputs should be connected into HitsSummarizer directly.",
+        "Its inputs should be connected directly to HitsSummarizer.",
         dependency = {"protobuf-java-2.2.0.jar"},
         resources = {"SummarizerViewer.vm"}
 )

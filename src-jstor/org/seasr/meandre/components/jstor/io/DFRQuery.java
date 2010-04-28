@@ -78,7 +78,7 @@ import org.w3c.dom.Document;
         creator = "Boris Capitanu",
         description = "This component performs a query against the JSTOR 'Data For Research' data",
         name = "JSTOR DFR Query",
-        tags = "jstor, dfr, research, data for research",
+        tags = "jstor, dfr, data for research",
         rights = Licenses.UofINCSA,
         mode = Mode.compute,
         firingPolicy = FiringPolicy.all,

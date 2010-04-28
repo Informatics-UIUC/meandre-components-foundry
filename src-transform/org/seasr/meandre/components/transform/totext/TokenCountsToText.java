@@ -71,7 +71,7 @@ import org.seasr.meandre.components.tools.Names;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, tokenizer, counting",
+		tags = "token count, text, convert",
 		description = "Given a collection of token counts, this component converts it " +
 				      "into text.",
 		dependency = {"protobuf-java-2.2.0.jar"}
@@ -99,7 +99,8 @@ public class TokenCountsToText extends AnalysisToText {
 
 	//--------------------------------------------------------------------------------------------
 
-	public void executeCallBack(ComponentContext cc) throws Exception {
+	@Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
 	    IntegersMap tokenCounts = (IntegersMap)cc.getDataComponentFromInput(INPUT_TOKEN_COUNTS);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

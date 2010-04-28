@@ -75,7 +75,7 @@ import org.w3c.dom.NodeList;
         creator = "Boris Capitanu",
         description = "This component extracts the set of authors from an XML result returned from a JSTOR DFR query",
         name = "DFR Author Extractor",
-        tags = "jstor, dfr, research, data for research, author",
+        tags = "jstor, dfr, data for research, author",
         rights = Licenses.UofINCSA,
         mode = Mode.compute,
         firingPolicy = FiringPolicy.all,

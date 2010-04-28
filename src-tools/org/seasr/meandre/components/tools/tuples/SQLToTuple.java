@@ -42,10 +42,13 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentOutput;
@@ -65,19 +68,6 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.sql.ResultSetMetaData;
-
-
-
 /**
  * This component reads from an sql SELECT pushes its content inside of a tuple
  *
@@ -92,7 +82,7 @@ import java.sql.ResultSetMetaData;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tuple, tools, dbase",
+		tags = "tuple, tools, database",
 		description = "This component reads a mysql database",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
@@ -122,35 +112,35 @@ public class SQLToTuple extends AbstractExecutableComponent {
 		    defaultValue = ""
 	)
 	protected static final String PROP_SELECT = "select";
-	
+
 	@ComponentProperty(
 			name = "user",
 			description = "user",
 		    defaultValue = ""
 	)
 	protected static final String PROP_USER = "user";
-	
+
 	@ComponentProperty(
 			name = "password",
 			description = "password",
 		    defaultValue = ""
 	)
 	protected static final String PROP_PASSWORD = "password";
-	
+
 	@ComponentProperty(
 			name = "hostDB",
 			description = "host/database eg. localhost/testDB",
 		    defaultValue = ""
 	)
 	protected static final String PROP_DB = "hostDB";
-	
+
 	@ComponentProperty(
 			name = "protocol",
 			description = "jdbc protocol for hostURL",
 		    defaultValue = "jdbc:mysql://"
 	)
 	protected static final String PROP_PROTOCOL = "protocol";
-	
+
 	@ComponentProperty(
 			name = "JDBCDriver",
 			description = "jdbc driver to be loaded, jar must be in classpath",
@@ -169,37 +159,37 @@ public class SQLToTuple extends AbstractExecutableComponent {
 
 	Connection connect = null;
 	String SQL;
-	
+
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
 		String user        = ccp.getProperty(PROP_USER).trim();
 	    String password    = ccp.getProperty(PROP_PASSWORD).trim();
 	    String protocol    = ccp.getProperty(PROP_PROTOCOL).trim();
 	    String hostDB     = ccp.getProperty(PROP_DB).trim();
 	    String JDBC_DRIVER = ccp.getProperty(PROP_JDBC).trim();
-	    
+
 	    SQL = ccp.getProperty(PROP_SELECT).trim();
-	    
+
 	    //String fullURL = protocol + hostDB + "?" + "user="+user + "&password="+password;
 	    String fullURL = protocol + hostDB;
-	    
+
 	    console.info("connect using " + fullURL);
-	    
+
 		// This will load the MySQL driver, each DB has its own driver
 		Class.forName(JDBC_DRIVER);
-		
+
 		// Setup the connection with the DB
 		connect = DriverManager.getConnection(fullURL, user, password);
 	}
 
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception 
+    public void executeCallBack(ComponentContext cc) throws Exception
     {
-		
+
 		Statement statement = null;
 		ResultSet resultSet = null;
-		
+
 		// Statements allow to issue SQL queries to the database
 		statement = connect.createStatement();
 		// Result set get the result of the SQL query
@@ -214,7 +204,7 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	    }
 	    outPeer = new SimpleTuplePeer(fieldNames);
 		outTuple = outPeer.createTuple();
-		
+
 		List<Strings> output = new ArrayList<Strings>();
 		while (resultSet.next()) {
 			for (int i = 0; i < numberOfColumns; i++) {
@@ -224,12 +214,12 @@ public class SQLToTuple extends AbstractExecutableComponent {
 			}
 			output.add(outTuple.convert());
 		}
-		
-		
+
+
 		resultSet.close();
 		statement.close();
-		
-		
+
+
 		Strings[] results = new Strings[output.size()];
 		output.toArray(results);
 		StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
@@ -239,12 +229,12 @@ public class SQLToTuple extends AbstractExecutableComponent {
 		// metaData for this tuple producer
 		//
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
-	    
+
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    	
+
     	connect.close();
     }
 }

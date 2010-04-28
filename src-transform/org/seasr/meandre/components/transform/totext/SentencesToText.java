@@ -71,7 +71,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, tokenizer, counting",
+		tags = "sentence, text, convert",
 		description = "Given a collection of sentences, this component converts it " +
 				      "into text.",
 		dependency = {"protobuf-java-2.2.0.jar"}

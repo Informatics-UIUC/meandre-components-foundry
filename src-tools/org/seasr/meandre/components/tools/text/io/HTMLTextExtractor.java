@@ -69,7 +69,7 @@ import org.w3c.dom.Document;
            		      "together and returned as a string.",
         name = "HTML Text Extractor",
         rights = Licenses.UofINCSA,
-        tags = "html, text, converter",
+        tags = "html, text, convert",
         dependency = {"protobuf-java-2.2.0.jar", "htmlparser.jar"},
         baseURL = "meandre://seasr.org/components/foundry/"
 )
@@ -108,7 +108,7 @@ public class HTMLTextExtractor extends AbstractExecutableComponent {
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object input = cc.getDataComponentFromInput(IN_HTML);
-        
+
         String[] htmlDocs;
 
         if (input instanceof Document) {

@@ -66,7 +66,7 @@ import org.seasr.meandre.components.tools.Names;
         creator = "Lily Dong",
         description = "Presents a simple text area for user to input string.",
         name = "Input Text",
-        tags = "string, visualization",
+        tags = "string, webui, text",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",

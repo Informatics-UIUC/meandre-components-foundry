@@ -108,7 +108,7 @@ import org.seasr.meandre.support.utils.FileResourceUtility;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
+		tags = "semantic, text",
 		description = "This component labels a tuple field value with a concept " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
@@ -227,7 +227,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 		this.wordMapFileName   = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_WORDMAP));
 		this.noConceptFileName = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_IGNORE));
 
-		
+
 		FileResourceUtility.createPathToResource(cacheFileName,     console);
 		FileResourceUtility.createPathToResource(wordMapFileName,   console);
 		FileResourceUtility.createPathToResource(noConceptFileName, console);

@@ -69,7 +69,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tools, tokenizer, counting, transformations",
+		tags = "token count, convert",
 		description = "Given a collection of token counts, this component converts them " +
 				      "to a Java map.",
 		dependency = {"protobuf-java-2.2.0.jar"}

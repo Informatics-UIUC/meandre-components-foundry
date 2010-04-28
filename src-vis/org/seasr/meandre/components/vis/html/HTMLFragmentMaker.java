@@ -69,7 +69,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
            		      "image types; ex: jpg, png...)",
         name = "HTML Fragment Maker",
         rights = Licenses.UofINCSA,
-        tags = "multipurpose, internet, mail, extensions, visualization",
+        tags = "html",
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar","commons-lang-2.4.jar"}
 )

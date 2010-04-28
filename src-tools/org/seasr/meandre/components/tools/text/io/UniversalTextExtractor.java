@@ -78,7 +78,7 @@ import org.seasr.meandre.support.generic.text.handlers.TextContentHandlerFactory
                       "Supported location references include: PDF files, HTML/XML files, text files.",
         name = "Universal Text Extractor",
         rights = Licenses.UofINCSA,
-        tags = "text, converter, pdf, html, xml",
+        tags = "text, convert, pdf, html, xml",
         dependency = {"protobuf-java-2.2.0.jar", "htmlparser.jar", "jPod.jar", "iscwt.jar", "isrt.jar", "jbig2.jar"},
         baseURL = "meandre://seasr.org/components/foundry/"
 )

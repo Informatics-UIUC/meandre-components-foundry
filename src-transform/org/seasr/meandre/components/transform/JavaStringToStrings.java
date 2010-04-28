@@ -69,7 +69,7 @@ import org.seasr.meandre.components.tools.Names;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tools, tokenizer, counting, transformations",
+		tags = "convert",
 		description = "Converts a Java string into an equivalent string protocol buffer wrapper.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )

@@ -77,7 +77,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text, opennlp, tokenizer, sentences, pos, tagging",
+		tags = "count, text, tuple",
 		description = "This component counts the incoming set of tuples, based on a unique field value" ,
 		baseURL = "meandre://seasr.org/components/foundry/",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
