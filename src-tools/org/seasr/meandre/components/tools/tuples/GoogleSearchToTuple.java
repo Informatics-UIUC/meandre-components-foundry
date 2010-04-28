@@ -93,6 +93,9 @@ import org.seasr.meandre.support.generic.io.HttpUtils;
 public class GoogleSearchToTuple extends AbstractExecutableComponent
 {
 
+	int start = 0; // offset for page queries
+	
+	
 	//------------------------------ INPUTS -----------------------------------------------------
 	@ComponentInput(
 			name = "query",
@@ -143,7 +146,7 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
 		columnMap.put("titleNoFormatting", "title");
 	}
 
-	int start = 0;
+	
 	protected String buildURL(String query)
 	{
 		StringBuilder location = new StringBuilder();
