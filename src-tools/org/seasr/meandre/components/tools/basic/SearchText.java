@@ -52,8 +52,6 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
@@ -63,6 +61,7 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
  * Searches text using regular expressions
  *
  * @author Loretta Auvil
+ * @author Boris Capitanu
  *
  */
 
@@ -70,9 +69,9 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
         name = "Search Text",
         creator = "Loretta Auvil",
 		description = "Searches the text input for the regular expression pattern. "+
-		    "If the pattern is found then the matching text is pushed out on port Text_Found "+
-		    "(multiple outputs are possible), otherwise, it outputs the original "+
-		    "text on port Text.",
+		              "If the pattern is found then the matching text is pushed out on port Text_Found "+
+		              "(multiple outputs are possible), otherwise, it outputs the original "+
+		              "text on port Text.",
 		tags = "text, string, search",
 		rights = Licenses.UofINCSA,
 		baseURL = "meandre://seasr.org/components/foundry/",
@@ -173,17 +172,15 @@ public class SearchText extends AbstractExecutableComponent {
 
 	@Override
 	protected void handleStreamInitiators() throws Exception {
-		if (inputPortsWithInitiators.contains(IN_TEXT))
-			componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator());
-		else
-			throw new Exception("Unbalanced or unexpected StreamInitiator received");
+		Object input = componentContext.getDataComponentFromInput(IN_TEXT);
+        componentContext.pushDataComponentToOutput(OUT_TEXT, input);
+		componentContext.pushDataComponentToOutput(OUT_MATCHED_TEXT, input);
 	}
 
 	@Override
 	protected void handleStreamTerminators() throws Exception {
-		if (inputPortsWithTerminators.contains(IN_TEXT))
-			componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator());
-		else
-			throw new Exception("Unbalanced or unexpected StreamTerminator received");
+	    Object input = componentContext.getDataComponentFromInput(IN_TEXT);
+        componentContext.pushDataComponentToOutput(OUT_TEXT, input);
+	    componentContext.pushDataComponentToOutput(OUT_MATCHED_TEXT, input);
 	}
 }
