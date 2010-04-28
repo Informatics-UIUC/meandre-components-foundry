@@ -1,3 +1,45 @@
+/**
+*
+* University of Illinois/NCSA
+* Open Source License
+*
+* Copyright (c) 2008, NCSA.  All rights reserved.
+*
+* Developed by:
+* The Automated Learning Group
+* University of Illinois at Urbana-Champaign
+* http://www.seasr.org
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal with the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject
+* to the following conditions:
+*
+* Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimers.
+*
+* Redistributions in binary form must reproduce the above copyright
+* notice, this list of conditions and the following disclaimers in
+* the documentation and/or other materials provided with the distribution.
+*
+* Neither the names of The Automated Learning Group, University of
+* Illinois at Urbana-Champaign, nor the names of its contributors may
+* be used to endorse or promote products derived from this Software
+* without specific prior written permission.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+*
+*/
+
 package org.seasr.meandre.components.socialnetworking;
 
 import java.util.Hashtable;
@@ -16,12 +58,13 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
+import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.component.opennlp.OpenNLPNamedEntity;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.generic.io.DOMUtils;
@@ -85,8 +128,8 @@ public class LinkCreation extends AbstractExecutableComponent {
 	protected static final String PROP_ENTITIES = Names.PROP_ENTITIES;
 
 	@ComponentProperty(
-	        description = "If the distance between two entities is within offset," +
-	        "then they are considered to be linked.",
+	        description = "If the distance between two sentneces is within offset," +
+	        "then they are considered to be adjacent and are marked linked. " ,
             name = Names.PROP_OFFSET,
             defaultValue =  "10"
 	)
@@ -106,8 +149,6 @@ public class LinkCreation extends AbstractExecutableComponent {
 
 	private Properties _xmlProperties;
 
-	private boolean _gotInitiator;
-
 	//--------------------------------------------------------------------------------------------
 
 	@Override
@@ -119,8 +160,6 @@ public class LinkCreation extends AbstractExecutableComponent {
         _xmlProperties.put(OutputKeys.OMIT_XML_DECLARATION, "no");
         _xmlProperties.put(OutputKeys.INDENT, "yes");
         _xmlProperties.put(OutputKeys.ENCODING, "UTF-8");
-
-		_gotInitiator = false;
 	}
 
 	@Override
@@ -139,13 +178,18 @@ public class LinkCreation extends AbstractExecutableComponent {
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
+		int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.SENTENCE_ID_FIELD);
+		int TEXT_START_IDX = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_START_FIELD);
+        int TYPE_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TYPE_FIELD);
+        int TEXT_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_FIELD);
+
 		// construct map
 		for (Strings ss: in) {
 			String[] s = BasicDataTypesTools.stringsToStringArray(ss);
-			String type = s[1]; //type
+			String type = s[TYPE_IDX]; //type
 			if(_entities.indexOf(type) != -1) {
-				String vertex = s[4]; //value
-				Integer pos = Integer.valueOf(s[0]); //position
+				String vertex = s[TEXT_IDX]; //value
+				Integer pos = Integer.valueOf(s[TEXT_START_IDX]); //position
 				calculateAdjacence(vertex, pos);
 				addVertex(vertex, pos); //add to map
 			}
