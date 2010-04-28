@@ -189,6 +189,7 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
 		// metaData for this tuple producer
 		//
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, tuplePeer.convert());
+	    start = 0;
 	}
 
     @Override
