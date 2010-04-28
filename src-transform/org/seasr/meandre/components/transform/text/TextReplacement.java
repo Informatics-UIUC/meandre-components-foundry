@@ -100,8 +100,11 @@ public class TextReplacement extends AbstractExecutableComponent{
     protected static final String IN_TEXT = Names.PORT_TEXT;
 
     @ComponentInput(
-            description = "configuation map format: newText = {old1, old2, old3}; newText2 = {old4,old5}; newText3=old6; = deleteText" +
-                "<br>TYPE: java.lang.String" +
+            description = "mapData format: newText = {old1, old2, old3}; newText2 = {old4,old5}; newText3=old6; = deleteText" +
+                " If you need to use an equals sign, use := to separate values (e.g.  newtext=blah := {old1=A,old2} )" +
+                "Note this replacement does not use regular expressions and is token based.  Hence it will attemp to do " +
+                "matching based on whole tokens (not prefixes, suffix, parts)" +
+            "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
                 "<br>TYPE: byte[]" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
@@ -202,6 +205,7 @@ public class TextReplacement extends AbstractExecutableComponent{
 			if (ignoreCase) {
 				key = key.toLowerCase();
 			}
+			// console.info("look at " + key);
 			String r = dictionary.get(key);
 			r = (r == null) ? (t) : (r);
 			sb.append(r);
@@ -271,6 +275,16 @@ public class TextReplacement extends AbstractExecutableComponent{
 	    while (tokens.hasMoreTokens()) {
 	        String line = tokens.nextToken();
 	        String[] parts = line.split("=");
+	       
+	        if (parts.length != 2) {            // lots of = signs
+	        	parts = line.split(":=");
+	        }
+	        
+	        if (parts.length != 2) {
+	        	console.warning("unable to build dictionary " + configData);
+	        	return map;
+	        }
+	        
 	        String key    = parts[0].trim();
 	        String values = parts[1].trim();
 	
@@ -284,7 +298,7 @@ public class TextReplacement extends AbstractExecutableComponent{
 	            // this is a reverse map
 	            // e.g. the KEY is the value, the value is the key
 	            map.put(value, key);
-	            // console.info("mapping " + value + " to " + key);
+	            //console.info("mapping " + value + " to " + key);
 	        }
 	    }
 	    return map;
