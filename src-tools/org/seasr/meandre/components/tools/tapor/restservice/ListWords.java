@@ -68,7 +68,8 @@ import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 @Component(creator="Lily Dong",
            description="Demonstrates how to construct a interface to " +
-           "consume rest service of list words of Tapor.",
+           "consume rest service of list words of Tapor at " +
+           "http://tada.mcmaster.ca/Main/TAPoRwareHTMLListWords",
            name="List Words",
            tags="word rest service",
            rights = Licenses.UofINCSA,
