@@ -42,13 +42,13 @@
 
 package org.seasr.meandre.components.socialnetworking;
 
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.transform.OutputKeys;
 
@@ -58,18 +58,17 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
-import org.meandre.components.abstracts.AbstractExecutableComponent;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
-import org.seasr.meandre.component.opennlp.OpenNLPNamedEntity;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.nlp.opennlp.OpenNLPNamedEntity;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.seasr.meandre.support.generic.text.XMLUtils;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -128,7 +127,7 @@ public class LinkCreation extends AbstractExecutableComponent {
 	protected static final String PROP_ENTITIES = Names.PROP_ENTITIES;
 
 	@ComponentProperty(
-	        description = "If the distance between two sentneces is within offset," +
+	        description = "If the distance between two entities is within the offset," +
 	        "then they are considered to be adjacent and are marked linked. " ,
             name = Names.PROP_OFFSET,
             defaultValue =  "10"
@@ -250,7 +249,7 @@ public class LinkCreation extends AbstractExecutableComponent {
 	private void addVertex(String vertex, Integer pos) {
 		//<vertex, linked list>
 		if (map.containsKey(vertex)) {//retrieve vertex
-			LinkedList<Integer> value = (LinkedList<Integer>)map.get(vertex);
+			LinkedList<Integer> value = map.get(vertex);
 			if(value.indexOf(pos)!=-1)
 				value.add(pos);
 		} else { //insert vertex
