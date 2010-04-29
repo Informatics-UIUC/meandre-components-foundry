@@ -117,6 +117,19 @@ public class InputText extends GenericTemplate {
 	)
     protected static final String PROP_TEMPLATE = GenericTemplate.PROP_TEMPLATE;
 
+	@ComponentProperty(
+	        description = "number of columns (width) for the text input",
+	        name = "cols",
+	        defaultValue = "80"
+	)
+    protected static final String PROP_COLS = "cols";
+	@ComponentProperty(
+	        description = "number of rows (height) for the text input",
+	        name = "rows",
+	        defaultValue = "10"
+	)
+    protected static final String PROP_ROWS = "rows";
+
     //--------------------------------------------------------------------------------------------
 
 	@Override
@@ -126,6 +139,8 @@ public class InputText extends GenericTemplate {
 	    context.put("title", ccp.getProperty(PROP_TITLE));
 	    context.put("message", ccp.getProperty(PROP_MESSAGE));
 	    context.put("defaultValue", ccp.getProperty(PROP_DEFAULT));
+	    context.put("cols", ccp.getProperty(PROP_COLS));
+	    context.put("rows", ccp.getProperty(PROP_ROWS));
 	}
 
 	@Override

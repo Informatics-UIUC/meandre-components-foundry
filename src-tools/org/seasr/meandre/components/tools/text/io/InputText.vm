@@ -29,7 +29,7 @@ $message
 <form name="input" method="POST" action="/${sInstanceId}?done=true">
 <br/>
 
-<textarea name="$fieldName" cols="40" rows="6">$defaultValue</textarea>
+<textarea name="$fieldName" cols="${cols}" rows="${rows}">$defaultValue</textarea>
 
 <br/>
 
