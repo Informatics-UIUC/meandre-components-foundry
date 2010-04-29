@@ -192,6 +192,11 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
 		// metaData for this tuple producer
 		//
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, tuplePeer.convert());
+	    
+	    //
+	    // TODO: push this functionality to the abstract
+	    // to reset variables for next execution (if in streaming mode) ?
+	    //
 	    start = 0;
 	}
 
