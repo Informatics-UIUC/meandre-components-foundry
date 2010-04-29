@@ -102,8 +102,9 @@ public class TextReplacement extends AbstractExecutableComponent{
     @ComponentInput(
             description = "mapData format: newText = {old1, old2, old3}; newText2 = {old4,old5}; newText3=old6; = deleteText" +
                 " If you need to use an equals sign, use := to separate values (e.g.  newtext=blah := {old1=A,old2} )" +
-                "Note this replacement does not use regular expressions and is token based.  Hence it will attemp to do " +
+                "Note this replacement does NOT use regular expressions and is token based.  Hence it will attemp to do " +
                 "matching based on whole tokens (not prefixes, suffix, parts)" +
+                "see Text Cleaner for a component that uses regular expressions." +
             "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
                 "<br>TYPE: byte[]" +
