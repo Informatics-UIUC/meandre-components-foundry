@@ -72,7 +72,7 @@ public class StaticURLFinder implements StaticTextSpanFinder {
 			s = s.substring(0,idx);
 		}
 		
-		String out = s.replaceAll("[\"']+$", ""); // remove any 
+		String out = s.replaceAll("[\"']+$", ""); // remove any trailing quotes
 		
 		return out;
 	}
