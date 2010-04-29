@@ -76,7 +76,9 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "tools, text,",
-		description = "This component converts a tuple field/value to a single output string" ,
+		description = "This component converts a tuple field/value to a single output string. " +
+		              "For each set of incoming tuples, each tuple value is pushed separately."
+			          ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class TupleValueToString extends AbstractExecutableComponent {
@@ -147,7 +149,8 @@ public class TupleValueToString extends AbstractExecutableComponent {
 
 		int FIELD_IDX = tuplePeer.getIndexForFieldName(fieldname);
 		if (FIELD_IDX == -1) {
-			throw new ComponentExecutionException("tuple has no field named " + fieldname);
+			String dump = tuplePeer.toString();
+			throw new ComponentExecutionException("tuple has no field named " + fieldname + "\n" + dump);
 		}
 
 		SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] {fieldname});
