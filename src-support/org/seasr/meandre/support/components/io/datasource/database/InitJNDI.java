@@ -60,11 +60,14 @@ import org.seasr.meandre.support.components.io.datasource.JarXMLLoader;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 
-@Component(creator="Erik Johnson",
+@Component(creator="Lily Dong",
         description="<p>Overview:<br>"
-        +"This Component initializes a JNDI context for datasource objects."
-        +"These datasource objects can then be used to connect to a database using"
-        +"The connect DB component.",
+        +"This Component initializes a JNDI context for datasource object."
+        +"This datasource object can then be used to connect to a database using the connect DB component."
+        +"OpenDS Directory Server is recommended to use for JNDI. "
+        +"Before running this component, starting up the server and creating a new entry for saving datasource object. "
+        +"Then providing this compoennt with the username and password of server, and "
+        +"the entry's distinguished name(DN).",
         name="Initialize JNDI Datsources",
         tags="JNDI, datasource, database, connect, db",
         rights = Licenses.UofINCSA,
@@ -88,6 +91,28 @@ public class InitJNDI extends AbstractExecutableComponent {
 	)
 	final static String PROP_XML_LOCATION = Names.PROP_XML_LOCATION;
 
+	@ComponentProperty(
+			description="Username of OpenDS Directory Server.",
+		    name=Names.PROP_USERNAME,
+		    defaultValue="cn=Directory Manager"
+	)
+	final static String PROP_USERNAME = Names.PROP_USERNAME;
+
+	@ComponentProperty(
+			description="Passward of OpenDS Directory Server.",
+		    name=Names.PROP_PASSWORD,
+		    defaultValue=""
+	)
+	final static String PROP_PASSWORD = Names.PROP_PASSWORD;
+
+	@ComponentProperty(
+			description="Entry's unique identifier or distinguished name " +
+			"in OpenDS Directory Server. The datasource object is bound to this entry.",
+		    name=Names.PROP_BASE_DN,
+		    defaultValue=""
+	)
+	final static String PROP_BASE_DN = Names.PROP_BASE_DN;
+
 	//--------------------------------------------------------------------------------------------
 
     //object to populate JNDI namespace with data read from xmlLocation property file
@@ -103,6 +128,10 @@ public class InitJNDI extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	}
+
+    @Override
+    public void executeCallBack(ComponentContext ccp) throws Exception {
     	//start up logger
      	console.log(Level.INFO, "Initializing JNDI Namespace...");
 
@@ -147,15 +176,17 @@ public class InitJNDI extends AbstractExecutableComponent {
 
 		//Use JNDINamespaceBuilder to load xml and populate namespace
 		console.log(Level.INFO,"Preparing to load xml file at "+xmlLoc);
-		nB = new JNDINamespaceBuilder(dsfile.toString());
+
+		String username = ccp.getProperty(PROP_USERNAME);
+		String password = ccp.getProperty(PROP_PASSWORD);
+		String dn = ccp.getProperty(PROP_BASE_DN);
+
+		nB = new JNDINamespaceBuilder(
+				dsfile.toString(), username, password, dn);
 		console.log(Level.INFO,"Building Namespace");
 		nB.buildNamespace();
 
 		console.log(Level.INFO, "...JNDI Datasources Initialized");
-	}
-
-    @Override
-    public void executeCallBack(ComponentContext cc) throws Exception {
     }
 
     @Override
