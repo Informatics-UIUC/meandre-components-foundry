@@ -108,7 +108,7 @@ public class ListWords extends AbstractExecutableComponent {
 	protected static final String PROP_HTML_TAG = Names.PROP_TAPoR_HTML_TAG;
 
 	@ComponentProperty(
-	        description = "A HTML single valued selection control, and values can be " +
+	        description = "A HTML single valued selection control, and value can be " +
 	        "all(All words), " +
 	        "patt(Words matching pattern below), " +
 	        "find(Words in the list below) or " +
@@ -126,10 +126,10 @@ public class ListWords extends AbstractExecutableComponent {
 	protected static final String PROP_OPTION_SELECTION = Names.PROP_TAPoR_OPTION_SELECTION;
 
 	@ComponentProperty(
-	        description = "A select controlsorting, and values can be " +
+	        description = "A select controlsorting, and value can be " +
 	        "2(by frequency), " +
 	        "1(alphabetically), " +
-	        "3(by the order of appearrence), " +
+	        "3(by the order of appearrence) or " +
 	        "4(by reversed alphabetic order).",
             name = Names.PROP_TAPoR_SORTING,
             defaultValue = "2"
@@ -140,7 +140,7 @@ public class ListWords extends AbstractExecutableComponent {
 	        description = "A select control for output format, and value can be " +
 	        "1(HTML), " +
 	        "2(XML tree), " +
-	        "3(XML text in HTML), " +
+	        "3(XML text in HTML) or " +
 	        "4(Tab delimited text).",
             name = Names.PROP_TAPoR_OUT_FORMAT,
             defaultValue = "4"
