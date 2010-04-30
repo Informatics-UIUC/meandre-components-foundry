@@ -128,7 +128,9 @@ public class LinkCreation extends AbstractExecutableComponent {
 
 	@ComponentProperty(
 	        description = "If the distance between two entities is within the offset," +
-	        "then they are considered to be adjacent and are marked linked. " ,
+	        "then they are considered to be adjacent. " +
+	        "The distance are measured from the beginning of document and " +
+	        "is character based." ,
             name = Names.PROP_OFFSET,
             defaultValue =  "10"
 	)
