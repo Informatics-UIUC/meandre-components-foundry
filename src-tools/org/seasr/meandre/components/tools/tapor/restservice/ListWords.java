@@ -42,16 +42,14 @@
 
 package org.seasr.meandre.components.tools.tapor.restservice;
 
-import java.io.InputStreamReader;
 import java.io.BufferedReader;
-
+import java.io.InputStreamReader;
 import java.net.URL;
 
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.SimpleHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -60,8 +58,6 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-
-
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
@@ -112,7 +108,7 @@ public class ListWords extends AbstractExecutableComponent {
 	protected static final String PROP_HTML_TAG = Names.PROP_TAPoR_HTML_TAG;
 
 	@ComponentProperty(
-	        description = "A HTML single valued selection control, and could be " +
+	        description = "A HTML single valued selection control, and values can be " +
 	        "all(All words), " +
 	        "patt(Words matching pattern below), " +
 	        "find(Words in the list below) or " +
@@ -130,7 +126,7 @@ public class ListWords extends AbstractExecutableComponent {
 	protected static final String PROP_OPTION_SELECTION = Names.PROP_TAPoR_OPTION_SELECTION;
 
 	@ComponentProperty(
-	        description = "A select controlsorting, and could be " +
+	        description = "A select controlsorting, and values can be " +
 	        "2(by frequency), " +
 	        "1(alphabetically), " +
 	        "3(by the order of appearrence), " +
@@ -141,7 +137,7 @@ public class ListWords extends AbstractExecutableComponent {
 	protected static final String PROP_SORTING = Names.PROP_TAPoR_SORTING;
 
 	@ComponentProperty(
-	        description = "A select control for output format, and could be " +
+	        description = "A select control for output format, and value can be " +
 	        "1(HTML), " +
 	        "2(XML tree), " +
 	        "3(XML text in HTML), " +
