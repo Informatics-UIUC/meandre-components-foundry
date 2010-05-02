@@ -42,13 +42,13 @@
 
 package org.seasr.meandre.components.socialnetworking;
 
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.xml.transform.OutputKeys;
 
@@ -59,6 +59,7 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
@@ -71,17 +72,16 @@ import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.seasr.meandre.support.generic.text.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /**
- * @author Lily Dong
+ * @author Boris Capitanu
  */
 
 @Component(
-        creator = "Lily Dong",
-		description = "<p>Overview: <br> This component creates " +
-		              "link between tuples and outputs it " +
-		              "as GraphML document.</p>",
+        creator = "Boris Capitanu",
+        description = "<p>Overview: <br> This component creates " +
+                      "links between tuples that occur within a specified sentence distance from each other. " +
+                      "The resulting graph is outputted as a GraphML document.</p>",
         name = "Link Creation",
         tags = "tuple, link, GraphML",
         firingPolicy = FiringPolicy.all,
@@ -89,259 +89,306 @@ import org.w3c.dom.NodeList;
         baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-
 public class LinkCreation extends AbstractExecutableComponent {
 
-	//------------------------------ INPUTS ------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
-	@ComponentInput(
-			name = Names.PORT_TUPLES,
-			description = "Set of tuples." +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
-	)
-	protected static final String IN_TUPLES = Names.PORT_TUPLES;
+    @ComponentInput(
+            name = Names.PORT_TUPLES,
+            description = "Set of tuples." +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+    )
+    protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
-	@ComponentInput(
-			name = Names.PORT_META_TUPLE,
-			description = "Meta data for tuples." +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
+    @ComponentInput(
+            name = Names.PORT_META_TUPLE,
+            description = "Meta data for tuples." +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 
-	//------------------------------ OUTPUTS -----------------------------------------------------
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
-	@ComponentOutput(
-	        name = Names.PORT_XML,
-	        description = "XML document created from tuples." +
-	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String OUT_XML = Names.PORT_XML;
+    @ComponentOutput(
+            name = Names.PORT_XML,
+            description = "XML document created from tuples." +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_GRAPHML = Names.PORT_XML;
 
-	//------------------------------ PROPERTIES --------------------------------------------------
+    //------------------------------ PROPERTIES --------------------------------------------------
 
-	@ComponentProperty(
-	        description = "Entity types (comma delimited list).",
+    @ComponentProperty(
+            description = "Entity types (comma delimited list).",
             name = Names.PROP_ENTITIES,
             defaultValue =  "person"
-	)
-	protected static final String PROP_ENTITIES = Names.PROP_ENTITIES;
+    )
+    protected static final String PROP_ENTITIES = Names.PROP_ENTITIES;
 
-	@ComponentProperty(
-	        description = "If the distance between two entities is within the offset," +
-	        "then they are considered to be adjacent. " +
-	        "The distance are measured from the beginning of document and " +
-	        "is character based." ,
+    @ComponentProperty(
+            description = "Maximum sentence distance whereby entities are marked as adjacent." ,
             name = Names.PROP_OFFSET,
-            defaultValue =  "10"
-	)
-	protected static final String PROP_OFFSET = Names.PROP_OFFSET;
+            defaultValue = "10"
+    )
+    protected static final String PROP_OFFSET = Names.PROP_OFFSET;
 
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
-	private String _entities;
-	private int offset;
+    private static int ID_COUNT = 0;
 
-	private HashMap<String, LinkedList<Integer>> map; //store position
-	private Document outputDoc; //store output document
-	private Element elGraph; //store graph node
-	private Hashtable<String, String> table; //store id
-	private int index; //store number
+    private Set<String> _entityTypes;
+    private int _offset;
+    private Properties _xmlProperties;
+    private boolean _isStreaming;
 
-	private Properties _xmlProperties;
+    private HashMap<Entity, KeyValuePair<Integer, HashSet<Entity>>> _graph;
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
-	@Override
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		offset = Integer.parseInt(ccp.getProperty(PROP_OFFSET));
-		_entities = ccp.getProperty(PROP_ENTITIES);
+        _offset = Integer.parseInt(ccp.getProperty(PROP_OFFSET));
+        if (_offset <= 0) throw new ComponentContextException(String.format("Property '%s' must be greater than zero", PROP_OFFSET));
 
-		_xmlProperties = new Properties();
+        String entityTypes = ccp.getProperty(PROP_ENTITIES).trim();
+        if (entityTypes.length() == 0) throw new ComponentContextException(String.format("Property '%s' must have a valid value", PROP_ENTITIES));
+
+        _entityTypes = new HashSet<String>();
+        for (String entity : entityTypes.split(","))
+            _entityTypes.add(entity.trim());
+
+        _graph = new HashMap<Entity, KeyValuePair<Integer,HashSet<Entity>>>();
+
+        _xmlProperties = new Properties();
         _xmlProperties.put(OutputKeys.OMIT_XML_DECLARATION, "no");
         _xmlProperties.put(OutputKeys.INDENT, "yes");
         _xmlProperties.put(OutputKeys.ENCODING, "UTF-8");
-	}
 
-	@Override
+        _isStreaming = false;
+    }
+
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		//initialize
-		index = 0;
-		map = new HashMap<String, LinkedList<Integer>>();
-		table = new Hashtable<String, String>();
-		initialzeDoc();
+        Strings inMetaTuple = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+        SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inMetaTuple);
+        console.fine("Input meta tuple: " + tuplePeer.toString());
 
-		//get input data
-		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
-		console.fine(tuplePeer.toString());
+        StringsArray inTuples = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+        Strings[] tuples = BasicDataTypesTools.stringsArrayToJavaArray(inTuples);
 
-		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
-		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
-
-		int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.SENTENCE_ID_FIELD);
-		int TEXT_START_IDX = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_START_FIELD);
+        int SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.SENTENCE_ID_FIELD);
         int TYPE_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TYPE_FIELD);
         int TEXT_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_FIELD);
 
-		// construct map
-		for (Strings ss: in) {
-			String[] s = BasicDataTypesTools.stringsToStringArray(ss);
-			String type = s[TYPE_IDX]; //type
-			if(_entities.indexOf(type) != -1) {
-				String vertex = s[TEXT_IDX]; //value
-				Integer pos = Integer.valueOf(s[TEXT_START_IDX]); //position
-				calculateAdjacence(vertex, pos);
-				addVertex(vertex, pos); //add to map
-			}
-		}
+        LinkedList<KeyValuePair<Integer, HashSet<Entity>>> _sentencesWindow = new LinkedList<KeyValuePair<Integer, HashSet<Entity>>>();
 
-		String xmlString = DOMUtils.getString(outputDoc, _xmlProperties);
-		xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
-		cc.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(xmlString));
-	}
+        // Note: The algorithm used to mark entities as adjacent if they fall within the specified sentence distance
+        //       relies on a sliding-window of sentences that are within the 'adjacency' range. As new sentences are
+        //       considered, the window moves to the right and old sentences that are now too far fall out of scope.
 
-	@Override
+        for (Strings tuple : tuples) {
+            Integer sentenceId = Integer.parseInt(tuple.getValue(SENTENCE_ID_IDX));
+            String tupleType = tuple.getValue(TYPE_IDX);
+            String tupleValue = tuple.getValue(TEXT_IDX);
+
+            // If the entity is of the type we're interested in
+            if (_entityTypes.contains(tupleType)) {
+                // ... create an object for it
+                Entity entity = new Entity(tupleType, tupleValue);
+
+                // Check if we already recorded this entity before
+                KeyValuePair<Integer, HashSet<Entity>> oldEntityMapping = _graph.get(entity);
+                if (oldEntityMapping == null) {
+                    // If not, assign a new id to it and record it
+                    int id = ID_COUNT++;
+                    entity.setId(id);
+                    _graph.put(entity, new KeyValuePair<Integer, HashSet<Entity>>(id, new HashSet<Entity>()));
+                } else
+                    // Otherwise assign the id that we previously assigned to it
+                    entity.setId(oldEntityMapping.getKey());
+
+                HashSet<Entity> sentenceEntities;
+
+                // Remove all sentences (together with any entities they contained) from the set
+                // of sentences that are too far from the current sentence of this entity
+                while (_sentencesWindow.size() > 0 && sentenceId - _sentencesWindow.peek().getKey() > _offset)
+                    _sentencesWindow.remove();
+
+                if (_sentencesWindow.size() > 0)  {
+                    // If this sentence is different from the last sentence in the window
+                    if (_sentencesWindow.getLast().getKey() != sentenceId) {
+                        // Create an entry for it and add it at the end of the window
+                        sentenceEntities = new HashSet<Entity>();
+                        _sentencesWindow.addLast(new KeyValuePair<Integer, HashSet<Entity>>(sentenceId, sentenceEntities));
+                    } else
+                        sentenceEntities = _sentencesWindow.getLast().getValue();
+                } else {
+                    // If there are no sentences in the window, create an entry for this sentence and add it
+                    sentenceEntities = new HashSet<Entity>();
+                    _sentencesWindow.addLast(new KeyValuePair<Integer, HashSet<Entity>>(sentenceId, sentenceEntities));
+                }
+
+                // Iterate through all the sentences in the window
+                for (KeyValuePair<Integer, HashSet<Entity>> kvp : _sentencesWindow)
+                    // ... and all the entities in each sentence
+                    for (Entity e : kvp.getValue())
+                        // ... and mark the new entity as being adjacent to all the entities in the window
+                        _graph.get(e).getValue().add(entity);
+
+                // Add the new entity to the window
+                sentenceEntities.add(entity);
+            }
+        }
+
+        if (!_isStreaming)
+            generateGraphMLAndPushOutput();
+    }
+
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-	}
+    }
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
-	/**
-	 *
-	 * @param vertex to be calculated against the other vertices.
-	 * @param pos of vertex
-	 */
-	private void calculateAdjacence(String vertex, Integer pos) {
-		Set set = map.entrySet();
-		Iterator iterator = set.iterator();
-		while(iterator.hasNext()){
-			Map.Entry entry = (Map.Entry)iterator.next();
-			String theVertex = (String)entry.getKey();
-			LinkedList theList = (LinkedList)entry.getValue();
 
-			if(!theVertex.equals(vertex)) { //not the same vertex
-				Object[] objs = theList.toArray();
-				for(Object thePos: objs) {
-					if(Math.abs(pos-(Integer)thePos)<offset) {//adjacent
-						if(!isNodeAvailable(vertex)) {//add to output document
-							String id = "n"+(index++);
-							table.put(vertex, id);
-							addNode(id, vertex);
-						}
-						if(!isNodeAvailable(theVertex)) {//add to output document
-							String id = "n"+(index++);
-							table.put(theVertex, id);
-							addNode(id, theVertex);
-						}
-						if(!isEdgeAvailable(vertex, theVertex))//add to output document
-							addEdge(vertex, theVertex);
-						break;
-					}
-				}
-			}
-		}
-	}
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-	/**
-	 *
-	 * @param vertex to be retrieved.
-	 * @param pos to be inserted into the linked list.
-	 */
-	private void addVertex(String vertex, Integer pos) {
-		//<vertex, linked list>
-		if (map.containsKey(vertex)) {//retrieve vertex
-			LinkedList<Integer> value = map.get(vertex);
-			if(value.indexOf(pos)!=-1)
-				value.add(pos);
-		} else { //insert vertex
-			LinkedList<Integer> value = new LinkedList<Integer>();
-			value.add(pos); //position
-			map.put(vertex, value);
-		}
-	}
+        _isStreaming = true;
+    }
 
-	/**
-	 * initialize the output doucment.
-	 */
-	private void initialzeDoc() {
-		outputDoc = DOMUtils.createNewDocument();
-	    Element root = outputDoc.createElement("graphml");
-	    outputDoc.appendChild(root);
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-	    Element elKey = outputDoc.createElement("key");
-	    elKey.setAttribute("id", "site");
-	    elKey.setAttribute("for", "node");
-	    elKey.setAttribute("attr.name", "label");
-	    elKey.setAttribute("attr.type", "string");
-	    elKey.setTextContent("unknown");
-	    root.appendChild(elKey);
+        generateGraphMLAndPushOutput();
 
-	    elGraph = outputDoc.createElement("graph");
-	    elGraph.setAttribute("id", "G");
-	    elGraph.setAttribute("edgedefault", "directed");
-	    root.appendChild(elGraph);
-	}
+        _isStreaming = false;
+    }
 
-	/**
-	 *
-	 * @param id to identify node.
-	 * @param value to specify data.
-	 */
-	private void addNode(String id, String value) {
-		Element elNode = outputDoc.createElement("node");
-		elNode.setAttribute("id", id);
-		Element elData = outputDoc.createElement("data");
-		elData.setAttribute("key", "site");
-		elData.setTextContent(value);
-		elNode.appendChild(elData);
-		elGraph.appendChild(elNode);
-	}
+    //--------------------------------------------------------------------------------------------
 
-	/**
-	 *
-	 * @param source of one endpoint of an edge
-	 * @param target of the other endpoint of an edge
-	 */
-	private void addEdge(String source, String target) {
-		Element elNode = outputDoc.createElement("edge");
-		elNode.setAttribute("source", table.get(source));
-		elNode.setAttribute("target", table.get(target));
-		elGraph.appendChild(elNode);
-	}
+    private Element initialzeDocGraph(Document outputDoc) {
+        Element root = outputDoc.createElement("graphml");
+        outputDoc.appendChild(root);
 
-	/**
-	 *
-	 * @param value of node
-	 * @return true if node exit
-	 */
-	private boolean isNodeAvailable(String value) {
-		NodeList nodes = outputDoc.getElementsByTagName("data");
-		for (int i=0; i<nodes.getLength(); i++) {
-			Element elEntity = (Element)nodes.item(i);
-			if(value.equals(elEntity.getTextContent()))
-					return true; //available
-		}
-		return false; //not available
-	}
+        for (String entityType : _entityTypes) {
+            Element elKey = outputDoc.createElement("key");
+            elKey.setAttribute("id", entityType);
+            elKey.setAttribute("for", "node");
+            elKey.setAttribute("attr.name", "label");
+            elKey.setAttribute("attr.type", "string");
+            elKey.setTextContent("unknown " + entityType);
+            root.appendChild(elKey);
+        }
 
-	/**
-	 *
-	 * @param source of one endpoint of an edge
-	 * @param target of the other endpoint of an edge
-	 * @return true if edge exit
-	 */
-	private boolean isEdgeAvailable(String source, String target) {
-		NodeList nodes = outputDoc.getElementsByTagName("edge");
-		for (int i=0; i<nodes.getLength(); i++) {
-			Element elEntity = (Element)nodes.item(i);
-			String theSource = elEntity.getAttribute("source");
-			String theTarget = elEntity.getAttribute("target");
+        Element elGraph = outputDoc.createElement("graph");
+        elGraph.setAttribute("id", "G");
+        elGraph.setAttribute("edgedefault", "directed");
+        root.appendChild(elGraph);
 
-			if((theSource.equals("source") && theTarget.equals("target")) ||
-			   (theSource.equals("target") && theTarget.equals("source")))
-			   return true;
-		}
-		return false;
-	}
+        return elGraph;
+    }
+
+    private void addNode(Entity entity, Element elGraph) {
+        Document doc = elGraph.getOwnerDocument();
+        Element elNode = doc.createElement("node");
+        elNode.setAttribute("id", Integer.toString(entity.getId()));
+        Element elData = doc.createElement("data");
+        elData.setAttribute("key", entity.getType());
+        elData.setTextContent(entity.getValue());
+        elNode.appendChild(elData);
+        elGraph.appendChild(elNode);
+    }
+
+    private void addEdge(Entity source, Entity target, Element elGraph) {
+        Document doc = elGraph.getOwnerDocument();
+        Element elNode = doc.createElement("edge");
+        elNode.setAttribute("source", Integer.toString(source.getId()));
+        elNode.setAttribute("target", Integer.toString(target.getId()));
+        elGraph.appendChild(elNode);
+    }
+
+    private void generateGraphMLAndPushOutput() throws Exception {
+        Document doc = DOMUtils.createNewDocument();
+        Element elGraph = initialzeDocGraph(doc);
+
+        for (Entry<Entity, KeyValuePair<Integer, HashSet<Entity>>> entry : _graph.entrySet())
+            addNode(entry.getKey(), elGraph);
+
+        for (Entry<Entity, KeyValuePair<Integer, HashSet<Entity>>> entry : _graph.entrySet())
+            for (Entity entity : entry.getValue().getValue())
+                addEdge(entry.getKey(), entity, elGraph);
+
+        _graph.clear();
+        ID_COUNT = 0;
+
+        String xmlString = DOMUtils.getString(doc, _xmlProperties);
+        xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
+        componentContext.pushDataComponentToOutput(OUT_GRAPHML, BasicDataTypesTools.stringToStrings(xmlString));
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    class Entity {
+        private final String _type;
+        private final String _value;
+        private int _id;
+
+        public Entity(String type, String value) {
+            _type = type;
+            _value = value;
+            _id = -1;
+        }
+
+        public String getType() {
+            return _type;
+        }
+
+        public String getValue() {
+            return _value;
+        }
+
+        public int getId() {
+            return _id;
+        }
+
+        public void setId(int id) {
+            _id = id;
+        }
+
+        @Override
+        public int hashCode() {
+            return (_type + _value).hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof Entity) || obj == null) return false;
+            Entity other = (Entity) obj;
+            return (_type + _value).equals(other.getType() + other.getValue());
+        }
+    }
+
+    class KeyValuePair<K,V> {
+        private final K _key;
+        private final V _value;
+
+        public KeyValuePair(K key, V value) {
+            _key = key;
+            _value = value;
+        }
+
+        public K getKey() {
+            return _key;
+        }
+
+        public V getValue() {
+            return _value;
+        }
+    }
 }
