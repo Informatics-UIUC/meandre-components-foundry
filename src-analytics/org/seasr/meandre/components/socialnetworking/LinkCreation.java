@@ -61,6 +61,8 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
@@ -265,7 +267,9 @@ public class LinkCreation extends AbstractExecutableComponent {
         if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
+        componentContext.pushDataComponentToOutput(OUT_GRAPHML, new StreamInitiator());
         generateGraphMLAndPushOutput();
+        componentContext.pushDataComponentToOutput(OUT_GRAPHML, new StreamTerminator());
 
         _isStreaming = false;
     }
