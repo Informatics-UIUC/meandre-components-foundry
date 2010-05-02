@@ -42,9 +42,10 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
-import java.util.StringTokenizer;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -115,7 +116,7 @@ public class TupleLogger  extends AbstractExecutableComponent {
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
     //--------------------------------------------------------------------------------------------
-	
+
 	@ComponentProperty(
 			name = "columnSet",
 			description = "optional, specifiy a subset of fields to print (e.g 1,3,5) ",
@@ -125,31 +126,31 @@ public class TupleLogger  extends AbstractExecutableComponent {
 
 	List<Integer> idxList = null;
 	String[] values = null;
-	
+
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
 		String cols = ccp.getProperty(PROP_COL);
 		if (cols != null && cols.trim().length() > 0) {
-			
+
 			idxList = new ArrayList<Integer>();
 			StringTokenizer tokens = new StringTokenizer(cols.trim(), ",");
 			while (tokens.hasMoreTokens()) {
 				int i = Integer.parseInt(tokens.nextToken());
 				idxList.add(new Integer(i));
 			}
-			
+
 			values = new String[idxList.size()];
 		}
 	}
 
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception 
+    public void executeCallBack(ComponentContext cc) throws Exception
     {
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
 		console.info(tuplePeer.toString());
-		
+
 		SimpleTuple tuple = tuplePeer.createTuple();
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
@@ -159,7 +160,7 @@ public class TupleLogger  extends AbstractExecutableComponent {
 			   console.info(tuple.toString());
 			}
 			else {
-				
+
 				for (int j = 0; j < idxList.size(); j++) {
 					int idx = idxList.get(j);
 					if (idx < tuplePeer.size()) {
@@ -169,7 +170,7 @@ public class TupleLogger  extends AbstractExecutableComponent {
 						console.info("WARNING, index beyond tuple field");
 					}
 				}
-				
+
 				console.info(SimpleTuplePeer.toString(values));
 			}
 		}
@@ -192,4 +193,25 @@ public class TupleLogger  extends AbstractExecutableComponent {
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
+    }
+
 }
