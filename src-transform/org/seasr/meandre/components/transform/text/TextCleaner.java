@@ -42,7 +42,6 @@
 
 package org.seasr.meandre.components.transform.text;
 
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -184,14 +183,14 @@ public class TextCleaner extends AbstractExecutableComponent{
 		}
 
 		for(int i=1; i<=NUM; i++) {
-			String propertyName = "find";
+			String propertyName = FIND;
 			propertyName = (i==1)? propertyName: propertyName+Integer.toString(i);
 			regex = cc.getProperty(propertyName);
 			if(regex!=null) {
 				pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 				matcher = pattern.matcher(text);
 
-				propertyName = "replace";
+				propertyName = REPLACE;
 				propertyName = (i==1)? propertyName: propertyName+Integer.toString(i);
 				String replacement = cc.getProperty(propertyName);
 				if(replacement!=null)
