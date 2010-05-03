@@ -186,6 +186,10 @@ public abstract class Names {
 	public static final String PROP_TAPoR_SORTING = "sorting";
 	public static final String PROP_TAPoR_OUT_FORMAT = "out_format";
 
+	public static final String PROP_TAPoR_PATTERN = "pattern";
+	public static final String PROP_TAPoR_CONTEXT = "context";
+	public static final String PROP_TAPoR_CONTEXT_LENGTH = "context_length";
+
 	public static final String PROP_TEMPLATE = "template";
 	public static final String PROP_TIMES = "times";
 	public static final String PROP_TITLE = "title";
