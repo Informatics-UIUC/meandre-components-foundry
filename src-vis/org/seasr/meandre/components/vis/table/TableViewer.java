@@ -83,7 +83,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
                       "each element of Object array is mapped into a cell in table." +
                       "This component can be used with the 'CSV Reader' or Map2Table components." +
                       "Rows are fetched automatically as needed and column rendering is done only for the visible" +
-                      "columns to improve performance on large datasets.",
+                      "columns to improve performance for large datasets.",
         name = "Table Viewer",
         tags = "table viewer",
         mode = Mode.webui,
