@@ -81,8 +81,9 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
                       "The input can come from a Vector<Object[]> or a Table. " +
                       "If a vector is used, then each element of Vector is mapped into a row in table and " +
                       "each element of Object array is mapped into a cell in table." +
-                      "This component can be used with the " +
-                      "'CSV Reader' or Map2Table components.",
+                      "This component can be used with the 'CSV Reader' or Map2Table components." +
+                      "Rows are fetched automatically as needed and column rendering is done only for the visible" +
+                      "columns to improve performance on large datasets.",
         name = "Table Viewer",
         tags = "table viewer",
         mode = Mode.webui,
