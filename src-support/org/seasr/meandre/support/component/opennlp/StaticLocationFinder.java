@@ -55,6 +55,22 @@ public class StaticLocationFinder implements StaticTextSpanFinder {
 	Map<String,String> locationMap;
 	String type;
 	
+	//
+	// "Ill.=Illinois, VA=Virginia"
+	//
+	public static Map<String,String> parseLocationData(String toParse) {
+    	Map<String,String> map = new HashMap<String,String>();
+    	StringTokenizer tokens = new StringTokenizer(toParse,",");
+    	while (tokens.hasMoreTokens()) {
+    		String[] parts = tokens.nextToken().split("=");
+    		String key   = parts[0].trim();
+    		String value = parts[1].trim();
+
+    		map.put(key, value);
+    	}
+    	return map;
+    }
+	
 	
 	public StaticLocationFinder(String t, Map<String,String> map) 
 	{
