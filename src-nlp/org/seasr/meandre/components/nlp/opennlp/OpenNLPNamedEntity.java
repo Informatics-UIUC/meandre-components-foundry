@@ -145,11 +145,13 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 	@ComponentProperty(
 			name = "ExtendedNETypes",
-			description = "Extended Named Entties types:(location,url).  Location requires the locationMap property.",
-		    defaultValue = "location,url"
+			description = "Extended Named Entties types:(url).",
+		    defaultValue = "url"
 	)
 	protected static final String PROP_EX_NE_TYPES = "ExtendedNETypes";
 
+	/*
+	 * description = "Extended Named Entties types:(location,url).  Location requires the locationMap property.",
 	@ComponentProperty(
 			name = "LocationMap",
 	        description = "values for locations to be remapped. These are values missed or skipped by OpenNLP. " +
@@ -157,6 +159,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 	        defaultValue = "Ill.=Illinois, VA=Virginia"
 	)
     protected static final String PROP_LOCATION_MAP = "LocationMap";
+    */
 
 	//--------------------------------------------------------------------------------------------
 
@@ -175,25 +178,14 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 
 	String[] finderTypes     = {"person", "location", "date", "organization"};    // money, percentage, time
-	String[] extendedFinders = {"location", "url"};
+	String[] extendedFinders = {"url"};
 
 
     TokenNameFinder[] finders = null;
     StaticTextSpanFinder[] simpleFinders = null;
 
 	//--------------------------------------------------------------------------------------------
-    private static Map<String,String> parseLocationData(String toParse) {
-    	Map<String,String> map = new HashMap<String,String>();
-    	StringTokenizer tokens = new StringTokenizer(toParse,",");
-    	while (tokens.hasMoreTokens()) {
-    		String[] parts = tokens.nextToken().split("=");
-    		String key   = parts[0].trim();
-    		String value = parts[1].trim();
-
-    		map.put(key, value);
-    	}
-    	return map;
-    }
+    
 
     public static StaticTextSpanFinder[] buildExtendedFinders(String types, String locationMapData) {
     	StaticTextSpanFinder[] finders;
@@ -211,7 +203,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 					if (locationMapData == null) {
 						throw new RuntimeException("missing LocationMapData");
 					}
-					Map<String,String> map = parseLocationData(locationMapData);
+					Map<String,String> map = StaticLocationFinder.parseLocationData(locationMapData);
 					finders[i] = new StaticLocationFinder("location",  map);
 				}
 			}
@@ -242,8 +234,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
 			// now do the extended (home brewed) entities
 			types         = ccp.getProperty(PROP_EX_NE_TYPES);
-			String data   = ccp.getProperty(PROP_LOCATION_MAP);
-			simpleFinders = OpenNLPNamedEntity.buildExtendedFinders(types,data);
+			simpleFinders = OpenNLPNamedEntity.buildExtendedFinders(types,null);
 
 			console.info("extended finders " + simpleFinders.length);
 		}
