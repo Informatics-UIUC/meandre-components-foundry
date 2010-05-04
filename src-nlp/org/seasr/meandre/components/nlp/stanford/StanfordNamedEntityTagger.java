@@ -149,13 +149,14 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 	protected static final String PROP_MODELS_DIR = "modelsDir";
 
 
-
+   /*
 	@ComponentProperty(
 			name = "ExtendedNETypes",
-			description = "Extended Named Entties types:(location,url).  Location requires the locationMap property.",
-		    defaultValue = "location,url"
+			description = "Extended Named Entties types:(url).",
+		    defaultValue = "url"
 	)
 	protected static final String PROP_EX_NE_TYPES = "ExtendedNETypes";
+
 
 	@ComponentProperty(
 			name = "LocationMap",
@@ -164,10 +165,17 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 	        defaultValue = "Ill.=Illinois, VA=Virginia"
 	)
     protected static final String PROP_LOCATION_MAP = "LocationMap";
+    String[] extendedFinders = {"url"};
+	StaticTextSpanFinder[] simpleFinders = null;
+	simpleFinders = OpenNLPNamedEntity.buildExtendedFinders(types,null);
+
+    */
 
 	//--------------------------------------------------------------------------------------------
 
 
+	
+	
 	SimpleTuplePeer tuplePeer;
 
     public static final String TYPE_FIELD        = "type";
@@ -180,8 +188,7 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
     int TEXT_START_IDX  ;
     int TEXT_IDX        ;
 
-	String[] extendedFinders = {"location", "url"};
-	StaticTextSpanFinder[] simpleFinders = null;
+	
 
 
 	protected String modelsDir;
@@ -211,52 +218,7 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 		sentenceId   = 0;
 		startIdx     = 0;
 
-
-		/*
-		try {
-
-			// now do the extended (home brewed) entities
-
-
-			types = ccp.getProperty(PROP_EX_NE_TYPES);
-			if (types != null && types.trim().length() > 1) {
-				String[] toParse = types.split(",");
-				simpleFinders = new StaticTextSpanFinder[toParse.length];
-				for (int i = 0; i < toParse.length; i++) {
-					String value = toParse[i].toLowerCase().trim();
-
-					if (value.equals("url")){
-						simpleFinders[i] = new StaticURLFinder("URL");
-					}
-					else if (value.equals("location")){
-						console.info("look " + ccp);
-						String data = ccp.getProperty(PROP_LOCATION_MAP);
-						if (data == null) {
-							console.info("NOT prop specified " + PROP_LOCATION_MAP);
-							throw new RuntimeException("missing " + PROP_LOCATION_MAP);
-						}
-						console.info("parsing " + data);
-						Map<String,String> map = parseLocationData(data);
-						simpleFinders[i] = new StaticLocationFinder("location",  map);
-					}
-				}
-			}
-			else {
-				simpleFinders = new StaticTextSpanFinder[0];
-			}
-
-			console.info("extended finders " + simpleFinders.length);
-
-
-
-
-		}
-		catch ( Throwable t ) {
-			console.severe("Failed to open tokenizer model for " + sLanguage);
-			throw new ComponentExecutionException(t);
-		}
-		*/
-
+		
 		//
 		// build the tuple (output) data
 		//
