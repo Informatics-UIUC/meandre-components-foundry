@@ -48,6 +48,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentOutput;
@@ -59,6 +60,7 @@ import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
+import org.meandre.webui.WebUIException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.generic.io.JARInstaller;
@@ -149,10 +151,10 @@ public class UploadFile extends GenericTemplate {
 
 	//--------------------------------------------------------------------------------------------
 
-
     private int maxFileSize;
     private boolean wrapStream;
 
+    private boolean fst; //true when handle is invoked for the first time
 
     //--------------------------------------------------------------------------------------------
 
@@ -182,6 +184,8 @@ public class UploadFile extends GenericTemplate {
 
         if (status == InstallStatus.FAILED)
             throw new ComponentContextException("Failed to install Fluid components at " + new File(sFluidDir).getAbsolutePath());
+
+        fst = true;
 	}
 
 	@Override
@@ -196,57 +200,122 @@ public class UploadFile extends GenericTemplate {
     //--------------------------------------------------------------------------------------------
 
 	@Override
-    protected boolean processRequest(HttpServletRequest request) throws IOException
-    {
-	    if (!expectMoreRequests(request)) return true;
+    protected boolean processRequest(HttpServletRequest request) throws IOException {
+	    if (!expectMoreRequests(request)) return false;
 
 	    // TODO: look at using commons-fileupload lib for parsing upload requests - has friendlier license than oreilly
 	    // ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
         // List lstItems = upload.parseRequest(request);
 
-	    MultipartParser mp = new MultipartParser(request, maxFileSize);
-	    Part part;
-	    while ((part = mp.readNextPart()) != null) {
-	        String name = part.getName();
-	        if (part.isParam()) {
-	            // it's a parameter part
-	            ParamPart paramPart = (ParamPart) part;
-	            String value = paramPart.getStringValue();
-	            console.finest("param; name=" + name + ", value=" + value);
-	        }
-	        else if (part.isFile()) {
-	            // it's a file part
-	            FilePart filePart = (FilePart) part;
-	            String fileName = filePart.getFileName();
-	            if (fileName != null) {
-	                // the part actually contained a file
-	                ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-	                long size = filePart.writeTo(dataStream);
-	                String filePath = filePart.getFilePath();
-                    String contentType = filePart.getContentType();
+	    String type = null;
 
-	                console.fine("Received " + filePath + " (" + contentType + "), size: " + size + " bytes");
+	    String type1 = request.getHeader("Content-Type");
+	    String type2 = request.getContentType();
 
-	                try {
-                        componentContext.pushDataComponentToOutput(OUT_FILE_PATH, filePath);
-                        componentContext.pushDataComponentToOutput(OUT_MIME_TYPE, contentType);
-                        componentContext.pushDataComponentToOutput(OUT_RAW_DATA,
+	    // If one value is null, choose the other value
+	    if (type1 == null && type2 != null) {
+	      type = type2;
+	    }
+	    else if (type2 == null && type1 != null) {
+	      type = type1;
+	    }
+	    // If neither value is null, choose the longer value
+	    else if (type1 != null && type2 != null) {
+	      type = (type1.length() > type2.length() ? type1 : type2);
+	    }
+
+	    if(type != null) {
+	    	MultipartParser mp = new MultipartParser(request, maxFileSize);
+	    	Part part;
+	    	while ((part = mp.readNextPart()) != null) {
+	    		String name = part.getName();
+	    		if (part.isParam()) {
+	    			// it's a parameter part
+	    			ParamPart paramPart = (ParamPart) part;
+	    			String value = paramPart.getStringValue();
+	    			console.finest("param; name=" + name + ", value=" + value);
+	    		}
+	    		else if (part.isFile()) {
+	    			// it's a file part
+	    			FilePart filePart = (FilePart) part;
+	    			String fileName = filePart.getFileName();
+	    			if (fileName != null) {
+	    				// the part actually contained a file
+	    				ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
+	    				long size = filePart.writeTo(dataStream);
+	    				String filePath = filePart.getFilePath();
+	    				String contentType = filePart.getContentType();
+
+	    				console.info("Received " + filePath + " (" + contentType + "), size: " + size + " bytes");
+
+	    				try {
+	    					componentContext.pushDataComponentToOutput(OUT_FILE_PATH, filePath);
+	    					componentContext.pushDataComponentToOutput(OUT_MIME_TYPE, contentType);
+	    					componentContext.pushDataComponentToOutput(OUT_RAW_DATA,
                                 BasicDataTypesTools.byteArrayToBytes(dataStream.toByteArray()));
-                    }
-                    catch (ComponentContextException e) {
-                        throw new IOException(e.toString());
-                    }
-
-	            }
-	            else {
-	                // the field did not contain a file
-	                console.finest("file; name=" + name + "; EMPTY");
-	            }
-	        }
+	    				}
+	    				catch (ComponentContextException e) {
+	    					throw new IOException(e.toString());
+	    				}
+	    			}
+	    			else {
+	    				// the field did not contain a file
+	    				console.info("file; name=" + name + "; EMPTY");
+	    			}
+	    		}
+	    	}
 	    }
 
 		return true;
     }
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
+		console.entering(getClass().getName(), "handle", response);
+
+	    StringBuffer sb = request.getRequestURL();
+	    sb.append(" <Query Data> ").append(request.getQueryString());
+	    console.info("Request: " + sb.toString());
+
+	    //
+	    // this is the workhorse method
+	    // process the input, determine any errors,
+	    // set up any output that will be pushed
+	    //
+	    try {
+	    	if (processRequest(request)) {
+	    		// regenerate the template
+	            if(fst) {
+	            	generateContent(request, response);
+	            	fst = false;
+	            }
+	            console.exiting(getClass().getName(), "handle/generateContent");
+	            return;
+	        }
+	    } catch(IOException ioe) {
+	    	throw new WebUIException(ioe);
+	    }
+
+	    //
+	    // see if this component can handle multiple requests before
+	    // releasing the semaphore,
+	    //
+	    if (!expectMoreRequests(request)) {
+	    	console.finest("done = true");
+	    	done = true;
+
+	    	// No Errors,
+	    	// just push the browser to the "next" component
+	    	try{
+	    		generateMetaRefresh(response);
+	    	} catch (IOException e) {
+	    		throw new WebUIException("Unable to generate redirect response", e);
+	    	}
+
+	    	console.exiting(getClass().getName(), "handle");
+	    }
+	}
 
     //--------------------------------------------------------------------------------------------
 
@@ -275,4 +344,26 @@ public class UploadFile extends GenericTemplate {
         componentContext.pushDataComponentToOutput(OUT_MIME_TYPE, new StreamTerminator());
         componentContext.pushDataComponentToOutput(OUT_RAW_DATA, new StreamTerminator());
     }
+
+    //-------------------------------
+    private String extractBoundary(String line) {
+        // Use lastIndexOf() because IE 4.01 on Win98 has been known to send the
+        // "boundary=" string multiple times.  Thanks to David Wall for this fix.
+        int index = line.lastIndexOf("boundary=");
+        if (index == -1) {
+          return null;
+        }
+        String boundary = line.substring(index + 9);  // 9 for "boundary="
+        if (boundary.charAt(0) == '"') {
+          // The boundary is enclosed in quotes, strip them
+          index = boundary.lastIndexOf('"');
+          boundary = boundary.substring(1, index);
+        }
+
+        // The real boundary is always preceeded by an extra "--"
+        boundary = "--" + boundary;
+
+        return boundary;
+    }
+    //-------------------------------
 }
