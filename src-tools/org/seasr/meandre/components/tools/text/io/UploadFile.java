@@ -92,7 +92,8 @@ import com.oreilly.servlet.multipart.Part;
 
 @Component(
         creator = "Lily Dong",
-        description = "Uploads and submits text files from user's own machine",
+        description = "Uploads and submits text files from user's own machine. " +
+        "This component works with Fluid Infusion 0.8.",
         name = "Upload File",
         tags = "file input upload text",
         rights = Licenses.UofINCSA,
