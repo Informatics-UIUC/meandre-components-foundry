@@ -155,8 +155,6 @@ public class UploadFile extends GenericTemplate {
     private int maxFileSize;
     private boolean wrapStream;
 
-    private boolean fst; //true when handle is invoked for the first time
-
     //--------------------------------------------------------------------------------------------
 
 	@Override
@@ -185,8 +183,6 @@ public class UploadFile extends GenericTemplate {
 
         if (status == InstallStatus.FAILED)
             throw new ComponentContextException("Failed to install Fluid components at " + new File(sFluidDir).getAbsolutePath());
-
-        fst = true;
 	}
 
 	@Override
@@ -271,7 +267,6 @@ public class UploadFile extends GenericTemplate {
     }
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
 		console.entering(getClass().getName(), "handle", response);
 
@@ -287,10 +282,8 @@ public class UploadFile extends GenericTemplate {
 	    try {
 	    	if (processRequest(request)) {
 	    		// regenerate the template
-	            if(fst) {
-	            	generateContent(request, response);
-	            	fst = false;
-	            }
+	            generateContent(request, response);
+
 	            console.exiting(getClass().getName(), "handle/generateContent");
 	            return;
 	        }
