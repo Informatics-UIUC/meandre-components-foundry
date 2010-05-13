@@ -254,6 +254,8 @@ public class UploadFile extends GenericTemplate {
 	    				catch (ComponentContextException e) {
 	    					throw new IOException(e.toString());
 	    				}
+
+	    				dataStream.close();
 	    			}
 	    			else {
 	    				// the field did not contain a file
