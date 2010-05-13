@@ -14,9 +14,9 @@
         <script type="text/javascript" src="${FPath}/framework/core/js/ProgressiveEnhancement.js"></script>
 
         <script>
-            var demo = demo || {};
+        var demo = demo || {};
 
-            (function ($, fluid) {
+        (function ($, fluid) {
             demo.initUploader = function () {
                 fluid.progressiveEnhanceableUploader(".flc-uploader", ".fl-progEnhance-basic", {
 
@@ -29,7 +29,7 @@
                         // This option points to the location of the SWFUpload Flash object that ships with Fluid Infusion.
                         flashURL: "${FPath}/lib/swfupload/flash/swfupload.swf",
 
-                        debug: true
+                        debug: false
                     }
                 },
 
@@ -46,10 +46,11 @@
         </script>
 
     </head>
+
     <body>
-
+        <br/>
+        <table BORDER=0><tr><td>
         <div id="uploader-contents">
-
             <!-- This form will be progressively enhanced by the Fluid Uploader component. -->
             <form method="post" enctype="multipart/form-data" class="fl-uploader fl-progEnhance-basic">
               <p>Browse to upload a file.</p>
@@ -137,10 +138,18 @@
             </form>
 
         </div>
+        </td></tr></table>
+
+        <br/>
+        <div style="margin-left:30px; margin-right:auto; text-align:left;">
+            <button type="button" onClick="location.href='/$sInstanceId/?done=true'">NEXT</button>
+        </div>
 
         <script type="text/javascript">
             demo.initUploader();
         </script>
+
+
 
     </body>
 </html>

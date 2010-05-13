@@ -43,6 +43,8 @@
 package org.seasr.meandre.components.tools.text.io;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,6 +63,8 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.meandre.webui.WebUIException;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.tools.Names;
+import org.seasr.meandre.support.generic.io.JARInstaller;
+import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
@@ -76,7 +80,7 @@ import com.oreilly.servlet.multipart.Part;
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency={ "velocity-1.6.2-dep.jar", "protobuf-java-2.2.0.jar" },
+        dependency={ "velocity-1.6.2-dep.jar", "protobuf-java-2.2.0.jar", "infusion-1.2.jar" },
         resources={ "FluidInfusionUploader.vm" }
 )
 
@@ -143,14 +147,26 @@ public class FluidInfusionUploader extends GenericTemplate {
 	    maxFileSize *= 1024 * 1024;
 
 	    context.put("title", "File Uploader");
-	    context.put("FPath", "/public/resources/infusion-1.2");
-	}
+	    context.put("FPath", "/public/resources/infusion/infusion-1.2");
+
+	    String sFluidDir = ccp.getPublicResourcesDirectory() + File.separator + "infusion";
+	    File fluidJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
+	            "contexts" + File.separator + "java" + File.separator + "infusion-1.2.jar");
+	    if (!fluidJar.exists())
+	        throw new ComponentContextException("Could not find dependency: " + fluidJar.toString());
+
+	    console.fine("Installing Fluid components from: " + fluidJar.toString());
+
+        InstallStatus status = JARInstaller.installFromStream(new FileInputStream(fluidJar), sFluidDir, false);
+        if (status == InstallStatus.SKIPPED)
+            console.fine("Installation skipped - Fluid components already installed");
+
+        if (status == InstallStatus.FAILED)
+            throw new ComponentContextException("Failed to install Fluid components at " + new File(sFluidDir).getAbsolutePath());
+    }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	String sInstanceId = cc.getExecutionInstanceID();
-        console.info("sInstanceId = " + sInstanceId);
-
 	    if (wrapStream) pushInitiator();
 
 	    super.executeCallBack(cc);
@@ -218,6 +234,8 @@ public class FluidInfusionUploader extends GenericTemplate {
 	    				catch (ComponentContextException e) {
 	    					throw new IOException(e.toString());
 	    				}
+
+	    				dataStream.close();
 	    			}
 	    			else {
 	    				// the field did not contain a file
@@ -231,7 +249,6 @@ public class FluidInfusionUploader extends GenericTemplate {
     }
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
 		console.entering(getClass().getName(), "handle", response);
 
@@ -260,7 +277,7 @@ public class FluidInfusionUploader extends GenericTemplate {
 	    // releasing the semaphore,
 	    //
 	    if (!expectMoreRequests(request)) {
-	    	console.finest("done = true");
+	    	console.fine("done = true");
 	    	done = true;
 
 	    	// No Errors,
