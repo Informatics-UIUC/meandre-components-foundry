@@ -45,6 +45,8 @@ package org.seasr.meandre.components.vis.html;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -134,6 +136,8 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+        List<File> files = new ArrayList<File>();
+
         for (String html : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HTML))) {
             _html = html;
 
@@ -149,6 +153,8 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
                     Writer writer = IOUtils.getWriterForResource(htmlFile.toURI());
                     writer.write(_html);
                     writer.close();
+
+                    files.add(htmlFile);
                 } else
                     console.finer("HTML file already exists - moving on...");
 
@@ -168,6 +174,10 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
 
             if (cc.isFlowAborting())
                 console.info("Flow abort requested - terminating component execution...");
+
+            // Clean up
+            for (File file : files)
+                file.delete();
 
             cc.stopWebUIFragment(this);
         }
