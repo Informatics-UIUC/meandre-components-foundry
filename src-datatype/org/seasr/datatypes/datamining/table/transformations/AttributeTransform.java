@@ -42,6 +42,7 @@
 
 package org.seasr.datatypes.datamining.table.transformations;
 
+import org.seasr.datatypes.datamining.ColumnExpression;
 import org.seasr.datatypes.datamining.table.MutableTable;
 import org.seasr.datatypes.datamining.table.Transformation;
 import org.seasr.datatypes.datamining.table.basic.BooleanColumn;
@@ -52,7 +53,6 @@ import org.seasr.datatypes.datamining.table.basic.IntColumn;
 import org.seasr.datatypes.datamining.table.basic.LongColumn;
 import org.seasr.datatypes.datamining.table.basic.ShortColumn;
 import org.seasr.datatypes.datamining.table.basic.StringColumn;
-import org.seasr.meandre.support.components.transform.attribute.ColumnExpression;
 
 /**
  * <code>AttributeTransform</code> is a <code>Transformation</code> which uses

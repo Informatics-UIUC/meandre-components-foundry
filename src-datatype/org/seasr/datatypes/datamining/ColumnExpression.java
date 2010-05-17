@@ -40,12 +40,10 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.meandre.support.components.transform.attribute;
+package org.seasr.datatypes.datamining;
 
 import java.util.HashMap;
 
-import org.seasr.datatypes.datamining.Expression;
-import org.seasr.datatypes.datamining.ExpressionException;
 import org.seasr.datatypes.datamining.table.ColumnTypes;
 import org.seasr.datatypes.datamining.table.MutableTable;
 import org.seasr.datatypes.datamining.table.Table;
@@ -2915,7 +2913,7 @@ public String toString() { return root.toString(); }
                                case ADDITION:
 
                                    for (int i = 0; i < d.length; i++) {
-                                       d[i] = (double) iL[i] + dR[i];
+                                       d[i] = iL[i] + dR[i];
                                    }
 
                                    break;
@@ -2923,7 +2921,7 @@ public String toString() { return root.toString(); }
                                case SUBTRACTION:
 
                                    for (int i = 0; i < d.length; i++) {
-                                       d[i] = (double) iL[i] - dR[i];
+                                       d[i] = iL[i] - dR[i];
                                    }
 
                                    break;
@@ -2931,7 +2929,7 @@ public String toString() { return root.toString(); }
                                case MULTIPLICATION:
 
                                    for (int i = 0; i < d.length; i++) {
-                                       d[i] = (double) iL[i] * dR[i];
+                                       d[i] = iL[i] * dR[i];
                                    }
 
                                    break;
@@ -2939,7 +2937,7 @@ public String toString() { return root.toString(); }
                                case DIVISION:
 
                                    for (int i = 0; i < d.length; i++) {
-                                       d[i] = (double) iL[i] / dR[i];
+                                       d[i] = iL[i] / dR[i];
                                    }
 
                                    break;
@@ -2947,7 +2945,7 @@ public String toString() { return root.toString(); }
                                case MODULUS:
 
                                    for (int i = 0; i < d.length; i++) {
-                                       d[i] = (double) iL[i] % dR[i];
+                                       d[i] = iL[i] % dR[i];
                                    }
 
                                    break;
@@ -2964,7 +2962,7 @@ public String toString() { return root.toString(); }
                                    throw new ExpressionException("ColumnExpression: Illegal expression.");
                            }
 
-                           return (Object) d;
+                           return d;
 
                        case TYPE_FLOAT:
 
@@ -2978,7 +2976,7 @@ public String toString() { return root.toString(); }
                                case ADDITION:
 
                                    for (int i = 0; i < f.length; i++) {
-                                       f[i] = (float) iL[i] + fR[i];
+                                       f[i] = iL[i] + fR[i];
                                    }
 
                                    break;
@@ -2986,7 +2984,7 @@ public String toString() { return root.toString(); }
                                case SUBTRACTION:
 
                                    for (int i = 0; i < f.length; i++) {
-                                       f[i] = (float) iL[i] - fR[i];
+                                       f[i] = iL[i] - fR[i];
                                    }
 
                                    break;
@@ -2994,7 +2992,7 @@ public String toString() { return root.toString(); }
                                case MULTIPLICATION:
 
                                    for (int i = 0; i < f.length; i++) {
-                                       f[i] = (float) iL[i] * fR[i];
+                                       f[i] = iL[i] * fR[i];
                                    }
 
                                    break;
@@ -3002,7 +3000,7 @@ public String toString() { return root.toString(); }
                                case DIVISION:
 
                                    for (int i = 0; i < f.length; i++) {
-                                       f[i] = (float) iL[i] / fR[i];
+                                       f[i] = iL[i] / fR[i];
                                    }
 
                                    break;
@@ -3010,7 +3008,7 @@ public String toString() { return root.toString(); }
                                case MODULUS:
 
                                    for (int i = 0; i < f.length; i++) {
-                                       f[i] = (float) iL[i] % fR[i];
+                                       f[i] = iL[i] % fR[i];
                                    }
 
                                    break;
@@ -3028,7 +3026,7 @@ public String toString() { return root.toString(); }
                                    throw new ExpressionException("ColumnExpression: Illegal expression.");
                            }
 
-                           return (Object) f;
+                           return f;
 
                        case TYPE_INTEGER:
                            I = new int[table.getNumRows()];
@@ -3091,7 +3089,7 @@ public String toString() { return root.toString(); }
                                    throw new ExpressionException("ColumnExpression: Illegal expression.");
                            }
 
-                           return (Object) I;
+                           return I;
 
                        case TYPE_LONG:
 
@@ -3105,7 +3103,7 @@ public String toString() { return root.toString(); }
                                case ADDITION:
 
                                    for (int i = 0; i < l.length; i++) {
-                                       l[i] = (long) iL[i] + lR[i];
+                                       l[i] = iL[i] + lR[i];
                                    }
 
                                    break;
@@ -3113,7 +3111,7 @@ public String toString() { return root.toString(); }
                                case SUBTRACTION:
 
                                    for (int i = 0; i < l.length; i++) {
-                                       l[i] = (long) iL[i] - lR[i];
+                                       l[i] = iL[i] - lR[i];
                                    }
 
                                    break;
@@ -3121,7 +3119,7 @@ public String toString() { return root.toString(); }
                                case MULTIPLICATION:
 
                                    for (int i = 0; i < l.length; i++) {
-                                       l[i] = (long) iL[i] * lR[i];
+                                       l[i] = iL[i] * lR[i];
                                    }
 
                                    break;
@@ -3129,7 +3127,7 @@ public String toString() { return root.toString(); }
                                case DIVISION:
 
                                    for (int i = 0; i < l.length; i++) {
-                                       l[i] = (long) iL[i] / lR[i];
+                                       l[i] = iL[i] / lR[i];
                                    }
 
                                    break;
@@ -3137,7 +3135,7 @@ public String toString() { return root.toString(); }
                                case MODULUS:
 
                                    for (int i = 0; i < l.length; i++) {
-                                       l[i] = (long) iL[i] % lR[i];
+                                       l[i] = iL[i] % lR[i];
                                    }
 
                                    break;
@@ -3155,7 +3153,7 @@ public String toString() { return root.toString(); }
                                    throw new ExpressionException("ColumnExpression: Illegal expression.");
                            }
 
-                           return (Object) l;
+                           return l;
 
                        case TYPE_SHORT:
                            I = new int[table.getNumRows()];
@@ -3168,7 +3166,7 @@ public String toString() { return root.toString(); }
                                case ADDITION:
 
                                    for (int i = 0; i < I.length; i++) {
-                                       I[i] = iL[i] + (int) sR[i];
+                                       I[i] = iL[i] + sR[i];
                                    }
 
                                    break;
@@ -3176,7 +3174,7 @@ public String toString() { return root.toString(); }
                                case SUBTRACTION:
 
                                    for (int i = 0; i < I.length; i++) {
-                                       I[i] = iL[i] - (int) sR[i];
+                                       I[i] = iL[i] - sR[i];
                                    }
 
                                    break;
@@ -3184,7 +3182,7 @@ public String toString() { return root.toString(); }
                                case MULTIPLICATION:
 
                                    for (int i = 0; i < I.length; i++) {
-                                       I[i] = iL[i] * (int) sR[i];
+                                       I[i] = iL[i] * sR[i];
                                    }
 
                                    break;
@@ -3192,7 +3190,7 @@ public String toString() { return root.toString(); }
                                case DIVISION:
 
                                    for (int i = 0; i < I.length; i++) {
-                                       I[i] = iL[i] / (int) sR[i];
+                                       I[i] = iL[i] / sR[i];
                                    }
 
                                    break;
@@ -3200,7 +3198,7 @@ public String toString() { return root.toString(); }
                                case MODULUS:
 
                                    for (int i = 0; i < I.length; i++) {
-                                       I[i] = iL[i] % (int) sR[i];
+                                       I[i] = iL[i] % sR[i];
                                    }
 
                                    break;
@@ -3217,7 +3215,7 @@ public String toString() { return root.toString(); }
                                    throw new ExpressionException("ColumnExpression: Illegal expression.");
                            }
 
-                           return (Object) I;
+                           return I;
 
                        default:
                            throw new ExpressionException("ColumnExpression: Illegal expression.");
@@ -3242,7 +3240,7 @@ public String toString() { return root.toString(); }
                                case ADDITION:
 
                                    for (int i = 0; i < s.length; i++) {
-                                       s[i] = (short) (sL[i] + (short) bR[i]);
+                                       s[i] = (short) (sL[i] + bR[i]);
                                    }
 
                                    break;
@@ -3250,7 +3248,7 @@ public String toString() { return root.toString(); }
                                case SUBTRACTION:
 
                                    for (int i = 0; i < s.length; i++) {
-                                       s[i] = (short) (sL[i] - (short) bR[i]);
+                                       s[i] = (short) (sL[i] - bR[i]);
                                    }
 
                                    break;
@@ -3258,7 +3256,7 @@ public String toString() { return root.toString(); }
                                case MULTIPLICATION:
 
                                    for (int i = 0; i < s.length; i++) {
-                                       s[i] = (short) (sL[i] * (short) bR[i]);
+                                       s[i] = (short) (sL[i] * bR[i]);
                                    }
 
                                    break;
@@ -3266,7 +3264,7 @@ public String toString() { return root.toString(); }
                                case DIVISION:
 
                                    for (int i = 0; i < s.length; i++) {
-                                       s[i] = (short) (sL[i] / (short) bR[i]);
+                                       s[i] = (short) (sL[i] / bR[i]);
                                    }
 
                                    break;
@@ -3274,7 +3272,7 @@ public String toString() { return root.toString(); }
                                case MODULUS:
 
                                    for (int i = 0; i < s.length; i++) {
-                                       s[i] = (short) (sL[i] % (short) bR[i]);
+                                       s[i] = (short) (sL[i] % bR[i]);
                                    }
 
                                    break;
@@ -3292,7 +3290,7 @@ public String toString() { return root.toString(); }
                                    throw new ExpressionException("ColumnExpression: Illegal expression.");
                            }
 
-                           return (Object) s;
+                           return s;
 
                        case TYPE_DOUBLE:
 
@@ -3306,7 +3304,7 @@ public String toString() { return root.toString(); }
                                case ADDITION:
 
                                    for (int i = 0; i < d.length; i++) {
-                                       d[i] = (double) sL[i] + dR[i];
+                                       d[i] = sL[i] + dR[i];
                                    }
 
                                    break;
@@ -3314,7 +3312,7 @@ public String toString() { return root.toString(); }
                                case SUBTRACTION:
 
                                    for (int i = 0; i < d.length; i++) {
-                                       d[i] = (double) sL[i] - dR[i];
+                                       d[i] = sL[i] - dR[i];
                                    }
 
                                    break;
@@ -3322,7 +3320,7 @@ public String toString() { return root.toString(); }
                                case MULTIPLICATION:
 
                                    for (int i = 0; i < d.length; i++) {
-                                       d[i] = (double) sL[i] * dR[i];
+                                       d[i] = sL[i] * dR[i];
                                    }
 
                                    break;
@@ -3330,7 +3328,7 @@ public String toString() { return root.toString(); }
                                case DIVISION:
 
                                    for (int i = 0; i < d.length; i++) {
-                                       d[i] = (double) sL[i] / dR[i];
+                                       d[i] = sL[i] / dR[i];
                                    }
 
                                    break;
@@ -3338,7 +3336,7 @@ public String toString() { return root.toString(); }
                                case MODULUS:
 
                                    for (int i = 0; i < d.length; i++) {
-                                       d[i] = (double) sL[i] % dR[i];
+                                       d[i] = sL[i] % dR[i];
                                    }
 
                                    break;
@@ -3347,7 +3345,7 @@ public String toString() { return root.toString(); }
                                case POW:
 
                                    for (int i = 0; i < d.length; i++) {
-                                       d[i] = (double) Math.pow(sL[i], dR[i]);
+                                       d[i] = Math.pow(sL[i], dR[i]);
                                    }
 
                                    break;
@@ -3356,7 +3354,7 @@ public String toString() { return root.toString(); }
                                    throw new ExpressionException("ColumnExpression: Illegal expression.");
                            }
 
-                           return (Object) d;
+                           return d;
 
                        case TYPE_FLOAT:
 
@@ -3370,7 +3368,7 @@ public String toString() { return root.toString(); }
                                case ADDITION:
 
                                    for (int i = 0; i < f.length; i++) {
-                                       f[i] = (float) sL[i] + fR[i];
+                                       f[i] = sL[i] + fR[i];
                                    }
 
                                    break;
@@ -3378,7 +3376,7 @@ public String toString() { return root.toString(); }
                                case SUBTRACTION:
 
                                    for (int i = 0; i < f.length; i++) {
-                                       f[i] = (float) sL[i] - fR[i];
+                                       f[i] = sL[i] - fR[i];
                                    }
 
                                    break;
@@ -3386,7 +3384,7 @@ public String toString() { return root.toString(); }
                                case MULTIPLICATION:
 
                                    for (int i = 0; i < f.length; i++) {
-                                       f[i] = (float) sL[i] * fR[i];
+                                       f[i] = sL[i] * fR[i];
                                    }
 
                                    break;
@@ -3394,7 +3392,7 @@ public String toString() { return root.toString(); }
                                case DIVISION:
 
                                    for (int i = 0; i < f.length; i++) {
-                                       f[i] = (float) sL[i] / fR[i];
+                                       f[i] = sL[i] / fR[i];
                                    }
 
                                    break;
@@ -3402,7 +3400,7 @@ public String toString() { return root.toString(); }
                                case MODULUS:
 
                                    for (int i = 0; i < f.length; i++) {
-                                       f[i] = (float) sL[i] % fR[i];
+                                       f[i] = sL[i] % fR[i];
                                    }
 
                                    break;
@@ -3420,7 +3418,7 @@ public String toString() { return root.toString(); }
                                    throw new ExpressionException("ColumnExpression: Illegal expression.");
                            }
 
-                           return (Object) f;
+                           return f;
 
                        case TYPE_INTEGER:
 
@@ -3434,7 +3432,7 @@ public String toString() { return root.toString(); }
                                case ADDITION:
 
                                    for (int i = 0; i < I.length; i++) {
-                                       I[i] = (int) sL[i] + iR[i];
+                                       I[i] = sL[i] + iR[i];
                                    }
 
                                    break;
@@ -3442,7 +3440,7 @@ public String toString() { return root.toString(); }
                                case SUBTRACTION:
 
                                    for (int i = 0; i < I.length; i++) {
-                                       I[i] = (int) sL[i] - iR[i];
+                                       I[i] = sL[i] - iR[i];
                                    }
 
                                    break;
@@ -3450,7 +3448,7 @@ public String toString() { return root.toString(); }
                                case MULTIPLICATION:
 
                                    for (int i = 0; i < I.length; i++) {
-                                       I[i] = (int) sL[i] * iR[i];
+                                       I[i] = sL[i] * iR[i];
                                    }
 
                                    break;
@@ -3458,7 +3456,7 @@ public String toString() { return root.toString(); }
                                case DIVISION:
 
                                    for (int i = 0; i < I.length; i++) {
-                                       I[i] = (int) sL[i] / iR[i];
+                                       I[i] = sL[i] / iR[i];
                                    }
 
                                    break;
@@ -3466,7 +3464,7 @@ public String toString() { return root.toString(); }
                                case MODULUS:
 
                                    for (int i = 0; i < I.length; i++) {
-                                       I[i] = (int) sL[i] % iR[i];
+                                       I[i] = sL[i] % iR[i];
                                    }
 
                                    break;
@@ -3484,7 +3482,7 @@ public String toString() { return root.toString(); }
                                    throw new ExpressionException("ColumnExpression: Illegal expression.");
                            }
 
-                           return (Object) I;
+                           return I;
 
                        case TYPE_LONG:
 
@@ -3498,7 +3496,7 @@ public String toString() { return root.toString(); }
                                case ADDITION:
 
                                    for (int i = 0; i < l.length; i++) {
-                                       l[i] = (long) sL[i] + lR[i];
+                                       l[i] = sL[i] + lR[i];
                                    }
 
                                    break;
@@ -3506,7 +3504,7 @@ public String toString() { return root.toString(); }
                                case SUBTRACTION:
 
                                    for (int i = 0; i < l.length; i++) {
-                                       l[i] = (long) sL[i] - lR[i];
+                                       l[i] = sL[i] - lR[i];
                                    }
 
                                    break;
@@ -3514,7 +3512,7 @@ public String toString() { return root.toString(); }
                                case MULTIPLICATION:
 
                                    for (int i = 0; i < l.length; i++) {
-                                       l[i] = (long) sL[i] * lR[i];
+                                       l[i] = sL[i] * lR[i];
                                    }
 
                                    break;
@@ -3522,7 +3520,7 @@ public String toString() { return root.toString(); }
                                case DIVISION:
 
                                    for (int i = 0; i < l.length; i++) {
-                                       l[i] = (long) sL[i] / lR[i];
+                                       l[i] = sL[i] / lR[i];
                                    }
 
                                    break;
@@ -3530,7 +3528,7 @@ public String toString() { return root.toString(); }
                                case MODULUS:
 
                                    for (int i = 0; i < l.length; i++) {
-                                       l[i] = (long) sL[i] % lR[i];
+                                       l[i] = sL[i] % lR[i];
                                    }
 
                                    break;
@@ -3548,7 +3546,7 @@ public String toString() { return root.toString(); }
                                    throw new ExpressionException("ColumnExpression: Illegal expression.");
                            }
 
-                           return (Object) l;
+                           return l;
 
                        case TYPE_SHORT:
                            s = new short[table.getNumRows()];
@@ -3611,7 +3609,7 @@ public String toString() { return root.toString(); }
                                    throw new ExpressionException("ColumnExpression: Illegal expression.");
                            }
 
-                           return (Object) s;
+                           return s;
 
                        default:
                            throw new ExpressionException("ColumnExpression: Illegal expression.");
@@ -3630,7 +3628,8 @@ public String toString() { return root.toString(); }
        *
        * @return String description of this
        */
-      public String toString() {
+      @Override
+    public String toString() {
 
          StringBuffer buffer = new StringBuffer();
 
@@ -3825,7 +3824,8 @@ public String toString() { return root.toString(); }
        *
        * @throws ExpressionException when something goes wrong
        */
-      public Object evaluate() throws ExpressionException {
+      @Override
+    public Object evaluate() throws ExpressionException {
 
          if (myownflag == 0) {
 
@@ -3844,7 +3844,7 @@ public String toString() { return root.toString(); }
                      b[i] = table.getBoolean(i, column);
                   }
 
-                  return (Object) b;
+                  return b;
 
                case TYPE_BYTE:
 
@@ -3859,7 +3859,7 @@ public String toString() { return root.toString(); }
                      bb[i] = table.getByte(i, column);
                   }
 
-                  return (Object) bb;
+                  return bb;
 
                case TYPE_DOUBLE:
 
@@ -3874,7 +3874,7 @@ public String toString() { return root.toString(); }
                      d[i] = table.getDouble(i, column);
                   }
 
-                  return (Object) d;
+                  return d;
 
                case TYPE_FLOAT:
 
@@ -3889,7 +3889,7 @@ public String toString() { return root.toString(); }
                      f[i] = table.getFloat(i, column);
                   }
 
-                  return (Object) f;
+                  return f;
 
                case TYPE_INTEGER:
 
@@ -3904,7 +3904,7 @@ public String toString() { return root.toString(); }
                      I[i] = table.getInt(i, column);
                   }
 
-                  return (Object) I;
+                  return I;
 
                case TYPE_LONG:
 
@@ -3919,7 +3919,7 @@ public String toString() { return root.toString(); }
                      l[i] = table.getLong(i, column);
                   }
 
-                  return (Object) l;
+                  return l;
 
                case TYPE_SHORT:
 
@@ -3934,7 +3934,7 @@ public String toString() { return root.toString(); }
                      s[i] = table.getShort(i, column);
                   }
 
-                  return (Object) s;
+                  return s;
 
                default:
                   throw new ExpressionException("There has been an error in ColumnExpression. Double-check your expression.");
@@ -3948,7 +3948,7 @@ public String toString() { return root.toString(); }
                myf[i] = myownscalarvalue;
             }
 
-            return (Object) myf;
+            return myf;
          } else {
             String[] p = new String[table.getNumRows()];
 
@@ -3956,7 +3956,7 @@ public String toString() { return root.toString(); }
                p[i] = myValue;
             }
 
-            return (Object) p;
+            return p;
 
          }
 
@@ -3967,7 +3967,8 @@ public String toString() { return root.toString(); }
        *
        * @return description
        */
-      public String toString() {
+      @Override
+    public String toString() {
 
          if (myownflag == 0) {
 
@@ -3977,7 +3978,7 @@ public String toString() { return root.toString(); }
 
             return table.getColumnLabel(column);
          } else {
-            return ((String) Float.toString(myownscalarvalue));
+            return (Float.toString(myownscalarvalue));
          }
       }
    } // end class TerminalNode
