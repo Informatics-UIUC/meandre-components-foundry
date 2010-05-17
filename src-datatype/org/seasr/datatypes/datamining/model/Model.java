@@ -40,7 +40,7 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.datatypes.model;
+package org.seasr.datatypes.datamining.model;
 
 
 import org.seasr.datatypes.table.ExampleTable;

@@ -40,29 +40,57 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.datatypes.model;
+package org.seasr.datatypes.datamining;
 
 /**
- * Standard options for printing information about models.
+ * The <code>Expression</code> interface encapsulates any parsed-string
+ * expression that can be evaluated.
  *
- * @author  $Author: mcgrath $
- * @author Convert to SEASR -- D. Searsmith 6/1/08
- * @version $Revision: 1.3 $, $Date: 2006/07/27 16:53:37 $
+ * <p>
+ * Classes that implement this interface should not accept an expression
+ * <code>String</code> as an argument to any constructor. Rather, they should
+ * rely upon the <code>setExpression</code> method, which should attempt to
+ * parse the expression and throw an <code>ExpressionException</code> if there
+ * is an error. In this way, a <code>String</code>'s validity as an
+ * expression can be determined by simply calling <code>setExpression</code>
+ * and catching the exception.
+ * </p>
+ *
+ * <p>
+ * <code>evaluate</code> should return an <code>Object</code> corresponding
+ * to an evaluation of the last <code>String</code> specified by <code>
+ * setExpression</code>.
+ * </p>
+ *
+ * @author gpape
+ * @version $Revision: 1.3 $, $Date: 2006/07/27 14:35:52 $
  */
-@SuppressWarnings("serial")
-public class ModelPrintOptions implements java.io.Serializable {
+public interface Expression {
 
-   //~ Instance fields *********************************************************
+	// ~ Methods
+	// *****************************************************************
 
-   /** Ascii Inputs? */
-   public boolean AsciiInputs;
+	/**
+	 * Attempts to evaluate the last <code>String</code> specified by <code>
+	 * setExpression</code>.
+	 *
+	 * @return an appropriate <code>Object</code>
+	 *
+	 * @throws ExpressionException
+	 *             If the given expression string is invalid
+	 */
+	public Object evaluate() throws ExpressionException;
 
-   /** Enumerate Split Values? */
-   public boolean EnumerateSplitValues;
+	/**
+	 * Sets this <code>Expression</code>'s internal state to represent the
+	 * given expression <code>String</code>.
+	 *
+	 * @param expression
+	 *            some expression
+	 *
+	 * @throws ExpressionException
+	 *             If the given expression string is invalid
+	 */
+	public void setExpression(String expression) throws ExpressionException;
 
-   /** Maximum Fraction Digits, default=3. */
-   public int MaximumFractionDigits = 3;
-
-   /** Print Inner Node Models? */
-   public boolean PrintInnerNodeModels;
 }

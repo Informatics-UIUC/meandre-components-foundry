@@ -40,7 +40,7 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.datatypes;
+package org.seasr.datatypes.datamining;
 
 /**
  * This exception is thrown by the column element if a missing value is

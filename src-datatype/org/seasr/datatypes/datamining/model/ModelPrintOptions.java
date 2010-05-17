@@ -40,26 +40,29 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.datatypes;
+package org.seasr.datatypes.datamining.model;
 
 /**
- * Interface to listen for changes to expressions.
+ * Standard options for printing information about models.
  *
- * @author $author$
- * @version $Revision: 1.3 $, $Date: 2006/07/27 14:42:16 $
- * @see ncsa.d2k.modules.core.datatype.Expression
+ * @author  $Author: mcgrath $
+ * @author Convert to SEASR -- D. Searsmith 6/1/08
+ * @version $Revision: 1.3 $, $Date: 2006/07/27 16:53:37 $
  */
-public interface ExpressionListener {
+@SuppressWarnings("serial")
+public class ModelPrintOptions implements java.io.Serializable {
 
-	// ~ Methods
-	// *****************************************************************
+   //~ Instance fields *********************************************************
 
-	/**
-	 * Signal the expression has changed.
-	 *
-	 * @param evaluation
-	 *            new value of the expression.
-	 */
-	public void expressionChanged(Object evaluation);
+   /** Ascii Inputs? */
+   public boolean AsciiInputs;
 
+   /** Enumerate Split Values? */
+   public boolean EnumerateSplitValues;
+
+   /** Maximum Fraction Digits, default=3. */
+   public int MaximumFractionDigits = 3;
+
+   /** Print Inner Node Models? */
+   public boolean PrintInnerNodeModels;
 }

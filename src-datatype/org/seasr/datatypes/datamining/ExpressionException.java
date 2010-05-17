@@ -40,7 +40,7 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.datatypes;
+package org.seasr.datatypes.datamining;
 
 /**
  * <code>ExpressionException</code> specifies an exception that occurs during

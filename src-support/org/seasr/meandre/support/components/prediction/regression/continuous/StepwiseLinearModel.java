@@ -42,8 +42,8 @@
 
 package org.seasr.meandre.support.components.prediction.regression.continuous;
 
-import org.seasr.datatypes.model.Model;
-import org.seasr.datatypes.model.ModelPrintOptions;
+import org.seasr.datatypes.datamining.model.Model;
+import org.seasr.datatypes.datamining.model.ModelPrintOptions;
 import org.seasr.datatypes.table.ExampleTable;
 
 

@@ -40,7 +40,7 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.datatypes;
+package org.seasr.datatypes.datamining;
 
 import java.io.Serializable;
 import java.util.HashMap;

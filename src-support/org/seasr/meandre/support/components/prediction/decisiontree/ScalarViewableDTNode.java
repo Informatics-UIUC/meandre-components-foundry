@@ -42,7 +42,7 @@
 
 package org.seasr.meandre.support.components.prediction.decisiontree;
 
-import org.seasr.datatypes.model.Model;
+import org.seasr.datatypes.datamining.model.Model;
 
 
 /**
