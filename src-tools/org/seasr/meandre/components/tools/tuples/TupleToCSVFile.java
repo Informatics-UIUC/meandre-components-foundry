@@ -63,7 +63,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.utils.FileResourceUtility;
+import org.seasr.meandre.support.components.utils.FileResourceUtility;
 
 /**
  *

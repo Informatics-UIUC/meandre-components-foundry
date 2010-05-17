@@ -74,7 +74,7 @@ import org.seasr.meandre.support.components.sentiment.PathMetric;
 import org.seasr.meandre.support.components.sentiment.PathMetricFinder;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.utils.FileResourceUtility;
+import org.seasr.meandre.support.components.utils.FileResourceUtility;
 
 /**
  *

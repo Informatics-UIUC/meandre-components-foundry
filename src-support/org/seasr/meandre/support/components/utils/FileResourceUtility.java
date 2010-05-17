@@ -41,7 +41,7 @@
 */
 
 
-package org.seasr.meandre.support.utils;
+package org.seasr.meandre.support.components.utils;
 
 import java.io.File;
 import java.util.logging.Logger;
