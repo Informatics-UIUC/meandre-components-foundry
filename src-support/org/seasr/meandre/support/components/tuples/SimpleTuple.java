@@ -42,8 +42,8 @@
 
 package org.seasr.meandre.support.components.tuples;
 
-import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
 
 
 public class SimpleTuple {

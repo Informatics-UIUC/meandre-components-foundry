@@ -50,13 +50,13 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Bytes;
-import org.seasr.datatypes.BasicDataTypes.BytesMap;
-import org.seasr.datatypes.BasicDataTypes.Integers;
-import org.seasr.datatypes.BasicDataTypes.IntegersMap;
-import org.seasr.datatypes.BasicDataTypes.Strings;
-import org.seasr.datatypes.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.BasicDataTypes.Bytes;
+import org.seasr.datatypes.core.BasicDataTypes.BytesMap;
+import org.seasr.datatypes.core.BasicDataTypes.Integers;
+import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.seasr.meandre.support.generic.io.ModelUtils;

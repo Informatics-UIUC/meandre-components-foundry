@@ -53,8 +53,8 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.BasicDataTypes;
-import org.seasr.datatypes.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.BasicDataTypes;
+import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 
@@ -156,10 +156,10 @@ public class DictionaryMerger extends AbstractExecutableComponent {
 	 * @throws Exception
 	 */
 	private void outputDictionary() throws Exception {
-		org.seasr.datatypes.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
         Set<String> set = dictionary.keySet();
         for (String s : set ) {
-        	org.seasr.datatypes.BasicDataTypes.Strings.Builder sres = BasicDataTypes.Strings.newBuilder();
+        	org.seasr.datatypes.core.BasicDataTypes.Strings.Builder sres = BasicDataTypes.Strings.newBuilder();
         	sres.addValue(dictionary.get(s));
         	mres.addKey(s);
 			mres.addValue(sres.build());

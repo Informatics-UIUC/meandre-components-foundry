@@ -62,10 +62,10 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.seasr.datatypes.BasicDataTypes;
-import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.Strings;
-import org.seasr.datatypes.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.BasicDataTypes;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
@@ -355,11 +355,11 @@ public class TokenFilter extends AbstractExecutableComponent {
 	    int nKeptTokens = 0;
 
 		StringsMap im = safeStringsMapCast(next);
-		org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
 		for ( int i=0, iMax=im.getKeyCount() ; i<iMax ; i++ ) {
 			String sKey = im.getKey(i);
 			Strings sVals = im.getValue(i);
-			org.seasr.datatypes.BasicDataTypes.Strings.Builder resFiltered = BasicDataTypes.Strings.newBuilder();
+			org.seasr.datatypes.core.BasicDataTypes.Strings.Builder resFiltered = BasicDataTypes.Strings.newBuilder();
 			for ( String s:sVals.getValueList())
 				if ( !this.setBlacklist.contains(s) )
 					resFiltered.addValue(s);
@@ -438,7 +438,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 
         int nFilteredTokens = 0;
 
-		org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 		for ( String sTok : tokens )
 			if ( !this.setBlacklist.contains(sTok) )
 				res.addValue(sTok);

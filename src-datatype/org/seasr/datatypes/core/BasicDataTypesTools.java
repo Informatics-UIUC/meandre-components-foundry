@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.datatypes;
+package org.seasr.datatypes.core;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -49,13 +49,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.seasr.datatypes.BasicDataTypes.Bytes;
-import org.seasr.datatypes.BasicDataTypes.BytesMap;
-import org.seasr.datatypes.BasicDataTypes.Integers;
-import org.seasr.datatypes.BasicDataTypes.IntegersMap;
-import org.seasr.datatypes.BasicDataTypes.Strings;
-import org.seasr.datatypes.BasicDataTypes.StringsArray;
-import org.seasr.datatypes.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.BasicDataTypes.Bytes;
+import org.seasr.datatypes.core.BasicDataTypes.BytesMap;
+import org.seasr.datatypes.core.BasicDataTypes.Integers;
+import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 
 import com.google.protobuf.ByteString;
 
@@ -76,7 +76,7 @@ public abstract class BasicDataTypesTools {
 	 * @return THe new object produced
 	 */
 	public static Integers integerToIntegers( Integer i ) {
-		org.seasr.datatypes.BasicDataTypes.Integers.Builder res = BasicDataTypes.Integers.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.Integers.Builder res = BasicDataTypes.Integers.newBuilder();
 		res.addValue(i);
 		return res.build();
 	}
@@ -100,7 +100,7 @@ public abstract class BasicDataTypesTools {
 	 * @return The new object produced
 	 */
 	public static Strings stringToStrings ( String s ){
-		org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 		res.addValue(s);
 		return res.build();
 	}
@@ -112,7 +112,7 @@ public abstract class BasicDataTypesTools {
 	 * @return The new object produced
 	 */
 	public static Strings stringToStrings ( String [] sa ){
-		org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 		for (String s:sa) {
 			if (s != null) res.addValue(s);
 		}
@@ -143,7 +143,7 @@ public abstract class BasicDataTypesTools {
 	 */
 	public static StringsArray javaArrayToStringsArray(Strings[] sa)
 	{
-		org.seasr.datatypes.BasicDataTypes.StringsArray.Builder res = BasicDataTypes.StringsArray.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.StringsArray.Builder res = BasicDataTypes.StringsArray.newBuilder();
 		for(Strings s: sa) res.addValue(s);
 		return res.build();
 	}
@@ -169,7 +169,7 @@ public abstract class BasicDataTypesTools {
 	 * @return The empty strings map created
 	 */
 	public static StringsMap buildEmptyStringsMap () {
-		org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
 		return res.build();
 	}
 
@@ -179,7 +179,7 @@ public abstract class BasicDataTypesTools {
 	 * @return The empty strings map created
 	 */
 	public static Strings buildEmptyStrings () {
-		org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 		return res.build();
 	}
 
@@ -189,7 +189,7 @@ public abstract class BasicDataTypesTools {
 	 * @return The empty integer map created
 	 */
 	public static IntegersMap buildEmptyIntegersMap () {
-		org.seasr.datatypes.BasicDataTypes.IntegersMap.Builder res = BasicDataTypes.IntegersMap.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.IntegersMap.Builder res = BasicDataTypes.IntegersMap.newBuilder();
 		return res.build();
 	}
 
@@ -214,7 +214,7 @@ public abstract class BasicDataTypesTools {
                  }} );
         }
 
-        org.seasr.datatypes.BasicDataTypes.IntegersMap.Builder res = BasicDataTypes.IntegersMap.newBuilder();
+        org.seasr.datatypes.core.BasicDataTypes.IntegersMap.Builder res = BasicDataTypes.IntegersMap.newBuilder();
 		for ( Entry<String, Integer> entry:esa ) {
 			res.addKey(entry.getKey());
 			res.addValue(BasicDataTypes.Integers.newBuilder().addValue(entry.getValue()));
@@ -244,7 +244,7 @@ public abstract class BasicDataTypesTools {
 	 * @return The StringsMap
 	 */
 	public static StringsMap mapToStringMap(Map<String, String[]> htSentences) {
-	    org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
+	    org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
 	    for (Entry<String, String[]> entry : htSentences.entrySet()) {
 	        res.addKey(entry.getKey());
 	        res.addValue(stringToStrings(entry.getValue()));
@@ -288,7 +288,7 @@ public abstract class BasicDataTypesTools {
 	 * @return The Bytes object
 	 */
 	public static Bytes byteArrayToBytes(byte[] barr) {
-	    org.seasr.datatypes.BasicDataTypes.Bytes.Builder res = BasicDataTypes.Bytes.newBuilder();
+	    org.seasr.datatypes.core.BasicDataTypes.Bytes.Builder res = BasicDataTypes.Bytes.newBuilder();
 	    res.addValue(ByteString.copyFrom(barr));
 	    return res.build();
 	}
@@ -316,7 +316,7 @@ public abstract class BasicDataTypesTools {
      * @return The IntegerMap
      */
     public static BytesMap mapToByteMap(Map<String, byte[]> htBytes) {
-        org.seasr.datatypes.BasicDataTypes.BytesMap.Builder res = BasicDataTypes.BytesMap.newBuilder();
+        org.seasr.datatypes.core.BasicDataTypes.BytesMap.Builder res = BasicDataTypes.BytesMap.newBuilder();
         for ( Entry<String, byte[]> entry:htBytes.entrySet() ) {
             res.addKey(entry.getKey());
             res.addValue(byteArrayToBytes(entry.getValue()));

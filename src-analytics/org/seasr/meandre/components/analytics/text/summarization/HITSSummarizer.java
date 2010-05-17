@@ -58,9 +58,9 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.BasicDataTypes;
-import org.seasr.datatypes.BasicDataTypes.Strings;
-import org.seasr.datatypes.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.BasicDataTypes;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 
@@ -241,7 +241,7 @@ public class HITSSummarizer extends AbstractExecutableComponent {
             }} );
 
 		// Push them out
-		org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 		int iMax = (this.iNTopSentences<0)?ea.length:(this.iNTopSentences>ea.length)?ea.length:this.iNTopSentences;
 		for ( int i=0 ; i<iMax ; i++ )
 			res.addValue(ea[i].sText);
@@ -277,7 +277,7 @@ public class HITSSummarizer extends AbstractExecutableComponent {
             }} );
 
 		// Push it out
-		org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 		int iMax = (this.iNTopTokens<0)?ea.length:(this.iNTopTokens>ea.length)?ea.length:this.iNTopTokens;
 		for ( int i=0 ; i<iMax ; i++ )
 			res.addValue(ea[i].sText);

@@ -51,9 +51,9 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
-import org.seasr.datatypes.BasicDataTypes;
-import org.seasr.datatypes.BasicDataTypes.Strings;
-import org.seasr.datatypes.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.BasicDataTypes;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
@@ -182,7 +182,7 @@ public class Stem extends AbstractExecutableComponent {
                 throw e;
         }
 
-        org.seasr.datatypes.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
+        org.seasr.datatypes.core.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
 
 		for (String sToken : tokens ) {
 			String stem = stemmer.normalizeTerm(sToken);
@@ -200,12 +200,12 @@ public class Stem extends AbstractExecutableComponent {
 	private void processSentences (Object object) throws Exception {
 		StringsMap im = (StringsMap)object;
 
-		org.seasr.datatypes.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
 
 		for ( int i=0, iMax=im.getKeyCount() ; i<iMax ; i++ ) {
 			String sKey = im.getKey(i);
 			Strings sVals = im.getValue(i);
-			org.seasr.datatypes.BasicDataTypes.Strings.Builder resStemmed = BasicDataTypes.Strings.newBuilder();
+			org.seasr.datatypes.core.BasicDataTypes.Strings.Builder resStemmed = BasicDataTypes.Strings.newBuilder();
 			for ( String s:sVals.getValueList()) {
 				String stem = stemmer.normalizeTerm(s);
 				resStemmed.addValue(stem);

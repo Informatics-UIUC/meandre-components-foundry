@@ -52,8 +52,8 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
-import org.seasr.datatypes.BasicDataTypesTools;
-import org.seasr.datatypes.BasicDataTypes.IntegersMap;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 import org.seasr.meandre.components.tools.Names;
 
 /**

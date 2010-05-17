@@ -55,7 +55,7 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
-import org.seasr.datatypes.BasicDataTypes;
+import org.seasr.datatypes.core.BasicDataTypes;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
@@ -158,10 +158,10 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
         }
 
         if (!_gotInitiator) {
-        	org.seasr.datatypes.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
+        	org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
             Set<String> set = map.keySet();
             for (String s : set ) {
-            	org.seasr.datatypes.BasicDataTypes.Strings.Builder sres = BasicDataTypes.Strings.newBuilder();
+            	org.seasr.datatypes.core.BasicDataTypes.Strings.Builder sres = BasicDataTypes.Strings.newBuilder();
             	sres.addValue(map.get(s));
             	mres.addKey(s);
     			mres.addValue(sres.build());
@@ -192,10 +192,10 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
 		if (!_gotInitiator)
 	            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
-		org.seasr.datatypes.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
+		org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
         Set<String> set = map.keySet();
         for (String s : set ) {
-        	org.seasr.datatypes.BasicDataTypes.Strings.Builder sres = BasicDataTypes.Strings.newBuilder();
+        	org.seasr.datatypes.core.BasicDataTypes.Strings.Builder sres = BasicDataTypes.Strings.newBuilder();
         	sres.addValue(map.get(s));
         	mres.addKey(s);
 			mres.addValue(sres.build());
