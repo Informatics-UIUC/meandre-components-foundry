@@ -43,12 +43,14 @@
 package org.seasr.meandre.support.components.io.file.input;
 
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.util.ArrayList;
 
 import org.meandre.tools.webdav.WebdavClient;
 import org.seasr.datatypes.datamining.table.ColumnTypes;
-import org.seasr.datatypes.table.*;
 
 /**
  * Reads data from a delimited file. The delimiter is found automatically, or
@@ -1045,7 +1047,8 @@ public class DelimitedFileParserFromURL implements FlatFileParser {
     */
    public void setDelimiter(char d) { delimiter = d; }
 
-   public void finalize() {}
+   @Override
+public void finalize() {}
 
    /**
     *
