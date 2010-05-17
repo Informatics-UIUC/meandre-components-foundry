@@ -40,10 +40,10 @@
  * WITH THE SOFTWARE.
  */ 
 
-package org.seasr.meandre.support.components.transform.binning;
+package org.seasr.datatypes.datamining.table.transformations.binning;
 
 import org.seasr.datatypes.datamining.table.Table;
-import org.seasr.meandre.support.components.transform.StaticMethods;
+import org.seasr.datatypes.datamining.table.transformations.StaticMethods;
 
 import java.util.ArrayList;
 import java.util.HashMap;

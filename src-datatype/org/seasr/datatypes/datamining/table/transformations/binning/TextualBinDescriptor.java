@@ -40,27 +40,65 @@
  * WITH THE SOFTWARE.
  */ 
 
-package org.seasr.meandre.support.components.discovery.ruleassociation;
+package org.seasr.datatypes.datamining.table.transformations.binning;
 
-import org.seasr.meandre.support.components.prediction.*;
+import java.util.HashSet;
 
-public interface RulePMMLTags extends PMMLTags {
-    public static final String CONSEQUENT = "consequent";
-    public static final String ANTECEDENT = "antecedent";
-    public static final String SUPPORT = "support";
-    public static final String CONFIDENCE = "confidence";
-    public static final String ID = "id";
-    public static final String VALUE = "value";
-    public static final String ASSOC_RULE = "AssociationRule";
-    public static final String ITEM_REF = "itemRef";
-    public static final String ITEM = "Item";
-    public static final String ITEMSET = "Itemset";
-    public static final String ITEMREF = "ItemRef";
-    public static final String ASSOC_MODEL = "AssociationModel";
-    public static final String NUM_TRANS = "numberOfTransactions";
-    public static final String MIN_SUP = "minimumSupport";
-    public static final String MIN_CON = "minimumConfidence";
-    public static final String NUM_ITEM = "numberOfItems";
-    public static final String NUM_ITEMSETS = "numberOfItemsets";
-    public static final String NUM_RULE = "numberOfRules";
-}
+
+/**
+ * Bin that holds strings
+ *
+ * @author  $Author: clutter $
+ * @version $Revision: 1.2 $, $Date: 2006/08/02 15:06:26 $
+ */
+public class TextualBinDescriptor extends BinDescriptor {
+
+   //~ Instance fields *********************************************************
+
+   /** Set of values that fall in this bin */
+   public HashSet vals;
+
+   //~ Constructors ************************************************************
+
+   /**
+    * Constructor
+    *
+    * @param col   column index
+    * @param n     bin name
+    * @param v     set of values that fall in this bin
+    * @param label column label
+    */
+   public TextualBinDescriptor(int col, String n, String[] v, String label) {
+      super(col, label);
+      name = n;
+      vals = new HashSet();
+
+      for (int i = 0; i < v.length; i++) {
+         vals.add(v[i]);
+      }
+   }
+
+   //~ Methods *****************************************************************
+
+
+    /**
+     * Evalaute d, return true if it falls in this bin, false otherwise.
+     *
+     * @param d double value
+     * @return true if d falls in this bin, false otherwise
+     */
+    public boolean eval(double d) {
+        return eval(Double.toString(d));
+    }
+
+
+    /**
+     * Evaluate s, return true if it falls in this bin, false otherwise
+     *
+     * @param s string value
+     * @return true if s falls in this bin, false otherwise
+     */
+    public boolean eval(String s) {
+        return vals.contains(s);
+    }
+} // BinColumnsView$TextualBinDescriptor

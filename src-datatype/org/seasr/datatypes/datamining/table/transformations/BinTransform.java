@@ -49,8 +49,8 @@ import org.seasr.datatypes.datamining.table.MutableTable;
 import org.seasr.datatypes.datamining.table.Table;
 import org.seasr.datatypes.datamining.table.Transformation;
 import org.seasr.datatypes.datamining.table.basic.ColumnUtilities;
-import org.seasr.meandre.support.components.transform.binning.BinDescriptor;
-import org.seasr.meandre.support.components.transform.binning.BinningUtils;
+import org.seasr.datatypes.datamining.table.transformations.binning.BinDescriptor;
+import org.seasr.datatypes.datamining.table.transformations.binning.BinningUtils;
 
 /**
  * BinTransform encapsulates a binning transformation on a Table.

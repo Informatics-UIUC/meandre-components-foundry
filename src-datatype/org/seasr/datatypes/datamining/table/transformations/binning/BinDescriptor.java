@@ -40,7 +40,7 @@
  * WITH THE SOFTWARE.
  */ 
 
-package org.seasr.meandre.support.components.transform.binning;
+package org.seasr.datatypes.datamining.table.transformations.binning;
 
 import java.io.Serializable;
 

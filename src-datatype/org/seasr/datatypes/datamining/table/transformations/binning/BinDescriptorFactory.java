@@ -47,7 +47,7 @@
  * To change this generated comment go to Window>Preferences>Java>Code
  * Generation>Code Template
  */
-package org.seasr.meandre.support.components.transform.binning;
+package org.seasr.datatypes.datamining.table.transformations.binning;
 
 import org.seasr.datatypes.datamining.table.Table;
 

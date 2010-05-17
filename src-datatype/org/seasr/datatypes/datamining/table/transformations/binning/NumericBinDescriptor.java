@@ -40,68 +40,72 @@
  * WITH THE SOFTWARE.
  */ 
 
-package org.seasr.meandre.support.components.prediction.decisiontree;
+package org.seasr.datatypes.datamining.table.transformations.binning;
+
 
 /**
- * Interface that viewable decision tree nodes implement
+ * Bin descriptor for numeric bins
  *
- * @author  $author$
- * @version $Revision: 1.3 $, $Date: 2006/08/02 15:07:32 $
+ * @author  $Author: clutter $
+ * @version $Revision: 1.3 $, $Date: 2006/08/02 15:06:26 $
  */
-public interface ViewableDTNode {
+public class NumericBinDescriptor extends BinDescriptor {
+
+   //~ Instance fields *********************************************************
+
+   /** min value */
+   public double min;
+    /** max value */
+   public double max;
+
+   //~ Constructors ************************************************************
+
+   /**
+    * Constructor
+    *
+    * @param col   column index
+    * @param n     bin name
+    * @param mn    min value
+    * @param mx    max value
+    * @param label column label
+    */
+   public NumericBinDescriptor(int col, String n, double mn, double mx,
+                               String label) {
+      super(col, label);
+
+      column_number = col;
+      name = n;
+      min = mn;
+      max = mx;
+   }
 
    //~ Methods *****************************************************************
 
-   /**
-    * Get the label of a branch.
-    *
-    * @param  i the branch to get the label of
-    *
-    * @return the label of branch i
-    */
-   public String getBranchLabel(int i);
 
-   /**
-    * Get the depth of this node. (Root is 0)
-    *
-    * @return the depth of this node.
-    */
-   public int getDepth();
+    /**
+     * Evalaute d, return true if it falls in this bin, false otherwise.
+     *
+     * @param d double value
+     * @return true if d falls in this bin, false otherwise
+     */
+    public boolean eval(double d) {
+        return (d > min && d <= max);
+    }
 
-   /**
-    * Get the label of this node.
-    *
-    * @return the label of this node
-    */
-   public String getLabel();
+    /**
+     * Evaluate s, return true if it falls in this bin, false otherwise
+     *
+     * @param s string value
+     * @return true if s falls in this bin, false otherwise
+     */
+    public boolean eval(String s) {
 
-   /**
-    * Get the number of children of this node.
-    *
-    * @return the number of children of this node
-    */
-   public int getNumChildren();
+        try {
+            double d = Double.parseDouble(s);
 
-   /**
-    * Get the total number of examples that passed through this node.
-    *
-    * @return the total number of examples that passes through this node
-    */
-   public int getTotal();
-
-   /**
-    * Get a child of this node.
-    *
-    * @param  i the index of the child to get
-    *
-    * @return the ith child of this node
-    */
-   public ViewableDTNode getViewableChild(int i);
-
-   /**
-    * Get the parent of this node.
-    *
-    * @return get the parent of this node.
-    */
-   public ViewableDTNode getViewableParent();
-} // end interface ViewableDTNode
+            return eval(d);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+} // NumericBinDescriptor
