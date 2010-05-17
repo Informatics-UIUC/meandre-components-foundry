@@ -83,7 +83,7 @@
 
     <!-- Code locations -->
     <path id="src.code.dirs">
-        <dirset dir="${basedir}" includes="src-*" excludes="src-test, src-gwt"/>
+        <dirset dir="${basedir}" includes="src-*" excludes="src-test, src-gwt, src-datatype, src-abstracts"/>
     </path>
 
     <!-- Test locations -->
