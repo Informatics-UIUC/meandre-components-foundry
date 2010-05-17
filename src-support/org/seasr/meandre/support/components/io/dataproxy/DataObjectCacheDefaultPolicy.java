@@ -40,10 +40,14 @@
  * WITH THE SOFTWARE.
  */ 
 
-package org.seasr.meandre.support.components.io;
+package org.seasr.meandre.support.components.io.dataproxy;
+
+import java.io.File;
+
 
 /**
- * The factory class to set up DataObjectCacheManagers
+ * This is the default implementation of a cache policy.  It implements 
+ * the 'shouldFlush' method with a simple default rule.
  *
  * @author  $Author: dfleming $
  * @version $Revision: 1.2 $, $Date: 2007/01/23 23:09:36 $
@@ -51,63 +55,39 @@ package org.seasr.meandre.support.components.io;
  * TODO: testing
  * @author D. Searsmith (conversion to SEASR 6/08)
  */
-public class DataObjectCacheManagerFactory {
+public class DataObjectCacheDefaultPolicy implements DataObjectCachePolicy {
 
-   //~ Static fields/initializers **********************************************
+   //~ Instance fields *********************************************************
 
-   /** The cache manager. */
-   static DataObjectCacheManager manager = null;
+   /** The default timeOut -- one day. */
+   private long timeOut = 24 * 60 * 60 * 1000; // ms/day
 
    //~ Methods *****************************************************************
 
    /**
-    * Get the cache manager, use default resources.
-    * <p>
-    * Probably should denigrate this method
+    * Set the timeout to another value
     *
-    * @return Description of return value.
+    * @param msecs Description of parameter msecs.
     */
-   static public DataObjectCacheManager getCacheManager() throws DataObjectProxyException {
-
-      // need to make a file for each user?
-      if (manager == null) {
-         manager = new DataObjectCacheManager();
-         manager.setConfigFile("resources/cacheState.xml");
-         manager.setSchemaFile("resources/cacheManager.xsd");
-
-         /*
-          * Initialize the cache manager, may throw exception
-          */
-         manager.initCacheState();
-      }
-
-      return manager;
-   }
+   public void setTimeOut(long msecs) { timeOut = msecs; }
 
    /**
-    * get the cache manager, specify the schema and data files.
+    * The required policy.  In this case, true if the file is older than one day.
     *
-    * @param  xschema Description of parameter xschema.
-    * @param  xdata   Description of parameter xdata.
+    * @param  f The file.
     *
-    * @return Description of return value.
+    * @return true if older than the timeout.
     */
-   static public DataObjectCacheManager getCacheManager(String xschema,
-                                                        String xdata)
-   						throws DataObjectProxyException {
+   public boolean shouldFlush(File f) {
+	  if (f == null || !f.exists()) return false; // no such file?
+	  
+      long now = System.currentTimeMillis();
+      long mod = f.lastModified();
 
-      // need to make a file for each user?
-      if (manager == null) {
-         manager = new DataObjectCacheManager();
-         manager.setConfigFile(xdata);
-         manager.setSchemaFile(xschema);
-         
-         /*
-          * Initialize the cache manager, may throw exception
-          */      
-         manager.initCacheState();
-      }
+      // testing with simple default policy
+      long d = now - mod;
 
-      return manager;
+      return (d > timeOut);
    }
-} // end class DataObjectCacheManagerFactory
+
+} // end class DataObjectCacheDefaultPolicy

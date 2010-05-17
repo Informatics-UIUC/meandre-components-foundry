@@ -40,14 +40,10 @@
  * WITH THE SOFTWARE.
  */ 
 
-package org.seasr.meandre.support.components.io;
-
+package org.seasr.meandre.support.components.io.dataproxy;
 
 /**
- * Signals that an DataObjectProxyException has occurred.
- * 
- * <p>This exception can be used to wrap an exception
- * that occurs in other code, such as XML parsing.</p>
+ * The factory class to set up DataObjectCacheManagers
  *
  * @author  $Author: dfleming $
  * @version $Revision: 1.2 $, $Date: 2007/01/23 23:09:36 $
@@ -55,42 +51,63 @@ package org.seasr.meandre.support.components.io;
  * TODO: testing
  * @author D. Searsmith (conversion to SEASR 6/08)
  */
-public class DataObjectProxyException extends Exception {
+public class DataObjectCacheManagerFactory {
 
    //~ Static fields/initializers **********************************************
 
-   /** Use serialVersionUID for interoperability. */
-   static private final long serialVersionUID = -311010850266894842L;
+   /** The cache manager. */
+   static DataObjectCacheManager manager = null;
 
-   //~ Constructors ************************************************************
-
-   /**
-    * Creates a new DataObjectProxyException object.
-    */
-   public DataObjectProxyException() { super(); }
+   //~ Methods *****************************************************************
 
    /**
-    * Creates a new DataObjectProxyException object.
+    * Get the cache manager, use default resources.
+    * <p>
+    * Probably should denigrate this method
     *
-    * @param msg Description of parameter msg.
+    * @return Description of return value.
     */
-   public DataObjectProxyException(String msg) { super(msg); }
+   static public DataObjectCacheManager getCacheManager() throws DataObjectProxyException {
 
-   /**
-    * Creates a new DataObjectProxyException object.
-    *
-    * @param cause Description of parameter cause.
-    */
-   public DataObjectProxyException(Throwable cause) { super(cause); }
+      // need to make a file for each user?
+      if (manager == null) {
+         manager = new DataObjectCacheManager();
+         manager.setConfigFile("resources/cacheState.xml");
+         manager.setSchemaFile("resources/cacheManager.xsd");
 
-   /**
-    * Creates a new DataObjectProxyException object.
-    *
-    * @param msg   Description of parameter msg.
-    * @param cause Description of parameter cause.
-    */
-   public DataObjectProxyException(String msg, Throwable cause) {
-      super(msg, cause);
+         /*
+          * Initialize the cache manager, may throw exception
+          */
+         manager.initCacheState();
+      }
+
+      return manager;
    }
 
-} // end class DataObjectProxyException
+   /**
+    * get the cache manager, specify the schema and data files.
+    *
+    * @param  xschema Description of parameter xschema.
+    * @param  xdata   Description of parameter xdata.
+    *
+    * @return Description of return value.
+    */
+   static public DataObjectCacheManager getCacheManager(String xschema,
+                                                        String xdata)
+   						throws DataObjectProxyException {
+
+      // need to make a file for each user?
+      if (manager == null) {
+         manager = new DataObjectCacheManager();
+         manager.setConfigFile(xdata);
+         manager.setSchemaFile(xschema);
+         
+         /*
+          * Initialize the cache manager, may throw exception
+          */      
+         manager.initCacheState();
+      }
+
+      return manager;
+   }
+} // end class DataObjectCacheManagerFactory

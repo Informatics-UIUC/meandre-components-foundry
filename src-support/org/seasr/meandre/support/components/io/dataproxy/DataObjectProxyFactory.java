@@ -40,7 +40,7 @@
  * WITH THE SOFTWARE.
  */ 
 
-package org.seasr.meandre.support.components.io;
+package org.seasr.meandre.support.components.io.dataproxy;
 
 import java.net.URL;
 

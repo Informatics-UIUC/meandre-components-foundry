@@ -42,7 +42,9 @@
 
 package org.seasr.datatypes.datamining.table;
 
-import org.seasr.meandre.support.components.io.file.input.FlatFileParser;
+import org.seasr.datatypes.datamining.table.util.FlatFileParser;
+
+
 
 
 /**

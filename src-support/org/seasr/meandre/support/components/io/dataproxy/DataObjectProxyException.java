@@ -40,19 +40,57 @@
  * WITH THE SOFTWARE.
  */ 
 
-package org.seasr.meandre.support.components.io.file.input;
+package org.seasr.meandre.support.components.io.dataproxy;
+
 
 /**
- * Holds the elements of a line from a FlatFileParser.
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author not attributable
- * @version 1.0
+ * Signals that an DataObjectProxyException has occurred.
+ * 
+ * <p>This exception can be used to wrap an exception
+ * that occurs in other code, such as XML parsing.</p>
+ *
+ * @author  $Author: dfleming $
+ * @version $Revision: 1.2 $, $Date: 2007/01/23 23:09:36 $
+ * 
+ * TODO: testing
+ * @author D. Searsmith (conversion to SEASR 6/08)
  */
-public class ParsedLine {
+public class DataObjectProxyException extends Exception {
 
-  public char[][] elements;
-  public boolean[] blanks;
-}
+   //~ Static fields/initializers **********************************************
+
+   /** Use serialVersionUID for interoperability. */
+   static private final long serialVersionUID = -311010850266894842L;
+
+   //~ Constructors ************************************************************
+
+   /**
+    * Creates a new DataObjectProxyException object.
+    */
+   public DataObjectProxyException() { super(); }
+
+   /**
+    * Creates a new DataObjectProxyException object.
+    *
+    * @param msg Description of parameter msg.
+    */
+   public DataObjectProxyException(String msg) { super(msg); }
+
+   /**
+    * Creates a new DataObjectProxyException object.
+    *
+    * @param cause Description of parameter cause.
+    */
+   public DataObjectProxyException(Throwable cause) { super(cause); }
+
+   /**
+    * Creates a new DataObjectProxyException object.
+    *
+    * @param msg   Description of parameter msg.
+    * @param cause Description of parameter cause.
+    */
+   public DataObjectProxyException(String msg, Throwable cause) {
+      super(msg, cause);
+   }
+
+} // end class DataObjectProxyException

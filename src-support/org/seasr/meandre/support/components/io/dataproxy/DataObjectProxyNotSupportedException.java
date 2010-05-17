@@ -40,14 +40,14 @@
  * WITH THE SOFTWARE.
  */ 
 
-package org.seasr.meandre.support.components.io;
-
-import java.io.File;
+package org.seasr.meandre.support.components.io.dataproxy;
 
 
 /**
- * This is the default implementation of a cache policy.  It implements 
- * the 'shouldFlush' method with a simple default rule.
+ * Signals that an DataObjectProxyException has occurred.
+ * 
+ * <p>This exception can be used to wrap an exception
+ * that occurs in other code, such as XML parsing.</p>
  *
  * @author  $Author: dfleming $
  * @version $Revision: 1.2 $, $Date: 2007/01/23 23:09:36 $
@@ -55,39 +55,44 @@ import java.io.File;
  * TODO: testing
  * @author D. Searsmith (conversion to SEASR 6/08)
  */
-public class DataObjectCacheDefaultPolicy implements DataObjectCachePolicy {
+public class DataObjectProxyNotSupportedException extends
+DataObjectProxyException {
 
-   //~ Instance fields *********************************************************
+   //~ Static fields/initializers **********************************************
 
-   /** The default timeOut -- one day. */
-   private long timeOut = 24 * 60 * 60 * 1000; // ms/day
+   /** Use serialVersionUID for interoperability. */
+   static private final long serialVersionUID = -311010850266894842L;
 
-   //~ Methods *****************************************************************
-
-   /**
-    * Set the timeout to another value
-    *
-    * @param msecs Description of parameter msecs.
-    */
-   public void setTimeOut(long msecs) { timeOut = msecs; }
+   //~ Constructors ************************************************************
 
    /**
-    * The required policy.  In this case, true if the file is older than one day.
-    *
-    * @param  f The file.
-    *
-    * @return true if older than the timeout.
+    * Creates a new DataObjectProxyException object.
     */
-   public boolean shouldFlush(File f) {
-	  if (f == null || !f.exists()) return false; // no such file?
-	  
-      long now = System.currentTimeMillis();
-      long mod = f.lastModified();
+   public DataObjectProxyNotSupportedException() { super(); }
 
-      // testing with simple default policy
-      long d = now - mod;
+   /**
+    * Creates a new DataObjectProxyException object.
+    *
+    * @param msg Description of parameter msg.
+    */
+   public DataObjectProxyNotSupportedException(String msg) { super(msg); }
 
-      return (d > timeOut);
+   /**
+    * Creates a new DataObjectProxyException object.
+    *
+    * @param cause Description of parameter cause.
+    */
+   public DataObjectProxyNotSupportedException(Throwable cause) { super(cause); }
+
+   /**
+    * Creates a new DataObjectProxyException object.
+    *
+    * @param msg   Description of parameter msg.
+    * @param cause Description of parameter cause.
+    */
+   public DataObjectProxyNotSupportedException(String msg, Throwable cause) {
+      super(msg, cause);
    }
 
-} // end class DataObjectCacheDefaultPolicy
+} // end class DataObjectProxyException
+

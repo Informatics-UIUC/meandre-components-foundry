@@ -47,7 +47,7 @@
 //
 
 
-package org.seasr.meandre.support.components.io;
+package org.seasr.meandre.support.components.io.dataproxy;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;

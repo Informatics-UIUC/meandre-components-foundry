@@ -47,7 +47,7 @@
 //
 
 
-package org.seasr.meandre.support.components.io;
+package org.seasr.meandre.support.components.io.dataproxy;
 
 import java.util.ArrayList;
 import java.util.List;
