@@ -42,14 +42,14 @@
 
 package org.seasr.meandre.support.components.prediction;
 
-import org.seasr.datatypes.table.Column;
-import org.seasr.datatypes.table.ColumnTypes;
-import org.seasr.datatypes.table.ExampleTable;
-import org.seasr.datatypes.table.PredictionTable;
-import org.seasr.datatypes.table.ReversibleTransformation;
-import org.seasr.datatypes.table.Table;
-import org.seasr.datatypes.table.TableFactory;
-import org.seasr.datatypes.table.Transformation;
+import org.seasr.datatypes.datamining.table.Column;
+import org.seasr.datatypes.datamining.table.ColumnTypes;
+import org.seasr.datatypes.datamining.table.ExampleTable;
+import org.seasr.datatypes.datamining.table.PredictionTable;
+import org.seasr.datatypes.datamining.table.ReversibleTransformation;
+import org.seasr.datatypes.datamining.table.Table;
+import org.seasr.datatypes.datamining.table.TableFactory;
+import org.seasr.datatypes.datamining.table.Transformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;

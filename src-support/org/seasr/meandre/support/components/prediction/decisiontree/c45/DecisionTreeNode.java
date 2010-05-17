@@ -42,7 +42,7 @@
 
 package org.seasr.meandre.support.components.prediction.decisiontree.c45;
 
-import org.seasr.datatypes.table.Table;
+import org.seasr.datatypes.datamining.table.Table;
 import org.seasr.meandre.support.components.prediction.decisiontree.ViewableDTNode;
 
 import java.io.Serializable;

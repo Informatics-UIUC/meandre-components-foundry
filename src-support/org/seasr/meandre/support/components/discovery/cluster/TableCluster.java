@@ -42,9 +42,9 @@
 
 package org.seasr.meandre.support.components.discovery.cluster;
 
-import org.seasr.datatypes.table.ExampleTable;
-import org.seasr.datatypes.table.Sparse;
-import org.seasr.datatypes.table.Table;
+import org.seasr.datatypes.datamining.table.ExampleTable;
+import org.seasr.datatypes.datamining.table.Sparse;
+import org.seasr.datatypes.datamining.table.Table;
 
 import gnu.trove.TIntHashSet;
 

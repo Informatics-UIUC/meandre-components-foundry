@@ -42,9 +42,9 @@
 
 package org.seasr.meandre.support.components.prediction.decisiontree.c45;
 
-import org.seasr.datatypes.table.ExampleTable;
-import org.seasr.datatypes.table.Table;
-import org.seasr.datatypes.table.util.TableUtilities;
+import org.seasr.datatypes.datamining.table.ExampleTable;
+import org.seasr.datatypes.datamining.table.Table;
+import org.seasr.datatypes.datamining.table.util.TableUtilities;
 import org.seasr.meandre.support.components.prediction.decisiontree.c45.CategoricalDecisionTreeNode;
 import org.seasr.meandre.support.components.prediction.decisiontree.c45.DecisionTreeNode;
 import org.seasr.meandre.support.components.prediction.decisiontree.c45.NumericDecisionTreeNode;

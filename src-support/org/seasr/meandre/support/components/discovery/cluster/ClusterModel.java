@@ -62,13 +62,13 @@ import java.util.logging.Logger;
 // Other Imports
 // ===============
 
-import org.seasr.datatypes.table.Column;
-import org.seasr.datatypes.table.ExampleTable;
-import org.seasr.datatypes.table.MutableTable;
-import org.seasr.datatypes.table.Row;
-import org.seasr.datatypes.table.Table;
-import org.seasr.datatypes.table.TableFactory;
-import org.seasr.datatypes.table.basic.MutableTableImpl;
+import org.seasr.datatypes.datamining.table.Column;
+import org.seasr.datatypes.datamining.table.ExampleTable;
+import org.seasr.datatypes.datamining.table.MutableTable;
+import org.seasr.datatypes.datamining.table.Row;
+import org.seasr.datatypes.datamining.table.Table;
+import org.seasr.datatypes.datamining.table.TableFactory;
+import org.seasr.datatypes.datamining.table.basic.MutableTableImpl;
 
 import java.io.Serializable;
 import java.util.ArrayList;

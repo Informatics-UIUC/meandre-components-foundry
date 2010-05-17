@@ -49,10 +49,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.seasr.datatypes.table.Column;
-import org.seasr.datatypes.table.Column.SortMode;
-import org.seasr.datatypes.table.basic.MutableTableImpl;
-import org.seasr.datatypes.table.basic.TableImpl;
+import org.seasr.datatypes.datamining.table.Column;
+import org.seasr.datatypes.datamining.table.Column.SortMode;
+import org.seasr.datatypes.datamining.table.basic.MutableTableImpl;
+import org.seasr.datatypes.datamining.table.basic.TableImpl;
 /** This class contains the following components:
  * minimumSupport - minimum support specified by a user
  * minimumConfidence - minimum confidence specified by a user

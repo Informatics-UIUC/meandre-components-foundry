@@ -52,8 +52,8 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.table.ColumnTypes;
-import org.seasr.datatypes.table.Table;
+import org.seasr.datatypes.datamining.table.ColumnTypes;
+import org.seasr.datatypes.datamining.table.Table;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 /**

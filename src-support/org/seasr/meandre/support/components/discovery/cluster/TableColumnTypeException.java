@@ -42,7 +42,7 @@
 
 package org.seasr.meandre.support.components.discovery.cluster;
 
-import org.seasr.datatypes.table.ColumnTypes;
+import org.seasr.datatypes.datamining.table.ColumnTypes;
 
 
 /**

@@ -42,7 +42,7 @@
 
 package org.seasr.meandre.support.components.transform;
 
-import org.seasr.datatypes.table.Table;
+import org.seasr.datatypes.datamining.table.Table;
 //import ncsa.d2k.modules.core.io.sql.ConnectionWrapper;
 
 import gnu.trove.TIntArrayList;

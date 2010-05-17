@@ -45,12 +45,12 @@ package org.seasr.meandre.support.components.prediction.naivebayes;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.seasr.datatypes.table.Column;
-import org.seasr.datatypes.table.Column.SortMode;
-import org.seasr.datatypes.table.basic.DoubleColumn;
-import org.seasr.datatypes.table.basic.IntColumn;
-import org.seasr.datatypes.table.basic.MutableTableImpl;
-import org.seasr.datatypes.table.basic.StringColumn;
+import org.seasr.datatypes.datamining.table.Column;
+import org.seasr.datatypes.datamining.table.Column.SortMode;
+import org.seasr.datatypes.datamining.table.basic.DoubleColumn;
+import org.seasr.datatypes.datamining.table.basic.IntColumn;
+import org.seasr.datatypes.datamining.table.basic.MutableTableImpl;
+import org.seasr.datatypes.datamining.table.basic.StringColumn;
 
 /**
    NaiveBayesPieChartData contains all the data contained in a pie

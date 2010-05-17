@@ -42,10 +42,10 @@
 
 package org.seasr.meandre.support.components.transform.binning;
 
-import org.seasr.datatypes.table.ExampleTable;
-import org.seasr.datatypes.table.transformations.BinTransform;
-import org.seasr.datatypes.table.util.ScalarStatistics;
-import org.seasr.datatypes.table.util.TableUtilities;
+import org.seasr.datatypes.datamining.table.ExampleTable;
+import org.seasr.datatypes.datamining.table.transformations.BinTransform;
+import org.seasr.datatypes.datamining.table.util.ScalarStatistics;
+import org.seasr.datatypes.datamining.table.util.TableUtilities;
 
 import org.seasr.meandre.support.components.transform.binning.BinDescriptor;
 import org.seasr.meandre.support.components.transform.binning.BinDescriptorFactory;

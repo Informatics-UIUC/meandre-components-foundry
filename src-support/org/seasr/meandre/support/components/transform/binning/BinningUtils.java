@@ -42,7 +42,7 @@
 
 package org.seasr.meandre.support.components.transform.binning;
 
-import org.seasr.datatypes.table.Table;
+import org.seasr.datatypes.datamining.table.Table;
 import org.seasr.meandre.support.components.transform.StaticMethods;
 
 import java.util.ArrayList;

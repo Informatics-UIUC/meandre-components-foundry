@@ -43,8 +43,8 @@
 package org.seasr.datatypes.datamining.model;
 
 
-import org.seasr.datatypes.table.ExampleTable;
-import org.seasr.datatypes.table.PredictionTable;
+import org.seasr.datatypes.datamining.table.ExampleTable;
+import org.seasr.datatypes.datamining.table.PredictionTable;
 import org.seasr.meandre.support.components.prediction.PredictionModelModule;
 
 

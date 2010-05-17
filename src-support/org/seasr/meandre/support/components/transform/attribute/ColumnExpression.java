@@ -46,9 +46,9 @@ import java.util.HashMap;
 
 import org.seasr.datatypes.datamining.Expression;
 import org.seasr.datatypes.datamining.ExpressionException;
-import org.seasr.datatypes.table.ColumnTypes;
-import org.seasr.datatypes.table.MutableTable;
-import org.seasr.datatypes.table.Table;
+import org.seasr.datatypes.datamining.table.ColumnTypes;
+import org.seasr.datatypes.datamining.table.MutableTable;
+import org.seasr.datatypes.datamining.table.Table;
 
 
 /**

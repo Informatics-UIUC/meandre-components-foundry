@@ -47,8 +47,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.seasr.datatypes.table.ExampleTable;
-import org.seasr.datatypes.table.Table;
+import org.seasr.datatypes.datamining.table.ExampleTable;
+import org.seasr.datatypes.datamining.table.Table;
 
 /**
  * This class holds sets of items for ruleassociation. Each set is actually

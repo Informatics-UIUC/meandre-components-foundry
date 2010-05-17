@@ -57,10 +57,10 @@ import java.util.logging.Logger;
 // Other Imports
 //===============
 
-import org.seasr.datatypes.table.ColumnTypes;
-import org.seasr.datatypes.table.ExampleTable;
-import org.seasr.datatypes.table.Sparse;
-import org.seasr.datatypes.table.Table;
+import org.seasr.datatypes.datamining.table.ColumnTypes;
+import org.seasr.datatypes.datamining.table.ExampleTable;
+import org.seasr.datatypes.datamining.table.Sparse;
+import org.seasr.datatypes.datamining.table.Table;
 import org.seasr.meandre.support.components.discovery.cluster.ClusterModel;
 import org.seasr.meandre.support.components.discovery.cluster.TableCluster;
 import org.seasr.meandre.support.components.discovery.cluster.TableColumnTypeException;

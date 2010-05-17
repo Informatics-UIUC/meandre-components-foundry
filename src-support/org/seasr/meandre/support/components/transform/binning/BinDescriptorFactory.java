@@ -49,7 +49,7 @@
  */
 package org.seasr.meandre.support.components.transform.binning;
 
-import org.seasr.datatypes.table.Table;
+import org.seasr.datatypes.datamining.table.Table;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

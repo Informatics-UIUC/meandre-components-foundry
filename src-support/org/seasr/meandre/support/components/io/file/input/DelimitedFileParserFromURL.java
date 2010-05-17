@@ -47,6 +47,7 @@ import java.io.*;
 import java.util.*;
 
 import org.meandre.tools.webdav.WebdavClient;
+import org.seasr.datatypes.datamining.table.ColumnTypes;
 import org.seasr.datatypes.table.*;
 
 /**
