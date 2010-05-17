@@ -52,9 +52,9 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.BytesMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.tools.Names;
 
 /** Extracts a field from a given request map provided by a service head
  *

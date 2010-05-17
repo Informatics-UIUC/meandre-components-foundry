@@ -53,8 +53,8 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
-import org.seasr.meandre.components.tools.Names;
 
 /**
  * This component tokenizes the text contained in the input model using OpenNLP.

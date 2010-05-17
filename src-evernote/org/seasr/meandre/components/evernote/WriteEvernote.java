@@ -50,8 +50,8 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.tools.Names;
 
 import com.evernote.edam.notestore.NoteStore;
 import com.evernote.edam.type.Note;

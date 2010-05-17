@@ -54,7 +54,7 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.meandre.components.tools.Names;
+import org.seasr.datatypes.core.Names;
 
 /**
  * @author Lily Dong

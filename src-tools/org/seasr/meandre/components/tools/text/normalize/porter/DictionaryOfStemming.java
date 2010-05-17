@@ -57,9 +57,9 @@ import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes;
 import org.seasr.datatypes.core.DataTypeParser;
+import org.seasr.datatypes.core.Names;
+import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeException;
 
 /**
  * @author Lily Dong

@@ -59,7 +59,7 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
-import org.seasr.meandre.components.tools.Names;
+import org.seasr.datatypes.core.Names;
 
 /**
  * This component does sentence detection on the text contained in the input model using OpenNLP.

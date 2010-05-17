@@ -49,7 +49,7 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.ConfigurableWebUIFragmentCallback;
-import org.seasr.meandre.components.tools.Names;
+import org.seasr.datatypes.core.Names;
 
 /**
  * @author Boris Capitanu

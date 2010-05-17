@@ -53,12 +53,12 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.support.components.io.datasource.DataSourceFactory;
 import org.seasr.meandre.support.components.io.datasource.JNDINamespaceBuilder;
 import org.seasr.meandre.support.components.io.datasource.JarXMLLoader;
 
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.tools.Names;
 
 @Component(creator="Lily Dong",
         description="<p>Overview:<br>"

@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.meandre.support.components.exceptions;
+package org.seasr.datatypes.core.exceptions;
 
 /**
  * @author Boris Capitanu

@@ -56,7 +56,7 @@ import org.seasr.datatypes.core.BasicDataTypes.Integers;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
-import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeException;
+import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.seasr.meandre.support.generic.io.ModelUtils;
 import org.seasr.meandre.support.generic.io.StreamUtils;

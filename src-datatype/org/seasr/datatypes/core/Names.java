@@ -40,7 +40,7 @@
  *
  */
 
-package org.seasr.meandre.components.tools;
+package org.seasr.datatypes.core;
 
 /**
  * This abstract class just provide a list of standardized port and property names.
