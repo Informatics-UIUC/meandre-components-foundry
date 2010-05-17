@@ -62,11 +62,11 @@ import org.meandre.core.ExecutableComponent;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.meandre.core.utils.ExceptionFormatter;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.ComponentInputCache;
 import org.seasr.meandre.components.PackedDataComponents;
 import org.seasr.meandre.components.abstracts.util.ComponentLogFormatter;
 import org.seasr.meandre.components.abstracts.util.WebConsoleHandler;
-import org.seasr.meandre.components.tools.Names;
 
 /**
  * @author Bernie Acs
