@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,16 +38,20 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.sparse;
 
-import java.util.*;
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntHashSet;
 
-import gnu.trove.*;
-import org.seasr.datatypes.table.*;
-import org.seasr.datatypes.table.sparse.columns.*;
-import org.seasr.datatypes.table.sparse.primitivehash.*;
+import java.util.Arrays;
+
+import org.seasr.datatypes.table.ExampleTable;
+import org.seasr.datatypes.table.Row;
+import org.seasr.datatypes.table.Table;
+import org.seasr.datatypes.table.sparse.columns.AbstractSparseColumn;
+import org.seasr.datatypes.table.sparse.primitivehash.VIntHashSet;
 
 /**
  * A representation of a subset.  The columns are shared with the full table,
@@ -152,7 +156,8 @@ public class SparseSubsetTable
     * @param column the column of the table
     * @return the Object at (row, column)
     */
-   public Object getObject(int row, int column) {
+   @Override
+public Object getObject(int row, int column) {
      return super.getObject(subset[row], column);
    }
 
@@ -162,7 +167,8 @@ public class SparseSubsetTable
    * @param column the column of the table
    * @return the int at (row, column)
    */
-  public int getInt(int row, int column) {
+  @Override
+public int getInt(int row, int column) {
     return super.getInt(subset[row], column);
   }
 
@@ -172,7 +178,8 @@ public class SparseSubsetTable
    * @param column the column of the table
    * @return the short at (row, column)
    */
-  public short getShort(int row, int column) {
+  @Override
+public short getShort(int row, int column) {
     return super.getShort(subset[row], column);
   }
 
@@ -182,7 +189,8 @@ public class SparseSubsetTable
    * @param column the column of the table
    * @return the float at (row, column)
    */
-  public float getFloat(int row, int column) {
+  @Override
+public float getFloat(int row, int column) {
     return super.getFloat(subset[row], column);
   }
 
@@ -192,7 +200,8 @@ public class SparseSubsetTable
    * @param column the column of the table
    * @return the double at (row, column)
    */
-  public double getDouble(int row, int column) {
+  @Override
+public double getDouble(int row, int column) {
     return super.getDouble(subset[row], column);
   }
 
@@ -202,7 +211,8 @@ public class SparseSubsetTable
    * @param column the column of the table
    * @return the long at (row, column)
    */
-  public long getLong(int row, int column) {
+  @Override
+public long getLong(int row, int column) {
     return super.getLong(subset[row], column);
   }
 
@@ -212,7 +222,8 @@ public class SparseSubsetTable
    * @param column the column of the table
    * @return the String at (row, column)
    */
-  public String getString(int row, int column) {
+  @Override
+public String getString(int row, int column) {
     return super.getString(subset[row], column);
   }
 
@@ -222,7 +233,8 @@ public class SparseSubsetTable
    * @param column the column of the table
    * @return the value at (row, column) as an array of bytes
    */
-  public byte[] getBytes(int row, int column) {
+  @Override
+public byte[] getBytes(int row, int column) {
     return super.getBytes(subset[row], column);
   }
 
@@ -232,7 +244,8 @@ public class SparseSubsetTable
    * @param column the column of the table
    * @return the boolean value at (row, column)
    */
-  public boolean getBoolean(int row, int column) {
+  @Override
+public boolean getBoolean(int row, int column) {
     return super.getBoolean(subset[row], column);
   }
 
@@ -242,7 +255,8 @@ public class SparseSubsetTable
    * @param column the column of the table
    * @return the value at (row, column) as an array of chars
    */
-  public char[] getChars(int row, int column) {
+  @Override
+public char[] getChars(int row, int column) {
     return super.getChars(subset[row], column);
   }
 
@@ -252,7 +266,8 @@ public class SparseSubsetTable
    * @param column the column of the table
    * @return the byte value at (row, column)
    */
-  public byte getByte(int row, int column) {
+  @Override
+public byte getByte(int row, int column) {
     return super.getByte(subset[row], column);
   }
 
@@ -262,7 +277,8 @@ public class SparseSubsetTable
    * @param column the column of the table
    * @return the char value at (row, column)
    */
-  public char getChar(int row, int column) {
+  @Override
+public char getChar(int row, int column) {
     return super.getChar(subset[row], column);
   }
 
@@ -312,7 +328,8 @@ public class SparseSubsetTable
             Get the number of rows in this Table.  Same as getCapacity().
           @return the number of rows in this Table.
    */
-  public int getNumRows() {
+  @Override
+public int getNumRows() {
     return subset.length;
   }
 
@@ -330,7 +347,8 @@ public class SparseSubsetTable
           @param len the length of the subset
           @return a subset of this Table
    */
-  public Table getSubset(int start, int len) {
+  @Override
+public Table getSubset(int start, int len) {
 
     int[] sample = new int[len];
     for (int i = 0; i < len; i++) {
@@ -349,7 +367,8 @@ public class SparseSubsetTable
    * @param rows the rows to be in the subset.
    * @return
    */
-  public Table getSubset(int[] rows) {
+  @Override
+public Table getSubset(int[] rows) {
     int[] sample = new int[rows.length];
     for(int i = 0; i < rows.length; i++) {
       sample[i] = subset[rows[i]];
@@ -364,7 +383,8 @@ public class SparseSubsetTable
    * 	all the data.
    * @return a copy of this Table
    */
-  public Table copy() {
+  @Override
+public Table copy() {
     Table t = super.copy(subset);
     return t;
   }
@@ -374,7 +394,8 @@ public class SparseSubsetTable
    * 	all the data.
    * @return a copy of this Table
    */
-  public Table copy(int start, int len) {
+  @Override
+public Table copy(int start, int len) {
     int[] newsubset = new int[len];
     for(int i = 0; i < len; i++) {
       newsubset[i] = subset[start+i];
@@ -388,7 +409,8 @@ public class SparseSubsetTable
    * 	all the data.
    * @return a copy of this Table
    */
-  public Table copy(int[] rows) {
+  @Override
+public Table copy(int[] rows) {
     int [] tmp = new int [rows.length];
     for (int i = 0; i < rows.length; i++) {
        tmp[i] = subset[rows[i]];
@@ -402,7 +424,8 @@ public class SparseSubsetTable
    * but the data itself should not be copied.
    * @return a shallow copy of this Table
    */
-  public Table shallowCopy() {
+  @Override
+public Table shallowCopy() {
     return new SparseSubsetTable(this, this.subset);
   }
 
@@ -467,7 +490,8 @@ public class SparseSubsetTable
    * to access the rows of the table by setting it's index to access a particular row.
    * @return a Row object that can access the rows of the table.
    */
-  public Row getRow() {
+  @Override
+public Row getRow() {
     return new SparseRow(this);
   }
 
@@ -475,7 +499,8 @@ public class SparseSubsetTable
    * Return this Table as an ExampleTable.
    * @return This object as an ExampleTable
    */
-  public ExampleTable toExampleTable() {
+  @Override
+public ExampleTable toExampleTable() {
     // LAM
     return this;
   }
@@ -486,7 +511,8 @@ public class SparseSubsetTable
    * @param col the column index
    * @return true if the value is missing, false otherwise
    */
-  public boolean isValueMissing(int row, int col) {
+  @Override
+public boolean isValueMissing(int row, int col) {
     return super.isValueMissing(subset[row], col);
   }
 
@@ -496,7 +522,8 @@ public class SparseSubsetTable
    * @param col the column index
    * @return true if the value is empty, false otherwise
    */
-  public boolean isValueEmpty(int row, int col) {
+  @Override
+public boolean isValueEmpty(int row, int col) {
     return super.isValueEmpty(subset[row], col);
   }
 
@@ -504,7 +531,8 @@ public class SparseSubsetTable
    * Return true if any value in this Table is missing.
    * @return true if there are any missing values, false if there are no missing values
    */
-  public boolean hasMissingValues() {
+  @Override
+public boolean hasMissingValues() {
     for (int i = 0; i < _columns.size(); i++) {
       AbstractSparseColumn c = (AbstractSparseColumn)_columns.get(i);
 
@@ -603,7 +631,8 @@ public class SparseSubsetTable
    * @param columnIndex the index of the column to check.
    * @return true if there are any missing values, false if there are no missing values
    */
-  public boolean hasMissingValues(int columnIndex) {
+  @Override
+public boolean hasMissingValues(int columnIndex) {
     AbstractSparseColumn c = (AbstractSparseColumn)_columns.get(columnIndex);
 
     VIntHashSet missing = c.getMissing();
@@ -681,7 +710,8 @@ public class SparseSubsetTable
     * Insert the specified number of blank rows.
     * @param howMany
     */
-   public void addRows(int howMany) {
+   @Override
+public void addRows(int howMany) {
      int mark = super.getNumRows();
      super.addRows(howMany);
      int[] newsubset = new int[subset.length + howMany];
@@ -696,7 +726,8 @@ public class SparseSubsetTable
    * Remove a row from this Table.
    * @param row the row to remove
    */
-  public void removeRow(int pos) {
+  @Override
+public void removeRow(int pos) {
     int[] newsubset = new int[subset.length - 1];
 
     System.arraycopy(subset, 0, newsubset, 0, pos);
@@ -714,7 +745,8 @@ public class SparseSubsetTable
           @param start the start position of the range to remove
           @param len the number to remove-the length of the range
    */
-  public void removeRows(int pos, int cnt) {
+  @Override
+public void removeRows(int pos, int cnt) {
     int[] newsubset = new int[subset.length - cnt];
     System.arraycopy(subset, 0, newsubset, 0, pos);
     System.arraycopy(
@@ -741,7 +773,8 @@ public class SparseSubsetTable
           @param pos1 the first row to swap
           @param pos2 the second row to swap
    */
-  public void swapRows(int pos1, int pos2) {
+  @Override
+public void swapRows(int pos1, int pos2) {
     int swap = this.subset[pos1];
     this.subset[pos1] = this.subset[pos2];
     this.subset[pos2] = swap;
@@ -762,7 +795,8 @@ public class SparseSubsetTable
           @param row the row to be changed in the table
           @param column the Column to be set in the given row
    */
-  public void setObject(Object element, int row, int column) {
+  @Override
+public void setObject(Object element, int row, int column) {
     super.setObject(element, subset[row], column);
   }
 
@@ -772,7 +806,8 @@ public class SparseSubsetTable
    * @param row the row of the table
    * @param column the column of the table
    */
-  public void setInt(int data, int row, int column) {
+  @Override
+public void setInt(int data, int row, int column) {
     super.setInt(data, subset[row], column);
   }
 
@@ -782,7 +817,8 @@ public class SparseSubsetTable
    * @param row the row of the table
    * @param column the column of the table
    */
-  public void setShort(short data, int row, int column) {
+  @Override
+public void setShort(short data, int row, int column) {
     super.setShort(data, subset[row], column);
   }
 
@@ -792,7 +828,8 @@ public class SparseSubsetTable
    * @param row the row of the table
    * @param column the column of the table
    */
-  public void setFloat(float data, int row, int column) {
+  @Override
+public void setFloat(float data, int row, int column) {
     super.setFloat(data, subset[row], column);
   }
 
@@ -802,7 +839,8 @@ public class SparseSubsetTable
    * @param row the row of the table
    * @param column the column of the table
    */
-  public void setDouble(double data, int row, int column) {
+  @Override
+public void setDouble(double data, int row, int column) {
     super.setDouble(data, subset[row], column);
   }
 
@@ -812,7 +850,8 @@ public class SparseSubsetTable
    * @param row the row of the table
    * @param column the column of the table
    */
-  public void setLong(long data, int row, int column) {
+  @Override
+public void setLong(long data, int row, int column) {
     super.setLong(data, subset[row], column);
   }
 
@@ -822,7 +861,8 @@ public class SparseSubsetTable
    * @param row the row of the table
    * @param column the column of the table
    */
-  public void setString(String data, int row, int column) {
+  @Override
+public void setString(String data, int row, int column) {
     super.setString(data, subset[row], column);
   }
 
@@ -832,7 +872,8 @@ public class SparseSubsetTable
    * @param row the row of the table
    * @param column the column of the table
    */
-  public void setBytes(byte[] data, int row, int column) {
+  @Override
+public void setBytes(byte[] data, int row, int column) {
     super.setBytes(data, subset[row], column);
   }
 
@@ -842,7 +883,8 @@ public class SparseSubsetTable
    * @param row the row of the table
    * @param column the column of the table
    */
-  public void setBoolean(boolean data, int row, int column) {
+  @Override
+public void setBoolean(boolean data, int row, int column) {
     super.setBoolean(data, subset[row], column);
   }
 
@@ -852,7 +894,8 @@ public class SparseSubsetTable
    * @param row the row of the table
    * @param column the column of the table
    */
-  public void setChars(char[] data, int row, int column) {
+  @Override
+public void setChars(char[] data, int row, int column) {
     super.setChars(data, subset[row], column);
   }
 
@@ -862,7 +905,8 @@ public class SparseSubsetTable
    * @param row the row of the table
    * @param column the column of the table
    */
-  public void setByte(byte data, int row, int column) {
+  @Override
+public void setByte(byte data, int row, int column) {
     super.setByte(data, subset[row], column);
   }
 
@@ -872,7 +916,8 @@ public class SparseSubsetTable
    * @param row the row of the table
    * @param column the column of the table
    */
-  public void setChar(char data, int row, int column) {
+  @Override
+public void setChar(char data, int row, int column) {
     super.setChar(data, subset[row], column);
   }
 
@@ -943,7 +988,8 @@ public class SparseSubsetTable
    * @param row the row index
    * @param col the column index
    */
-  public void setValueToMissing(boolean b, int row, int col) {
+  @Override
+public void setValueToMissing(boolean b, int row, int col) {
     super.setValueToMissing(b, subset[row], col);
   }
 
@@ -953,7 +999,8 @@ public class SparseSubsetTable
    * @param row the row index
    * @param col the column index
    */
-  public void setValueToEmpty(boolean b, int row, int col) {
+  @Override
+public void setValueToEmpty(boolean b, int row, int col) {
     super.setValueToEmpty(b, subset[row], col);
   }
 
@@ -1067,6 +1114,7 @@ public class SparseSubsetTable
      * @param i the input index
      * @return the ith input as a double
      */
+    @Override
     public double getInputDouble(int e, int i) {
       return super.getInputDouble(subset[e], i);
     }
@@ -1077,7 +1125,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the oth output as a double
    */
-  public double getOutputDouble(int e, int o) {
+  @Override
+public double getOutputDouble(int e, int o) {
     return super.getOutputDouble(subset[e], o);
   }
 
@@ -1087,7 +1136,8 @@ public class SparseSubsetTable
    * @param i the input index
    * @return the ith input as a String
    */
-  public String getInputString(int e, int i) {
+  @Override
+public String getInputString(int e, int i) {
     return super.getInputString(subset[e], i);
   }
 
@@ -1097,7 +1147,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the oth output as a String
    */
-  public String getOutputString(int e, int o) {
+  @Override
+public String getOutputString(int e, int o) {
     return super.getOutputString(subset[e], o);
   }
 
@@ -1107,7 +1158,8 @@ public class SparseSubsetTable
    * @param i the input index
    * @return the ith input as an int
    */
-  public int getInputInt(int e, int i) {
+  @Override
+public int getInputInt(int e, int i) {
     return super.getInputInt(subset[e], i);
   }
 
@@ -1117,7 +1169,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the oth output as an int
    */
-  public int getOutputInt(int e, int o) {
+  @Override
+public int getOutputInt(int e, int o) {
     return super.getOutputInt(subset[e], o);
   }
 
@@ -1127,7 +1180,8 @@ public class SparseSubsetTable
    * @param i the input index
    * @return the ith input as a float
    */
-  public float getInputFloat(int e, int i) {
+  @Override
+public float getInputFloat(int e, int i) {
     return super.getInputFloat(subset[e], i);
   }
 
@@ -1137,7 +1191,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the oth output as a float
    */
-  public float getOutputFloat(int e, int o) {
+  @Override
+public float getOutputFloat(int e, int o) {
     return super.getOutputFloat(subset[e], o);
   }
 
@@ -1147,7 +1202,8 @@ public class SparseSubsetTable
    * @param i the input index
    * @return the ith input as a short
    */
-  public short getInputShort(int e, int i) {
+  @Override
+public short getInputShort(int e, int i) {
     return super.getInputShort(subset[e], i);
   }
 
@@ -1157,7 +1213,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the oth output as a short
    */
-  public short getOutputShort(int e, int o) {
+  @Override
+public short getOutputShort(int e, int o) {
     return super.getOutputShort(subset[e], o);
   }
 
@@ -1167,7 +1224,8 @@ public class SparseSubsetTable
    * @param i the input index
    * @return the ith input as a long
    */
-  public long getInputLong(int e, int i) {
+  @Override
+public long getInputLong(int e, int i) {
     return super.getInputLong(subset[e], i);
   }
 
@@ -1177,7 +1235,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the ith output as a long
    */
-  public long getOutputLong(int e, int o) {
+  @Override
+public long getOutputLong(int e, int o) {
     return super.getOutputLong(subset[e], o);
   }
 
@@ -1187,7 +1246,8 @@ public class SparseSubsetTable
    * @param i the input index
    * @return the ith input as a byte
    */
-  public byte getInputByte(int e, int i) {
+  @Override
+public byte getInputByte(int e, int i) {
     return super.getInputByte(subset[e], i);
   }
 
@@ -1197,7 +1257,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the oth output as a byte
    */
-  public byte getOutputByte(int e, int o) {
+  @Override
+public byte getOutputByte(int e, int o) {
     return super.getOutputByte(subset[e], o);
   }
 
@@ -1207,7 +1268,8 @@ public class SparseSubsetTable
    * @param i the input index
    * @return the ith input as an Object.
    */
-  public Object getInputObject(int e, int i) {
+  @Override
+public Object getInputObject(int e, int i) {
     return super.getInputObject(subset[e], i);
   }
 
@@ -1217,7 +1279,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the oth output as an Object
    */
-  public Object getOutputObject(int e, int o) {
+  @Override
+public Object getOutputObject(int e, int o) {
     return super.getOutputObject(subset[e], o);
   }
 
@@ -1227,7 +1290,8 @@ public class SparseSubsetTable
    * @param i the input index
    * @return the ith input as a char
    */
-  public char getInputChar(int e, int i) {
+  @Override
+public char getInputChar(int e, int i) {
     return super.getInputChar(subset[e], i);
   }
 
@@ -1237,7 +1301,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the oth output as a char
    */
-  public char getOutputChar(int e, int o) {
+  @Override
+public char getOutputChar(int e, int o) {
     return super.getOutputChar(subset[e], o);
   }
 
@@ -1247,7 +1312,8 @@ public class SparseSubsetTable
    * @param i the input index
    * @return the ith input as bytes.
    */
-  public byte[] getInputBytes(int e, int i) {
+  @Override
+public byte[] getInputBytes(int e, int i) {
     return super.getInputBytes(subset[e], i);
   }
 
@@ -1257,7 +1323,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the oth output as bytes.
    */
-  public byte[] getOutputBytes(int e, int o) {
+  @Override
+public byte[] getOutputBytes(int e, int o) {
     return super.getOutputBytes(subset[e], o);
   }
 
@@ -1267,7 +1334,8 @@ public class SparseSubsetTable
    * @param i the input index
    * @return the ith input as chars
    */
-  public char[] getInputChars(int e, int i) {
+  @Override
+public char[] getInputChars(int e, int i) {
     return super.getInputChars(subset[e], i);
   }
 
@@ -1277,7 +1345,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the oth output as chars
    */
-  public char[] getOutputChars(int e, int o) {
+  @Override
+public char[] getOutputChars(int e, int o) {
     return super.getOutputChars(subset[e], o);
   }
 
@@ -1287,7 +1356,8 @@ public class SparseSubsetTable
    * @param i the input index
    * @return the ith input as a boolean
    */
-  public boolean getInputBoolean(int e, int i) {
+  @Override
+public boolean getInputBoolean(int e, int i) {
     return super.getInputBoolean(subset[e], i);
   }
 
@@ -1297,7 +1367,8 @@ public class SparseSubsetTable
    * @param o the output index
    * @return the oth output as a boolean
    */
-  public boolean getOutputBoolean(int e, int o) {
+  @Override
+public boolean getOutputBoolean(int e, int o) {
     return super.getOutputBoolean(subset[e], o);
   }
 
@@ -1399,7 +1470,8 @@ public class SparseSubsetTable
    * @param position int Column position.
    * @return int Count of non-default values.
    */
-  public int getColumnNumEntries (int position) {
+  @Override
+public int getColumnNumEntries (int position) {
     int numEntries = 0;
     AbstractSparseColumn col = (AbstractSparseColumn)getColumn(position);
 
@@ -1417,7 +1489,8 @@ public class SparseSubsetTable
    * @param columnNumber int Column position.
    * @return int[] Array of index values.
    */
-  public int[] getColumnIndices (int columnNumber) {
+  @Override
+public int[] getColumnIndices (int columnNumber) {
     TIntArrayList al = new TIntArrayList();
     AbstractSparseColumn col = (AbstractSparseColumn)getColumn(columnNumber);
 
@@ -1438,7 +1511,8 @@ public class SparseSubsetTable
    * @param rowNumber int Row index.
    * @return int[] Array of index values.
    */
-  public int[] getRowIndices (int rowNumber) {
+  @Override
+public int[] getRowIndices (int rowNumber) {
     int[] idx = getRowIndicesUnsorted(rowNumber);
     Arrays.sort(idx);
     return idx;
@@ -1452,7 +1526,8 @@ public class SparseSubsetTable
    * @param rowNumber int Row index.
    * @return int[] Array of index values.
    */
-  public int[] getRowIndicesUnsorted (int rowNumber) {
+  @Override
+public int[] getRowIndicesUnsorted (int rowNumber) {
     return super.getRowIndicesUnsorted(subset[rowNumber]);
   }
 
@@ -1461,7 +1536,8 @@ public class SparseSubsetTable
    * @param position int Row position.
    * @return int Count of non-default values in row.
    */
-  public int getRowNumEntries (int position) {
+  @Override
+public int getRowNumEntries (int position) {
     return super.getRowNumEntries(subset[position]);
   }
 
@@ -1477,7 +1553,8 @@ public class SparseSubsetTable
    * @return        true if there is data at position (row, col), otherwise
    *                return false.
    */
-  public boolean doesValueExist (int row, int col) {
+  @Override
+public boolean doesValueExist (int row, int col) {
     return super.doesValueExist(subset[row], col);
   }
 

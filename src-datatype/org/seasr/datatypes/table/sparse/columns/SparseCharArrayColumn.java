@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,7 +38,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.sparse.columns;
 
@@ -163,7 +163,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     *
     * @param number Number of rows to add.
     */
-   public void addRows(int number) {
+   @Override
+public void addRows(int number) {
 
       // table is already sparse.  nothing to do.
    }
@@ -179,7 +180,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @return Column object which is actually a SparseCharArrayColumn, that
     *         holds the data this column has
     */
-   public Column copy() {
+   @Override
+public Column copy() {
       SparseCharArrayColumn retVal =
          new SparseCharArrayColumn((SparseObjectColumn) super.copy());
 
@@ -193,14 +195,16 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     *
     * @return Entry at pos
     */
-   public char[] getChars(int pos) { return (char[]) elements.get(pos); }
+   @Override
+public char[] getChars(int pos) { return (char[]) elements.get(pos); }
 
    /**
     * Returns the internal representation of this column.
     *
     * @return Internal representation of this column.
     */
-   public Object getInternal() {
+   @Override
+public Object getInternal() {
       int max_index = -1;
       char[][] internal = null;
       int[] keys = elements.keys();
@@ -234,7 +238,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @return Subset of this column, including rows indicated by <code>
     *         indices</code>.
     */
-   public Column getSubset(int[] indices) {
+   @Override
+public Column getSubset(int[] indices) {
       SparseCharArrayColumn retVal = new SparseCharArrayColumn(indices.length);
 
       for (int i = 0; i < indices.length; i++) {
@@ -260,7 +265,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @return SparseCharArrayColumn with the data from rows <code>pos</code>
     *         through <code>pos+len</code>
     */
-   public Column getSubset(int pos, int len) {
+   @Override
+public Column getSubset(int pos, int len) {
       SparseCharArrayColumn subCol =
          new SparseCharArrayColumn((SparseObjectColumn) super.getSubset(pos,
                                                                         len));
@@ -275,7 +281,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setBoolean(boolean newEntry, int pos) {
+   @Override
+public void setBoolean(boolean newEntry, int pos) {
       setChars(new Boolean(newEntry).toString().toCharArray(), pos);
    }
 
@@ -285,7 +292,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setByte(byte newEntry, int pos) {
+   @Override
+public void setByte(byte newEntry, int pos) {
       setString(new Byte(newEntry).toString(), pos);
    }
 
@@ -295,7 +303,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setBytes(byte[] newEntry, int pos) {
+   @Override
+public void setBytes(byte[] newEntry, int pos) {
       setString(new String(newEntry), pos);
    }
 
@@ -305,7 +314,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setChar(char newEntry, int pos) {
+   @Override
+public void setChar(char newEntry, int pos) {
       char[] c = new char[1];
       c[0] = newEntry;
       setChars(c, pos);
@@ -317,7 +327,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setChars(char[] newEntry, int pos) {
+   @Override
+public void setChars(char[] newEntry, int pos) {
       elements.put(pos, newEntry);
    }
 
@@ -327,7 +338,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setDouble(double newEntry, int pos) {
+   @Override
+public void setDouble(double newEntry, int pos) {
       setChars(Double.toString(newEntry).toCharArray(), pos);
    }
 
@@ -337,7 +349,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setFloat(float newEntry, int pos) {
+   @Override
+public void setFloat(float newEntry, int pos) {
       setChars(Float.toString(newEntry).toCharArray(), pos);
    }
 
@@ -347,7 +360,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setInt(int newEntry, int pos) {
+   @Override
+public void setInt(int newEntry, int pos) {
       setChars(Integer.toString(newEntry).toCharArray(), pos);
    }
 
@@ -357,7 +371,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setLong(long newEntry, int pos) {
+   @Override
+public void setLong(long newEntry, int pos) {
       setChars(Long.toString(newEntry).toCharArray(), pos);
    }
 
@@ -369,7 +384,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setObject(Object newEntry, int pos) {
+   @Override
+public void setObject(Object newEntry, int pos) {
       setChars(toCharArray(newEntry), pos);
    }
 
@@ -379,7 +395,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setRow(Object newEntry, int pos) { setObject(newEntry, pos); }
+   @Override
+public void setRow(Object newEntry, int pos) { setObject(newEntry, pos); }
 
    /**
     * Converts newEntry to a String and stores it as a char[].
@@ -387,7 +404,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setShort(short newEntry, int pos) {
+   @Override
+public void setShort(short newEntry, int pos) {
       setChars(Short.toString(newEntry).toCharArray(), pos);
    }
 
@@ -397,7 +415,8 @@ public class SparseCharArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setString(String newEntry, int pos) {
+   @Override
+public void setString(String newEntry, int pos) {
       setChars(newEntry.toCharArray(), pos);
    }
 } // end class SparseCharArrayColumn

@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,18 +38,18 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.basic;
-
-import org.seasr.datatypes.table.Column;
-import org.seasr.datatypes.table.ColumnTypes;
-import org.seasr.datatypes.table.MutableTable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
+import org.seasr.datatypes.table.Column;
+import org.seasr.datatypes.table.ColumnTypes;
+import org.seasr.datatypes.table.MutableTable;
 
 
 /**
@@ -225,7 +225,8 @@ public final class ContinuousStringColumn extends ContinuousCharArrayColumn {
     *
     * @param newEntry A new entry
     */
-   public void addRow(Object newEntry) {
+   @Override
+public void addRow(Object newEntry) {
 
       if (newEntry instanceof byte[]) {
          appendChars(toCharArray((byte[]) newEntry));
@@ -246,7 +247,8 @@ public final class ContinuousStringColumn extends ContinuousCharArrayColumn {
     *
     * @return Value representing the relationship- >, <, or == 0
     */
-   public int compareRows(Object element, int pos) {
+   @Override
+public int compareRows(Object element, int pos) {
       return compareStrings(element.toString(), getString(pos));
    }
 
@@ -259,7 +261,8 @@ public final class ContinuousStringColumn extends ContinuousCharArrayColumn {
     *
     * @return Value representing the relationship- >, <, or == 0
     */
-   public int compareRows(int pos1, int pos2) {
+   @Override
+public int compareRows(int pos1, int pos2) {
       return compareStrings(getString(pos1), getString(pos2));
    }
 
@@ -268,7 +271,8 @@ public final class ContinuousStringColumn extends ContinuousCharArrayColumn {
     *
     * @return A copy of this column
     */
-   public Column copy() {
+   @Override
+public Column copy() {
       ContinuousStringColumn bac;
 
       try {
@@ -307,7 +311,8 @@ public final class ContinuousStringColumn extends ContinuousCharArrayColumn {
     *
     * @return Value at <code>i</code> as an <code>Object</code>
     */
-   public Object getObject(int i) { return getString(i); }
+   @Override
+public Object getObject(int i) { return getString(i); }
 
    /**
     * Gets an entry from the <code>Column</code> at the indicated position.
@@ -316,7 +321,8 @@ public final class ContinuousStringColumn extends ContinuousCharArrayColumn {
     *
     * @return Entry at the specified position
     */
-   public Object getRow(int i) { return getString(i); }
+   @Override
+public Object getRow(int i) { return getString(i); }
 
    /**
     * Removes an entry from the Column, at <code>row</code>. All entries from
@@ -326,7 +332,8 @@ public final class ContinuousStringColumn extends ContinuousCharArrayColumn {
     *
     * @return Removed object
     */
-   public Object removeRow(int row) {
+   @Override
+public Object removeRow(int row) {
       char[] removed = (char[]) super.removeRow(row);
 
       return new String(removed);
@@ -341,7 +348,8 @@ public final class ContinuousStringColumn extends ContinuousCharArrayColumn {
     * @param o   New item
     * @param row Position to set the entry
     */
-   public void setObject(Object o, int row) {
+   @Override
+public void setObject(Object o, int row) {
 
       if (o instanceof byte[]) {
          setBytes((byte[]) o, row);
@@ -358,5 +366,6 @@ public final class ContinuousStringColumn extends ContinuousCharArrayColumn {
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setRow(Object newEntry, int pos) { setObject(newEntry, pos); }
+   @Override
+public void setRow(Object newEntry, int pos) { setObject(newEntry, pos); }
 } // end class ContinuousStringColumn

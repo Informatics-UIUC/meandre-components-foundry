@@ -56,6 +56,7 @@ import org.seasr.meandre.support.components.prediction.PredictionModelModule;
  * @author Convert to SEASR -- D. Searsmith 6/1/08
  * @version $Revision: 3015 $, $Date: 2007-05-18 12:38:46 -0500 (Fri, 18 May 2007) $
  */
+@SuppressWarnings("serial")
 public class Model extends PredictionModelModule
    implements java.io.Serializable, Cloneable {
 

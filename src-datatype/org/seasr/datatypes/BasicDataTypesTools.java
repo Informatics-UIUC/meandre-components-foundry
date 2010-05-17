@@ -49,14 +49,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.seasr.datatypes.BasicDataTypes.BytesMap;
 import org.seasr.datatypes.BasicDataTypes.Bytes;
+import org.seasr.datatypes.BasicDataTypes.BytesMap;
 import org.seasr.datatypes.BasicDataTypes.Integers;
 import org.seasr.datatypes.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.BasicDataTypes.Strings;
-import org.seasr.datatypes.BasicDataTypes.StringsMap;
-
 import org.seasr.datatypes.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.BasicDataTypes.StringsMap;
 
 import com.google.protobuf.ByteString;
 
@@ -131,8 +130,8 @@ public abstract class BasicDataTypesTools {
 		saRes = s.getValueList().toArray(saRes);
 		return saRes;
 	}
-	
-	
+
+
 	//
 	// Array Types
 	//
@@ -148,7 +147,7 @@ public abstract class BasicDataTypesTools {
 		for(Strings s: sa) res.addValue(s);
 		return res.build();
 	}
-	
+
 	/**
 	 * Create a Strings[] from a StringsArray content.
 	 *
@@ -161,8 +160,8 @@ public abstract class BasicDataTypesTools {
 		out = sa.getValueList().toArray(out);
 		return out;
 	}
-	
-	
+
+
 
 	/**
 	 * Creates an empty string map.

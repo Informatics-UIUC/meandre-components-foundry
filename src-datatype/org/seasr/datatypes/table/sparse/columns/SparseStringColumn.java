@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,18 +38,24 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.sparse.columns;
 
-import org.seasr.datatypes.table.*;
-import org.seasr.datatypes.table.sparse.SparseDefaultValues;
-import org.seasr.datatypes.table.sparse.primitivehash.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
-   import java.io.ByteArrayInputStream;
-   import java.io.ByteArrayOutputStream;
-   import java.io.ObjectInputStream;
-   import java.io.ObjectOutputStream;
+import org.seasr.datatypes.table.Column;
+import org.seasr.datatypes.table.ColumnTypes;
+import org.seasr.datatypes.table.TextualColumn;
+import org.seasr.datatypes.table.sparse.SparseDefaultValues;
+import org.seasr.datatypes.table.sparse.primitivehash.VHashMap;
+import org.seasr.datatypes.table.sparse.primitivehash.VHashService;
+import org.seasr.datatypes.table.sparse.primitivehash.VIntHashSet;
+import org.seasr.datatypes.table.sparse.primitivehash.VIntIntHashMap;
+import org.seasr.datatypes.table.sparse.primitivehash.VObjectIntHashMap;
 
 
 /**
@@ -261,7 +267,8 @@ public class SparseStringColumn extends AbstractSparseColumn
     *
     * @return Map that holds all valid rows in this column
     */
-   protected VHashMap getElements() { return row2Id; }
+   @Override
+protected VHashMap getElements() { return row2Id; }
 
    /**
     * Returns the insertion index of the given string.
@@ -299,7 +306,8 @@ public class SparseStringColumn extends AbstractSparseColumn
     *
     * @param map New elements
     */
-   protected void setElements(VHashMap map) { row2Id = (VIntIntHashMap) map; }
+   @Override
+protected void setElements(VHashMap map) { row2Id = (VIntIntHashMap) map; }
 
    /**
     * Adds the specified number of blank rows.
@@ -579,7 +587,7 @@ public class SparseStringColumn extends AbstractSparseColumn
    public long getLong(int pos) {
 
       if (!row2Id.containsKey(pos)) {
-         return (long) SparseDefaultValues.getDefaultInt();
+         return SparseDefaultValues.getDefaultInt();
       }
 
       int id = row2Id.get(pos);
@@ -707,7 +715,8 @@ public class SparseStringColumn extends AbstractSparseColumn
     * @param newEntry The newEntry to insert
     * @param pos      The position to insert at (row number)
     */
-   public void insertRow(Object newEntry, int pos) {
+   @Override
+public void insertRow(Object newEntry, int pos) {
       String str = SparseStringColumn.toStringObject(newEntry);
       int index = getInsertionIndex(str);
 
@@ -758,7 +767,8 @@ public class SparseStringColumn extends AbstractSparseColumn
     *
     * @return SparseStringColumn ordered according to <code>newOrder</code>.
     */
-   public Column reorderRows(VIntIntHashMap newOrder) {
+   @Override
+public Column reorderRows(VIntIntHashMap newOrder) {
       SparseStringColumn retVal = new SparseStringColumn();
       int[] newKeys = newOrder.keys();
       int[] oldKeys = new int[newKeys.length];

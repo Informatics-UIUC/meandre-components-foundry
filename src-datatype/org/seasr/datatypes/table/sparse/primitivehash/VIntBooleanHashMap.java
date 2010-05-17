@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,12 +38,9 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.sparse.primitivehash;
-
-import org.seasr.datatypes.table.sparse.SparseDefaultValues;
-import org.seasr.datatypes.table.sparse.columns.SparseBooleanColumn;
 
 import gnu.trove.TIntHash;
 import gnu.trove.TIntProcedure;
@@ -54,6 +51,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+
+import org.seasr.datatypes.table.sparse.SparseDefaultValues;
+import org.seasr.datatypes.table.sparse.columns.SparseBooleanColumn;
 
 
 /**
@@ -207,7 +207,8 @@ public class VIntBooleanHashMap extends TIntHash implements Serializable,
     *
     * @param newCapacity New capacity for the hashmap
     */
-   protected void rehash(int newCapacity) {
+   @Override
+protected void rehash(int newCapacity) {
       int oldCapacity = _set.length;
       int[] oldKeys = _set;
       boolean[] oldVals = _values;
@@ -234,7 +235,8 @@ public class VIntBooleanHashMap extends TIntHash implements Serializable,
     *
     * @param index Index at which the removal should be performed
     */
-   protected void removeAt(int index) {
+   @Override
+protected void removeAt(int index) {
       super.removeAt(index); // clear key, state; adjust size
       _values[index] = false;
    }
@@ -247,7 +249,8 @@ public class VIntBooleanHashMap extends TIntHash implements Serializable,
     *
     * @return The actual capacity used
     */
-   protected int setUp(int initialCapacity) {
+   @Override
+protected int setUp(int initialCapacity) {
       int capacity;
 
       capacity = super.setUp(initialCapacity);
@@ -280,7 +283,8 @@ public class VIntBooleanHashMap extends TIntHash implements Serializable,
    /**
     * Empties the map.
     */
-   public void clear() {
+   @Override
+public void clear() {
       super.clear();
 
       int[] keys = _set;
@@ -288,7 +292,7 @@ public class VIntBooleanHashMap extends TIntHash implements Serializable,
       byte[] states = _states;
 
       for (int i = keys.length; i-- > 0;) {
-         keys[i] = (int) 0;
+         keys[i] = 0;
          vals[i] = false;
          states[i] = FREE;
       }
@@ -374,7 +378,8 @@ public class VIntBooleanHashMap extends TIntHash implements Serializable,
     *
     * @return True of the specified object is equal to this
     */
-   public boolean equals(Object other) {
+   @Override
+public boolean equals(Object other) {
 
       if (!(other instanceof VIntBooleanHashMap)) {
          return false;

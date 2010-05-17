@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,7 +38,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.basic;
 
@@ -333,7 +333,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the Column at in the table at pos
     */
-   Column[] getColumns() {
+   @Override
+Column[] getColumns() {
       Column[] copyColumns = new Column[this.getNumColumns()];
 
       for (int i = 0; i < this.getNumColumns(); i++) {
@@ -504,7 +505,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @param col the Column to be added to the table
     */
-   public void addColumn(Column col) {
+   @Override
+public void addColumn(Column col) {
       col = this.expandColumn(col);
       super.addColumn(col);
    }
@@ -514,7 +516,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @param cols the Column to be added to the table
     */
-   public void addColumns(Column[] cols) {
+   @Override
+public void addColumns(Column[] cols) {
 
       // Expand the columns before adding them.
       for (int i = 0; i < cols.length; i++) {
@@ -528,7 +531,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @param howMany Description of parameter $param.name$.
     */
-   public void addRows(int howMany) {
+   @Override
+public void addRows(int howMany) {
 
       int numRows = 0;
 
@@ -555,7 +559,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return A new Table with a copy of the contents of this table.
     */
-   public Table copy() {
+   @Override
+public Table copy() {
       TableImpl vt;
 
       // Copy failed, maybe objects in a column that are not serializable.
@@ -582,7 +587,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return a new copy of the table.
     */
-   public Table copy(int[] subset) {
+   @Override
+public Table copy(int[] subset) {
       TableImpl vt;
       int[] newsubset = this.resubset(subset);
 
@@ -597,7 +603,7 @@ public class SubsetTableImpl extends MutableTableImpl {
       vt.setLabel(this.getLabel());
       vt.setComment(this.getComment());
 
-      return (Table) vt;
+      return vt;
    }
 
    /**
@@ -608,7 +614,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return a new copy of the table.
     */
-   public Table copy(int start, int length) {
+   @Override
+public Table copy(int start, int length) {
       TableImpl vt;
       int[] newsubset = this.resubset(start, length);
 
@@ -623,7 +630,7 @@ public class SubsetTableImpl extends MutableTableImpl {
       vt.setLabel(this.getLabel());
       vt.setComment(this.getComment());
 
-      return (Table) vt;
+      return vt;
    }
 
    /**
@@ -634,7 +641,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the boolean in the Table at (row, column)
     */
-   public boolean getBoolean(int row, int column) {
+   @Override
+public boolean getBoolean(int row, int column) {
       return columns[column].getBoolean(subset[row]);
    }
 
@@ -646,7 +654,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the byte in the Table at (row, column)
     */
-   public byte getByte(int row, int column) {
+   @Override
+public byte getByte(int row, int column) {
       return columns[column].getByte(subset[row]);
    }
 
@@ -658,7 +667,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the bytes in the Table at (row, column)
     */
-   public byte[] getBytes(int row, int column) {
+   @Override
+public byte[] getBytes(int row, int column) {
       return columns[column].getBytes(subset[row]);
    }
 
@@ -670,7 +680,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the chars in the Table at (row, column)
     */
-   public char getChar(int row, int column) {
+   @Override
+public char getChar(int row, int column) {
       return columns[column].getChar(subset[row]);
    }
 
@@ -682,7 +693,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the chars in the Table at (row, column)
     */
-   public char[] getChars(int row, int column) {
+   @Override
+public char[] getChars(int row, int column) {
       return columns[column].getChars(subset[row]);
    }
 
@@ -693,7 +705,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the Column at in the table at pos
     */
-   public Column getColumn(int pos) {
+   @Override
+public Column getColumn(int pos) {
       // System.out.println("position " + pos);
       // Thread.dumpStack();
 
@@ -708,7 +721,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the float in the Table at (row, column)
     */
-   public double getDouble(int row, int column) {
+   @Override
+public double getDouble(int row, int column) {
 
       return columns[column].getDouble(subset[row]);
    }
@@ -721,7 +735,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the float in the Table at (row, column)
     */
-   public float getFloat(int row, int column) {
+   @Override
+public float getFloat(int row, int column) {
       return columns[column].getFloat(subset[row]);
    }
 
@@ -733,7 +748,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the int in the Table at (row, column)
     */
-   public int getInt(int row, int column) {
+   @Override
+public int getInt(int row, int column) {
       return columns[column].getInt(subset[row]);
    }
 
@@ -745,7 +761,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the long in the Table at (row, column)
     */
-   public long getLong(int row, int column) {
+   @Override
+public long getLong(int row, int column) {
       return columns[column].getLong(subset[row]);
    }
 
@@ -755,7 +772,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the number of rows int he subset.
     */
-   public int getNumRows() { return this.subset.length; }
+   @Override
+public int getNumRows() { return this.subset.length; }
 
    /**
     * Get an Object from the Table.
@@ -765,7 +783,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the Object in the Table at (row, column)
     */
-   public Object getObject(int row, int column) {
+   @Override
+public Object getObject(int row, int column) {
       return columns[column].getRow(subset[row]);
    }
 
@@ -777,7 +796,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the short in the Table at (row, column)
     */
-   public short getShort(int row, int column) {
+   @Override
+public short getShort(int row, int column) {
       return columns[column].getShort(subset[row]);
    }
 
@@ -789,7 +809,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return the String in the Table at (row, column)
     */
-   public String getString(int row, int column) {
+   @Override
+public String getString(int row, int column) {
       return columns[column].getString(subset[row]);
    }
 
@@ -807,7 +828,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return a subset table.
     */
-   public Table getSubset(int[] rows) {
+   @Override
+public Table getSubset(int[] rows) {
       SubsetTableImpl eti = (SubsetTableImpl) this.shallowCopy();
       eti.subset = this.resubset(rows);
 
@@ -823,7 +845,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return a subset of this Table's rows
     */
-   public Table getSubset(int pos, int len) {
+   @Override
+public Table getSubset(int pos, int len) {
       SubsetTableImpl eti = (SubsetTableImpl) this.shallowCopy();
       eti.subset = this.resubset(pos, len);
 
@@ -836,7 +859,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param col   the column to add.
     * @param where position were the column will be inserted.
     */
-   public void insertColumn(Column col, int where) {
+   @Override
+public void insertColumn(Column col, int where) {
 
       // expand the column
       col = this.expandColumn(col);
@@ -849,7 +873,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param datatype the columns to add.
     * @param where    the number of columns to add.
     */
-   public void insertColumns(Column[] datatype, int where) {
+   @Override
+public void insertColumns(Column[] datatype, int where) {
       Column[] newCols = new Column[datatype.length];
 
       for (int i = 0; i < newCols.length; i++) {
@@ -867,7 +892,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return True if the value at row is empty, false otherwise
     */
-   public boolean isValueEmpty(int row, int col) {
+   @Override
+public boolean isValueEmpty(int row, int col) {
       return columns[col].isValueEmpty(subset[row]);
    }
 
@@ -880,7 +906,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return True if the value at row is missing, false otherwise
     */
-   public boolean isValueMissing(int row, int col) {
+   @Override
+public boolean isValueMissing(int row, int col) {
       return columns[col].isValueMissing(subset[row]);
    }
 
@@ -889,7 +916,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @param pos the row to remove
     */
-   public void removeRow(int pos) {
+   @Override
+public void removeRow(int pos) {
       int[] newsubset = new int[subset.length - 1];
 
       System.arraycopy(subset, 0, newsubset, 0, pos);
@@ -908,7 +936,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param pos the row to remove
     * @param cnt Description of parameter cnt.
     */
-   public void removeRows(int pos, int cnt) {
+   @Override
+public void removeRows(int pos, int cnt) {
       int[] newsubset = new int[subset.length - cnt];
       System.arraycopy(subset, 0, newsubset, 0, pos);
       System.arraycopy(subset,
@@ -927,7 +956,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row    the row of the table
     * @param column the column of the table
     */
-   public void setBoolean(boolean data, int row, int column) {
+   @Override
+public void setBoolean(boolean data, int row, int column) {
       columns[column].setBoolean(data, subset[row]);
    }
 
@@ -938,7 +968,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row    the row of the table
     * @param column the column of the table
     */
-   public void setByte(byte data, int row, int column) {
+   @Override
+public void setByte(byte data, int row, int column) {
       columns[column].setByte(data, subset[row]);
    }
 
@@ -949,7 +980,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row    the row of the table
     * @param column the column of the table
     */
-   public void setBytes(byte[] data, int row, int column) {
+   @Override
+public void setBytes(byte[] data, int row, int column) {
       columns[column].setBytes(data, subset[row]);
    }
 
@@ -960,7 +992,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row    the row of the table
     * @param column the column of the table
     */
-   public void setChar(char data, int row, int column) {
+   @Override
+public void setChar(char data, int row, int column) {
       columns[column].setChar(data, subset[row]);
    }
 
@@ -971,7 +1004,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row    the row of the table
     * @param column the column of the table
     */
-   public void setChars(char[] data, int row, int column) {
+   @Override
+public void setChars(char[] data, int row, int column) {
       columns[column].setChars(data, subset[row]);
    }
 
@@ -981,7 +1015,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param col   the position of the Column to get from table
     * @param where Description of parameter where.
     */
-   public void setColumn(Column col, int where) {
+   @Override
+public void setColumn(Column col, int where) {
       columns[where] = this.expandColumn(col);
    }
 
@@ -990,8 +1025,9 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @param newColumns a new internal representation for this Table
     */
+   @Override
    public void setColumns(Column[] newColumns) {
-      Column[] copyColumns = new Column[this.getNumColumns()];
+      //Column[] copyColumns = new Column[this.getNumColumns()];
 
       // Resize the columns array if necessary
       if (columns.length != newColumns.length) {
@@ -1017,7 +1053,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row    the row of the table
     * @param column the column of the table
     */
-   public void setDouble(double data, int row, int column) {
+   @Override
+public void setDouble(double data, int row, int column) {
       columns[column].setDouble(data, subset[row]);
    }
 
@@ -1028,7 +1065,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row    the row of the table
     * @param column the column of the table
     */
-   public void setFloat(float data, int row, int column) {
+   @Override
+public void setFloat(float data, int row, int column) {
       columns[column].setFloat(data, subset[row]);
    }
 
@@ -1039,7 +1077,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row    the row of the table
     * @param column the column of the table
     */
-   public void setInt(int data, int row, int column) {
+   @Override
+public void setInt(int data, int row, int column) {
       columns[column].setInt(data, subset[row]);
    }
 
@@ -1050,7 +1089,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row    the row of the table
     * @param column the column of the table
     */
-   public void setLong(long data, int row, int column) {
+   @Override
+public void setLong(long data, int row, int column) {
       columns[column].setLong(data, subset[row]);
    }
 
@@ -1061,7 +1101,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row     the row of the table
     * @param column  the column of the table
     */
-   public void setObject(Object element, int row, int column) {
+   @Override
+public void setObject(Object element, int row, int column) {
       columns[column].setRow(element, subset[row]);
    }
 
@@ -1072,7 +1113,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row    the row of the table
     * @param column the column of the table
     */
-   public void setShort(short data, int row, int column) {
+   @Override
+public void setShort(short data, int row, int column) {
       columns[column].setShort(data, subset[row]);
    }
 
@@ -1083,7 +1125,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row    the row of the table
     * @param column the column of the table
     */
-   public void setString(String data, int row, int column) {
+   @Override
+public void setString(String data, int row, int column) {
       columns[column].setString(data, subset[row]);
    }
 
@@ -1094,7 +1137,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row Row index to mark as empty
     * @param col Column index to mark as empty
     */
-   public void setValueToEmpty(boolean b, int row, int col) {
+   @Override
+public void setValueToEmpty(boolean b, int row, int col) {
       columns[col].setValueToEmpty(b, subset[row]);
    }
 
@@ -1105,7 +1149,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param row Row index to mark as missing
     * @param col Column index to mark as missing
     */
-   public void setValueToMissing(boolean b, int row, int col) {
+   @Override
+public void setValueToMissing(boolean b, int row, int col) {
       columns[col].setValueToMissing(b, subset[row]);
    }
 
@@ -1115,7 +1160,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     *
     * @return a shallow copy of the table.
     */
-   public Table shallowCopy() {
+   @Override
+public Table shallowCopy() {
 
       // make a copy of the columns array, we don't want to share that.
       Column[] newCols = new Column[this.columns.length];
@@ -1171,7 +1217,8 @@ public class SubsetTableImpl extends MutableTableImpl {
     * @param pos1 the first row to swap
     * @param pos2 the second row to swap
     */
-   public void swapRows(int pos1, int pos2) {
+   @Override
+public void swapRows(int pos1, int pos2) {
       int swap = this.subset[pos1];
       this.subset[pos1] = this.subset[pos2];
       this.subset[pos2] = swap;

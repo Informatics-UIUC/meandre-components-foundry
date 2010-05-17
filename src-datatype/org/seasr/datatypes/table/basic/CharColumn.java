@@ -158,6 +158,7 @@ public final class CharColumn extends MissingValuesColumn
     *
     * @return -1, 0, 1
     */
+   @SuppressWarnings("unused")
    static private int compareBytes(byte[] b1, byte[] b2) {
 
       if (b1 == null) {
@@ -780,7 +781,7 @@ public final class CharColumn extends MissingValuesColumn
     * @param indices The <code>int</code> array of remove indices
     */
    public void removeRowsByIndex(int[] indices) {
-      HashSet toRemove = new HashSet(indices.length);
+      HashSet<Integer> toRemove = new HashSet<Integer>(indices.length);
 
       for (int i = 0; i < indices.length; i++) {
          Integer id = new Integer(indices[i]);

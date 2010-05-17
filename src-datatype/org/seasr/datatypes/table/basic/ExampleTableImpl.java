@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,10 +38,14 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.basic;
 
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 import org.seasr.datatypes.table.Column;
 import org.seasr.datatypes.table.ExampleTable;
@@ -49,9 +53,7 @@ import org.seasr.datatypes.table.MutableTable;
 import org.seasr.datatypes.table.PredictionTable;
 import org.seasr.datatypes.table.Row;
 import org.seasr.datatypes.table.Table;
-
-import java.util.ArrayList;
-import java.util.logging.Logger;
+import org.seasr.datatypes.table.Transformation;
 
 
 /**
@@ -94,6 +96,7 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
    /** the indicies of the attributes that are inputs (to the model). */
    protected int[] outputColumns;
 
+   @SuppressWarnings("unused")
    private static Logger _logger = Logger.getLogger("ExampleTableImpl");
 
    //~ Constructors ************************************************************
@@ -194,10 +197,9 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
       try {
 
          if (table instanceof MutableTable) {
-            transformations =
-               (ArrayList)
-               ((ArrayList) ((MutableTable) table).getTransformations())
-                  .clone();
+            List<Transformation> transf = ((MutableTable) table).getTransformations();
+            transformations = new ArrayList<Transformation>(transf.size());
+            transformations.addAll(transf);
          }
       } catch (Exception e) {
          e.printStackTrace();
@@ -275,10 +277,9 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
       try {
 
          if (table instanceof MutableTable) {
-            transformations =
-               (ArrayList)
-               ((ArrayList) ((MutableTable) table).getTransformations())
-                  .clone();
+            List<Transformation> transf = ((MutableTable) table).getTransformations();
+            transformations = new ArrayList<Transformation>(transf.size());
+            transformations.addAll(transf);
          }
       } catch (Exception e) {
          e.printStackTrace();
@@ -378,8 +379,8 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
     *
     * @return A new Table with a copy of the contents of this table.
     */
+   @Override
    public Table copy() {
-      TableImpl vt;
 
       // Copy failed, maybe objects in a column that are not serializable.
       Column[] cols = new Column[this.getNumColumns()];
@@ -417,8 +418,9 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
 
       // copy the transformations
       try {
-         transformations =
-            (ArrayList) ((ArrayList) this.getTransformations()).clone();
+          List<Transformation> transf = this.getTransformations();
+          transformations = new ArrayList<Transformation>(transf.size());
+          transformations.addAll(transf);
       } catch (Exception e) {
          e.printStackTrace();
          transformations = null;
@@ -434,8 +436,8 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
     *
     * @return a new copy of the table.
     */
+   @Override
    public Table copy(int[] subset) {
-      TableImpl vt;
       int[] newsubset = this.resubset(subset);
 
       // Copy failed, maybe objects in a column that are not serializable.
@@ -499,8 +501,9 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
 
       // copy the transformations
       try {
-         transformations =
-            (ArrayList) ((ArrayList) this.getTransformations()).clone();
+          List<Transformation> transf = this.getTransformations();
+          transformations = new ArrayList<Transformation>(transf.size());
+          transformations.addAll(transf);
       } catch (Exception e) {
          e.printStackTrace();
          transformations = null;
@@ -517,7 +520,8 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
     *
     * @return a new copy of the table.
     */
-   public Table copy(int start, int length) {
+   @Override
+public Table copy(int start, int length) {
       int[] newsubset = this.resubset(start, length);
 
       // Copy failed, maybe objects in a column that are not serializable.
@@ -580,8 +584,9 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
 
       // copy the transformations
       try {
-         transformations =
-            (ArrayList) ((ArrayList) this.getTransformations()).clone();
+          List<Transformation> transf = this.getTransformations();
+          transformations = new ArrayList<Transformation>(transf.size());
+          transformations.addAll(transf);
       } catch (Exception e) {
          e.printStackTrace();
          transformations = null;
@@ -1017,7 +1022,8 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
     *
     * @return a row accessor object.
     */
-   public Row getRow() { return new ExampleImpl(this); }
+   @Override
+public Row getRow() { return new ExampleImpl(this); }
 
    /**
     * Get a subset of this table.
@@ -1026,7 +1032,8 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
     *
     * @return a subset table.
     */
-   public Table getSubset(int[] rows) {
+   @Override
+public Table getSubset(int[] rows) {
       ExampleTableImpl eti = (ExampleTableImpl) this.shallowCopy();
 
       for (int i = 0; i < rows.length; i++) {
@@ -1054,7 +1061,8 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
     *
     * @return a subset of this Table's rows
     */
-   public Table getSubset(int pos, int len) {
+   @Override
+public Table getSubset(int pos, int len) {
       ExampleTableImpl eti = (ExampleTableImpl) this.shallowCopy();
       int[] sample = new int[len];
 
@@ -1191,7 +1199,8 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
     *
     * @param pos the position of the Column to remove
     */
-   public void removeColumn(int pos) {
+   @Override
+public void removeColumn(int pos) {
       super.removeColumn(pos);
 
       if (inputColumns != null) {
@@ -1233,7 +1242,8 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
     * @param start the start position of the range to remove
     * @param len   the number to remove-the length of the range
     */
-   public void removeColumns(int start, int len) {
+   @Override
+public void removeColumns(int start, int len) {
 
       for (int i = start + len - 1; i >= start; i--) {
          this.removeColumn(i);
@@ -1298,7 +1308,8 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
     *
     * @return a shallow copy of the table.
     */
-   public Table shallowCopy() {
+   @Override
+public Table shallowCopy() {
       ExampleTableImpl eti = new ExampleTableImpl();
 
       // make a copy of the columns array, we don't want to share that.
@@ -1326,7 +1337,8 @@ public class ExampleTableImpl extends SubsetTableImpl implements ExampleTable {
     *
     * @return an example table for the data in this table.
     */
-   public ExampleTable toExampleTable() { return this; }
+   @Override
+public ExampleTable toExampleTable() { return this; }
 
    /**
     * Create a prediction table and return it.

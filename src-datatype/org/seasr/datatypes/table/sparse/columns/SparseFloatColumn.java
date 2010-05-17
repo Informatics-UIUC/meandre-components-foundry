@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,22 +38,21 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.sparse.columns;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import org.seasr.datatypes.table.Column;
 import org.seasr.datatypes.table.ColumnTypes;
 import org.seasr.datatypes.table.NumericColumn;
 import org.seasr.datatypes.table.sparse.SparseDefaultValues;
 import org.seasr.datatypes.table.sparse.primitivehash.VHashMap;
-import org.seasr.datatypes.table.sparse.primitivehash
-          .VIntFloatHashMap;
-
-   import java.io.ByteArrayInputStream;
-   import java.io.ByteArrayOutputStream;
-   import java.io.ObjectInputStream;
-   import java.io.ObjectOutputStream;
+import org.seasr.datatypes.table.sparse.primitivehash.VIntFloatHashMap;
 
 
 /**
@@ -181,7 +180,7 @@ public class SparseFloatColumn extends AbstractSparseColumn
       }
 
       if (obj instanceof Character) {
-         return (float) ((Character) obj).charValue();
+         return ((Character) obj).charValue();
       }
 
       if (obj instanceof Boolean) {
@@ -231,7 +230,8 @@ public class SparseFloatColumn extends AbstractSparseColumn
     *
     * @return Map that holds the data of this column (VIntByteHashMap).
     */
-   protected VHashMap getElements() { return elements; }
+   @Override
+protected VHashMap getElements() { return elements; }
 
    /**
     * Returns the valid values in rows <code>begin</code> through <code>end.
@@ -303,7 +303,8 @@ public class SparseFloatColumn extends AbstractSparseColumn
     *
     * @param map New elements
     */
-   protected void setElements(VHashMap map) {
+   @Override
+protected void setElements(VHashMap map) {
       elements = (VIntFloatHashMap) map;
    }
 
@@ -498,7 +499,7 @@ public class SparseFloatColumn extends AbstractSparseColumn
          return SparseDefaultValues.getDefaultDouble();
       }
 
-      return (double) getFloat(row);
+      return getFloat(row);
    }
 
    /**
@@ -578,7 +579,7 @@ public class SparseFloatColumn extends AbstractSparseColumn
    public long getLong(int row) {
 
       if (!elements.containsKey(row)) {
-         return (long) SparseDefaultValues.getDefaultInt();
+         return SparseDefaultValues.getDefaultInt();
       }
 
       return (long) getFloat(row);
@@ -592,7 +593,7 @@ public class SparseFloatColumn extends AbstractSparseColumn
    public double getMax() {
       initRange();
 
-      return (double) max;
+      return max;
    }
 
    /**
@@ -603,7 +604,7 @@ public class SparseFloatColumn extends AbstractSparseColumn
    public double getMin() {
       initRange();
 
-      return (double) min;
+      return min;
    }
 
    /**
@@ -728,9 +729,9 @@ public class SparseFloatColumn extends AbstractSparseColumn
    public void setBoolean(boolean newEntry, int pos) {
 
       if (newEntry) {
-         setFloat((float) 1, pos);
+         setFloat(1, pos);
       } else {
-         setFloat((float) 0, pos);
+         setFloat(0, pos);
       }
    }
 
@@ -742,7 +743,7 @@ public class SparseFloatColumn extends AbstractSparseColumn
     * @param pos      The position
     */
    public void setByte(byte newEntry, int pos) {
-      setFloat((float) newEntry, pos);
+      setFloat(newEntry, pos);
    }
 
    /**
@@ -762,7 +763,7 @@ public class SparseFloatColumn extends AbstractSparseColumn
     * @param pos      The position
     */
    public void setChar(char newEntry, int pos) {
-      setFloat((float) newEntry, pos);
+      setFloat(newEntry, pos);
    }
 
    /**
@@ -804,7 +805,7 @@ public class SparseFloatColumn extends AbstractSparseColumn
     * @param pos      The position
     */
    public void setInt(int newEntry, int pos) {
-      setFloat((float) newEntry, pos);
+      setFloat(newEntry, pos);
    }
 
    /**
@@ -815,7 +816,7 @@ public class SparseFloatColumn extends AbstractSparseColumn
     * @param pos      The position
     */
    public void setLong(long newEntry, int pos) {
-      setFloat((float) newEntry, pos);
+      setFloat(newEntry, pos);
    }
 
    /**
@@ -838,7 +839,7 @@ public class SparseFloatColumn extends AbstractSparseColumn
     * @param pos      The position
     */
    public void setShort(short newEntry, int pos) {
-      setFloat((float) newEntry, pos);
+      setFloat(newEntry, pos);
    }
 
    /**

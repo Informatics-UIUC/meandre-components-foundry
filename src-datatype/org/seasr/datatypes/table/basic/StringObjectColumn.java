@@ -90,6 +90,7 @@ public final class StringObjectColumn extends MissingValuesColumn
    /** Holds the internal data representation. */
    private String[] internal = null;
 
+   @SuppressWarnings("unused")
    private static Logger _logger = Logger.getLogger("StringObjectColumn");
 
    //~ Constructors ************************************************************
@@ -700,7 +701,7 @@ public final class StringObjectColumn extends MissingValuesColumn
    public void removeByFlag(boolean[] flags) {
 
       // keep a list of the row indices to remove
-      LinkedList ll = new LinkedList();
+      LinkedList<Integer> ll = new LinkedList<Integer>();
       int i = 0;
 
       for (; i < flags.length; i++) {
@@ -716,10 +717,10 @@ public final class StringObjectColumn extends MissingValuesColumn
 
       int[] toRemove = new int[ll.size()];
       int j = 0;
-      Iterator iter = ll.iterator();
+      Iterator<Integer> iter = ll.iterator();
 
       while (iter.hasNext()) {
-         Integer in = (Integer) iter.next();
+         Integer in = iter.next();
          toRemove[j] = in.intValue();
          j++;
       }
@@ -768,7 +769,7 @@ public final class StringObjectColumn extends MissingValuesColumn
     * @param indices the int array of remove indices
     */
    public void removeRowsByIndex(int[] indices) {
-      HashSet toRemove = new HashSet(indices.length);
+      HashSet<Integer> toRemove = new HashSet<Integer>(indices.length);
 
       for (int i = 0; i < indices.length; i++) {
          Integer id = new Integer(indices[i]);

@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,7 +38,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.sparse.columns;
 
@@ -171,7 +171,8 @@ public class SparseByteArrayColumn extends SparseObjectColumn
     *
     * @param number Number of rows to add.
     */
-   public void addRows(int number) {
+   @Override
+public void addRows(int number) {
 
       // table is already sparse.  nothing to do.
    }
@@ -187,7 +188,8 @@ public class SparseByteArrayColumn extends SparseObjectColumn
     * @return Column object which is actually a SparseByteArrayColumn, that
     *         holds the data this column has
     */
-   public Column copy() {
+   @Override
+public Column copy() {
       SparseByteArrayColumn retVal =
          new SparseByteArrayColumn((SparseObjectColumn) super.copy());
 
@@ -201,14 +203,16 @@ public class SparseByteArrayColumn extends SparseObjectColumn
     *
     * @return The entry at <code>pos</code>
     */
-   public byte[] getBytes(int pos) { return (byte[]) elements.get(pos); }
+   @Override
+public byte[] getBytes(int pos) { return (byte[]) elements.get(pos); }
 
    /**
     * Returns the internal representation of this column.
     *
     * @return The internal representation of this column.
     */
-   public Object getInternal() {
+   @Override
+public Object getInternal() {
       int max_index = -1;
       byte[][] internal = null;
       int[] keys = elements.keys();
@@ -242,7 +246,8 @@ public class SparseByteArrayColumn extends SparseObjectColumn
     * @return Subset of this column, including rows indicated by <code>
     *         indices</code>.
     */
-   public Column getSubset(int[] indices) {
+   @Override
+public Column getSubset(int[] indices) {
       SparseByteArrayColumn retVal = new SparseByteArrayColumn(indices.length);
 
       for (int i = 0; i < indices.length; i++) {
@@ -271,7 +276,8 @@ public class SparseByteArrayColumn extends SparseObjectColumn
     * @return A SparseByteArrayColumn with the data from rows <code>pos</code>
     *         through <code>pos+len</code>
     */
-   public Column getSubset(int pos, int len) {
+   @Override
+public Column getSubset(int pos, int len) {
       SparseByteArrayColumn subCol =
          new SparseByteArrayColumn((SparseObjectColumn) super.getSubset(pos,
                                                                         len));
@@ -287,7 +293,8 @@ public class SparseByteArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setBoolean(boolean newEntry, int pos) {
+   @Override
+public void setBoolean(boolean newEntry, int pos) {
       setString(new Boolean(newEntry).toString(), pos);
    }
 
@@ -297,7 +304,8 @@ public class SparseByteArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position to store newEntry
     */
-   public void setByte(byte newEntry, int pos) {
+   @Override
+public void setByte(byte newEntry, int pos) {
       byte[] b = new byte[1];
       b[0] = newEntry;
       setBytes(b, pos);
@@ -309,7 +317,8 @@ public class SparseByteArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position to store newEntry
     */
-   public void setBytes(byte[] newEntry, int pos) {
+   @Override
+public void setBytes(byte[] newEntry, int pos) {
       elements.put(pos, newEntry);
    }
 
@@ -319,7 +328,8 @@ public class SparseByteArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setChar(char newEntry, int pos) {
+   @Override
+public void setChar(char newEntry, int pos) {
       char[] c = new char[1];
       c[0] = newEntry;
       setChars(c, pos);
@@ -333,7 +343,8 @@ public class SparseByteArrayColumn extends SparseObjectColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setObject(Object newEntry, int pos) {
+   @Override
+public void setObject(Object newEntry, int pos) {
       setBytes(toByteArray(newEntry), pos);
    }
 } // end class SparseByteArrayColumn

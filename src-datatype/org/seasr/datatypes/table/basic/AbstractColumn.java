@@ -183,7 +183,7 @@ public abstract class AbstractColumn implements Column {
    public void removeRowsByFlag(boolean[] flags) {
 
       // keep a list of the row indices to remove
-      LinkedList ll = new LinkedList();
+      LinkedList<Integer> ll = new LinkedList<Integer>();
       int i = 0;
 
       for (; i < flags.length; i++) {
@@ -199,10 +199,10 @@ public abstract class AbstractColumn implements Column {
 
       int[] toRemove = new int[ll.size()];
       int j = 0;
-      Iterator iter = ll.iterator();
+      Iterator<Integer> iter = ll.iterator();
 
       while (iter.hasNext()) {
-         Integer in = (Integer) iter.next();
+         Integer in = iter.next();
          toRemove[j] = in.intValue();
          j++;
       }

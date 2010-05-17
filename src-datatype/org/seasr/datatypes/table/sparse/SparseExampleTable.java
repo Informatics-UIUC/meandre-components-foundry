@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,7 +38,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.sparse;
 
@@ -48,16 +48,24 @@ package org.seasr.datatypes.table.sparse;
 //==============
 // Java Imports
 //==============
-import java.io.*;
-import java.util.*;
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntHashSet;
 
-import org.seasr.datatypes.table.*;
-import org.seasr.datatypes.table.basic.*;
-import org.seasr.datatypes.table.sparse.columns.*;
-import gnu.trove.*;
-
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Logger;
+
+import org.seasr.datatypes.table.Column;
+import org.seasr.datatypes.table.ExampleTable;
+import org.seasr.datatypes.table.PredictionTable;
+import org.seasr.datatypes.table.Row;
+import org.seasr.datatypes.table.SparseExampleFunc;
+import org.seasr.datatypes.table.Table;
+import org.seasr.datatypes.table.sparse.columns.AbstractSparseColumn;
 
 /**
  * SparseExampleTable is identical to SparseTable with a few addtions:
@@ -355,7 +363,8 @@ public class SparseExampleTable
    Remove a column from the table.
    @param position the position of the Column to remove
    */
-  public void removeColumn(int position) {
+  @Override
+public void removeColumn(int position) {
     decrementInOut(position);
     super.removeColumn(position);
   }
@@ -365,7 +374,8 @@ public class SparseExampleTable
    @param start the start position of the range to remove
    @param len the number to remove-the length of the range
    */
-  public void removeColumns(int start, int len) {
+  @Override
+public void removeColumns(int start, int len) {
     for (int i = 0; i < len; i++) {
       removeColumn(start);
     }
@@ -381,7 +391,8 @@ public class SparseExampleTable
    * 			  <code>start</code> through </codE>start+len</code>
    * 			  from this table.
    */
-  public Table getSubset(int pos, int len) {
+  @Override
+public Table getSubset(int pos, int len) {
     //SparseMutableTable subset = (SparseMutableTable)super.getSubset(pos, len);
 
     //*******************************************************
@@ -421,7 +432,8 @@ public class SparseExampleTable
    * @param rows
    * @return
    */
-  public Table getSubset(int[] rows) {
+  @Override
+public Table getSubset(int[] rows) {
     //SparseMutableTable et = (SparseMutableTable)super.getSubset(rows);
 
     //*******************************************************
@@ -557,7 +569,8 @@ public class SparseExampleTable
    * Return a copy of this Table.
    * @return A new Table with a copy of the contents of this table.
    */
-  public Table copy() {
+  @Override
+public Table copy() {
     try {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -639,7 +652,8 @@ public class SparseExampleTable
    * @param length the number of rows to include
    * @return a new copy of the table.
    */
-  public Table copy(int start, int length) {
+  @Override
+public Table copy(int start, int length) {
 
     int[] subset = new int[length];
     for(int i=0; i<length; i++){
@@ -701,7 +715,8 @@ public class SparseExampleTable
    * @return Table returns a SparseExampleTable with only a subset of its rows,
    * defined by subset.
    */
-  public Table copy(int[] subset) {
+  @Override
+public Table copy(int[] subset) {
     //the returned value
     SparseExampleTable newTable = new SparseExampleTable();
 
@@ -826,7 +841,8 @@ public class SparseExampleTable
    *
    * @return a shallow copy of the table.
    */
-  public Table shallowCopy() {
+  @Override
+public Table shallowCopy() {
     //VERED (7-15-04) made this method to return a TRULY shallow copy.
     SparseExampleTable set = new SparseExampleTable(this);
     return set;
@@ -883,7 +899,8 @@ public class SparseExampleTable
    * specifically.
    * @return a row accessor object.
    */
-  public Row getRow() {
+  @Override
+public Row getRow() {
     return  new SparseExample(this);
   }
 
@@ -1401,7 +1418,8 @@ public class SparseExampleTable
   /**
    * Returns a reference to this table.
    */
-  public ExampleTable toExampleTable() {
+  @Override
+public ExampleTable toExampleTable() {
     return this;
   }
 
@@ -1837,7 +1855,8 @@ public class SparseExampleTable
    * @param col the column to add.
    * @param where position were the column will be inserted.
    */
-  public void insertColumn(Column col, int where) {
+  @Override
+public void insertColumn(Column col, int where) {
     // expand the column
     super.insertColumn(col, where);
     this.incrementInOut(where);
@@ -1848,7 +1867,8 @@ public class SparseExampleTable
    * @param datatype the columns to add.
    * @param where the number of columns to add.
    */
-  public void insertColumns(Column[] datatype, int where) {
+  @Override
+public void insertColumns(Column[] datatype, int where) {
     for (int i = 0; i < datatype.length; i++) {
       super.insertColumn(datatype[i], where + i);
       this.incrementInOut(where + i);
@@ -1859,7 +1879,8 @@ public class SparseExampleTable
    * Remove a row from this Table.
    * @param row the row to remove
    */
-  public void removeRow(int row) {
+  @Override
+public void removeRow(int row) {
     decrementTrainTest(row);
     super.removeRow(row);
   }
@@ -1869,7 +1890,8 @@ public class SparseExampleTable
    @param start the start position of the range to remove
    @param len the number to remove-the length of the range
    */
-  public void removeRows(int start, int len) {
+  @Override
+public void removeRows(int start, int len) {
     for (int i = 0; i < len; i++) {
       removeRow(start);
     }
@@ -1881,7 +1903,8 @@ public class SparseExampleTable
    @param newOrder an array of indices indicating a new order
    @return a copy of this column with the rows reordered
    */
-  public Table reorderColumns(int[] newOrder) {
+  @Override
+public Table reorderColumns(int[] newOrder) {
     //SparseMutableTable tab = (SparseMutableTable)super.copy();
     SparseMutableTable tab = (SparseMutableTable)super.reorderColumns(newOrder);
     SparseExampleTable etab = new SparseExampleTable(tab);
@@ -1911,7 +1934,8 @@ public class SparseExampleTable
    @param pos1 the first row to swap
    @param pos2 the second row to swap
    */
-  public void swapRows(int pos1, int pos2) {
+  @Override
+public void swapRows(int pos1, int pos2) {
     super.swapRows(pos1, pos2);
     this.swapTestTrain(pos1, pos2);
   }
@@ -1921,7 +1945,8 @@ public class SparseExampleTable
    @param pos1 the first column to swap
    @param pos2 the second column to swap
    */
-  public void swapColumns(int pos1, int pos2) {
+  @Override
+public void swapColumns(int pos1, int pos2) {
     super.swapColumns(pos1, pos2);
     this.swapInOut(pos1, pos2);
   }
@@ -2152,7 +2177,8 @@ public class SparseExampleTable
 
 
   //VERED: added this method, for testing purposes
-  public boolean equals(Object set) {
+  @Override
+public boolean equals(Object set) {
     SparseExampleTable _set = (SparseExampleTable) set;
     super.equals(_set);
     int[] _inputs = _set.getInputFeatures();

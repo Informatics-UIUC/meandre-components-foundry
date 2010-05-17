@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,22 +38,21 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.sparse.columns;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import org.seasr.datatypes.table.Column;
 import org.seasr.datatypes.table.ColumnTypes;
 import org.seasr.datatypes.table.NumericColumn;
 import org.seasr.datatypes.table.sparse.SparseDefaultValues;
 import org.seasr.datatypes.table.sparse.primitivehash.VHashMap;
-import org.seasr.datatypes.table.sparse.primitivehash
-          .VIntLongHashMap;
-
-   import java.io.ByteArrayInputStream;
-   import java.io.ByteArrayOutputStream;
-   import java.io.ObjectInputStream;
-   import java.io.ObjectOutputStream;
+import org.seasr.datatypes.table.sparse.primitivehash.VIntLongHashMap;
 
 
 /**
@@ -170,7 +169,7 @@ public class SparseLongColumn extends AbstractSparseColumn
    static public long toLong(Object obj) {
 
       if (obj == null) {
-         return (long) SparseDefaultValues.getDefaultInt();
+         return SparseDefaultValues.getDefaultInt();
       }
 
       if (obj instanceof Number) {
@@ -178,7 +177,7 @@ public class SparseLongColumn extends AbstractSparseColumn
       }
 
       if (obj instanceof Character) {
-         return (long) ((Character) obj).charValue();
+         return ((Character) obj).charValue();
       }
 
       if (obj instanceof Boolean) {
@@ -250,7 +249,8 @@ public class SparseLongColumn extends AbstractSparseColumn
     *
     * @return Map that holds the data of this column (VIntByteHashMap).
     */
-   protected VHashMap getElements() { return elements; }
+   @Override
+protected VHashMap getElements() { return elements; }
 
    /**
     * Returns the valid values in rows <code>begin</code> through <code>
@@ -300,7 +300,8 @@ public class SparseLongColumn extends AbstractSparseColumn
     *
     * @param map New elements
     */
-   protected void setElements(VHashMap map) {
+   @Override
+protected void setElements(VHashMap map) {
       elements = (VIntLongHashMap) map;
    }
 
@@ -493,7 +494,7 @@ public class SparseLongColumn extends AbstractSparseColumn
          return SparseDefaultValues.getDefaultDouble();
       }
 
-      return (double) getLong(row);
+      return getLong(row);
    }
 
    /**
@@ -511,7 +512,7 @@ public class SparseLongColumn extends AbstractSparseColumn
          return (float) SparseDefaultValues.getDefaultDouble();
       }
 
-      return (float) getLong(row);
+      return getLong(row);
    }
 
    /**
@@ -552,7 +553,7 @@ public class SparseLongColumn extends AbstractSparseColumn
       internal = new long[max_index + 1];
 
       for (int i = 0; i < max_index + 1; i++) {
-         internal[i] = (long) SparseDefaultValues.getDefaultInt();
+         internal[i] = SparseDefaultValues.getDefaultInt();
       }
 
       for (int i = 0; i < keys.length; i++) {
@@ -575,7 +576,7 @@ public class SparseLongColumn extends AbstractSparseColumn
       if (elements.containsKey(row)) {
          return elements.get(row);
       } else {
-         return (long) SparseDefaultValues.getDefaultInt();
+         return SparseDefaultValues.getDefaultInt();
       }
    }
 
@@ -587,7 +588,7 @@ public class SparseLongColumn extends AbstractSparseColumn
    public double getMax() {
       initRange();
 
-      return (double) max;
+      return max;
    }
 
    /**
@@ -598,7 +599,7 @@ public class SparseLongColumn extends AbstractSparseColumn
    public double getMin() {
       initRange();
 
-      return (double) min;
+      return min;
    }
 
    /**
@@ -613,7 +614,7 @@ public class SparseLongColumn extends AbstractSparseColumn
       if (elements.containsKey(row)) {
          return new Long(elements.get(row));
       } else {
-         return new Long((long) SparseDefaultValues.getDefaultInt());
+         return new Long(SparseDefaultValues.getDefaultInt());
       }
    }
 
@@ -722,9 +723,9 @@ public class SparseLongColumn extends AbstractSparseColumn
    public void setBoolean(boolean newEntry, int pos) {
 
       if (newEntry) {
-         setLong((long) 1, pos);
+         setLong(1, pos);
       } else {
-         setLong((long) 0, pos);
+         setLong(0, pos);
       }
    }
 
@@ -735,7 +736,7 @@ public class SparseLongColumn extends AbstractSparseColumn
     * @param pos      The position
     */
    public void setByte(byte newEntry, int pos) {
-      setLong((long) newEntry, pos);
+      setLong(newEntry, pos);
    }
 
    /**
@@ -756,7 +757,7 @@ public class SparseLongColumn extends AbstractSparseColumn
     * @param pos      The position
     */
    public void setChar(char newEntry, int pos) {
-      setLong((long) newEntry, pos);
+      setLong(newEntry, pos);
    }
 
    /**
@@ -795,7 +796,7 @@ public class SparseLongColumn extends AbstractSparseColumn
     * @param newEntry The new item
     * @param pos      The position
     */
-   public void setInt(int newEntry, int pos) { setLong((long) newEntry, pos); }
+   public void setInt(int newEntry, int pos) { setLong(newEntry, pos); }
 
    /**
     * Sets the value at pos to newEntry.
@@ -824,7 +825,7 @@ public class SparseLongColumn extends AbstractSparseColumn
     * @param pos      The position
     */
    public void setShort(short newEntry, int pos) {
-      setLong((long) newEntry, pos);
+      setLong(newEntry, pos);
    }
 
    /**

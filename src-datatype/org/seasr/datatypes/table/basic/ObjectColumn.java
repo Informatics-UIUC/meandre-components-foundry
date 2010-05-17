@@ -322,6 +322,7 @@ public final class ObjectColumn extends MissingValuesColumn {
     *
     * @return a value representing the relationship- >, <, or == 0
     */
+   @SuppressWarnings("unchecked")
    public int compareRows(Object element, int pos) {
       Object d1 = element;
       Object d2 = internal[pos];
@@ -829,7 +830,7 @@ public final class ObjectColumn extends MissingValuesColumn {
     * @param indices the int array of remove indices
     */
    public void removeRowsByIndex(int[] indices) {
-      HashSet toRemove = new HashSet(indices.length);
+      HashSet<Integer> toRemove = new HashSet<Integer>(indices.length);
 
       for (int i = 0; i < indices.length; i++) {
          Integer id = new Integer(indices[i]);

@@ -75,7 +75,7 @@ public class MutableTableImpl extends TableImpl implements MutableTable {
    //~ Instance fields *********************************************************
 
    /** List of transformations performed. */
-   ArrayList transformations = new ArrayList();
+   ArrayList<Transformation> transformations = new ArrayList<Transformation>();
 
    //~ Constructors ************************************************************
 
@@ -337,7 +337,7 @@ public boolean equals(Object mt) {
     * @return <code>List</code> containing the <code>Transformation</code> which
     *         transformed the data.
     */
-   public List getTransformations() { return transformations; }
+   public List<Transformation> getTransformations() { return transformations; }
 
    /**
     * Inserts a new <code>Column</code> at the indicated position in this <code>

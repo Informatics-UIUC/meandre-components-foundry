@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -52,7 +52,7 @@ import java.util.Vector;
  * specified as a complete path through a tree of arbitrary breadth. It is
  * conceived as an n-ary tree (loosely speaking) in which each non-leaf node is
  * a Java HashMap.
- * 
+ *
  * @author gpape
  * @version $Revision: 1.3 $, $Date: 2006/07/27 14:47:58 $
  */
@@ -71,7 +71,7 @@ public class HashLookupTable implements Serializable {
 	private String[] level_labels;
 
 	/** Root HashMap. */
-	private HashMap map;
+	private final HashMap map;
 
 	// ~ Constructors
 	// ************************************************************
@@ -88,7 +88,7 @@ public class HashLookupTable implements Serializable {
 	/**
 	 * Constructs a new, empty HashLookupTable with the specified initial
 	 * capacity and a default load factor for the root node.
-	 * 
+	 *
 	 * @param initialCapacity
 	 *            Description of parameter initialCapacity.
 	 */
@@ -98,7 +98,7 @@ public class HashLookupTable implements Serializable {
 
 	/**
 	 * Constructs a new HashLookupTable with the same mappings as the given map.
-	 * 
+	 *
 	 * @param t
 	 *            Map to copy.
 	 */
@@ -109,7 +109,7 @@ public class HashLookupTable implements Serializable {
 	/**
 	 * Constructs a new, empty HashLookupTable with the specified initial
 	 * capacity and the specified load factor for the root node.
-	 * 
+	 *
 	 * @param initialCapacity
 	 *            Description of parameter initialCapacity.
 	 * @param loadFactor
@@ -125,10 +125,10 @@ public class HashLookupTable implements Serializable {
 	/**
 	 * Returns <code>true</code> if this table contains a mapping for the
 	 * specified keys.
-	 * 
+	 *
 	 * @param keys
 	 *            Ordered keys for which a mapping is to be tested.
-	 * 
+	 *
 	 * @return <code>true</code> if and only if the table contains a mapping
 	 *         for the specified keys.
 	 */
@@ -162,10 +162,10 @@ public class HashLookupTable implements Serializable {
 	 * explicitly maps the key to <code>null</code>. (The
 	 * <code>containsKeys</code> method can be used to distinguish these two
 	 * cases.)
-	 * 
+	 *
 	 * @param keys
 	 *            Ordered keys to be used to retrieve a value.
-	 * 
+	 *
 	 * @return The value to which this table maps the specified keys, or <code>
 	 *         null</code>
 	 *         if no such mapping exists.
@@ -194,10 +194,10 @@ public class HashLookupTable implements Serializable {
 
 	/**
 	 * Returns the text label for a given level.
-	 * 
+	 *
 	 * @param level
 	 *            The level for which a label is to be returned.
-	 * 
+	 *
 	 * @return The String label for the given level.
 	 */
 	public String getLabel(int level) {
@@ -208,10 +208,10 @@ public class HashLookupTable implements Serializable {
 	 * Returns a HashMap containing as values all objects on a given level of
 	 * the table. The keys are the Integer order of placement into the table,
 	 * indexed from zero.
-	 * 
+	 *
 	 * @param level
 	 *            The level for which values are to be returned.
-	 * 
+	 *
 	 * @return A HashMap containing the values at the specified level.
 	 */
 	public HashMap getMerged(int level) {
@@ -222,13 +222,13 @@ public class HashLookupTable implements Serializable {
 	 * Associates the specified value with the specified set of keys in this
 	 * table. If the table previously contained a mapping for the specified set
 	 * of keys, the old value is replaced (and returned).
-	 * 
+	 *
 	 * @param keys
 	 *            Ordered keys with which the specified value is to be
 	 *            associated.
 	 * @param value
 	 *            Value to be associated with the specified keys.
-	 * 
+	 *
 	 * @return The previous value associated with the specified set of keys, or
 	 *         <code>null</code> if no such association previously existed. A
 	 *         <code>null</code> return can also indicate that the table
@@ -288,7 +288,7 @@ public class HashLookupTable implements Serializable {
 
 	/**
 	 * Allows the user to set a text label for each level of the tree.
-	 * 
+	 *
 	 * @param labels
 	 *            The Strings to be used as labels.
 	 */

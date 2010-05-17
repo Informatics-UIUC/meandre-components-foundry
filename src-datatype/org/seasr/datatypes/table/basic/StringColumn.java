@@ -84,7 +84,7 @@ public class StringColumn extends MissingValuesColumn implements TextualColumn {
    private int[] rowIndicies;
 
    /** Map of integer values to Strings. */
-   private final HashMap setOfValues;
+   private final HashMap<String, Integer> setOfValues;
 
    /** Unique strings contained in the table. */
    private String[] values;
@@ -109,10 +109,11 @@ public class StringColumn extends MissingValuesColumn implements TextualColumn {
     * @param lbl      Description of parameter lbl.
     * @param comm     Description of parameter comm.
     */
-   private StringColumn(int[] rows, String[] vals, HashMap set,
+   @SuppressWarnings("unchecked")
+   private StringColumn(int[] rows, String[] vals, HashMap<String, Integer> set,
                         boolean[] missingV, boolean[] emptyV, String lbl,
                         String comm) {
-      setOfValues = (HashMap) set.clone();
+      setOfValues = (HashMap<String, Integer>) set.clone();
       values = new String[vals.length];
 
       for (int i = 0; i < vals.length; i++) {
@@ -146,7 +147,7 @@ public class StringColumn extends MissingValuesColumn implements TextualColumn {
     * @param numRows Description of parameter numRows.
     */
    public StringColumn(int numRows) {
-      setOfValues = new HashMap();
+      setOfValues = new HashMap<String, Integer>();
       values = new String[0];
       rowIndicies = new int[numRows];
       type = ColumnTypes.STRING;
@@ -169,7 +170,7 @@ public class StringColumn extends MissingValuesColumn implements TextualColumn {
     * @param data Description of parameter data.
     */
    public StringColumn(String[] data) {
-      setOfValues = new HashMap();
+      setOfValues = new HashMap<String, Integer>();
       values = new String[0];
       rowIndicies = new int[data.length];
 
@@ -358,6 +359,7 @@ public class StringColumn extends MissingValuesColumn implements TextualColumn {
     *
     * @param toRemove Description of parameter $param.name$.
     */
+   @SuppressWarnings("unused")
    private void removeValue(String toRemove) { ; }
 
    /**
@@ -371,7 +373,7 @@ public class StringColumn extends MissingValuesColumn implements TextualColumn {
       if (!setOfValues.containsKey(o.toString())) {
          idx = addValue(o.toString());
       } else {
-         Integer r = (Integer) setOfValues.get(o.toString());
+         Integer r = setOfValues.get(o.toString());
          idx = r.intValue();
       }
 
@@ -460,7 +462,7 @@ public class StringColumn extends MissingValuesColumn implements TextualColumn {
       } catch (Exception e) {
          int[] tmprow = new int[rowIndicies.length];
          String[] vals = new String[values.length];
-         HashMap set = new HashMap();
+         HashMap<String, Integer> set = new HashMap<String, Integer>();
 
          for (int i = 0; i < rowIndicies.length; i++) {
             tmprow[i] = rowIndicies[i];
@@ -470,11 +472,11 @@ public class StringColumn extends MissingValuesColumn implements TextualColumn {
             vals[i] = values[i];
          }
 
-         Iterator i = setOfValues.keySet().iterator();
+         Iterator<String> i = setOfValues.keySet().iterator();
 
          while (i.hasNext()) {
-            Object key = i.next();
-            Object val = setOfValues.get(key);
+            String key = i.next();
+            Integer val = setOfValues.get(key);
             set.put(key, val);
          }
 
@@ -763,7 +765,7 @@ public class StringColumn extends MissingValuesColumn implements TextualColumn {
       if (!setOfValues.containsKey(newEntry.toString())) {
          idx = addValue(newEntry.toString());
       } else {
-         Integer r = (Integer) setOfValues.get(newEntry.toString());
+         Integer r = setOfValues.get(newEntry.toString());
          idx = r.intValue();
       }
 
@@ -819,7 +821,7 @@ public class StringColumn extends MissingValuesColumn implements TextualColumn {
     * @param indices Description of parameter indices.
     */
    public void removeRowsByIndex(int[] indices) {
-      HashSet toRemove = new HashSet(indices.length);
+      HashSet<Integer> toRemove = new HashSet<Integer>(indices.length);
 
       for (int i = 0; i < indices.length; i++) {
          Integer id = new Integer(indices[i]);
@@ -1038,7 +1040,7 @@ public class StringColumn extends MissingValuesColumn implements TextualColumn {
          int r = addValue(s);
          rowIndicies[row] = r;
       } else {
-         Integer r = (Integer) setOfValues.get(s);
+         Integer r = setOfValues.get(s);
          rowIndicies[row] = r.intValue();
       }
    }

@@ -879,7 +879,7 @@ public final class ByteColumn extends MissingValuesColumn
     */
    public void removeRowsByIndex(int[] indices) {
 
-      HashSet toRemove = new HashSet(indices.length);
+      HashSet<Integer> toRemove = new HashSet<Integer>(indices.length);
 
       for (int i = 0; i < indices.length; i++) {
          Integer id = new Integer(indices[i]);

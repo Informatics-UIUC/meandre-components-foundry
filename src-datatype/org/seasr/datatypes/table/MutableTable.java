@@ -101,7 +101,7 @@ public interface MutableTable extends Table {
     * @return <code>List</code> containing the <code>Transformation</code> which
     *         transformed the data.
     */
-   public List getTransformations();
+   public List<Transformation> getTransformations();
 
    /**
     * Inserts a <code>Column</code> in the table.

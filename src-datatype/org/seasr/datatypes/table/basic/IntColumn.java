@@ -42,17 +42,17 @@
 
 package org.seasr.datatypes.table.basic;
 
-import org.seasr.datatypes.table.Column;
-import org.seasr.datatypes.table.ColumnTypes;
-import org.seasr.datatypes.table.MutableTable;
-import org.seasr.datatypes.table.NumericColumn;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.logging.Logger;
+
+import org.seasr.datatypes.table.Column;
+import org.seasr.datatypes.table.ColumnTypes;
+import org.seasr.datatypes.table.MutableTable;
+import org.seasr.datatypes.table.NumericColumn;
 
 
 /**
@@ -493,7 +493,7 @@ public final class IntColumn extends MissingValuesColumn
     *
     * @return the value at pos as a double
     */
-   public double getDouble(int pos) { return (double) this.internal[pos]; }
+   public double getDouble(int pos) { return this.internal[pos]; }
 
    /**
     * Get the value at pos as a float.
@@ -502,7 +502,7 @@ public final class IntColumn extends MissingValuesColumn
     *
     * @return the value at pos as a float
     */
-   public float getFloat(int pos) { return (float) this.internal[pos]; }
+   public float getFloat(int pos) { return this.internal[pos]; }
 
    /**
     * Get the value at pos.
@@ -523,7 +523,8 @@ public final class IntColumn extends MissingValuesColumn
     *
     * @deprecated Description of return value.
     */
-   public Object getInternal() { return this.internal; }
+   @Deprecated
+public Object getInternal() { return this.internal; }
 
    /**
     * Get the value at pos as a long.
@@ -532,7 +533,7 @@ public final class IntColumn extends MissingValuesColumn
     *
     * @return the value at pos as a long
     */
-   public long getLong(int pos) { return (long) internal[pos]; }
+   public long getLong(int pos) { return internal[pos]; }
 
    /**
     * Get the maximum value contained in this Column.
@@ -542,7 +543,7 @@ public final class IntColumn extends MissingValuesColumn
    public double getMax() {
       initRange();
 
-      return (double) max;
+      return max;
    }
 
    /**
@@ -553,7 +554,7 @@ public final class IntColumn extends MissingValuesColumn
    public double getMin() {
       initRange();
 
-      return (double) min;
+      return min;
    }
 
 
@@ -772,7 +773,7 @@ public final class IntColumn extends MissingValuesColumn
     * @param indices the int array of remove indices
     */
    public void removeRowsByIndex(int[] indices) {
-      HashSet toRemove = new HashSet(indices.length);
+      HashSet<Integer> toRemove = new HashSet<Integer>(indices.length);
 
       for (int i = 0; i < indices.length; i++) {
          Integer id = new Integer(indices[i]);
@@ -859,7 +860,7 @@ public final class IntColumn extends MissingValuesColumn
     * @param newEntry the new item
     * @param pos      the position
     */
-   public void setByte(byte newEntry, int pos) { setInt((int) newEntry, pos); }
+   public void setByte(byte newEntry, int pos) { setInt(newEntry, pos); }
 
    /**
     * Converts newEntry to an int.
@@ -877,7 +878,7 @@ public final class IntColumn extends MissingValuesColumn
     * @param newEntry the new item
     * @param pos      the position
     */
-   public void setChar(char newEntry, int pos) { setInt((int) newEntry, pos); }
+   public void setChar(char newEntry, int pos) { setInt(newEntry, pos); }
 
    /**
     * Convert newEntry to a String and call setString().
@@ -994,7 +995,7 @@ public final class IntColumn extends MissingValuesColumn
     * @param pos      the position
     */
    public void setShort(short newEntry, int pos) {
-      this.internal[pos] = (int) newEntry;
+      this.internal[pos] = newEntry;
    }
 
    /**
@@ -1020,7 +1021,8 @@ public final class IntColumn extends MissingValuesColumn
    /**
     * Sort the elements in this column.
     */
-   public void sort(SortMode sortMode) { sort(null, sortMode); }
+   @Override
+public void sort(SortMode sortMode) { sort(null, sortMode); }
 
    /**
     * Sort the elements in this column, and swap the rows in the table we are a
@@ -1028,7 +1030,8 @@ public final class IntColumn extends MissingValuesColumn
     *
     * @param t the VerticalTable to swap rows for
     */
-   public void sort(MutableTable t, SortMode sortMode) {
+   @Override
+public void sort(MutableTable t, SortMode sortMode) {
       internal = doSort(internal, 0, internal.length - 1, t, sortMode);
    }
 
@@ -1042,7 +1045,8 @@ public final class IntColumn extends MissingValuesColumn
     * @param end   the row no. which marks the end of the column segment to be
     *              sorted
     */
-   public void sort(MutableTable t, int begin, int end, SortMode sortMode) {
+   @Override
+public void sort(MutableTable t, int begin, int end, SortMode sortMode) {
 
       if (end > internal.length - 1) {
     	  _logger.severe(" end index was out of bounds");

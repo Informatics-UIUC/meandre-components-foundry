@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,7 +38,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.table.sparse.columns;
 
@@ -57,6 +57,7 @@ import org.seasr.datatypes.table.TextualColumn;
  * @version    $Revision: 1.13 $, $Date: 2006/08/14 20:32:32 $
  * @deprecated Not used anymore
  */
+@Deprecated
 public class SparseStringObjectColumn extends SparseObjectColumn
    implements TextualColumn {
 
@@ -155,7 +156,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     * @return Column object which is actually a deep copy of this
     *         SparseStringObjectColumn object.
     */
-   public Column copy() {
+   @Override
+public Column copy() {
       SparseStringObjectColumn retVal =
          new SparseStringObjectColumn((SparseObjectColumn) super.copy());
 
@@ -171,7 +173,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     * @return a subset of this column, including rows indicated by <code>
     *         indices</code>.
     */
-   public Column getSubset(int[] indices) {
+   @Override
+public Column getSubset(int[] indices) {
       SparseStringObjectColumn retVal =
          new SparseStringObjectColumn(indices.length);
 
@@ -198,7 +201,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     * @return a SparseStringObjectColumn with the data from rows <code>
     *         pos</code> through <code>pos+len</code>
     */
-   public Column getSubset(int pos, int len) {
+   @Override
+public Column getSubset(int pos, int len) {
       SparseStringObjectColumn subCol =
          new SparseStringObjectColumn((SparseObjectColumn) super.getSubset(pos,
                                                                            len));
@@ -214,7 +218,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     *            #<code>row</code>
     * @param row - the row number at which to set the value
     */
-   public void setBoolean(boolean b, int row) {
+   @Override
+public void setBoolean(boolean b, int row) {
       setString(new Boolean(b).toString(), row);
    }
 
@@ -226,7 +231,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     *            #<code>row</code>
     * @param row - the row number at which to set the value
     */
-   public void setByte(byte b, int row) { setString(Byte.toString(b), row); }
+   @Override
+public void setByte(byte b, int row) { setString(Byte.toString(b), row); }
 
    /**
     * Sets the value at row #<code>row</code> to be the String representing
@@ -235,7 +241,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     * @param b   - byte array to be stored as a String at row #<code>row</code>
     * @param row - the row number at which to set the value
     */
-   public void setBytes(byte[] b, int row) { setString(new String(b), row); }
+   @Override
+public void setBytes(byte[] b, int row) { setString(new String(b), row); }
 
    /**
     * Sets the value at row #<code>row</code> to be the String representing
@@ -245,7 +252,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     *            #<code>row</code>
     * @param row - the row number at which to set the value
     */
-   public void setChar(char c, int row) {
+   @Override
+public void setChar(char c, int row) {
       char[] ar = {
          c
       };
@@ -260,7 +268,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     *            #<code>row</code>
     * @param row - the row number at which to set the value
     */
-   public void setChars(char[] c, int row) { setString(new String(c), row); }
+   @Override
+public void setChars(char[] c, int row) { setString(new String(c), row); }
 
    /**
     * Sets the value at row #<code>row</code> to be the String representing a
@@ -270,7 +279,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     *            #<code>row</code>
     * @param row - the row number at which to set the value
     */
-   public void setDouble(double d, int row) {
+   @Override
+public void setDouble(double d, int row) {
       setString(Double.toString(d), row);
    }
 
@@ -282,7 +292,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     *            #<code>row</code>
     * @param row - the row number at which to set the value
     */
-   public void setFloat(float f, int row) { setString(Float.toString(f), row); }
+   @Override
+public void setFloat(float f, int row) { setString(Float.toString(f), row); }
 
    /**
     * Sets the value at row #<code>row</code> to be the String representing an
@@ -292,7 +303,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     *            #<code>row</code>
     * @param row - the row number at which to set the value
     */
-   public void setInt(int i, int row) { setString(Integer.toString(i), row); }
+   @Override
+public void setInt(int i, int row) { setString(Integer.toString(i), row); }
 
    /**
     * Sets the value at row #<code>row</code> to be the String representing a
@@ -302,7 +314,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     *            #<code>row</code>
     * @param row - the row number at which to set the value
     */
-   public void setLong(long l, int row) { setString(Long.toString(l), row); }
+   @Override
+public void setLong(long l, int row) { setString(Long.toString(l), row); }
 
    /**
     * Sets the entry at row #<code>row</code> to be the String representing
@@ -313,7 +326,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     * @param obj - the object to retrieve the String from.
     * @param row - the row number at which to set the value
     */
-   public void setObject(Object obj, int row) {
+   @Override
+public void setObject(Object obj, int row) {
       setString(SparseStringColumn.toStringObject(obj), row);
    }
 
@@ -325,7 +339,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     *            #<code>row</code>
     * @param row - the row number at which to set the value
     */
-   public void setShort(short s, int row) { setString(Short.toString(s), row); }
+   @Override
+public void setShort(short s, int row) { setString(Short.toString(s), row); }
 
    /**
     * Sets the entry at row #<code>row</code> to be the Strign <code>s</code>.
@@ -334,7 +349,8 @@ public class SparseStringObjectColumn extends SparseObjectColumn
     * @param s   - a String to be stored at row #<code>row</code>
     * @param row - the row number at which to set the new value
     */
-   public void setString(String s, int row) {
+   @Override
+public void setString(String s, int row) {
 
       // elements.remove(row);
       elements.put(row, s);
