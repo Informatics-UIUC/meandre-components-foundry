@@ -79,6 +79,7 @@ public abstract class Names {
 	public static final String PORT_OBJECT_3 = "object3";
 	public static final String PORT_OBJECT_4 = "object4";
 	public static final String PORT_OBJECT_5 = "object5";
+	public static final String PORT_QUERY = "query";
 	public static final String PORT_RAW_DATA = "raw_data";
 	public static final String PORT_REQUEST_DATA = "request_data";
 	public static final String PORT_RESPONSE_HANDLER = "response_handler";

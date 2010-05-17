@@ -52,14 +52,16 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
 import org.seasr.meandre.support.generic.io.DOMUtils;
@@ -87,23 +89,29 @@ import org.w3c.dom.Document;
 )
 public class DFRQuery extends AbstractExecutableComponent {
 
+    //------------------------------ INPUTS ------------------------------------------------------
+
+    @ComponentInput(
+            name = Names.PORT_QUERY,
+            description = "The query" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
+    )
+    protected static final String PORT_QUERY = Names.PORT_QUERY;
+
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
             name = Names.PORT_XML,
             description = "The JSTOR DFR XML response" +
-                "<br>TYPE: java.lang.String"
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_RESPONSE_XML = Names.PORT_XML;
 
     //------------------------------ PROPERTIES --------------------------------------------------
-
-    @ComponentProperty(
-            defaultValue = "",
-            description = "The query",
-            name = Names.PROP_QUERY
-    )
-    protected static final String PROP_QUERY = Names.PROP_QUERY;
 
     @ComponentProperty(
             defaultValue = "100",
@@ -116,25 +124,27 @@ public class DFRQuery extends AbstractExecutableComponent {
 
     protected static final String JSTOR_DFR_QUERY_URL = "http://dfr.jstor.org/sru/?operation=searchRetrieve&version=1.1&query=";
 
-    private String _query;
     private int _maxRecords;
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _query = URLEncoder.encode(ccp.getProperty(PROP_QUERY).trim(), "UTF-8");
-
-        if (_query.length() == 0)
-            throw new ComponentContextException(
-                    String.format("The query string cannot be empty - please set the '%s' property to a valid query!", PROP_QUERY));
-
         _maxRecords = Integer.parseInt(ccp.getProperty(PROP_MAX_RECORDS));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        String sQuery = String.format("%s%s&maximumRecords=", JSTOR_DFR_QUERY_URL, _query);
+        String inQuery = DataTypeParser.parseAsString(cc.getDataComponentFromInput(PORT_QUERY))[0].trim();
+        if (inQuery.length() == 0) {
+            cc.pushDataComponentToOutput(OUT_ERROR,
+                    String.format("The query string cannot be empty - please pass a query string to the '%s' input!", PORT_QUERY));
+            return;
+        }
+
+        inQuery = URLEncoder.encode(inQuery, "UTF-8");
+
+        String sQuery = String.format("%s%s&maximumRecords=", JSTOR_DFR_QUERY_URL, inQuery);
 
         URL queryURL = new URL(sQuery + "1");
         Document doc = DOMUtils.createDocument(queryURL.openStream());
@@ -159,7 +169,7 @@ public class DFRQuery extends AbstractExecutableComponent {
 
             console.finest(xml);
 
-            cc.pushDataComponentToOutput(OUT_RESPONSE_XML, xml);
+            cc.pushDataComponentToOutput(OUT_RESPONSE_XML, BasicDataTypesTools.stringToStrings(xml));
         } else
             cc.pushDataComponentToOutput(OUT_ERROR, "Your query did not return any results");
     }
