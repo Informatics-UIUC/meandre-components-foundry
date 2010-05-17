@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.meandre.support.components.datatype.parsers;
+package org.seasr.datatypes.core;
 
 import java.io.IOException;
 import java.net.URI;
@@ -50,7 +50,6 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.BasicDataTypes.Bytes;
 import org.seasr.datatypes.core.BasicDataTypes.BytesMap;
 import org.seasr.datatypes.core.BasicDataTypes.Integers;

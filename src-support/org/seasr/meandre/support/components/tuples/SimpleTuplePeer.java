@@ -55,9 +55,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
-import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 public class SimpleTuplePeer 
 {

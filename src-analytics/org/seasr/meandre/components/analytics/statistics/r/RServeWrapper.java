@@ -12,8 +12,8 @@ import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.Rserve.RConnection;
+import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 	@Component(
 	        name = "R Serve Wrapper",

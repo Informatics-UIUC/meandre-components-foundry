@@ -57,10 +57,10 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes;
 import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 /**
  * This component tokenizes the sentences passed on the input model using OpenNLP.

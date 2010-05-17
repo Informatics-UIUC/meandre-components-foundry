@@ -54,9 +54,9 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 
 /**
  *  This class implements a component that using the WebUI accepts post requests
