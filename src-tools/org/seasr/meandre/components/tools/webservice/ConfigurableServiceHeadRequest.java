@@ -65,7 +65,7 @@ import org.seasr.meandre.components.tools.Names;
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/"
 )
-public class ConfigurableServiceHeadPost extends ServiceHeadPost implements ConfigurableWebUIFragmentCallback {
+public class ConfigurableServiceHeadRequest extends ServiceHeadRequest implements ConfigurableWebUIFragmentCallback {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 

@@ -83,7 +83,7 @@ import org.seasr.meandre.components.tools.Names;
 		firingPolicy = FiringPolicy.all,
 		baseURL = "meandre://seasr.org/components/foundry/"
 )
-public class ServiceHeadPost extends AbstractExecutableComponent
+public class ServiceHeadRequest extends AbstractExecutableComponent
                              implements WebUIFragmentCallback {
 
     //------------------------------ OUTPUTS -----------------------------------------------------
@@ -156,9 +156,9 @@ public class ServiceHeadPost extends AbstractExecutableComponent
 
 	@SuppressWarnings("unchecked")
 	public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
-		console.info("Request received from " + request.getRemoteHost()
-				+ " (" + request.getRemoteAddr() + ":" + request.getRemotePort() + ")"
-				+ ((request.getRemoteUser() != null) ? " [" + request.getRemoteUser() + "]" : ""));
+	    console.info(String.format("Received %s request from %s (%s:%d) %s",
+	            request.getMethod(), request.getRemoteHost(), request.getRemoteAddr(), request.getRemotePort(),
+	            ((request.getRemoteUser() != null) ? "[" + request.getRemoteUser() + "]" : "")));
 
 		Map<String,byte[]> map = new Hashtable<String,byte[]>();
 		Enumeration mapRequest = request.getParameterNames();
