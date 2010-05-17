@@ -64,10 +64,10 @@ import org.seasr.datatypes.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.nlp.opennlp.OpenNLPBaseUtilities;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.components.utils.ComponentUtils;
 import org.seasr.meandre.support.component.opennlp.StaticTextSpanFinder;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;

@@ -59,7 +59,7 @@ import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.components.utils.ComponentUtils;
+import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 /**
  * <p>Title: Fork Times Two</p>

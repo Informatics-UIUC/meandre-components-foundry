@@ -60,8 +60,8 @@ import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.BasicDataTypesTools;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.components.utils.ComponentUtils;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
+import org.seasr.meandre.support.components.utils.ComponentUtils;
 import org.seasr.meandre.support.generic.io.StreamUtils;
 import org.w3c.dom.Document;
 

@@ -40,7 +40,7 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.meandre.components.utils;
+package org.seasr.meandre.support.components.utils;
 
 import org.meandre.core.system.components.ext.StreamDelimiter;
 

@@ -56,10 +56,10 @@ import org.seasr.datatypes.BasicDataTypes.Strings;
 import org.seasr.datatypes.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.tools.Names;
-import org.seasr.meandre.components.utils.ComponentUtils;
 import org.seasr.meandre.support.components.datatype.parsers.DataTypeParser;
 import org.seasr.meandre.support.components.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.support.components.text.normalize.porter.PorterStemmer;
+import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 
 /**
