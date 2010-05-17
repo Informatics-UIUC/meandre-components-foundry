@@ -152,6 +152,13 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     )
     protected static final String PROP_TIMELINE_API_URL = "timeline_api_url";
 
+	@ComponentProperty(
+            name = "save_output_to_file",
+            description = "The URL to the Simile Timline API, or leave empty to use the embedded one",
+            defaultValue = "false"
+    )
+    protected static final String PROP_SAVE_OUTPUT_TO_FILE = "save_output_to_file";
+
     //--------------------------------------------------------------------------------------------
 
 	protected static final String SIMILE_API_PATH = "simile-timeline-api";   // this path is assumed to be appended to the published_resources location
@@ -165,6 +172,8 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     /** Store the maximum value of year */
     private int maxYear;
 
+    private boolean saveOutputToFile;
+
     private VelocityContext _context;
 
 
@@ -172,6 +181,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        saveOutputToFile = Boolean.parseBoolean(ccp.getProperty(PROP_SAVE_OUTPUT_TO_FILE));
         String timelineAPI = ccp.getProperty(PROP_TIMELINE_API_URL).trim();
 
     	_context = VelocityTemplateService.getInstance().getNewContext();
@@ -212,13 +222,12 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     	minYear = DataTypeParser.parseAsInteger(cc.getDataComponentFromInput(IN_MIN_YEAR))[0].intValue();
     	maxYear = DataTypeParser.parseAsInteger(cc.getDataComponentFromInput(IN_MAX_YEAR))[0].intValue();
 
-        String dirName = cc.getPublicResourcesDirectory() + File.separator;
-        dirName += "simile" + File.separator;
-
-        // make sure the folder exists
-        new File(dirName).mkdirs();
-
-        console.finest("Set storage location to " + dirName);
+        Document xmlDoc = DOMUtils.createDocument(simileXml);
+        xmlDoc.normalize();
+        if (xmlDoc.getDocumentElement().getElementsByTagName("event").getLength() == 0) {
+            outputError("No dates could be extracted from your item(s) - Nothing to display", Level.WARNING);
+            return;
+        }
 
         String webUiUrl = cc.getWebUIUrl(true).toString();
         Date now = new Date();
@@ -228,33 +237,36 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         String htmlLocation = webUiUrl + "public/resources/simile/" + htmlFileName,
                xmlLocation  = webUiUrl + "public/resources/simile/" + xmlFileName;
 
-        console.finest("htmlFileName=" + htmlFileName);
-        console.finest("xmlFileName=" + xmlFileName);
-        console.finest("htmlLocation=" + htmlLocation);
-        console.finest("xmlLocation=" + xmlLocation);
-
-        URI xmlURI = DataTypeParser.parseAsURI(new File(dirName + xmlFileName).toURI());
-        URI htmlURI = DataTypeParser.parseAsURI(new  File(dirName + htmlFileName).toURI());
-
-        Document xmlDoc = DOMUtils.createDocument(simileXml);
-        xmlDoc.normalize();
-        if (xmlDoc.getDocumentElement().getElementsByTagName("event").getLength() == 0) {
-            outputError("No dates could be extracted from your item(s) - Nothing to display", Level.WARNING);
-            return;
-        }
-
-        Writer xmlWriter = IOUtils.getWriterForResource(xmlURI);
-        xmlWriter.write(simileXml);
-        xmlWriter.close();
-
         String simileHtml = generateHTML(simileXml, xmlLocation);
 
-        Writer htmlWriter = IOUtils.getWriterForResource(htmlURI);
-        htmlWriter.write(simileHtml);
-        htmlWriter.close();
+        if (saveOutputToFile) {
+            console.finest("htmlFileName=" + htmlFileName);
+            console.finest("xmlFileName=" + xmlFileName);
+            console.finest("htmlLocation=" + htmlLocation);
+            console.finest("xmlLocation=" + xmlLocation);
 
-        console.info("The Simile Timeline HTML content was created at " + htmlLocation);
-        console.info("The Simile Timeline XML content was created at " + xmlLocation);
+            String dirName = cc.getPublicResourcesDirectory() + File.separator;
+            dirName += "simile" + File.separator;
+
+            // make sure the folder exists
+            new File(dirName).mkdirs();
+
+            console.finest("Set storage location to " + dirName);
+
+            URI xmlURI = DataTypeParser.parseAsURI(new File(dirName + xmlFileName).toURI());
+            URI htmlURI = DataTypeParser.parseAsURI(new  File(dirName + htmlFileName).toURI());
+
+            Writer xmlWriter = IOUtils.getWriterForResource(xmlURI);
+            xmlWriter.write(simileXml);
+            xmlWriter.close();
+
+            Writer htmlWriter = IOUtils.getWriterForResource(htmlURI);
+            htmlWriter.write(simileHtml);
+            htmlWriter.close();
+
+            console.info("The Simile Timeline HTML content was created at " + htmlLocation);
+            console.info("The Simile Timeline XML content was created at " + xmlLocation);
+        }
 
         cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(simileHtml));
     }
