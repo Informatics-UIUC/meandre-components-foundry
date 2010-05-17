@@ -39,13 +39,100 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
 *
 */
-package org.seasr.meandre.support.component.opennlp;
 
 
+package org.seasr.meandre.support.components.opennlp;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
-public interface StaticTextSpanFinder 
-{
-	public List<TextSpan> labelSentence(String sentence);
-	public String getType(); // URL, location, person, date, time, etc
+public class StaticURLFinder implements StaticTextSpanFinder {
+	
+	String type = "URL";
+	
+	public StaticURLFinder(String t) 
+	{
+		this.type = t;
+	}
+	
+	public String getType() {
+		return this.type;
+	}
+	
+	public int urlIndex(String s) 
+	{
+		return s.toLowerCase().indexOf("http");
+	}
+
+	String clean(String s) {
+		
+		int idx = s.indexOf("/>"); // possible end entity tag
+		if (idx > 0) {
+			s = s.substring(0,idx);
+		}
+		
+		String out = s.replaceAll("[\"']+$", ""); // remove any trailing quotes
+		
+		return out;
+	}
+	
+	public List<TextSpan> labelSentence(String sentence) 
+	{
+
+		List<TextSpan> list = new ArrayList<TextSpan>();
+
+		StringTokenizer tokens = new StringTokenizer(sentence);
+		int sIdx = 0;
+		int eIdx = 0;
+
+		while(tokens.hasMoreTokens()) {
+			String s = tokens.nextToken();
+
+			int idx = urlIndex(s);
+			if ( idx >= 0) {
+
+				String sub = s.substring(idx);
+				sub = clean(sub);
+				
+				//System.out.println("FOUND " + sub);
+ 
+				sIdx = sentence.indexOf(sub, eIdx);
+				eIdx = sIdx + sub.length();
+				
+				
+
+				TextSpan span = new TextSpan();
+				span.setStart(sIdx);
+				span.setEnd(eIdx);
+				span.setSpan(sentence);
+
+				list.add(span);
+
+			}
+
+		}
+	    return list;
+
+	}
+
+	public TextSpan labelWord(String s) 
+	{
+		int idx = urlIndex(s);
+		if ( idx >= 0) {
+
+			String sub = s.substring(idx);
+
+			TextSpan span = new TextSpan();
+			span.setStart(idx);
+			span.setEnd(idx + sub.length());
+			span.setSpan(s);
+
+			return span;
+
+		}
+		
+		return null;
+	}
+
 }

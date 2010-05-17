@@ -40,52 +40,76 @@
 *
 */
 
-package org.seasr.meandre.support.component.opennlp;
+package org.seasr.meandre.support.components.opennlp;
 
-import java.util.ArrayList;
-import java.util.List;
-
-// helper class for OpenNLPChunker
-// the openNLPChunker prints out text chunks as a single string
-// this helper class is used to parse that string into managable "chuncks"
+//
+// simple helper class to maintain text spans
+// this one keeps the actual text as well
+// this class should NOT be coupled tightly 
+// with any OPEN NLP stuff
 //
 
-public class TextChunk {
 
-	String pos;
-
-	List<String> tokens    = new ArrayList<String>();
-	List<String> tokensPos = new ArrayList<String>();
-
-	public TextChunk()
+public class TextSpan {
+	
+	int startIdx;
+	int endIdx;
+	String span;
+	
+	public TextSpan()
 	{
-		this.pos = "never set";
+		reset();
+	}
+
+	public void reset()
+	{
+		startIdx = endIdx = 0;
+		this.span = null;
 	}
 	
-	public TextChunk(String pos) 
-	{
-		this.pos = pos;
+	public void setStart(int s) {
+		startIdx = s;
 	}
 	
-    public String getPOS()
-    {
-    	return pos;
-    }
+	public void setEnd(int e) {
+		endIdx = e;
+	}
 	
-    public List<String> getTokens()
-    {
-    	return tokens;
-    }
-    
-	public void add(String text, String pos) 
+	public void setText(String s) 
 	{
-		tokens.add(text);
-		tokensPos.add(pos);
+		this.span = s;
 	}
-
-	public int size()
+	
+	public void setSpan(String s) 
 	{
-		return tokens.size();
+		this.span = s.substring(startIdx, endIdx);
+		
+		/* let the client do any post cleaning
+		String textSpan = s.substring(startIdx, endIdx);
+		this.span = textSpan.replace("\n", " ").trim();
+		*/
 	}
+	
+	public boolean equals(TextSpan b) {
+		
+		if (b == null) return false;
+		
+		// both null, assume equality
+		if (this.span == null &&
+			   b.span == null) return true;
+		
+		// either null, not equal
+		if (this.span == null ||
+			   b.span == null) return false;
+		
+		return this.startIdx == b.startIdx &&
+		       this.endIdx   == b.endIdx   &&
+		       this.span.equals(b.span);
+		
+	}
+	
+	public int getStart()   {return startIdx;}
+	public int getEnd()     {return endIdx;}
+	public String getText() {return span;}
 
 }
