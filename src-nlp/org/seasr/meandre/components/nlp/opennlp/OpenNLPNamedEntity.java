@@ -48,7 +48,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -185,7 +184,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     StaticTextSpanFinder[] simpleFinders = null;
 
 	//--------------------------------------------------------------------------------------------
-    
+
 
     public static StaticTextSpanFinder[] buildExtendedFinders(String types, String locationMapData) {
     	StaticTextSpanFinder[] finders;
@@ -226,7 +225,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		finderTypes = new String[count];
 		for (int i = 0; i < count; i++) {
 			finderTypes[i] = tokens.nextToken();
-			console.info("added type " + finderTypes[i]);
+			console.fine("added type " + finderTypes[i]);
 		}
 
 		try {
@@ -236,10 +235,11 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			types         = ccp.getProperty(PROP_EX_NE_TYPES);
 			simpleFinders = OpenNLPNamedEntity.buildExtendedFinders(types,null);
 
-			console.info("extended finders " + simpleFinders.length);
+			console.fine("extended finders " + simpleFinders.length);
 		}
 		catch ( Throwable t ) {
-			console.severe("Failed to open tokenizer model for " + sLanguage);
+			console.severe("Failed to open tokenizer model for " + sLanguage + "! Reason: " + t.getMessage());
+
 			throw new ComponentExecutionException(t);
 		}
 
@@ -401,19 +401,19 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
     //--------------------------------------------------------------------------------------------
 
-    public static NameFinderME[] build(String sOpenNLPDir, String[] finderTypes) throws IOException {
+    public NameFinderME[] build(String sOpenNLPDir, String[] finderTypes) throws IOException {
 
     	NameFinderME[] finders = new NameFinderME[finderTypes.length];
     	for (int i = 0; i < finderTypes.length; i++) {
     		String tagPath          = // e.g.  /opennlp/models/English/namefind/location.bin.gz
     		    sOpenNLPDir + "namefind" + File.separator + finderTypes[i] + ".bin.gz";
     		File tagFile     = new File(tagPath);
-    		if (! tagFile.canRead()) {
+    		if (! tagFile.canRead())
     			throw new IOException("Failed to open tag file for " + tagPath);
-    		}
 
-    		System.out.println("loaded " + tagPath);
+    		console.finer("loading " + tagPath);
     		BinaryGISModelReader reader = new BinaryGISModelReader(tagFile);
+    		console.finer("creating NameFinder");
     		NameFinderME finder = new NameFinderME(reader.getModel());
     		finders[i] = finder;
     	}
