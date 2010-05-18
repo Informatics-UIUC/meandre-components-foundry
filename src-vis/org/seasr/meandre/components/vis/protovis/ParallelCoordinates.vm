@@ -56,8 +56,10 @@
 	
     <script type="text/javascript+protovis">
 
+//
 // The units and dimensions to visualize, in order.
-
+// don't show the class field ... nothing works then
+//
 var units = { "petallength" : {unit :""},
               "petalwidth"  : {unit :""},
               
