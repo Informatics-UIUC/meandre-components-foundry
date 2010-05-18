@@ -64,7 +64,7 @@ var w = 820,
 /* Interaction state. */
 var filter = pv.dict(dims, function(t) {
     return {min: y[t].domain()[0], max: y[t].domain()[1]};
-  }), active = "mpg";
+  }), active = "petallength";
 
 /* The root panel. */
 var vis = new pv.Panel()
