@@ -207,6 +207,7 @@
                 <include name="src-*/**/*.properties"/>
                 <include name="src-*/**/*.xml"/>
                 <include name="src-*/**/*.vm"/>
+                <include name="src-*/**/*.js"/>
                 <include name="src-*/**/*.swf"/>
                 <include name="src-*/**/*.list"/>
                 <include name="src-*/**/*.jar"/>
