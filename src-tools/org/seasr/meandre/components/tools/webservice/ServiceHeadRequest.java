@@ -76,7 +76,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 @Component(
 		creator = "Xavier Llora",
 		description = "Service head for a service that gets data via posts",
-		name = "Service Head Post",
+		name = "Service Head Request",
 		tags = "WebUI, post, process request",
 		rights = Licenses.UofINCSA,
 		mode = Mode.webui,

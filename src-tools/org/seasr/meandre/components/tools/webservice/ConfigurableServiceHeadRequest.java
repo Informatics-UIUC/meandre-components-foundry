@@ -58,7 +58,7 @@ import org.seasr.datatypes.core.Names;
 @Component(
         creator = "Boris Capitanu",
         description = "Configurable service head for a service that gets data via POSTs",
-        name = "Configurable Service Head Post",
+        name = "Configurable Service Head Request",
         tags = "WebUI, post, process request, configurable",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
