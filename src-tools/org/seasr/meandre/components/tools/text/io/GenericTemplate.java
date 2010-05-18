@@ -42,7 +42,11 @@
 
 package org.seasr.meandre.components.tools.text.io;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -353,4 +357,53 @@ public class GenericTemplate extends AbstractExecutableComponent
 
     	return false;
     }
+    
+    public static String writeResourceFromJarToFilesystem(Class caller,                 // this.getClass()
+    		                                              String publicResourceDir,     // ccp.getPublicResourcesDirectory();
+    		                                              String subDir,                // flash, swf, js, etc
+    		                                              String filename)              // the resource in the jar
+    {
+	    publicResourceDir = publicResourceDir + File.separator + subDir;
+
+	    File swfDir = new File(publicResourceDir);
+	    if (! swfDir.exists()) {
+
+	        if (! swfDir.mkdir() ) {
+	            String msg = "Unable to create " + publicResourceDir;
+	            throw new RuntimeException(msg);
+	        }
+
+	    }
+
+	    // unjar the resource and write it to resource directory
+	    String dest = publicResourceDir + File.separator + filename;
+
+	    InputStream  in = null;
+	    OutputStream out = null;
+
+	    try {
+	        in = caller.getResourceAsStream(filename);
+	        out = new FileOutputStream(dest);
+
+	        byte[] buf = new byte[4096];
+	        int len;
+	        while ((len = in.read(buf)) != -1){
+	            out.write(buf, 0, len);
+	        }
+
+	    }
+	    catch (IOException e){
+	        throw new RuntimeException(e);
+	    }
+	    finally {
+
+	        try {
+	            in.close();
+	            out.close();
+	        }
+	        catch (Exception ignore){}
+	    }
+
+	    return subDir + File.separator + filename;
+	}
 }
