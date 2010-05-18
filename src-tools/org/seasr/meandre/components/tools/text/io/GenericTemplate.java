@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.tools.text.io;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +68,8 @@ import org.meandre.webui.WebUIException;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
+import org.seasr.meandre.support.generic.io.JARInstaller;
+import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 /**
  * template loading notes:
@@ -184,6 +187,8 @@ public class GenericTemplate extends AbstractExecutableComponent
         context.put("sInstanceId", sInstanceId);
         context.put("cc", cc);
         context.put("gui", this);
+        context.put("contextPath", getContextPath());
+        
         String webUIUrl = cc.getWebUIUrl(true).toString();
         if (webUIUrl.endsWith("/")) webUIUrl = webUIUrl.substring(0, webUIUrl.length()-1);
         context.put("webUIUrl", webUIUrl);
@@ -357,6 +362,12 @@ public class GenericTemplate extends AbstractExecutableComponent
 
     	return false;
     }
+    
+    
+    // TODO:
+    // String finalDir = publicResourceDir + File.separator + "subDir" + File.separator + getClass().getName();
+    // InstallStatus status = JARInstaller.installFromStream(new FileInputStream(jsFile), finalDir, false);
+    //
     
     public static String writeResourceFromJarToFilesystem(Class caller,                 // this.getClass()
     		                                              String publicResourceDir,     // ccp.getPublicResourcesDirectory();
