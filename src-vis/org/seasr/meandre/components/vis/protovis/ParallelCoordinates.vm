@@ -1,9 +1,46 @@
 <html>
   <head>
     <title>Parallel Coordinates</title>
-    <link type="text/css" rel="stylesheet" href="../ex.css?3.2"/>
     <script type="text/javascript" src="$path"></script>
+    <!--
+    <script type="text/javascript" src="/public/resources/js/cars.js"></script>
+    -->
+    
     <script type="text/javascript">
+    
+      var cars = [
+    {
+        "petallength": 1.4,
+        "sepalwidth": 3.5,
+        "class": "Iris-setosa",
+        "sepallength": 5.1,
+        "petalwidth": 0.2
+    },
+    {
+        "petallength": 1.4,
+        "sepalwidth": 3,
+        "class": "Iris-setosa",
+        "sepallength": 4.9,
+        "petalwidth": 0.2
+    },
+    {
+        "petallength": 1.3,
+        "sepalwidth": 3.2,
+        "class": "Iris-setosa",
+        "sepallength": 4.7,
+        "petalwidth": 0.2
+    },
+    {
+        "petallength": 1.5,
+        "sepalwidth": 3.1,
+        "class": "Iris-setosa",
+        "sepallength": 4.6,
+        "petalwidth": 0.2
+    }
+
+      ];
+      
+      var cars  = $data;
       
     </script>
     <style type="text/css">
@@ -21,6 +58,13 @@
 
 // The units and dimensions to visualize, in order.
 
+var units = { "petallength" : {unit :""},
+              "petalwidth"  : {unit :""},
+              
+              "sepallength" : {unit :""},
+              "sepalwidth"  : {unit :""},
+              };
+              
 /*
 var units = {
   "cylinders": {unit: ""},
@@ -34,14 +78,7 @@ var units = {
 */
 
 
-var cars = $data;
-var units = {"petallength" : {unit: "inches"},
-             "sepalwidth"  : {unit: "in"},
-             "sepallength" : {unit: "in"},
-             "petalwidth"  : {unit: "in"}
-             };
-             
-             
+      
 
 var dims = pv.keys(units);
 
@@ -52,19 +89,19 @@ var w = 820,
     x = pv.Scale.ordinal(dims).splitFlush(0, w),
     y = pv.dict(dims, function(t) pv.Scale.linear(
         cars.filter(function(d) !isNaN(d[t])),
-        function(d) Math.floor(d[t]*10)-fudge,
-        function(d) Math.ceil(d[t]*10) +fudge
+        function(d) Math.floor(d[t])-fudge,
+        function(d) Math.ceil(d[t]) +fudge
         ).range(0, h)),
     c = pv.dict(dims, function(t) pv.Scale.linear(
         cars.filter(function(d) !isNaN(d[t])),
-        function(d) Math.floor(d[t]*10)-fudge,
-        function(d) Math.ceil(d[t]*10) +fudge
+        function(d) Math.floor(d[t])-fudge,
+        function(d) Math.ceil(d[t]) +fudge
         ).range("steelblue", "brown"));
 
 /* Interaction state. */
 var filter = pv.dict(dims, function(t) {
     return {min: y[t].domain()[0], max: y[t].domain()[1]};
-  }), active = "petallength";
+  }), active = "petalwidth"; // was mpg
 
 /* The root panel. */
 var vis = new pv.Panel()
