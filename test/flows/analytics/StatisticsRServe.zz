@@ -14,9 +14,9 @@
 #
 # TODO: Add component import statement(s) here
 # Example: import <URL>   (replace 'URL' with the correct location)
-import <file:///Users/lauvil/descriptors/RServeConnection.rdf>
-import <file:///Users/lauvil/descriptors/RServeWrapper.rdf>
-import <file:///Users/lauvil/descriptors/PushText.rdf>
+#import <file:///Users/lauvil/descriptors/RServeConnection.rdf>
+#import <file:///Users/lauvil/descriptors/RServeWrapper.rdf>
+#import <file:///Users/lauvil/descriptors/PushText.rdf>
 
 #
 # Create the component aliases
