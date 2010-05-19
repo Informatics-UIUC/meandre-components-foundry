@@ -73,7 +73,6 @@ date_filter.ignore_errors = "false"
 date_filter.min_value = "1600"
 date_filter.debug_level = "info"
 date_filter.max_value = "1900"
-date_filter.wrap_stream = "false"
 
 push_text.ignore_errors = "false"
 push_text.message = "http://www.gutenberg.org/files/22925/22925.txt"
@@ -105,7 +104,6 @@ universal_text_extractor.read_timeout = "0"
 universal_text_extractor.connection_timeout = "0"
 
 opennlp_named_entity.ignore_errors = "false"
-opennlp_named_entity.LocationMap = ""
 opennlp_named_entity.openNLPdir = ""
 opennlp_named_entity.language = "english"
 opennlp_named_entity.ExtendedNETypes = ""
@@ -145,8 +143,8 @@ xml_to_xml_with_xsl(
 	xml: entity_xml_to_simile_xml_outputs.xml
 )
 simile_timeline_generator(
-	min_value: date_filter_outputs.min_year;
-	max_value: date_filter_outputs.max_year;
+	min_value: date_filter_outputs.min_value;
+	max_value: date_filter_outputs.max_value;
 	xml: xml_to_xml_with_xsl_outputs.xml
 )
 fork_x2_2(object: push_text_outputs.text)
