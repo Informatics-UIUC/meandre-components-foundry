@@ -9,8 +9,7 @@ alias <meandre://seasr.org/components/foundry/read-xml> as READ
 alias <meandre://seasr.org/components/foundry/model-to-rdf-text> as M2T
 alias <meandre://seasr.org/components/foundry/wrap-text-into-model> as WTM
 alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT
-
-alias <meandre://jstor.org/components/xml/extractor/page-text-extractor> as PTE
+alias <meandre://seasr.org/components/foundry/page-text-extractor> as PTE
 
 push, read, pte, wtm, m2t, print = PUSH(), READ(), PTE(), WTM(), M2T(), PRINT()
 

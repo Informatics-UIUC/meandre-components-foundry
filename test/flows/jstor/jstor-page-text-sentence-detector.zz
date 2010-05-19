@@ -8,7 +8,7 @@ alias <meandre://seasr.org/components/foundry/push-text> as PUSH
 alias <meandre://seasr.org/components/foundry/read-xml> as READ
 alias <meandre://seasr.org/components/foundry/opennlp-sentence-detector> as SD
 alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT
-alias <meandre://jstor.org/components/xml/extractor/page-text-extractor> as PTE
+alias <meandre://seasr.org/components/foundry/page-text-extractor> as PTE
 
 push, read, pte, sd, print = PUSH(), READ(), PTE(), SD(), PRINT()
 
