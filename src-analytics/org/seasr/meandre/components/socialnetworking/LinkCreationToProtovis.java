@@ -56,10 +56,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
@@ -95,27 +93,16 @@ public class LinkCreationToProtovis extends AbstractLinkCreationComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
-    @ComponentProperty(
-            description = "The name for the generated JSON variable holding the graph",
-            name = "json_var_name",
-            defaultValue = "output"
-    )
-    protected static final String PROP_JSON_VAR_NAME = "json_var_name";
 
     //--------------------------------------------------------------------------------------------
 
     private Properties _xmlProperties;
-    private String _jsonVarName;
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
-
-        _jsonVarName = ccp.getProperty(PROP_JSON_VAR_NAME).trim();
-        if (_jsonVarName.length() == 0)
-            throw new ComponentContextException(PROP_JSON_VAR_NAME + " must have a valid value!");
 
         _xmlProperties = new Properties();
         _xmlProperties.put(OutputKeys.OMIT_XML_DECLARATION, "no");
@@ -146,7 +133,7 @@ public class LinkCreationToProtovis extends AbstractLinkCreationComponent {
             for (Entity entity : entry.getValue().getValue())
                 addEdge(entry.getKey(), entity, jaLinks);
 
-        String sOutput = String.format("var %s = %s;", _jsonVarName, joOutput.toString(4));
+        String sOutput = String.format("%s;", joOutput.toString(4));
         console.finest("Output: " + sOutput);
 
         if (_isStreaming)
@@ -163,7 +150,7 @@ public class LinkCreationToProtovis extends AbstractLinkCreationComponent {
     private void addNode(Entity entity, JSONArray jaNodes) throws JSONException {
         JSONObject joNode = new JSONObject();
         joNode.put("nodeName", entity.getValue());
-        joNode.put("group", 0);
+        joNode.put("group", entity.getType());
 
         jaNodes.put(joNode);
     }
