@@ -42,15 +42,10 @@
 
 package org.seasr.meandre.components.test;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.PrintStream;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -73,10 +68,9 @@ public class ExamplesTest {
 		ctb = new ComponentTesterBase();
 		ctb.setBaseTestPort(50000);
 		ctb.setFlowsFolder("."+File.separator+"test"+File.separator+"flows"+File.separator+"examples");
-//		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
-	//	ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"tools");
-		ctb.setSourceFolders(new String [] { "."+File.separator+"src-analytics","."+File.separator+"src-jstor", "."+File.separator+"src-nlp","."+File.separator+"src-sentiment", "."+File.separator+"src-tools",
-				"."+File.separator+"src-transform","."+File.separator+"src-vis"} );
+		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
+		ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"examples");
+		ctb.setSourceFolders(new String [] {"src-analytics","src-evernote","src-jstor","src-nlp","src-sentiment","src-tools","src-transform","src-vis","src-zotero"} );
 		ctb.initialize();
 	}
 

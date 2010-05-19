@@ -79,7 +79,7 @@ public class JSTORComponentTests {
 		ctb.setFlowsFolder("."+File.separator+"test"+File.separator+"flows"+File.separator+"jstor");
 		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
 		ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"jstor");
-		ctb.setSourceFolders(new String [] { "."+File.separator+"src-jstor", "."+File.separator+"src-nlp", "."+File.separator+"src-tools"} );
+		ctb.setSourceFolders(new String [] {"src-analytics","src-jstor","src-nlp","src-tools","src-transform","src-vis"} );
 		ctb.initialize();
 	}
 
