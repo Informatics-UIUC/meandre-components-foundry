@@ -82,60 +82,11 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 /**
  *
- * @author Mike Haberman  (DO NOT DELETE, I (Mike H is using this class)
+ * @author Mike Haberman 
  *
  */
 
-/*
-var cars = [
-{ name:"chevrolet chevelle malibu", 
-mpg:18, 
-cylinders:8, 
-displacement:307, 
-horsepower:130, 
-weight:3504, 
-acceleration:12, 
-year:70, 
-origin:1},
-{name:"buick skylark 320", mpg:15, cylinders:8, displacement:350, horsepower:165, weight:3693, acceleration:11.5, year:70, origin:1},
-{name:"plymouth satellite", mpg:18, cylinders:8, displacement:318, horsepower:150, weight:3436, acceleration:11, year:70, origin:1},
-{name:"amc rebel sst", mpg:16, cylinders:8, displacement:304, horsepower:150, weight:3433, acceleration:12, year:70, origin:1},
-];
-var flowers = 
-[
-    {
-        "petallength": 1.4,
-        "sepalwidth": 3.5,
-        "class": "Iris-setosa",
-        "sepallength": 5.1,
-        "petalwidth": 0.2
-    },
-    {
-        "petallength": 1.4,
-        "sepalwidth": 3,
-        "class": "Iris-setosa",
-        "sepallength": 4.9,
-        "petalwidth": 0.2
-    },
-    {
-        "petallength": 1.3,
-        "sepalwidth": 3.2,
-        "class": "Iris-setosa",
-        "sepallength": 4.7,
-        "petalwidth": 0.2
-    },
-    {
-        "petallength": 1.5,
-        "sepalwidth": 3.1,
-        "class": "Iris-setosa",
-        "sepallength": 4.6,
-        "petalwidth": 0.2
-    }
- ];
-    
 
-
-*/
 
 @Component(
         creator = "Mike Haberman",
@@ -210,7 +161,7 @@ public class ParallelCoordinates extends GenericTemplate
 	    
 	    context.put("title",   ccp.getProperty(PROP_TITLE));
 	    context.put("addDone", true);
-	    context.put("path", "/public/resources/" + path);
+	    context.put("path",    "/public/resources/" + path);
 	    
 	    
 	    String a = ccp.getProperty(PROP_ACTIVE).trim();
@@ -268,7 +219,7 @@ public class ParallelCoordinates extends GenericTemplate
 		
 		}
 		
-		//
+		// TODO:  fix template to handle category data or attach a legend
 		// now remap all the category data to numerical values
 		//
 		
@@ -304,10 +255,12 @@ public class ParallelCoordinates extends GenericTemplate
     		console.info("Json parsing error");
     		
             unitMap = new HashMap<String,String>();
+            context.put("errorMsg", "There was an error in the data");
+           
     		
     	}
         
-    
+    	 
     	
     	context.put("data", json);
     	context.put("unitMap", unitMap);

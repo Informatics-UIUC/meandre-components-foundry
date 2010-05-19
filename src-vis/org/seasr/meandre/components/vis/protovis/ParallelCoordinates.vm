@@ -8,7 +8,7 @@
     
     <script type="text/javascript">
     
-      var cars = [
+      var carsIgnore = [
     {
         "petallength": 1.4,
         "sepalwidth": 3.5,
@@ -52,7 +52,9 @@
 
   </head>
   <body><div id="center"><div id="fig">
-	<h3>$title</h3>
+	<h3>$title
+	    #if ($errorMsg) $errorMsg #end
+	</h3>
 	
     <script type="text/javascript+protovis">
 
