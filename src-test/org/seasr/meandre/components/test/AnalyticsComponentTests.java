@@ -75,7 +75,7 @@ public class AnalyticsComponentTests {
 		ctb.setFlowsFolder("."+File.separator+"test"+File.separator+"flows"+File.separator+"analytics");
 		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
 		ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"analytics");
-		ctb.setSourceFolders(new String [] { "."+File.separator+"src-jstor", "."+File.separator+"src-tools", "."+File.separator+"src-opennlp", "."+File.separator+"src-analytics"} );
+		ctb.setSourceFolders(new String [] {"src-analytics","src-evernote","src-jstor","src-nlp","src-sentiment","src-tools","src-transform","src-vis","src-zotero"} );
 		ctb.initialize();
 	}
 

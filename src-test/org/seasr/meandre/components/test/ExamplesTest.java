@@ -75,7 +75,7 @@ public class ExamplesTest {
 		ctb.setFlowsFolder("."+File.separator+"test"+File.separator+"flows"+File.separator+"examples");
 //		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
 	//	ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"tools");
-		ctb.setSourceFolders(new String [] { "."+File.separator+"src-analytics","."+File.separator+"src-jstor", "."+File.separator+"src-opennlp","."+File.separator+"src-sentiment", "."+File.separator+"src-tools",
+		ctb.setSourceFolders(new String [] { "."+File.separator+"src-analytics","."+File.separator+"src-jstor", "."+File.separator+"src-nlp","."+File.separator+"src-sentiment", "."+File.separator+"src-tools",
 				"."+File.separator+"src-transform","."+File.separator+"src-vis"} );
 		ctb.initialize();
 	}
