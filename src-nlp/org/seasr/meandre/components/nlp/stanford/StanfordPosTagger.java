@@ -209,19 +209,15 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 	static MaxentTagger buildTagger(ComponentContextProperties ccp, Logger console, Class myClass)
 	   throws Exception
 	{
-		String modelJarFile = "stanfordModels.jar";
+        String taggerFile = getPropertyOrDieTrying(PROP_TAGGER, true, true, ccp);
 
-		String modelsDir = ccp.getProperty(PROP_MODELS_DIR).trim();
+		String modelsDir = getPropertyOrDieTrying(PROP_MODELS_DIR, true, false, ccp);
 		if (modelsDir.length() == 0)
 		    modelsDir = ccp.getRunDirectory()+File.separator+"stanfordNLP";
 
-		OpenNLPBaseUtilities.installModelsFromJarFile(modelsDir, modelJarFile, console, myClass);
+		OpenNLPBaseUtilities.installJARModelContainingResource(modelsDir, taggerFile, console, myClass);
 		console.fine("Installed models into: " + modelsDir);
 
-		String taggerFile = ccp.getProperty(PROP_TAGGER);// .toLowerCase();
-		if (taggerFile == null) {
-			taggerFile = DEFAULT_TAGGER;
-		}
 		return new MaxentTagger(modelsDir + File.separator + taggerFile.trim());
 	}
 

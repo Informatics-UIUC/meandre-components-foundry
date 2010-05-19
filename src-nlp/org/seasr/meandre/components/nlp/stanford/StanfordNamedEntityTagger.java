@@ -64,7 +64,6 @@ import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.nlp.opennlp.OpenNLPBaseUtilities;
-import org.seasr.meandre.support.components.opennlp.StaticTextSpanFinder;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.components.utils.ComponentUtils;
@@ -174,8 +173,8 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 
-	
-	
+
+
 	SimpleTuplePeer tuplePeer;
 
     public static final String TYPE_FIELD        = "type";
@@ -188,12 +187,11 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
     int TEXT_START_IDX  ;
     int TEXT_IDX        ;
 
-	
+
 
 
 	protected String modelsDir;
 	protected String taggerFile;
-    protected String modelJarFile = "stanfordModels.jar";
     AbstractSequenceClassifier classifier;
 
 	//--------------------------------------------------------------------------------------------
@@ -204,21 +202,21 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
+        taggerFile = getPropertyOrDieTrying(PROP_TAGGER, true, true, ccp);
 
-		modelsDir = ccp.getProperty(PROP_MODELS_DIR).trim();
+		modelsDir = getPropertyOrDieTrying(PROP_MODELS_DIR, true, false, ccp);
 		if (modelsDir.length() == 0)
 		    modelsDir = ccp.getRunDirectory()+File.separator+"stanfordNLP";
 
-		OpenNLPBaseUtilities.installModelsFromJarFile(modelsDir, modelJarFile, console, getClass());
+		OpenNLPBaseUtilities.installJARModelContainingResource(modelsDir, taggerFile, console, getClass());
 		console.fine("Installed models into: " + modelsDir);
 
-		this.taggerFile = ccp.getProperty(PROP_TAGGER).trim().toLowerCase();
 		classifier = CRFClassifier.getClassifierNoExceptions(modelsDir + File.separator + taggerFile);
 
 		sentenceId   = 0;
 		startIdx     = 0;
 
-		
+
 		//
 		// build the tuple (output) data
 		//

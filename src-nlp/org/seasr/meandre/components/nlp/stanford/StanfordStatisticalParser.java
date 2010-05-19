@@ -43,16 +43,14 @@
 package org.seasr.meandre.components.nlp.stanford;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -61,30 +59,19 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.nlp.opennlp.OpenNLPBaseUtilities;
-import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.apache.commons.lang.StringUtils;
-/*
-import edu.stanford.nlp.ling.Sentence;
-import edu.stanford.nlp.ling.TaggedWord;
-import edu.stanford.nlp.ling.HasWord;
-import edu.stanford.nlp.tagger.maxent.MaxentTagger;
-*/
 
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Sentence;
 import edu.stanford.nlp.ling.Word;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
-import edu.stanford.nlp.process.PTBTokenizer;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreePrint;
@@ -98,25 +85,25 @@ import edu.stanford.nlp.trees.TreePrint;
  */
 
 
-/*  
- * NOTES:   
+/*
+ * NOTES:
  * see http://nlp.stanford.edu/software/parser-faq.shtml for details
- * 
+ *
  * based on the 2010-02-26 distribution
- * 
+ *
  * stanfordParsers.jar was built by hand by including the following models:
-   arabicFactored.ser.gz			
+   arabicFactored.ser.gz
    wsjFactored.ser.gz
-   atbP3FactoredBuckwalter.ser.gz		
+   atbP3FactoredBuckwalter.ser.gz
    wsjPCFG.ser.gz
-   chineseFactored.ser.gz			
+   chineseFactored.ser.gz
    xinhuaFactored.ser.gz
-   englishFactored.ser.gz			
+   englishFactored.ser.gz
    xinhuaFactoredSegmenting.ser.gz
-   englishPCFG.ser.gz			
+   englishPCFG.ser.gz
    xinhuaPCFG.ser.gz
    germanFactored.ser.gz
- *  
+ *
  */
 
 
@@ -138,7 +125,7 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
     // Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
 
 	static final String DEFAULT_PARSER = "parsers/englishPCFG.ser.gz";
-	
+
 	@ComponentProperty(
 			name = "parserModel",
 			description = "The parser model to be used ",
@@ -152,7 +139,7 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 		    defaultValue = ""
 		)
 	protected static final String PROP_MODELS_DIR = "modelsDir";
-		
+
 	//--------------------------------------------------------------------------------------------
 
    //------------------------------ INPUTS ------------------------------------------------------
@@ -162,12 +149,12 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 			description = "The text to be parsed"
 	)
 	protected static final String IN_TEXT = Names.PORT_TEXT;
-	
-	
+
+
 
    //--------------------------------------------------------------------------------------------
-    
-    
+
+
     //------------------------------ OUTPUTS ------------------------------------------------------
 
 	@ComponentOutput(
@@ -175,10 +162,10 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 			description = "The processed text (this will be replaced with tuples soon"
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
-	
+
 	 //--------------------------------------------------------------------------------------------
-	
-	
+
+
 /*
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
@@ -187,14 +174,14 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 */
-	
+
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
 			description = "meta data for tuples: (text)" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
-	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;	
-	
+	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
+
 
 	SimpleTuplePeer tuplePeer;
 
@@ -202,62 +189,57 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 	public static final String SENTENCE_ID_FIELD = "sentenceId";
 	public static final String TOKEN_START_FIELD = "tokenStart";
 	public static final String TOKEN_FIELD       = "token";
-	
+
 	int count        = 0;
 	int sentenceId   = 0;
 	int globalOffset = 0;
 	int startIdx     = 0;
-	
+
 	@SuppressWarnings("unchecked")
 	static LexicalizedParser buildParser(ComponentContextProperties ccp, Logger logger, Class myClass)
 	   throws Exception
 	{
-		String parserJarFile = "stanfordParsers.jar";
-		String modelsDir = ccp.getProperty(PROP_MODELS_DIR).trim();
+        String parserFile = getPropertyOrDieTrying(PROP_PARSER, true, true, ccp);
+
+		String modelsDir = getPropertyOrDieTrying(PROP_MODELS_DIR, true, false, ccp);
 		if (modelsDir.length() == 0)
 		    modelsDir = ccp.getRunDirectory()+File.separator+"stanfordNLP";
-		
-		
-		OpenNLPBaseUtilities.installModelsFromJarFile(modelsDir, parserJarFile, logger, myClass);
+
+		OpenNLPBaseUtilities.installJARModelContainingResource(modelsDir, parserFile, logger, myClass);
 		logger.fine("Installed models into: " + modelsDir);
-		
-		
-		String parserFile = ccp.getProperty(PROP_PARSER);
-		if (parserFile == null) {
-			parserFile = DEFAULT_PARSER;
-		}
+
 		return new LexicalizedParser(modelsDir + File.separator + parserFile.trim());
 	}
-	
+
 	TreePrint  treePrint;
     LexicalizedParser parser = null;
-    
+
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
-		
+
 		parser    = buildParser(ccp, console, getClass());
 		treePrint = new TreePrint("typedDependencies");
-		
+
 		sentenceId   = 0;
 		startIdx     = 0;
-		
+
 		String[] fields = new String[]{"text"};
-		
+
     		// new String[] {POS_FIELD, SENTENCE_ID_FIELD, TOKEN_START_FIELD, TOKEN_FIELD};
 
     	this.tuplePeer = new SimpleTuplePeer(fields);
 	}
-	
+
 	/* untested
-	public static String prepForSplitting(String text) 
+	public static String prepForSplitting(String text)
     {
     	StringBuilder sb = new StringBuilder();
     	for (int i = 0; i < text.length(); i++) {
     		char c = text.charAt(i);
     		int type = Character.getType(c);
-    		if (Character.isWhitespace(c)     || 
-    			Character.isLetterOrDigit(c)  || 
+    		if (Character.isWhitespace(c)     ||
+    			Character.isLetterOrDigit(c)  ||
     			(type != Character.END_PUNCTUATION)) {
     			sb.append(c);
     		}
@@ -270,8 +252,8 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
     	return out;
     }
     */
-	
-	public List<String[]> singleSentenceParse(Tree parse) 
+
+	public List<String[]> singleSentenceParse(Tree parse)
 	{
 		StringWriter sw = new StringWriter();
 		treePrint.printTree(parse, new PrintWriter(sw));
@@ -281,7 +263,7 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 		String[] list = sws.split("\n");
 		for (int x = 0; x < list.length; x++) {
 			String a = list[x].trim();
-			
+
 			// e.g. nsubj(attributable-12  features-bob-6)
 			a = a.replaceFirst("\\(", " ");      // rid the ()
 			a = a.replaceFirst("\\)$", " ");
@@ -292,31 +274,31 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 		}
 		return output;
 	}
-	
-	
+
+
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception 
+    public void executeCallBack(ComponentContext cc) throws Exception
     {
 		Strings input = (Strings) cc.getDataComponentFromInput(IN_TEXT);
 		String[] val = BasicDataTypesTools.stringsToStringArray (input);
-		
-		
+
+
 		// console.info(count++ + " attempt to parse\n" + val[0]);
-		
+
 		String SEP = "|";
-		
+
 		String text = val[0];
 		int idx = text.lastIndexOf(SEP);
 		String prefix = text.substring(0,idx+1); // safe even if idx == -1
 		text = text.substring(idx+1);
-		
-		
+
+
 		// String[] tokens = prepForSplitting(sentence).split(" ");
-		
-		
+
+
 		StringReader reader = new StringReader(text);
 		List<Sentence<? extends HasWord>> sentences = MaxentTagger.tokenizeText(reader);
-		
+
 		/*
 		SimpleTuple tuple   = tuplePeer.createTuple();
 		int POS_IDX         = tuplePeer.getIndexForFieldName(POS_FIELD);
@@ -324,24 +306,24 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 		int TOKEN_START_IDX = tuplePeer.getIndexForFieldName(TOKEN_START_FIELD);
 		int TOKEN_IDX       = tuplePeer.getIndexForFieldName(TOKEN_FIELD);
 		*/
-		
-        
+
+
 		List<Strings> output = new ArrayList<Strings>();
 		StringBuilder sb = new StringBuilder();
-		
+
 		for (Sentence<? extends HasWord> sentence : sentences) {
-			
+
 			if (sentence.length() > 128) {
 				// TODO make this a property
 				continue;
 			}
-			
+
 			Sentence<? extends HasWord> fixed = fixSentence(sentence);
-			
+
 			console.fine("Processing\n" + fixed);
-			Tree parse = (Tree) parser.apply(fixed);
+			Tree parse = parser.apply(fixed);
 			List<String[]> parts = singleSentenceParse(parse);
-			
+
 			sb.setLength(0);
 	        for (String[] col : parts) {
 	        	String rest = StringUtils.join(col, SEP);
@@ -353,46 +335,46 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 
 			//String sText = sentence.toString();
 			//console.info("text is " + sText);
-			
+
 			/*
 		      Sentence<TaggedWord> tSentence = MaxentTagger.tagSentence(sentence);
-		      
+
 		      for (TaggedWord word : tSentence) {
-		    	  
+
 		    	   String text = word.value();
 		    	   int indexOfLastWord = originalText.indexOf(text, startIdx);
-		    	  
+
 		    	   tuple.setValue(POS_IDX,         word.tag());
 				   tuple.setValue(SENTENCE_ID_IDX, sentenceId);  // keep this zero based
 				   tuple.setValue(TOKEN_START_IDX, indexOfLastWord);
 				   tuple.setValue(TOKEN_IDX,       text);
 
-		    	  
+
 		    	   // console.info(tuple.toString());
-		    	   
+
 		    	   startIdx = indexOfLastWord + text.length();
-		    	   
+
 		    	   if ( pattern == null || pattern.matcher(word.tag()).matches())
 				   {
 		    		   output.add(tuple.convert());
 		    	   }
-		    	  
-		    	   
+
+
 		      }
 		      */
 		      sentenceId++;
 		      //console.info(tSentence.toString(false));
 		}
-		
-		
+
+
 		 Strings[] results = new Strings[output.size()];
 		 output.toArray(results);
 
 		 StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
 		 cc.pushDataComponentToOutput(OUT_TEXT, outputSafe);
-		 
-		    
-		
+
+
+
 		/*
 		// push the whole collection, protocol safe
 	    Strings[] results = new Strings[output.size()];
@@ -407,44 +389,44 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 		//
 	    Strings metaData = tuplePeer.convert();
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
-	   
+
     }
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
-	
-	
-	
+
+
+
 	@SuppressWarnings("unchecked")
-	public static Sentence<? extends HasWord> fixSentence(Sentence<? extends HasWord> sentence) 
+	public static Sentence<? extends HasWord> fixSentence(Sentence<? extends HasWord> sentence)
 	{
 		//
 		// MaxEnt Tagger replaces () with -LRB- and -RRB-
 		//
 		// want to keep bob(neal) as a single token
-		// but NOT bob(a friend of neal) 
+		// but NOT bob(a friend of neal)
 		//
 		// sentences contain -LRB- -RRB-
 		//
-		
+
 		String tmp = sentence.toString();
 		if (tmp.indexOf("-LRB-") == -1) {
 			return sentence;
 		}
-		
+
 		Sentence<Word> fixed = new Sentence<Word>();
-		
+
 		int size = sentence.size();
 		for (int i = 0; i < size; i++) {
-			
+
 			HasWord w = sentence.get(i);
-			
+
 			Word word = null;
 			if (i+3 < size) {
-				
+
 				HasWord n = sentence.get(i+1);
-				
+
 				// this only handles one level of ()'s
 				if (n.toString().equals("-LRB-")) {
 					HasWord content = sentence.get(i+2);
@@ -455,10 +437,10 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 					}
 				}
 			}
-			
+
 			if (word == null) {
 				word = new Word(w.toString());
-			}	
+			}
 			fixed.add(word);
 		}
 		return fixed;

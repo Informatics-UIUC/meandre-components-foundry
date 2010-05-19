@@ -43,7 +43,9 @@
 package org.seasr.meandre.components.vis.temporal;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.Writer;
+import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -68,14 +70,11 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.encoding.Base64;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
-import org.seasr.meandre.support.generic.io.ClasspathUtils;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.seasr.meandre.support.generic.io.IOUtils;
 import org.seasr.meandre.support.generic.io.JARInstaller;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 import org.w3c.dom.Document;
-
-import de.schlichtherle.io.FileInputStream;
 
 /**
  * @author Lily Dong
@@ -188,18 +187,27 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         _context.put("ccp", ccp);
 
         if (timelineAPI.length() == 0) {
-            File simileApiJar = null;
-            URL simileJarDepUrl = ClasspathUtils.findDependencyInClasspath("simile-timeline.jar", getClass());
-            if (simileJarDepUrl != null)
-                simileApiJar = new File(simileJarDepUrl.toURI());
+            InputStream apiInputStream = null;
+            URL simileJarDepUrl = getClass().getClassLoader().getResource("timeline-api.js");
+            if (simileJarDepUrl != null) {
+                console.fine(String.format("Found Simile Timeline API in %s", simileJarDepUrl));
 
-            if (!simileApiJar.exists())
-                throw new ComponentContextException("Could not find simile-timeline.jar");
+                if (simileJarDepUrl.getProtocol().equals("jar")) {
+                    String sFile = simileJarDepUrl.toString().split("!")[0] + "!/";
+                    simileJarDepUrl = new URL(sFile);
+                    JarURLConnection jarConnection = (JarURLConnection)simileJarDepUrl.openConnection();
+                    apiInputStream = jarConnection.getJarFileURL().openStream();
+                } else
+                    apiInputStream = simileJarDepUrl.openStream();
+            }
 
-            console.fine("Installing Simile Timeline API from: " + simileApiJar.toString());
+            if (apiInputStream == null)
+                throw new ComponentContextException("Could not find Simile Timeline API (timeline-api.js) in the class path!");
+
+            console.fine("Installing Simile Timeline API from: " + simileJarDepUrl);
 
             String simileApiDir = ccp.getPublicResourcesDirectory() + File.separator + SIMILE_API_PATH;
-            InstallStatus status = JARInstaller.installFromStream(new FileInputStream(simileApiJar), simileApiDir, false);
+            InstallStatus status = JARInstaller.installFromStream(apiInputStream, simileApiDir, false);
             switch (status) {
                 case SKIPPED:
                     console.fine("Installation skipped - Simile Timeline API is already installed");

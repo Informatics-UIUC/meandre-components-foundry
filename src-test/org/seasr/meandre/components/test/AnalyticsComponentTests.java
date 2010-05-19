@@ -69,7 +69,6 @@ public class AnalyticsComponentTests {
 	/** Generates the descriptors for the specified folders */
 	@BeforeClass
 	public static void initializeTestResources () {
-
 		ctb = new ComponentTesterBase();
 		ctb.setBaseTestPort(50000);
 		ctb.setFlowsFolder("test" + File.separator + "flows" + File.separator + "analytics");

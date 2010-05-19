@@ -439,4 +439,32 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
             console.log(Level.SEVERE, "Cannot push to the error output!", e1);
         }
     }
+
+    /**
+     * Attempts to retrieve the value of a property
+     *
+     * @param propName The property name
+     * @param ignoreWhitespace True if trim() should be called on the value, False otherwise
+     * @param failIfEmptyValue True to throw exception if the value of the property is empty
+     * @param cc The component context
+     * @return The property value
+     * @throws ComponentExecutionException Thrown if the property does not exist, or if failIfEmptyValue=true and the value of the property is empty
+     */
+    public static String getPropertyOrDieTrying(String propName, boolean ignoreWhitespace, boolean failIfEmptyValue, ComponentContextProperties context)
+        throws ComponentExecutionException {
+
+        String propValue = context.getProperty(propName);
+        if (propValue == null)
+            throw new ComponentExecutionException(String.format(
+                    "Missing property '%s' - check the component RDF descriptor! " +
+                    "Available properties: %s", propName, context.getPropertyNames()));
+
+        if (ignoreWhitespace)
+            propValue = propValue.trim();
+
+        if (failIfEmptyValue && propValue.length() == 0)
+            throw new ComponentExecutionException(String.format("The value for the property '%s' has not been set! Cannot continue!", propName));
+
+        return propValue;
+    }
 }

@@ -8,7 +8,7 @@
     descriptors to a running Meandre server.
 -->
 
-<project name="Components-Foundry" default="dist" basedir=".">
+<project name="Components-Foundry" default="dist">
 
     <!--
     ======================
@@ -110,7 +110,6 @@
       </classpath>
     </taskdef>
 
-
     <!--
     =================
     CLASSPATHS
@@ -126,6 +125,12 @@
     <path id="classpath.runtime">
         <path refid="classpath.build"/>
         <fileset dir="${dist.dir}" includes="*.jar"/>
+    </path>
+    
+    <!-- Test class path -->
+    <path id="classpath.test">
+        <pathelement location="${test.classes.dir}"/>
+        <path refid="classpath.runtime"/>
     </path>
 
     <!-- Runtime class path for component installer (alpha)-->
@@ -181,7 +186,7 @@
         <delete dir="${dist.dir}"/>
         <delete dir="${test.logs.dir}"/>
         <delete dir="${test.output.dir}"/>
-        <delete dir="./log"/>
+        <delete dir="log"/>
     </target>
 
     <!--
@@ -211,13 +216,10 @@
                 <include name="src-*/**/*.swf"/>
                 <include name="src-*/**/*.list"/>
                 <include name="src-*/**/*.jar"/>
+                <exclude name="src-gwt/**"/>
             </fileset>
 
-                <regexpmapper from="^src-[^/]+/(.+)$" to="\1"/>
-
-                <!--
-            <regexpmapper from="^src-.+/.+/(.+)$" to="\1"/>
-                -->
+            <regexpmapper from="^src-[^/]+/(.+)$" to="\1"/>
         </copy>
     </target>
 
@@ -304,17 +306,16 @@
             depends="compile-tests"
             description= "-> runs the unit tests and generates xml logs and html reports">
         <mkdir dir="${test.logs.dir}/xml"/>
-        <echo message="${java.class.path}"/>
+        <!-- 
+        <property name="cp" refid="classpath.test"/>
+        <echo message="Classpath: ${cp}"/>
+        -->
         <junit printsummary="yes"
                errorProperty="test.failed"
                failureProperty="test.failed"
                showoutput="yes">
             <jvmarg value="-Duser.language=en"/>
-            <classpath>
-                <path refid="classpath.build"/>
-                <pathelement location="${classes.dir}"/>
-                <pathelement location="${test.classes.dir}"/>
-            </classpath>
+            <classpath refid="classpath.test"/>
             <formatter type="xml"/>
             <formatter type="brief" usefile="false"/>
             <batchtest todir="${test.logs.dir}/xml">

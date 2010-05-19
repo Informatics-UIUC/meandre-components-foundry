@@ -43,7 +43,8 @@
 package org.seasr.meandre.components.nlp.opennlp;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.logging.Logger;
 
@@ -52,7 +53,6 @@ import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.generic.io.ClasspathUtils;
 import org.seasr.meandre.support.generic.io.JARInstaller;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
@@ -72,7 +72,7 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
   *  Note:  as a potential improvement, we could pull the maxent-models.jar file from
   *  the classpath, copy it to public resources, and then unjar
   *
-  *  TODO:  if openNLPdir/maxent-models.jar exists BUT it has not been unjarred there,
+  *  TODO:  if openNLPdir/maxent-models.jar exists BUT it has not been unjared there,
   *  we should unjar it.
   *
   */
@@ -104,21 +104,18 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
 	/** The language of the text being processed */
 	protected String sLanguage;
 
-    protected String modelJarFile = "maxent-models.jar";
-
 
 	//--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-
         this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
 
         sOpenNLPDir = ccp.getProperty(PROP_OPENNLP_DIR).trim();
         if (sOpenNLPDir.length() == 0)
             sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
 
-        installModelsFromJarFile(sOpenNLPDir, modelJarFile, console, getClass());
+        installJARModelContainingResource(sOpenNLPDir, "models/English/chunker/EnglishChunk.bin.gz", console, getClass());
         console.fine("Installed " + sLanguage + " models into: " + sOpenNLPDir);
 
         // constructs the final OpenNLP models path based on the language chosen
@@ -135,21 +132,29 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @SuppressWarnings("unchecked")
-    public static void installModelsFromJarFile(String dir, String filename, Logger console, Class caller) throws Exception {
-    	File modelsJar = null;
-	    URL modelsDepURL = ClasspathUtils.findDependencyInClasspath(filename, caller);
-	    if (modelsDepURL != null)
-	        modelsJar = new File(modelsDepURL.toURI());
+    public static void installJARModelContainingResource(String dir, String resName, Logger console, Class caller) throws Exception {
+    	InputStream modelsInputStream = null;
 
+	    URL modelsResDepURL = caller.getClassLoader().getResource(resName);
 
-		if (modelsJar == null || !modelsJar.exists())
-		    modelsJar = new File(dir + File.separator + filename);
+	    if (modelsResDepURL != null) {
+	        console.fine(String.format("Found resource '%s' as %s", resName, modelsResDepURL));
 
-		if (!modelsJar.exists())
-		    throw new ComponentContextException("Could not find " + filename);
+	        if (modelsResDepURL.getProtocol().equals("jar")) {
+	            String sFile = modelsResDepURL.toString().split("!")[0] + "!/";
+	            modelsResDepURL = new URL(sFile);
+	            JarURLConnection jarConnection = (JarURLConnection)modelsResDepURL.openConnection();
+	            modelsInputStream = jarConnection.getJarFileURL().openStream();
+	        } else
+	            modelsInputStream = modelsResDepURL.openStream();
+	    }
 
-		console.fine("attempting to put " + modelsJar + " into " + dir);
-		InstallStatus status = JARInstaller.installFromStream(new FileInputStream(modelsJar), dir, false);
+		if (modelsInputStream == null)
+		    throw new ComponentContextException(String.format("Could not find '%s' in the class path!", resName));
+
+		console.fine("Installing models from: " + modelsResDepURL);
+
+		InstallStatus status = JARInstaller.installFromStream(modelsInputStream, dir, false);
 		if (status == InstallStatus.SKIPPED)
 		    console.fine("Installation skipped - models already installed");
 
