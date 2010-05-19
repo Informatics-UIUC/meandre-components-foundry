@@ -91,9 +91,6 @@ public class LinkCreationToProtovis extends AbstractLinkCreationComponent {
     )
     protected static final String OUT_PROTOVIS = Names.PORT_JSON;
 
-    //------------------------------ PROPERTIES --------------------------------------------------
-
-
     //--------------------------------------------------------------------------------------------
 
     private Properties _xmlProperties;
@@ -133,7 +130,7 @@ public class LinkCreationToProtovis extends AbstractLinkCreationComponent {
             for (Entity entity : entry.getValue().getValue())
                 addEdge(entry.getKey(), entity, jaLinks);
 
-        String sOutput = String.format("%s;", joOutput.toString(4));
+        String sOutput = String.format("%s", joOutput.toString(4));
         console.finest("Output: " + sOutput);
 
         if (_isStreaming)
