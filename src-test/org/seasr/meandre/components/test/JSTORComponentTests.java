@@ -76,10 +76,10 @@ public class JSTORComponentTests {
 
 		ctb = new ComponentTesterBase();
 		ctb.setBaseTestPort(50000);
-		ctb.setFlowsFolder("."+File.separator+"test"+File.separator+"flows"+File.separator+"jstor");
-		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
-		ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"jstor");
-		ctb.setSourceFolders(new String [] {"src-analytics","src-jstor","src-nlp","src-tools","src-transform","src-vis"} );
+		ctb.setFlowsFolder("test" + File.separator + "flows" + File.separator + "jstor");
+		ctb.setTempDescriptorFolder("tmp");
+		ctb.setTempDescriptorFolder("tmp" + File.separator + "desc" + File.separator + "jstor");
+		ctb.setSourceFolders(new String [] { "src-analytics", "src-jstor", "src-nlp", "src-tools", "src-transform", "src-vis" });
 		ctb.initialize();
 	}
 
@@ -94,7 +94,7 @@ public class JSTORComponentTests {
 	/** The test of the basic XML reading and writing to text components. */
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testXMLReadingWrittingTest() {
+	public void testXMLReadingWritingTest() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
