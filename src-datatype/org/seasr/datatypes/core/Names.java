@@ -106,7 +106,8 @@ public abstract class Names {
 
 	// PROPERTIES
 	public static final String PROP_APPEND_TIMESTAMP = "append_timestamp";
-    public static final String PROP_BASE_DN = "base_dn";
+	public static final String PROP_ARITY = "arity";
+	public static final String PROP_BASE_DN = "base_dn";
 	public static final String PROP_BASE_URI = "base_uri";
 	public static final String PROP_BOTTOM_N = "bottom_n";
 	public static final String PROP_COMMAND = "command";
