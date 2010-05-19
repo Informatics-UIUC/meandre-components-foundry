@@ -46,11 +46,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.VelocityContext;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -69,6 +75,7 @@ import org.seasr.meandre.components.tools.text.io.GenericTemplate;
 import org.seasr.meandre.support.components.geographic.GeoLocation;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+import org.seasr.meandre.support.components.tuples.TupleUtilities;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 import org.seasr.meandre.support.generic.io.JARInstaller;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
@@ -148,7 +155,7 @@ public class ParallelCoordinates extends GenericTemplate
 
     @ComponentInput(
 	            name = "json",
-	            description = "text output as JSON" +
+	            description = "JSON input data.  Must be an array of fields e.g. [{a:1,b:2,c:3}, {a:4,b:5,c:6}]" +
 	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	    )
 	    protected static final String IN_JSON = "json";
@@ -167,6 +174,14 @@ public class ParallelCoordinates extends GenericTemplate
 	        defaultValue = "Parallel Coordinates"
 	)
 	protected static final String PROP_TITLE = Names.PROP_TITLE;
+	
+	
+	@ComponentProperty(
+	        description = "The attribute that will be highlighted",
+	        name = "active",
+	        defaultValue = ""
+	)
+	protected static final String PROP_ACTIVE = "active";
 
 
 	@ComponentProperty(
@@ -196,10 +211,69 @@ public class ParallelCoordinates extends GenericTemplate
 	    context.put("title",   ccp.getProperty(PROP_TITLE));
 	    context.put("addDone", true);
 	    context.put("path", "/public/resources/" + path);
-
+	    
+	    
+	    String a = ccp.getProperty(PROP_ACTIVE).trim();
+	    context.put("active", a);
 	}
 
-	
+	@SuppressWarnings("unchecked")
+	public Map<String,String>  parseForFields(String jsonData) 
+	throws JSONException
+	{
+		
+		HashMap map = new HashMap<String,String>();
+		HashMap<String, List<String>> categories = new HashMap<String,List<String>>();
+		
+		// JSONObject json   = new JSONObject(jsonData);
+		JSONArray results = new JSONArray(jsonData);
+		int size = results.length();
+
+		for (int i = 0; i < size;i++) {
+
+			JSONObject fields = results.getJSONObject(i);
+			
+			Iterator it = fields.keys();
+		    while(it.hasNext()) {		
+		    	
+		    	String key = (String) it.next();
+		    	String value = fields.getString(key);
+		    	
+		    	if (! map.containsKey(key)) {
+		    		
+		    		try {
+		    			Double d = Double.parseDouble(value);
+		    			map.put(key, "");
+		    		}
+		    		catch (Exception e) {
+		    			
+		    			//
+		    			// category data
+		    			//
+		    			List list = categories.get(key);
+		    			if (list == null) {
+		    				list = new ArrayList<String>();
+		    				categories.put(key, list);
+		    			}
+		    			if (!list.contains(value)) {
+		    				list.add(value);
+		    			}
+		    			
+		    		}
+		    		
+		    	}
+		    	
+				//console.info(key + " " + value);
+			}
+		
+		}
+		
+		//
+		// now remap all the category data to numerical values
+		//
+		
+		return map;
+	}
 
 	
     @Override
@@ -212,11 +286,31 @@ public class ParallelCoordinates extends GenericTemplate
     	Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_JSON);
     	String[] data = BasicDataTypesTools.stringsToStringArray(inputMeta);
     	String json = data[0];
+    	
+        Map<String,String> unitMap;
+    	try {
+    		
+    	   unitMap = parseForFields(json);
+    	   
+    	   String active = (String) context.get("active");
+    	   if (active.length() == 0) {
+    		   // choose one of the attributes
+    		   active = unitMap.keySet().iterator().next();
+    		   context.put("active", active);
+    	   }
+    	   
+    	}catch (JSONException e) {
+    		
+    		console.info("Json parsing error");
+    		
+            unitMap = new HashMap<String,String>();
+    		
+    	}
         
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("petallength");
+    
     	
     	context.put("data", json);
+    	context.put("unitMap", unitMap);
     	
     	
     	/*
@@ -234,7 +328,7 @@ public class ParallelCoordinates extends GenericTemplate
 
 		// context.put("geoList", geos);
 
-		// console.info("Ready to view google maps with locations " + geos.size());
+		// console.info("data " +  json);
 
 		//
     	// now wait for the user to access the webUI

@@ -60,12 +60,6 @@
 // The units and dimensions to visualize, in order.
 // don't show the class field ... nothing works then
 //
-var units = { "petallength" : {unit :""},
-              "petalwidth"  : {unit :""},
-              
-              "sepallength" : {unit :""},
-              "sepalwidth"  : {unit :""},
-              };
               
 /*
 var units = {
@@ -79,6 +73,12 @@ var units = {
 }
 */
 
+
+var units = { 
+#foreach($e in $unitMap.entrySet())
+  "$e.key" : {unit: "$e.value"},
+#end
+};
 
       
 
@@ -103,7 +103,7 @@ var w = 820,
 /* Interaction state. */
 var filter = pv.dict(dims, function(t) {
     return {min: y[t].domain()[0], max: y[t].domain()[1]};
-  }), active = "petalwidth"; // was mpg
+  }), active = "$active"; // was mpg
 
 /* The root panel. */
 var vis = new pv.Panel()
