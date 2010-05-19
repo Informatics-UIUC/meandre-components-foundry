@@ -78,10 +78,10 @@ public class ToolsComponentTests {
 	public static void initializeTestResources () {
 		ctb = new ComponentTesterBase();
 		ctb.setBaseTestPort(50000);
-		ctb.setFlowsFolder("."+File.separator+"test"+File.separator+"flows"+File.separator+"tools");
-		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
-		ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"tools");
-		ctb.setSourceFolders(new String [] { "."+File.separator+"src-tools"} );
+		ctb.setFlowsFolder("test" + File.separator + "flows" + File.separator + "tools");
+		ctb.setTempDescriptorFolder("tmp");
+		ctb.setTempDescriptorFolder("tmp" + File.separator + "desc" + File.separator + "tools");
+		ctb.setSourceFolders(new String [] { "src-tools" } );
 		ctb.initialize();
 	}
 
@@ -152,7 +152,7 @@ public class ToolsComponentTests {
 
 		Model model = ModelFactory.createDefaultModel();
 		try {
-			model.read(new FileReader(new File("."+File.separator+"test"+File.separator+"data"+File.separator+"samples"+File.separator+"rdf"+File.separator+"sample-rdf.nt")),null,"N-TRIPLE");
+			model.read(new FileReader(new File("test" + File.separator + "data" + File.separator + "samples" + File.separator + "rdf" + File.separator + "sample-rdf.nt")),null,"N-TRIPLE");
 		} catch (FileNotFoundException e) {
 			fail(e.toString());
 		}
@@ -163,7 +163,7 @@ public class ToolsComponentTests {
 
 	/** The test of the basic RDF model reading and writing to text components. */
 	@Test
-	public void testRDFReadingWrittingTest() {
+	public void testRDFReadingWritingTest() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
@@ -171,10 +171,10 @@ public class ToolsComponentTests {
 
 		try {
 			Model modelFlow = ModelFactory.createDefaultModel();
-			modelFlow.read(new FileReader(new File("."+File.separator+"tmp"+File.separator+"sample.nt")),null,"N-TRIPLE");
+			modelFlow.read(new FileReader(new File("tmp"+File.separator+"sample.nt")),null,"N-TRIPLE");
 
 			Model model = ModelFactory.createDefaultModel();
-			model.read(new FileReader(new File("."+File.separator+"test"+File.separator+"data"+File.separator+"samples"+File.separator+"rdf"+File.separator+"sample-rdf.nt")),null,"N-TRIPLE");
+			model.read(new FileReader(new File("test"+File.separator+"data"+File.separator+"samples"+File.separator+"rdf"+File.separator+"sample-rdf.nt")),null,"N-TRIPLE");
 			assertEquals(model.size(),modelFlow.size());
 		} catch (FileNotFoundException e) {
 			fail(e.toString());
@@ -201,7 +201,7 @@ public class ToolsComponentTests {
 
 	/** The test of the basic txt reading and writing to text components. */
 	@Test
-	public void testTextReadingWrittingTest() {
+	public void testTextReadingWritingTest() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
@@ -210,7 +210,7 @@ public class ToolsComponentTests {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(baos);
-			InputStreamReader isr = new FileReader("."+File.separator+"tmp"+File.separator+"sample.txt");
+			InputStreamReader isr = new FileReader("tmp"+File.separator+"sample.txt");
 			LineNumberReader lnr = new LineNumberReader(isr);
 			String sTmp;
 			while ( (sTmp=lnr.readLine())!=null ) ps.println(sTmp);
@@ -225,7 +225,7 @@ public class ToolsComponentTests {
 
 	/** The test of the basic XML reading and writing to text components. */
 	@Test
-	public void testXMLReadingWrittingTest() {
+	public void testXMLReadingWritingTest() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 
@@ -233,7 +233,7 @@ public class ToolsComponentTests {
 
 		try {
 			StringBuffer sb = new StringBuffer();
-			LineNumberReader lir = new LineNumberReader(new FileReader("."+File.separator+"tmp"+File.separator+"sample.xml"));
+			LineNumberReader lir = new LineNumberReader(new FileReader("tmp"+File.separator+"sample.xml"));
 			String sTmp = null;
 			while ( (sTmp=lir.readLine())!=null ) sb.append(sTmp);
 			lir.close();

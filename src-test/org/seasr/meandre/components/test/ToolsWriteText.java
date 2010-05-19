@@ -72,10 +72,10 @@ public class ToolsWriteText {
 	public static void initializeTestResources () {
 		ctb = new ComponentTesterBase();
 		ctb.setBaseTestPort(50000);
-		ctb.setFlowsFolder("."+File.separator+"test"+File.separator+"flows"+File.separator+"tools");
-		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
-		ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"tools");
-		ctb.setSourceFolders(new String [] { "."+File.separator+"src-tools"} );
+		ctb.setFlowsFolder("test" + File.separator + "flows" + File.separator + "tools");
+		ctb.setTempDescriptorFolder("tmp");
+		ctb.setTempDescriptorFolder("tmp" + File.separator + "desc" + File.separator + "tools");
+		ctb.setSourceFolders(new String [] { "src-tools" } );
 		ctb.initialize();
 	}
 

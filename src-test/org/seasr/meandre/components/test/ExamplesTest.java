@@ -67,10 +67,10 @@ public class ExamplesTest {
 	public static void initializeTestResources () {
 		ctb = new ComponentTesterBase();
 		ctb.setBaseTestPort(50000);
-		ctb.setFlowsFolder("."+File.separator+"test"+File.separator+"flows"+File.separator+"examples");
-		ctb.setTempDescriptorFolder("."+File.separator+"tmp");
-		ctb.setTempDescriptorFolder("."+File.separator+"tmp"+File.separator+"desc"+File.separator+"examples");
-		ctb.setSourceFolders(new String [] {"src-analytics","src-evernote","src-jstor","src-nlp","src-sentiment","src-tools","src-transform","src-vis","src-zotero"} );
+		ctb.setFlowsFolder("test" + File.separator + "flows" + File.separator + "examples");
+		ctb.setTempDescriptorFolder("tmp");
+		ctb.setTempDescriptorFolder("tmp" + File.separator + "desc" + File.separator + "examples");
+		ctb.setSourceFolders(new String [] { "src-analytics", "src-evernote", "src-jstor", "src-nlp", "src-sentiment", "src-tools", "src-transform", "src-vis", "src-zotero"});
 		ctb.initialize();
 	}
 
