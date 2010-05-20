@@ -137,6 +137,11 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
         _isStreaming = false;
     }
 
+    //
+    // TODO .. allow the component via properties to decide what values to pull from 
+    // the tuples:  e.g. sentenceId, type, text, etc
+    //
+    
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Strings inMetaTuple = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
