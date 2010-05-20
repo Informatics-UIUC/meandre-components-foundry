@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Parallel Coordinates</title>
+    <title>$title</title>
     <script type="text/javascript" src="$path"></script>
     <!--
     <script type="text/javascript" src="/public/resources/js/cars.js"></script>
