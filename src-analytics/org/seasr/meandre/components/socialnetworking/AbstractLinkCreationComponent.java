@@ -59,6 +59,7 @@ import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.nlp.opennlp.OpenNLPNamedEntity;
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 /**
@@ -155,10 +156,14 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
         //       relies on a sliding-window of sentences that are within the 'adjacency' range. As new sentences are
         //       considered, the window moves to the right and old sentences that are now too far fall out of scope.
 
-        for (Strings tuple : tuples) {
+        SimpleTuple tuple = tuplePeer.createTuple();	
+        for (Strings t : tuples) {
+        	tuple.setValues(t);
+        
             Integer sentenceId = Integer.parseInt(tuple.getValue(SENTENCE_ID_IDX));
-            String tupleType = tuple.getValue(TYPE_IDX);
-            String tupleValue = tuple.getValue(TEXT_IDX);
+            String tupleType   = tuple.getValue(TYPE_IDX);
+            String tupleValue  = tuple.getValue(TEXT_IDX);
+     
 
             // If the entity is of the type we're interested in
             if (_entityTypes.contains(tupleType)) {
