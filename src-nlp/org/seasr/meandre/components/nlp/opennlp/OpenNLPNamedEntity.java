@@ -198,6 +198,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 				if (value.equals("url")){
 					finders[i] = new StaticURLFinder("URL");
 				}
+				/*
 				else if (value.equals("location")){
 					if (locationMapData == null) {
 						throw new RuntimeException("missing LocationMapData");
@@ -205,6 +206,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 					Map<String,String> map = StaticLocationFinder.parseLocationData(locationMapData);
 					finders[i] = new StaticLocationFinder("location",  map);
 				}
+				*/
 			}
 		}
 		else {
