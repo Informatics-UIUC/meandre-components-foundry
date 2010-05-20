@@ -1,0 +1,58 @@
+<html>
+  <head>
+  
+    <title>$title</title>
+    
+    
+    <script type="text/javascript" src="$path"></script>
+    
+    
+    <style type="text/css">
+        #fig {
+            width: 1000px;
+            height: 700px;
+        }
+    </style>
+
+  </head>
+  <body><div id="center"><div id="fig">
+    <script type="text/javascript+protovis">
+    
+    
+    var graphData = $data;
+    
+    
+
+      var color = pv.Colors.category19().by(function(d) d.group),
+          w = 1000,
+          h = 600;
+
+      var vis = new pv.Panel()
+          .width(w)
+          .height(h)
+          .fillStyle("white")
+          .event("mousedown", pv.Behavior.pan())
+          .event("mousewheel", pv.Behavior.zoom());
+
+      var layout = vis.add(pv.Layout.Force)
+          .nodes(graphData.nodes)
+          .links(graphData.links);
+
+      layout.link.add(pv.Line);
+
+      layout.node.add(pv.Dot)
+          .size(function(d) (d.linkDegree + 4) * Math.pow(this.scale, -1.5))
+          .fillStyle(function(d) d.fix ? "brown" : color(d))
+          .strokeStyle(function() this.fillStyle().darker())
+          .title(function(d) d.nodeName)
+          .event("mousedown", pv.Behavior.drag())
+          .event("drag", layout);
+
+      vis.render();
+
+    </script>
+<div class="caption">
+  TODO add caption
+  </div>
+  </div></div></body>
+</html>
