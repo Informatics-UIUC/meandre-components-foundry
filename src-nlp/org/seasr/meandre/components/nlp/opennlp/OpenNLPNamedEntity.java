@@ -301,6 +301,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     				String text    = textSpan.getText();
 
     				// clean the text
+    				text = text.replace("\r\n"," ");
     				text = text.replace("\n"," ");
 
     				SimpleTuple tuple = tuplePeer.createTuple();
