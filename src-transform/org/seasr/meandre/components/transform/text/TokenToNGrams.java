@@ -127,16 +127,20 @@ public class TokenToNGrams extends AbstractExecutableComponent {
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		set = Collections.synchronizedSet(new HashSet<String>());
+
+	    String[] array=null;
+	    set = Collections.synchronizedSet(new HashSet<String>());
 
 		Object obj = cc.getDataComponentFromInput(IN_TOKENS);
-		if(obj instanceof StringsMap) //tokenized sentences
+		if(obj instanceof StringsMap) { //tokenized sentences
 			processSentences((StringsMap)obj);
+		    array = set.toArray(new String[0]);
+		}
 		else
 		if(obj instanceof Strings) //tokens only
-			processTokens(DataTypeParser.parseAsString(obj));
+			array = processTokens(DataTypeParser.parseAsString(obj));
 
-		String[] array = set.toArray(new String[0]);
+
 		cc.pushDataComponentToOutput(
 				OUT_TOKENS, BasicDataTypesTools.stringToStrings(array));
 	}
@@ -155,7 +159,7 @@ public class TokenToNGrams extends AbstractExecutableComponent {
 		for (int i=0; i<input.getKeyCount(); i++) {
 			String[] tokens = null;
 			//String sentence = null;
-    		//entence      = input.getKey(i);    // this is the entire sentence (the key)
+    		//sentence      = input.getKey(i);    // this is the entire sentence (the key)
     		Strings value = input.getValue(i);  // this is the set of tokens for that sentence
     		tokens = DataTypeParser.parseAsString(value);
     		processTokens(tokens);
@@ -166,20 +170,25 @@ public class TokenToNGrams extends AbstractExecutableComponent {
 	 *
 	 * @param input contains tokens only.
 	 */
-	private void processTokens(String[] input) {
+	private String[] processTokens(String[] input) {
 		int k=0;
 		String str;
+		String out[]= new String[input.length-arity+1];
 		for (;k<input.length-arity+1;k++) {
 			str = "";
     		for(int l=0; l<arity; ++l)
     			str += input[k+l] + ((l!=arity-1)?" ":"");
-    		set.add(str);
+    		//set.add(str);
+    		out[k] = str;
 		}
     	str = "";
     	while(k<input.length) {//output the remaining tokens as a pattern if exiting
     		str += input[k] + ((k!=input.length-1)?" ":"");
+
     		++k;
     	}
-    	set.add(str);
+    	out[input.length-arity] = str;
+    	//set.add(str);
+    	return (out);
 	}
 }
