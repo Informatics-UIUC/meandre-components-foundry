@@ -43,9 +43,7 @@
 
 package org.seasr.meandre.components.transform.text;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Vector;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -112,7 +110,7 @@ public class TokenToNGrams extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	private int arity;
-	private Set<String> set;
+	private Vector<String> vector;
 
 	//--------------------------------------------------------------------------------------------
 
@@ -127,20 +125,15 @@ public class TokenToNGrams extends AbstractExecutableComponent {
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-
-	    String[] array=null;
-	    set = Collections.synchronizedSet(new HashSet<String>());
+		vector = new Vector<String>();
 
 		Object obj = cc.getDataComponentFromInput(IN_TOKENS);
-		if(obj instanceof StringsMap) { //tokenized sentences
+		if(obj instanceof StringsMap) //tokenized sentences
 			processSentences((StringsMap)obj);
-		    array = set.toArray(new String[0]);
-		}
-		else
-		if(obj instanceof Strings) //tokens only
-			array = processTokens(DataTypeParser.parseAsString(obj));
+		else if(obj instanceof Strings) //tokens only
+			processTokens(DataTypeParser.parseAsString(obj));
 
-
+		String[] array = vector.toArray(new String[0]);
 		cc.pushDataComponentToOutput(
 				OUT_TOKENS, BasicDataTypesTools.stringToStrings(array));
 	}
@@ -170,25 +163,12 @@ public class TokenToNGrams extends AbstractExecutableComponent {
 	 *
 	 * @param input contains tokens only.
 	 */
-	private String[] processTokens(String[] input) {
-		int k=0;
-		String str;
-		String out[]= new String[input.length-arity+1];
-		for (;k<input.length-arity+1;k++) {
-			str = "";
+	private void processTokens(String[] input) {
+		for (int k=0;k<input.length-arity+1;k++) {
+			String str = "";
     		for(int l=0; l<arity; ++l)
     			str += input[k+l] + ((l!=arity-1)?" ":"");
-    		//set.add(str);
-    		out[k] = str;
+    		vector.add(str);
 		}
-    	str = "";
-    	while(k<input.length) {//output the remaining tokens as a pattern if exiting
-    		str += input[k] + ((k!=input.length-1)?" ":"");
-
-    		++k;
-    	}
-    	out[input.length-arity] = str;
-    	//set.add(str);
-    	return (out);
 	}
 }
