@@ -42,12 +42,7 @@
 
 package org.seasr.meandre.components.tools.text.io;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,8 +63,6 @@ import org.meandre.webui.WebUIException;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
-import org.seasr.meandre.support.generic.io.JARInstaller;
-import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 /**
  * template loading notes:
@@ -188,7 +181,7 @@ public class GenericTemplate extends AbstractExecutableComponent
         context.put("cc", cc);
         context.put("gui", this);
         context.put("contextPath", getContextPath());
-        
+
         String webUIUrl = cc.getWebUIUrl(true).toString();
         if (webUIUrl.endsWith("/")) webUIUrl = webUIUrl.substring(0, webUIUrl.length()-1);
         context.put("webUIUrl", webUIUrl);
@@ -362,59 +355,4 @@ public class GenericTemplate extends AbstractExecutableComponent
 
     	return false;
     }
-    
-    
-    // TODO:
-    // String finalDir = publicResourceDir + File.separator + "subDir" + File.separator + getClass().getName();
-    // InstallStatus status = JARInstaller.installFromStream(new FileInputStream(jsFile), finalDir, false);
-    //
-    
-    public static String writeResourceFromJarToFilesystem(Class caller,                 // this.getClass()
-    		                                              String publicResourceDir,     // ccp.getPublicResourcesDirectory();
-    		                                              String subDir,                // flash, swf, js, etc
-    		                                              String filename)              // the resource in the jar
-    {
-	    publicResourceDir = publicResourceDir + File.separator + subDir;
-
-	    File swfDir = new File(publicResourceDir);
-	    if (! swfDir.exists()) {
-
-	        if (! swfDir.mkdir() ) {
-	            String msg = "Unable to create " + publicResourceDir;
-	            throw new RuntimeException(msg);
-	        }
-
-	    }
-
-	    // unjar the resource and write it to resource directory
-	    String dest = publicResourceDir + File.separator + filename;
-
-	    InputStream  in = null;
-	    OutputStream out = null;
-
-	    try {
-	        in = caller.getResourceAsStream(filename);
-	        out = new FileOutputStream(dest);
-
-	        byte[] buf = new byte[4096];
-	        int len;
-	        while ((len = in.read(buf)) != -1){
-	            out.write(buf, 0, len);
-	        }
-
-	    }
-	    catch (IOException e){
-	        throw new RuntimeException(e);
-	    }
-	    finally {
-
-	        try {
-	            in.close();
-	            out.close();
-	        }
-	        catch (Exception ignore){}
-	    }
-
-	    return subDir + File.separator + filename;
-	}
 }

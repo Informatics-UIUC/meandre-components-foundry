@@ -57,6 +57,7 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.components.tools.text.io.GenericTemplate;
+import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 /**
  *
@@ -114,6 +115,8 @@ public class ForceDirectedGraph extends GenericTemplate
 
     //--------------------------------------------------------------------------------------------
 
+    private static final String PROTOVIS_JS = "protovis-r3.2.js";
+
     //--------------------------------------------------------------------------------------------
 
 	@Override
@@ -121,20 +124,11 @@ public class ForceDirectedGraph extends GenericTemplate
 	{
 	    super.initializeCallBack(ccp);
 
-
-	    String path = GenericTemplate.writeResourceFromJarToFilesystem(this.getClass(),
-	    		                                                       ccp.getPublicResourcesDirectory(),
-	    		                                                       "js",
-	    		                                                       "protovis-r3.2.js");
-
-	    console.info(path);
+	    ComponentUtils.writePublicResource(getClass(), PROTOVIS_JS, "js", ccp, false);
 
 	    context.put("title",   ccp.getProperty(PROP_TITLE));
-	    context.put("path",    "/public/resources/" + path);
+	    context.put("path",    "/public/resources/js/" + PROTOVIS_JS);
 	}
-
-
-
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception

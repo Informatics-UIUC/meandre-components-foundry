@@ -42,7 +42,13 @@
 
 package org.seasr.meandre.support.components.utils;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.seasr.meandre.support.generic.io.StreamUtils;
 
 /**
  * This class provides utility functions for components
@@ -60,7 +66,7 @@ public class ComponentUtils {
      */
     public static StreamDelimiter cloneStreamDelimiter(final StreamDelimiter orig) throws Exception {
         try {
-            StreamDelimiter clone = (StreamDelimiter) orig.getClass().newInstance();
+            StreamDelimiter clone = orig.getClass().newInstance();
             for (String sKey : clone.keySet())
                 clone.put(sKey, orig.get(sKey));
 
@@ -69,5 +75,37 @@ public class ComponentUtils {
         catch (Exception e) {
             throw new Exception("The StreamDelimiter supplied cannot be cloned");
         }
+    }
+
+    /**
+     * Writes a class resource accessible via the specified class to a location in the published_resources folder
+     *
+     * @param clazz The class used to resolve the resource
+     * @param resourceName The resource name
+     * @param relativeFolderPath The relative folder (relative to the public resources directory) where to write the resource
+     * @param ccp The ComponentContextProperties
+     * @param overwrite True to overwrite the resource if it exists, False otherwise
+     * @return The file reference to the resource
+     * @throws IOException
+     */
+    public static File writePublicResource(Class<?> clazz, String resourceName, String relativeFolderPath,
+            ComponentContextProperties ccp, boolean overwrite) throws IOException {
+
+        File resPath = new File(ccp.getPublicResourcesDirectory() + File.separator + relativeFolderPath, resourceName);
+        if (!resPath.exists() || overwrite) {
+            // Ensure that the output folder exists
+            resPath.getParentFile().mkdirs();
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(resPath);
+                StreamUtils.writeClassResourceToStream(clazz, resourceName, fos);
+            }
+            finally {
+                if (fos != null)
+                    fos.close();
+            }
+        }
+
+        return resPath;
     }
 }

@@ -42,8 +42,6 @@
 
 package org.seasr.meandre.components.vis.protovis;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,36 +51,25 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.velocity.VelocityContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.tools.text.io.GenericTemplate;
-import org.seasr.meandre.support.components.geographic.GeoLocation;
-import org.seasr.meandre.support.components.tuples.SimpleTuple;
-import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.components.tuples.TupleUtilities;
-import org.seasr.meandre.support.generic.html.VelocityTemplateService;
-import org.seasr.meandre.support.generic.io.JARInstaller;
-import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
+import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 /**
  *
- * @author Mike Haberman 
+ * @author Mike Haberman
  *
  */
 
@@ -97,9 +84,9 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.6.2-dep.jar" },
-        resources  = { "protovis-r3.2.js, ParallelCoordinates.vm" }
+        resources  = { "protovis-r3.2.js", "ParallelCoordinates.vm" }
 )
-public class ParallelCoordinates extends GenericTemplate 
+public class ParallelCoordinates extends GenericTemplate
 {
 
     //------------------------------ INPUTS -----------------------------------------------------
@@ -125,8 +112,8 @@ public class ParallelCoordinates extends GenericTemplate
 	        defaultValue = "Parallel Coordinates"
 	)
 	protected static final String PROP_TITLE = Names.PROP_TITLE;
-	
-	
+
+
 	@ComponentProperty(
 	        description = "The attribute that will be highlighted",
 	        name = "active",
@@ -144,38 +131,34 @@ public class ParallelCoordinates extends GenericTemplate
 
     //--------------------------------------------------------------------------------------------
 
+	private static final String PROTOVIS_JS = "protovis-r3.2.js";
+
     //--------------------------------------------------------------------------------------------
 
 	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception
 	{
 	    super.initializeCallBack(ccp);
-	    
-	    
-	    String path = GenericTemplate.writeResourceFromJarToFilesystem(this.getClass(), 
-	    		                                                       ccp.getPublicResourcesDirectory(), 
-	    		                                                       "js", 
-	    		                                                       "protovis-r3.2.js");
-	    
-	    console.info(path);
-	    
+
+	    ComponentUtils.writePublicResource(getClass(), PROTOVIS_JS, "js", ccp, false);
+
 	    context.put("title",   ccp.getProperty(PROP_TITLE));
 	    context.put("addDone", true);
-	    context.put("path",    "/public/resources/" + path);
-	    
-	    
+	    context.put("path",    "/public/resources/js/" + PROTOVIS_JS);
+
+
 	    String a = ccp.getProperty(PROP_ACTIVE).trim();
 	    context.put("active", a);
 	}
 
 	@SuppressWarnings("unchecked")
-	public Map<String,String>  parseForFields(String jsonData) 
+	public Map<String,String>  parseForFields(String jsonData)
 	throws JSONException
 	{
-		
+
 		HashMap map = new HashMap<String,String>();
 		HashMap<String, List<String>> categories = new HashMap<String,List<String>>();
-		
+
 		// JSONObject json   = new JSONObject(jsonData);
 		JSONArray results = new JSONArray(jsonData);
 		int size = results.length();
@@ -183,21 +166,21 @@ public class ParallelCoordinates extends GenericTemplate
 		for (int i = 0; i < size;i++) {
 
 			JSONObject fields = results.getJSONObject(i);
-			
+
 			Iterator it = fields.keys();
-		    while(it.hasNext()) {		
-		    	
+		    while(it.hasNext()) {
+
 		    	String key = (String) it.next();
 		    	String value = fields.getString(key);
-		    	
+
 		    	if (! map.containsKey(key)) {
-		    		
+
 		    		try {
 		    			Double d = Double.parseDouble(value);
 		    			map.put(key, "");
 		    		}
 		    		catch (Exception e) {
-		    			
+
 		    			//
 		    			// category data
 		    			//
@@ -209,26 +192,26 @@ public class ParallelCoordinates extends GenericTemplate
 		    			if (!list.contains(value)) {
 		    				list.add(value);
 		    			}
-		    			
+
 		    		}
-		    		
+
 		    	}
-		    	
+
 				//console.info(key + " " + value);
 			}
-		
+
 		}
-		
+
 		// TODO:  fix template to handle category data or attach a legend
 		// now remap all the category data to numerical values
 		//
-		
+
 		return map;
 	}
 
-	
+
     @Override
-    public void executeCallBack(ComponentContext cc) throws Exception 
+    public void executeCallBack(ComponentContext cc) throws Exception
     {
     	//
     	// fetch the input, push it to the context
@@ -237,35 +220,35 @@ public class ParallelCoordinates extends GenericTemplate
     	Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_JSON);
     	String[] data = BasicDataTypesTools.stringsToStringArray(inputMeta);
     	String json = data[0];
-    	
+
         Map<String,String> unitMap;
     	try {
-    		
+
     	   unitMap = parseForFields(json);
-    	   
+
     	   String active = (String) context.get("active");
     	   if (active.length() == 0) {
     		   // choose one of the attributes
     		   active = unitMap.keySet().iterator().next();
     		   context.put("active", active);
     	   }
-    	   
+
     	}catch (JSONException e) {
-    		
+
     		console.info("Json parsing error");
-    		
+
             unitMap = new HashMap<String,String>();
             context.put("errorMsg", "There was an error in the data");
-           
-    		
+
+
     	}
-        
-    	 
-    	
+
+
+
     	context.put("data", json);
     	context.put("unitMap", unitMap);
-    	
-    	
+
+
     	/*
     			  "cylinders":    {unit: ""},
     			  "displacement": {unit: " cubic inch"},
@@ -275,9 +258,9 @@ public class ParallelCoordinates extends GenericTemplate
     			  "mpg":          {unit: " miles/gallon"},
     			  "year":         {unit: ""}
     	*/
-    		
-    	
-    	
+
+
+
 
 		// context.put("geoList", geos);
 
@@ -294,5 +277,5 @@ public class ParallelCoordinates extends GenericTemplate
 	   return true;
 	}
 
-	
+
 }
