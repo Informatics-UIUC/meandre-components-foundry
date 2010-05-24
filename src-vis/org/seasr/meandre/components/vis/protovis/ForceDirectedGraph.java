@@ -42,47 +42,25 @@
 
 package org.seasr.meandre.components.vis.protovis;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.velocity.VelocityContext;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.tools.text.io.GenericTemplate;
-import org.seasr.meandre.support.components.geographic.GeoLocation;
-import org.seasr.meandre.support.components.tuples.SimpleTuple;
-import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.components.tuples.TupleUtilities;
-import org.seasr.meandre.support.generic.html.VelocityTemplateService;
-import org.seasr.meandre.support.generic.io.JARInstaller;
-import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 /**
  *
- * @author Mike Haberman 
+ * @author Mike Haberman
  *
  */
 
@@ -90,16 +68,16 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 @Component(
         creator = "Mike Haberman",
-        description = "Protovis Forece Directed Graph",
+        description = "Protovis Force Directed Graph",
         name = "Force Directed Graph",
         tags = "string, visualization, protovis",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.6.2-dep.jar" },
-        resources  = { "protovis-r3.2.js, ForceDirectedGraph.vm" }
+        resources  = { "protovis-r3.2.js", "ForceDirectedGraph.vm" }
 )
-public class ForceDirectedGraph extends GenericTemplate 
+public class ForceDirectedGraph extends GenericTemplate
 {
 
     //------------------------------ INPUTS -----------------------------------------------------
@@ -125,8 +103,8 @@ public class ForceDirectedGraph extends GenericTemplate
 	        defaultValue = "Force Directed Graph"
 	)
 	protected static final String PROP_TITLE = Names.PROP_TITLE;
-	
-	
+
+
    @ComponentProperty(
 	        description = "The template name",
 	        name = GenericTemplate.PROP_TEMPLATE,
@@ -139,27 +117,27 @@ public class ForceDirectedGraph extends GenericTemplate
     //--------------------------------------------------------------------------------------------
 
 	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception
 	{
 	    super.initializeCallBack(ccp);
-	    
-	    
-	    String path = GenericTemplate.writeResourceFromJarToFilesystem(this.getClass(), 
-	    		                                                       ccp.getPublicResourcesDirectory(), 
-	    		                                                       "js", 
+
+
+	    String path = GenericTemplate.writeResourceFromJarToFilesystem(this.getClass(),
+	    		                                                       ccp.getPublicResourcesDirectory(),
+	    		                                                       "js",
 	    		                                                       "protovis-r3.2.js");
-	    
+
 	    console.info(path);
-	    
+
 	    context.put("title",   ccp.getProperty(PROP_TITLE));
-	    context.put("path",    "/public/resources/" + path);   
+	    context.put("path",    "/public/resources/" + path);
 	}
 
 
 
-	
+
     @Override
-    public void executeCallBack(ComponentContext cc) throws Exception 
+    public void executeCallBack(ComponentContext cc) throws Exception
     {
     	//
     	// fetch the input, push it to the context
@@ -168,9 +146,9 @@ public class ForceDirectedGraph extends GenericTemplate
     	Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_JSON);
     	String[] data = BasicDataTypesTools.stringsToStringArray(inputMeta);
     	String json = data[0];
-    	
-    
-    	
+
+
+
     	context.put("data", json);
 
 
@@ -187,5 +165,5 @@ public class ForceDirectedGraph extends GenericTemplate
 	   return true;
 	}
 
-	
+
 }
