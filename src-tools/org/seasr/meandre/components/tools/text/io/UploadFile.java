@@ -71,40 +71,21 @@ import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
 
-/** NOTES
- *
- * This component takes NO inputs,
- * User selects one or more files to upload
- * Each file is uploaded to this component
- * on Execute, this component then pushes each of those uploaded files
- * to the next component
- *
- * It is assumed that the server running this component
- * has installed the fluid flash stuff in published_resources
- * see FluidUploader.vm for more details on the html
- *
- * The code here is based on FluidUploader.java in components.io.file
- *
- * @author Lily Dong
- * @author Mike Haberman
- * @author Boris Capitanu
- */
-
 @Component(
         creator = "Lily Dong",
         description = "Uploads and submits files from user's own machine. " +
-        "This component works with Fluid Infusion 0.8.",
+        "This component works with Fluid Infusion 1.2.",
         name = "Upload File",
         tags = "file input upload text",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency={ "velocity-1.6.2-dep.jar", "protobuf-java-2.2.0.jar", "fluid-components-0.8.jar" },
-        resources={ "FluidUploadFile.vm" }
+        dependency={ "velocity-1.6.2-dep.jar", "protobuf-java-2.2.0.jar", "infusion-1.2.jar" },
+        resources={ "UploadFile.vm" }
 )
-public class UploadFile extends GenericTemplate {
 
-    //------------------------------ OUTPUTS -----------------------------------------------------
+public class UploadFile extends GenericTemplate {
+	//------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
             name = Names.PORT_FILENAME,
@@ -132,7 +113,7 @@ public class UploadFile extends GenericTemplate {
 	@ComponentProperty(
 	        description = "The template name",
 	        name = GenericTemplate.PROP_TEMPLATE,
-	        defaultValue = "org/seasr/meandre/components/tools/text/io/FluidUploadFile.vm"
+	        defaultValue = "org/seasr/meandre/components/tools/text/io/FluidInfusionUploader.vm"
 	)
     protected static final String PROP_TEMPLATE = GenericTemplate.PROP_TEMPLATE;
 
@@ -157,7 +138,7 @@ public class UploadFile extends GenericTemplate {
 
     //--------------------------------------------------------------------------------------------
 
-	@Override
+    @Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
 
@@ -166,12 +147,11 @@ public class UploadFile extends GenericTemplate {
 	    maxFileSize *= 1024 * 1024;
 
 	    context.put("title", "File Uploader");
+	    context.put("FPath", "/public/resources/infusion/infusion-1.2");
 
-	    context.put("FPath", "/public/resources/fluid/fluid-components");
-	    String sFluidDir = ccp.getPublicResourcesDirectory() + File.separator + "fluid";
-
+	    String sFluidDir = ccp.getPublicResourcesDirectory() + File.separator + "infusion";
 	    File fluidJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
-	            "contexts" + File.separator + "java" + File.separator + "fluid-components-0.8.jar");
+	            "contexts" + File.separator + "java" + File.separator + "infusion-1.2.jar");
 	    if (!fluidJar.exists())
 	        throw new ComponentContextException("Could not find dependency: " + fluidJar.toString());
 
@@ -183,9 +163,9 @@ public class UploadFile extends GenericTemplate {
 
         if (status == InstallStatus.FAILED)
             throw new ComponentContextException("Failed to install Fluid components at " + new File(sFluidDir).getAbsolutePath());
-	}
+    }
 
-	@Override
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
 	    if (wrapStream) pushInitiator();
 
@@ -194,11 +174,11 @@ public class UploadFile extends GenericTemplate {
 	    if (wrapStream) pushTerminator();
 	}
 
-    //--------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------
 
 	@Override
     protected boolean processRequest(HttpServletRequest request) throws IOException {
-	    if (!expectMoreRequests(request)) return false;
+		if (!expectMoreRequests(request)) return false;
 
 	    // TODO: look at using commons-fileupload lib for parsing upload requests - has friendlier license than oreilly
 	    // ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
@@ -285,7 +265,6 @@ public class UploadFile extends GenericTemplate {
 	    	if (processRequest(request)) {
 	    		// regenerate the template
 	            generateContent(request, response);
-
 	            console.exiting(getClass().getName(), "handle/generateContent");
 	            return;
 	        }
@@ -298,7 +277,7 @@ public class UploadFile extends GenericTemplate {
 	    // releasing the semaphore,
 	    //
 	    if (!expectMoreRequests(request)) {
-	    	console.finest("done = true");
+	    	console.fine("done = true");
 	    	done = true;
 
 	    	// No Errors,

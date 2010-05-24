@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.meandre.components.socialnetworking;
+package org.seasr.meandre.components.analytics.socialnetworking;
 
 import java.util.Arrays;
 import java.util.HashMap;

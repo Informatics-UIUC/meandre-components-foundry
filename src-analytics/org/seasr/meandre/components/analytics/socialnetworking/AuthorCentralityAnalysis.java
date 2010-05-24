@@ -40,7 +40,7 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.meandre.components.socialnetworking;
+package org.seasr.meandre.components.analytics.socialnetworking;
 
 import java.util.List;
 import java.util.Vector;
