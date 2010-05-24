@@ -48,6 +48,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.apache.commons.lang.WordUtils;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
@@ -169,6 +170,7 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
             String tupleType   = tuple.getValue(TYPE_IDX);
             String tupleValue  = tuple.getValue(TEXT_IDX);
      
+            tupleValue = WordUtils.capitalizeFully(tupleValue);
 
             // If the entity is of the type we're interested in
             if (_entityTypes.contains(tupleType)) {
