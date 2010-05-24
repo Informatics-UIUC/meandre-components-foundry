@@ -83,7 +83,7 @@
 
     <!-- Code locations -->
     <path id="src.code.dirs">
-        <dirset dir="${basedir}" includes="src-*" excludes="src-test, src-gwt, src-datatype, src-abstracts"/>
+        <dirset dir="${basedir}" includes="src-*" excludes="src-test, src-gwt"/>
     </path>
 
     <!-- Test locations -->
@@ -121,12 +121,17 @@
         <fileset dir="${lib.dir}" includes="*.jar"/>
     </path>
 
+	<!-- Foundry libraries -->
+	<path id="classpath.foundry">
+	    <fileset dir="${lib.dir}/foundry" includes="*.jar"/>
+	</path>
+
     <!-- Runtime class path -->
     <path id="classpath.runtime">
         <path refid="classpath.build"/>
         <fileset dir="${dist.dir}" includes="*.jar"/>
     </path>
-    
+
     <!-- Test class path -->
     <path id="classpath.test">
         <pathelement location="${test.classes.dir}"/>
@@ -135,11 +140,11 @@
 
     <!-- Runtime class path for component installer (alpha)-->
     <path id="classpath.devkit">
+    	<path refid="classpath.foundry"/>
         <path refid="classpath.build"/>
-        <fileset dir="${lib.devkit.dir}" includes="*.jar"/>
-        <path location="${classes.dir}"/>
+        <pathelement location="${classes.dir}"/>
         <pathelement path="${java.class.path}"/>
-        <fileset dir="${dist.dir}" includes="*.jar"/>
+        <fileset dir="${lib.devkit.dir}" includes="*.jar"/>
     </path>
 
     <!-- GWT class path -->
@@ -186,6 +191,10 @@
         <delete dir="${dist.dir}"/>
         <delete dir="${test.logs.dir}"/>
         <delete dir="${test.output.dir}"/>
+    	<delete dir="published_resources"/>
+    	<delete dir="run"/>
+    	<delete file="meandre-config-core.xml"/>
+    	<delete file="velocity.log"/>
         <delete dir="log"/>
     </target>
 
@@ -306,7 +315,7 @@
             depends="compile-tests"
             description= "-> runs the unit tests and generates xml logs and html reports">
         <mkdir dir="${test.logs.dir}/xml"/>
-        <!-- 
+        <!--
         <property name="cp" refid="classpath.test"/>
         <echo message="Classpath: ${cp}"/>
         -->
