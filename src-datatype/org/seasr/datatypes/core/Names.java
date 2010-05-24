@@ -176,6 +176,7 @@ public abstract class Names {
 	public static final String PROP_REPLICATION_METHOD = "replication_method_name";
 	public static final String PROP_REPLICATION_MODE = "replication_mode";
 	public static final String PROP_SEED = "seed";
+	public static final String PROP_SEGMENT_SIZE = "segment_size";
 	public static final String PROP_SEPARATOR = "separator";
 	public static final String PROP_SHOW_COUNT = "show_count";
 	public static final String PROP_TABLE = "table";
