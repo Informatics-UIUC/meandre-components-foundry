@@ -115,12 +115,15 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
         // this assumes that the models.jar is in the classpath
         // even though you may not need it
         sOpenNLPDir = ccp.getProperty(PROP_OPENNLP_DIR).trim();
+        
+        /*
         if (sOpenNLPDir.length() == 0) {
             sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
         }
+        */
         
         
-        /*
+        
         if (sOpenNLPDir.length() == 0) {
            sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
            installJARModelContainingResource(sOpenNLPDir, "models/English/chunker/EnglishChunk.bin.gz", console, getClass());
@@ -131,7 +134,7 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
         // we can assume that it already exists and is installed on the server
         // so there is no need to do any install
         // M.E.H
-         */
+         
          
 
         // constructs the final OpenNLP models path based on the language chosen
