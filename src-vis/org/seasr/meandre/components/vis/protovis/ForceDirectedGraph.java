@@ -44,10 +44,9 @@ package org.seasr.meandre.components.vis.protovis;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
@@ -56,7 +55,8 @@ import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.meandre.components.tools.text.io.GenericTemplate;
+
+import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 /**
@@ -65,20 +65,17 @@ import org.seasr.meandre.support.components.utils.ComponentUtils;
  *
  */
 
-
-
 @Component(
         creator = "Mike Haberman",
         description = "Protovis Force Directed Graph",
         name = "Force Directed Graph",
         tags = "string, visualization, protovis",
         rights = Licenses.UofINCSA,
-        mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.6.2-dep.jar" },
         resources  = { "protovis-r3.2.js", "ForceDirectedGraph.vm" }
 )
-public class ForceDirectedGraph extends GenericTemplate
+public class ForceDirectedGraph extends VelocityTemplateToHTML
 {
 
     //------------------------------ INPUTS -----------------------------------------------------
@@ -108,14 +105,24 @@ public class ForceDirectedGraph extends GenericTemplate
 
    @ComponentProperty(
 	        description = "The template name",
-	        name = GenericTemplate.PROP_TEMPLATE,
+	        name = VelocityTemplateToHTML.PROP_TEMPLATE,
 	        defaultValue = DEFAULT_TEMPLATE
 	)
-    protected static final String PROP_TEMPLATE = GenericTemplate.PROP_TEMPLATE;
+    protected static final String PROP_TEMPLATE = VelocityTemplateToHTML.PROP_TEMPLATE;
 
-    //--------------------------------------------------------------------------------------------
+   //--------------------------------------------------------------------------------------------
+   
+   //------------------------------ OUTPUTS -----------------------------------------------------
+   
+   @ComponentOutput(
+           name = Names.PORT_HTML,
+           description = "Text containing the transformed input to html via a velocity template" +
+               "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+   )
+    protected static final String OUT_TEXT = Names.PORT_HTML;
 
-    private static final String PROTOVIS_JS = "protovis-r3.2.js";
+   
+    protected static final String PROTOVIS_JS = "protovis-r3.2.js";
 
     //--------------------------------------------------------------------------------------------
 
@@ -125,6 +132,13 @@ public class ForceDirectedGraph extends GenericTemplate
 	    super.initializeCallBack(ccp);
 
 	    ComponentUtils.writePublicResource(getClass(), PROTOVIS_JS, "js", ccp, false);
+	    
+	    /*
+	    String path = VelocityTemplateToHTML.writeResourceFromJarToFilesystem(this.getClass(),
+                ccp.getPublicResourcesDirectory(),
+                "js",
+                PROTOVIS_JS);
+                */		    	
 
 	    context.put("title",   ccp.getProperty(PROP_TITLE));
 	    context.put("path",    "/public/resources/js/" + PROTOVIS_JS);
@@ -141,23 +155,14 @@ public class ForceDirectedGraph extends GenericTemplate
     	String[] data = BasicDataTypesTools.stringsToStringArray(inputMeta);
     	String json = data[0];
 
-
-
     	context.put("data", json);
-
 
 		// console.info("data " +  json);
 
-		//
-    	// now wait for the user to access the webUI
-		//
+    	//
+    	// now let the super take care of business (i.e. velocity will rumble)
+		// and write the output
+    	//
     	super.executeCallBack(cc);
     }
-
-	@Override
-	protected boolean processRequest(HttpServletRequest request) throws IOException {
-	   return true;
-	}
-
-
 }

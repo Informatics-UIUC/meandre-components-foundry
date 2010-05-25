@@ -49,7 +49,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -59,12 +59,15 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.meandre.components.tools.text.io.GenericTemplate;
+
+import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 /**
@@ -81,12 +84,11 @@ import org.seasr.meandre.support.components.utils.ComponentUtils;
         name = "Parallel Coordinates",
         tags = "string, visualization, protovis",
         rights = Licenses.UofINCSA,
-        mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.6.2-dep.jar" },
         resources  = { "protovis-r3.2.js", "ParallelCoordinates.vm" }
 )
-public class ParallelCoordinates extends GenericTemplate
+public class ParallelCoordinates extends VelocityTemplateToHTML
 {
 
     //------------------------------ INPUTS -----------------------------------------------------
@@ -124,14 +126,14 @@ public class ParallelCoordinates extends GenericTemplate
 
 	@ComponentProperty(
 	        description = "The template name",
-	        name = GenericTemplate.PROP_TEMPLATE,
+	        name = VelocityTemplateToHTML.PROP_TEMPLATE,
 	        defaultValue = DEFAULT_TEMPLATE
 	)
-    protected static final String PROP_TEMPLATE = GenericTemplate.PROP_TEMPLATE;
+    protected static final String PROP_TEMPLATE = VelocityTemplateToHTML.PROP_TEMPLATE;
 
     //--------------------------------------------------------------------------------------------
 
-	private static final String PROTOVIS_JS = "protovis-r3.2.js";
+	protected static final String PROTOVIS_JS = "protovis-r3.2.js";
 
     //--------------------------------------------------------------------------------------------
 
@@ -141,15 +143,78 @@ public class ParallelCoordinates extends GenericTemplate
 	    super.initializeCallBack(ccp);
 
 	    ComponentUtils.writePublicResource(getClass(), PROTOVIS_JS, "js", ccp, false);
+	    
+	    /*
+	    String path = VelocityTemplateToHTML.writeResourceFromJarToFilesystem(this.getClass(),
+                ccp.getPublicResourcesDirectory(),
+                "js",
+                PROTOVIS_JS);
+                */
 
 	    context.put("title",   ccp.getProperty(PROP_TITLE));
-	    context.put("addDone", true);
 	    context.put("path",    "/public/resources/js/" + PROTOVIS_JS);
 
 
 	    String a = ccp.getProperty(PROP_ACTIVE).trim();
 	    context.put("active", a);
 	}
+
+
+    @Override
+    public void executeCallBack(ComponentContext cc) throws Exception
+    {
+    	//
+    	// fetch the input, push it to the context
+    	//
+
+    	Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_JSON);
+    	String[] data = BasicDataTypesTools.stringsToStringArray(inputMeta);
+    	String json = data[0];
+
+        Map<String,String> unitMap;
+    	try {
+
+    	   unitMap = parseForFields(json);
+
+    	   String active = (String) context.get("active");
+    	   if (active.length() == 0) {
+    		   // choose one of the attributes
+    		   active = unitMap.keySet().iterator().next();
+    		   context.put("active", active);
+    	   }
+
+    	}catch (JSONException e) {
+
+    		console.info("Json parsing error");
+
+            unitMap = new HashMap<String,String>();
+            context.put("errorMsg", "There was an error in the data");
+
+
+    	}
+
+
+
+    	context.put("data", json);
+    	context.put("unitMap", unitMap);
+
+
+    	/*
+    			  "cylinders":    {unit: ""},
+    			  "displacement": {unit: " cubic inch"},
+    			  "weight":       {unit: " lbs"},
+    			  "horsepower":   {unit: " hp"},
+    			  "acceleration": {unit: " (0 to 60mph)"},
+    			  "mpg":          {unit: " miles/gallon"},
+    			  "year":         {unit: ""}
+    	*/
+
+
+        // let velocity take over
+    	super.executeCallBack(cc);
+    }
+    
+    
 
 	@SuppressWarnings("unchecked")
 	public Map<String,String>  parseForFields(String jsonData)
@@ -207,74 +272,6 @@ public class ParallelCoordinates extends GenericTemplate
 		//
 
 		return map;
-	}
-
-
-    @Override
-    public void executeCallBack(ComponentContext cc) throws Exception
-    {
-    	//
-    	// fetch the input, push it to the context
-    	//
-
-    	Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_JSON);
-    	String[] data = BasicDataTypesTools.stringsToStringArray(inputMeta);
-    	String json = data[0];
-
-        Map<String,String> unitMap;
-    	try {
-
-    	   unitMap = parseForFields(json);
-
-    	   String active = (String) context.get("active");
-    	   if (active.length() == 0) {
-    		   // choose one of the attributes
-    		   active = unitMap.keySet().iterator().next();
-    		   context.put("active", active);
-    	   }
-
-    	}catch (JSONException e) {
-
-    		console.info("Json parsing error");
-
-            unitMap = new HashMap<String,String>();
-            context.put("errorMsg", "There was an error in the data");
-
-
-    	}
-
-
-
-    	context.put("data", json);
-    	context.put("unitMap", unitMap);
-
-
-    	/*
-    			  "cylinders":    {unit: ""},
-    			  "displacement": {unit: " cubic inch"},
-    			  "weight":       {unit: " lbs"},
-    			  "horsepower":   {unit: " hp"},
-    			  "acceleration": {unit: " (0 to 60mph)"},
-    			  "mpg":          {unit: " miles/gallon"},
-    			  "year":         {unit: ""}
-    	*/
-
-
-
-
-		// context.put("geoList", geos);
-
-		// console.info("data " +  json);
-
-		//
-    	// now wait for the user to access the webUI
-		//
-    	super.executeCallBack(cc);
-    }
-
-	@Override
-	protected boolean processRequest(HttpServletRequest request) throws IOException {
-	   return true;
 	}
 
 
