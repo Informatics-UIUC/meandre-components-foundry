@@ -62,21 +62,18 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-
-
+import org.seasr.meandre.support.components.geographic.GeoLocation;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-
-import org.seasr.meandre.support.components.geographic.GeoLocation;
 
 
 /**
  *
  * @author Mike Haberman;
  * ABQIAAAADV1H5JfZH41B6yxB1yGVFhQmgYtTImkVBc-VhblDgOLOdwhVaBSPwcEgsBl7atDdDJjnfl51p9fU5A
- * 
+ *
  * Yahoo problems:  location=New England
- * 
+ *
  */
 
 @Component(
@@ -161,17 +158,17 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 
     // fields for accessing the incoming tuples
     private String keyField     = "type";
-    private String valueField   = "text";
+    private final String valueField   = "text";
     private String windowField  = "sentenceId";
-    
-    
-    // fields added to the outgoing tuples
-    private String locationField = "fqLocation";
-    private String latField      = "lat";
-    private String longField     = "long";
-    private String[] newFields   = {locationField, latField, longField};
 
-    long windowSize = 1;  
+
+    // fields added to the outgoing tuples
+    private final String locationField = "fqLocation";
+    private final String latField      = "lat";
+    private final String longField     = "long";
+    private final String[] newFields   = {locationField, latField, longField};
+
+    long windowSize = 1;
     // TODO,(perhaps) make this a property
     // number of sentences to consume before labeling them
     // a better algorithm, might be to use a sliding window cache of sentences
@@ -180,8 +177,8 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 
    //--------------------------------------------------------------------------------------------
 
-    private Map<String, GeoLocation> globalCache = new HashMap<String,GeoLocation>();
-    
+    private final Map<String, GeoLocation> globalCache = new HashMap<String,GeoLocation>();
+
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 
@@ -205,7 +202,7 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 		int KEY_IDX    = inPeer.getIndexForFieldName(keyField);
 		int VALUE_IDX  = inPeer.getIndexForFieldName(valueField);
 		int START_IDX  = inPeer.getIndexForFieldName(windowField);
-		
+
 		// cache the outgoing fields
 		int FQLOC_IDX  = outPeer.getIndexForFieldName(locationField);
 		int LAT_IDX    = outPeer.getIndexForFieldName(latField);
@@ -213,7 +210,7 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 
 
 		if (KEY_IDX == -1){
-			console.info(inPeer.toString());
+			console.fine(inPeer.toString());
 			throw new ComponentExecutionException("tuple has no key field " + keyField);
 		}
 		if (START_IDX == -1){
@@ -222,12 +219,12 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 
 		List<Strings> output = new ArrayList<Strings>();
 		long lastPosition = 0;
-		
-		
-		
+
+
+
 		List<String> locations = new ArrayList<String>();
-		
-		
+
+
 		int lastIdx  = 0;
 		for (int i = 0; i < in.length; i++) {
 
@@ -235,37 +232,37 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 			String key   = tuple.getValue(KEY_IDX);
 			String value = tuple.getValue(VALUE_IDX);
 			long currentPosition = Long.parseLong(tuple.getValue(START_IDX));
-			
+
 			if (! key.equals("location")) {
 				continue;
 			}
-			
+
 			if (value == null) {
-				console.info("warning, null location");
+				console.warning("warning, null location");
 				continue;
 			}
-			
-			
+
+
 			if (currentPosition - lastPosition >= windowSize || (i + 1 == in.length)) {
-				
+
 				int end = i;
 				// if this is it, add the last location to our set
 				if (i + 1 == in.length) {
 					end = i + 1;
 					locations.add(value);
 				}
-				
-				
-				
+
+
+
 				//
 				// resolve locations in the window
 				//
 				console.fine(lastPosition +"," + currentPosition + " locations to process: " + locations.size());
 				console.fine(lastIdx + " to " + end);
-				
-				
+
+
 				Map<String,GeoLocation> map = resolve(locations);
-				
+
 				// now relabel each location
 				for (int j = lastIdx; j < end; j++) {
 					// relabel
@@ -300,15 +297,15 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 
 				}
 
-				
-				
+
+
 				lastPosition = currentPosition;
 				lastIdx = i;
 				locations.clear();
-				
-				
+
+
 			}
-			
+
             // add the location
 			locations.add(value);
 
@@ -333,8 +330,8 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 
     }
-    
-   
+
+
     //
     // This algorithm is based mostly on empirical data and heuristics
     // it is mostly used for resolving city and state information
@@ -347,26 +344,26 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     public Map<String,GeoLocation> resolve(List<String> locations)
     {
     	console.fine("request to resolve: " + locations.size());
-    	
+
     	Map<String,GeoLocation> out = new HashMap<String,GeoLocation>();
-    	
+
     	// reduce:  A,B ==> AB
     	// if A + B ==> resolve to ONE location, remove B
     	List<String> more = new ArrayList<String>();
     	int size = locations.size();
     	for (int i = 0; i < size;) {
-    		
+
     		String a = locations.get(i++);
-    		
+
     		if (i < size) {
     			String b = locations.get(i++);
-    			
+
     			if (a.equals(b)) {
-    				// if both are the same, just skip 
+    				// if both are the same, just skip
     				i--;
     				continue;
     			}
-    			
+
     			//
     			// Hack for special case: states
     			//
@@ -376,16 +373,16 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     			// Virginia     --> returns "state"
     			// New York     --> returns "zip"   precision
     			// Pennsylvania --> returns "state" precision
-    			
-    			
+
+
     			List<GeoLocation> geosA = getLocations(GeoLocation.P_STATE, a);
     			List<GeoLocation> geosB = getLocations(GeoLocation.P_STATE, b);
     			// even though we requested state precision, the result may not be
-    			
-    			
+
+
     			console.fine(i + " A " + a + " " + geosA.size());
     			console.fine(i + " B " + b + " " + geosB.size());
-    			
+
     			GeoLocation geoA = null;
 				GeoLocation geoB = null;
 				if (geosA.size() == 1) {
@@ -394,46 +391,46 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 				if (geosB.size() == 1) {
 					geoB = geosB.get(0);
 				}
-		
-				
+
+
     			if (geoA != null && geoB != null) {
-    				
+
     				//
-    				// Virginia, Kentucky ==> is a city in KY 
+    				// Virginia, Kentucky ==> is a city in KY
     				// assume if both are states, that wins
     				if (geoA.isState() && geoB.isState()) {
     					out.put(a, geoA);
     					out.put(b, geoB);
-    					
+
     					continue;
     				}
-    				
+
     				// check if one is within the other
     				// e.g. Richmond, VA   AND Virgina
     				if (geoA.isFoundWithin(geoB)) {
-    					
+
     					// e.g  Richmond, Virgina
     					String c = a + "," + b;
     					console.fine("A is in B " +  c);
     					geoA.setQueryLocation(c);
-    					
+
     					out.put(a, geoA);
-    					out.put(b, geoA); 
-    					
+    					out.put(b, geoA);
+
     					continue;
-    					
+
     				}
     				else if (geoB.isFoundWithin(geoA)) {
-    					
+
     					// Virgina, Richmond
     					String c = b + "," + a;
     					console.fine("B is in A " +  c);
     					geoB.setQueryLocation(c);
-    					
-    					
+
+
     					out.put(a, geoB); // or NULL ?
     					out.put(b, geoB);
-    			
+
     					continue;
     				}
     				else if (geoA.isState()) {
@@ -445,11 +442,11 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     					continue;
     				}
     				else {
-    					
+
     					// we will tackle this case below
-    					
+
     				}
-    				
+
     			}
     			else if (geosA.size() > 1 && geosB.size() > 1) {
     				//
@@ -457,20 +454,20 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     				// while in Bloomington, I came across someone from Springfield
     				//
     			}
-    			
+
     			//
     			// try the two combined into a single location
     			//
 
-    			
+
     			//
-    			// 
     			//
-    			
+    			//
+
     			String c = a + "," + b;
     			List<GeoLocation> geos = getLocations(c);
     			if (geos.size() == 1) {
-    
+
     				GeoLocation geo = geos.get(0);
     				// Bloomington,Springfield ==> returns "address" precision
     				// Bolivia, Illinois ==> returns "zip" precision
@@ -479,42 +476,42 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     					more.add(a); i--; // reprocess b
     					continue;
     				}
-    				
+
     			    if (geoB != null) {
-    			    	
+
     			    	//
     	    			// Springfield ==> lots
     	    			// Washington  ==> DC (zip)
     	    			// Springfield, Washington == > KY (zip)
     			    	//
-    			    	
+
     			    	String stateB = geoB.getState();
     			    	String stateC = geo.getState();
-    			    	
+
     			    	console.fine("b " + stateB + " ==> " + geoB.toString());
     			    	console.fine("c " + stateC + " ==> " + geo.toString());
-    			    	
+
     			    	if (stateB.equals(stateC)) {
     			    		console.fine(a + " AND " + b + " map to " + geo.toString());
     			    		out.put(a, geo);
     	    				out.put(b, geo);
     			    	}
     			    	else {
-    			    		console.info("save for later " + a);
+    			    		console.fine("save for later " + a);
     			    		more.add(a); i--; // reprocess b
     			    		continue;
     			    	}
-    			    	
+
     			    } else { // geoB == null (i.e. geoB.size() > 0)
-    			    	
+
     			    	// we got a unique location  (geo != null)
-    			    	
+
     			    	// but it may NOT be because of  a,b
     			    	// Wisconsin, New Salam  --> WI, (state)
     			    	// Bolivia, Springfield  --> Boliva (country)
     			    	// (google returns an address in springfield, yahoo, just the country)
     			    	if (geoA != null && geo.getState().equals(geoA.getState())) {
-    			    		
+
     			    		console.fine("adding each as separate geos " + a + " " + b);
     			    		out.put(a, geoA);
     			    		out.put(b, geoB); // could be null
@@ -523,14 +520,14 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     			    		console.fine("adding combo " + a + " " + b);
     			    		out.put(a, geo);
     	    				out.put(b, geo);
-    			    		
+
     			    	}
-    			    	
+
     			    }
-    			    
-    			   
+
+
     			}
-    			else {  
+    			else {
     				// geos.size() != 1
     				more.add(a);
     				i--; // reprocess the b
@@ -540,42 +537,42 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     			more.add(a);
     		}
 
-    		
+
     	}  // end of loop over locations
-    	
+
     	locations.clear();
     	locations.addAll(more);
-    	
-    	
-    	
-    	
+
+
+
+
     	//
     	// handle strange cases here
     	//
-    	
-    	// Illinois, Springfield ==> 
+
+    	// Illinois, Springfield ==>
     	// Springfield --> many, one has IL as state
     	// Illinois    --> the state
-    	
+
     	// ex, Frederick ---> a bunch, no virgina
     	//     Virginia --> state
     	//     Frederick, Virigina ==> YES
-    	
+
     	//
     	// Illinois,Paris  ==> Paris France and IL (State)
     	// want a city
     	//
-    	
+
     	List<GeoLocation> keep = new ArrayList<GeoLocation>();
     	List<String> toResolve = new ArrayList<String>();
-    	
+
     	//
     	// remove those that resolve to a single location
     	//
-    	
+
     	console.fine("leftovers " + locations.size());
     	for (String loc : locations) {
-    		
+
     		List<GeoLocation> geos = getLocations(loc);
     		console.fine(loc + " " + geos.size());
     		if (geos.size() == 1) {
@@ -589,12 +586,12 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     	if (toResolve.size() == 0) {
     		return out;
     	}
-    	
-    	
-    	
+
+
+
     	for (String loc : toResolve) {
     		List<GeoLocation> geos = getLocations(loc);
-    		
+
     		// see if any of the geos are found within any of the keepers
     		GeoLocation a = resolve(keep, geos);
     		if (a != null) {
@@ -602,7 +599,7 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     			out.put(loc, a);
     		}
     		else { // a == null
-    			
+
     			// try adding loc to each value in keep until you get a unique value
     			for (GeoLocation geo: keep) {
     				if (geo.isState()) {
@@ -623,18 +620,18 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     			}
 
     		}
-    	}	
-    	
+    	}
+
     	return out;
     }
-    
-   
+
+
     public GeoLocation resolve(List<GeoLocation> keepList, List<GeoLocation> geos)
     {
     	for (GeoLocation tmp: geos) {       // e.g. Springfield
     		for (GeoLocation k: keepList) { // e.g. Illinois
     			if (tmp.isFoundWithin(k)) {
-    				
+
     				String q = tmp.getQueryLocation() + "," + k.getQueryLocation();
     				System.out.println("check " + q);
     				List<GeoLocation> vals = getLocations(q);
@@ -646,28 +643,28 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     	}
     	return null;
     }
-  
- 
-    
+
+
+
     Map<String, List<GeoLocation>> cache = new HashMap<String, List<GeoLocation>>();
-    
-    public List<GeoLocation> getLocations(String location) 
+
+    public List<GeoLocation> getLocations(String location)
     {
     	return getLocations(GeoLocation.P_LOCATION, location);
     }
-    
-    public List<GeoLocation> getLocations(int type, String location) 
+
+    public List<GeoLocation> getLocations(int type, String location)
     {
     	//
     	// TODO: cache the results
     	// apply remaps here Ill. --> Illinois
     	//
     	String key = location + "." + type;
-    	
+
     	List<GeoLocation> entry = cache.get(key);
-    	
+
     	if (entry == null) {
-    		
+
     		try {
             	entry = GeoLocation.getAllLocations(type, location);
             	cache.put(key, entry);
@@ -677,11 +674,11 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
         		console.fine("WARNING ERROR " + e.toString());
         		return new ArrayList<GeoLocation>();
         	}
-    		
+
     	}
     	return entry;
-    	
-    	
+
+
     }
 }
 

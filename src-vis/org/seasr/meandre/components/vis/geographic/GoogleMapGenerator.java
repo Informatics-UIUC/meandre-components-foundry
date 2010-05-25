@@ -243,7 +243,7 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
                 sbHtml.append("<div onclick='toggleVisibility(this)' style='position:relative' align='left'><b>Sentence ").append(++nr);
                 if (docTitle != null && docTitle.length() > 0)
                     sbHtml.append(" from '" + StringEscapeUtils.escapeHtml(docTitle) + "'");
-                sbHtml.append("</b><span style='display: ' align='left'><table><tr><td>").append(theSentence).append("</td></tr></table></span></div>");
+                sbHtml.append("</b><span style='display: ' align='left'><table><tr><td>").append(theSentence.replaceAll("\"", "&quot;")).append("</td></tr></table></span></div>");
 		    }
 		    String sentence = sbHtml.toString();
 
