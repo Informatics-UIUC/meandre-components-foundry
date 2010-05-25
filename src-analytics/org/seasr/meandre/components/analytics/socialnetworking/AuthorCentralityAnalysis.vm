@@ -11,7 +11,7 @@
         #foreach( $ranking in $centralityRankings )
         <tr>
             <td>${ranking.getAuthorName()}</td>
-            <td>${ranking.getRankScore()}</td>
+            <td>$String.format('%,.2f', ${ranking.getRankScore()})</td>
         </tr>
         #end
 

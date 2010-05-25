@@ -96,7 +96,7 @@ public class AuthorCentralityAnalysis extends AbstractExecutableComponent {
 	@ComponentInput(
 	        name = Names.PORT_AUTHOR_LIST,
 			description = "A list of vectors containing the names of the authors. There is one vector for each entry." +
-			    "<br>TYPE: java.util.List<java.util.Vector<java.lang.String>>"
+			    "<br>TYPE: java.util.List&lt;java.util.Vector&lt;java.lang.String&gt;&gt;"
 	)
 	protected static final String IN_AUTHOR_LIST = Names.PORT_AUTHOR_LIST;
 
@@ -160,6 +160,7 @@ public class AuthorCentralityAnalysis extends AbstractExecutableComponent {
 
         _context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
+        _context.put("String", String.class);
 	}
 
 	@Override

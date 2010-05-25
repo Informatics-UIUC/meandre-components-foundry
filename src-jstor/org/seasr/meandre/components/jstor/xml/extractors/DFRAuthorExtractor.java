@@ -100,7 +100,7 @@ public class DFRAuthorExtractor extends AbstractExecutableComponent {
     @ComponentOutput(
             name = Names.PORT_AUTHOR_LIST,
             description = "A list of vectors containing the names of the authors. There is one vector for each entry." +
-                "<br>TYPE: java.util.List<java.util.Vector<java.lang.String>>"
+                "<br>TYPE: java.util.List&lt;java.util.Vector&lt;java.lang.String&gt;&gt;"
     )
     protected static final String OUT_AUTHOR_LIST = Names.PORT_AUTHOR_LIST;
 
