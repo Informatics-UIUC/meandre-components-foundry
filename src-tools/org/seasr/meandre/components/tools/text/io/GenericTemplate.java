@@ -173,6 +173,17 @@ public class GenericTemplate extends AbstractExecutableComponent
         }
     }
 
+    
+    public String getWebUIUrl(ComponentContext cc) throws Exception
+    {
+    	String webUIUrl = cc.getWebUIUrl(true).toString();
+        if (webUIUrl.endsWith("/")) 
+        	webUIUrl = webUIUrl.substring(0, webUIUrl.length()-1);
+        return webUIUrl;
+    }
+    
+
+    
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
 
@@ -182,11 +193,9 @@ public class GenericTemplate extends AbstractExecutableComponent
         context.put("gui", this);
         context.put("contextPath", getContextPath());
 
-        String webUIUrl = cc.getWebUIUrl(true).toString();
-        if (webUIUrl.endsWith("/")) webUIUrl = webUIUrl.substring(0, webUIUrl.length()-1);
-        context.put("webUIUrl", webUIUrl);
-
-        console.info("webUIUrl " + webUIUrl);
+        String webURL = getWebUIUrl(cc);
+        context.put("webUIUrl", webURL);
+        console.info("webUIUrl " + webURL);
 
         done = false;
 
