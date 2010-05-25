@@ -112,16 +112,26 @@ public abstract class OpenNLPBaseUtilities extends AbstractExecutableComponent {
         this.sLanguage = ccp.getProperty(PROP_LANGUAGE).trim().toLowerCase();
 
         sOpenNLPDir = ccp.getProperty(PROP_OPENNLP_DIR).trim();
-        if (sOpenNLPDir.length() == 0)
-            sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
+        if (sOpenNLPDir.length() == 0) {
+        	
+           sOpenNLPDir = ccp.getRunDirectory()+File.separator+"opennlp";
 
-        installJARModelContainingResource(sOpenNLPDir, "models/English/chunker/EnglishChunk.bin.gz", console, getClass());
-        console.fine("Installed " + sLanguage + " models into: " + sOpenNLPDir);
+           installJARModelContainingResource(sOpenNLPDir, "models/English/chunker/EnglishChunk.bin.gz", console, getClass());
+           console.fine("Installed " + sLanguage + " models into: " + sOpenNLPDir);
+        }
+        // else 
+        // if the user DID specify an openNLPDir
+        // we can assume that it already exists and is installed on the server
+        // so there is no need to do any install
+        // M.E.H
 
         // constructs the final OpenNLP models path based on the language chosen
         // example:  <sOpenNLPDir>/models/English/
         sOpenNLPDir += (sOpenNLPDir.endsWith(File.separator) ? "" : File.separator) + "models" + File.separator
                         + sLanguage.substring(0,1).toUpperCase() + sLanguage.substring(1) + File.separator;
+        
+        
+        console.fine("open NLP Dir: " + sOpenNLPDir);
     }
 
     @Override
