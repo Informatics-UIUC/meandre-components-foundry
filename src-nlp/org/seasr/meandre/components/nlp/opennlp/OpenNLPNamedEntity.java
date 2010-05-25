@@ -184,17 +184,19 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 	//--------------------------------------------------------------------------------------------
 
 
-    public static StaticTextSpanFinder[] buildExtendedFinders(String types, String locationMapData) {
+    public static StaticTextSpanFinder[] buildExtendedFinders(String types, String locationMapData) 
+    {
     	StaticTextSpanFinder[] finders;
+    	
+    	List<StaticTextSpanFinder> list = new ArrayList<StaticTextSpanFinder>();
 
     	if (types != null && types.trim().length() > 1) {
 			String[] toParse = types.split(",");
-			finders = new StaticTextSpanFinder[toParse.length];
 			for (int i = 0; i < toParse.length; i++) {
 				String value = toParse[i].toLowerCase().trim();
 
 				if (value.equals("url")){
-					finders[i] = new StaticURLFinder("URL");
+					list.add(new StaticURLFinder("URL"));
 				}
 				/*
 				else if (value.equals("location")){
@@ -206,6 +208,8 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 				}
 				*/
 			}
+			
+			finders = list.toArray(new StaticTextSpanFinder[0]);
 		}
 		else {
 			finders = new StaticTextSpanFinder[0];
