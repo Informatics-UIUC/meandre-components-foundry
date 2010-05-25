@@ -52,6 +52,8 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
@@ -164,5 +166,17 @@ public class ForceDirectedGraph extends VelocityTemplateToHTML
 		// and write the output
     	//
     	super.executeCallBack(cc);
+    }
+    
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_JSON);
+        componentContext.pushDataComponentToOutput(OUT_TEXT, si);
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_JSON);
+        componentContext.pushDataComponentToOutput(OUT_TEXT, st);
     }
 }

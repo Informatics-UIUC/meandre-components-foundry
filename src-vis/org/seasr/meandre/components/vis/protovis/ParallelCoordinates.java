@@ -62,6 +62,8 @@ import org.meandre.annotations.Component.Mode;
 
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
@@ -194,27 +196,34 @@ public class ParallelCoordinates extends VelocityTemplateToHTML
     	}
 
 
-
     	context.put("data", json);
     	context.put("unitMap", unitMap);
-
-
-    	/*
-    			  "cylinders":    {unit: ""},
-    			  "displacement": {unit: " cubic inch"},
-    			  "weight":       {unit: " lbs"},
-    			  "horsepower":   {unit: " hp"},
-    			  "acceleration": {unit: " (0 to 60mph)"},
-    			  "mpg":          {unit: " miles/gallon"},
-    			  "year":         {unit: ""}
-    	*/
-
-
+    	
         // let velocity take over
     	super.executeCallBack(cc);
     }
     
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_JSON);
+        componentContext.pushDataComponentToOutput(OUT_TEXT, si);
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_JSON);
+        componentContext.pushDataComponentToOutput(OUT_TEXT, st);
+    }
     
+ 	/*
+	  "cylinders":    {unit: ""},
+	  "displacement": {unit: " cubic inch"},
+	  "weight":       {unit: " lbs"},
+	  "horsepower":   {unit: " hp"},
+	  "acceleration": {unit: " (0 to 60mph)"},
+	  "mpg":          {unit: " miles/gallon"},
+	  "year":         {unit: ""}
+*/
 
 	@SuppressWarnings("unchecked")
 	public Map<String,String>  parseForFields(String jsonData)
