@@ -99,9 +99,9 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     protected static final String PROP_ENTITIES = Names.PROP_ENTITIES;
 
     @ComponentProperty(
-            description = "Maximum sentence distance whereby entities are marked as adjacent." ,
+            description = "Maximum sentence distance whereby entities are marked as related." ,
             name = Names.PROP_OFFSET,
-            defaultValue = "10"
+            defaultValue = "1"
     )
     protected static final String PROP_OFFSET = Names.PROP_OFFSET;
 
@@ -139,10 +139,10 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     }
 
     //
-    // TODO .. allow the component via properties to decide what values to pull from 
+    // TODO .. allow the component via properties to decide what values to pull from
     // the tuples:  e.g. sentenceId, type, text, etc
     //
-    
+
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Strings inMetaTuple = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
@@ -162,14 +162,14 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
         //       relies on a sliding-window of sentences that are within the 'adjacency' range. As new sentences are
         //       considered, the window moves to the right and old sentences that are now too far fall out of scope.
 
-        SimpleTuple tuple = tuplePeer.createTuple();	
+        SimpleTuple tuple = tuplePeer.createTuple();
         for (Strings t : tuples) {
         	tuple.setValues(t);
-        
+
             Integer sentenceId = Integer.parseInt(tuple.getValue(SENTENCE_ID_IDX));
             String tupleType   = tuple.getValue(TYPE_IDX);
             String tupleValue  = tuple.getValue(TEXT_IDX);
-     
+
             tupleValue = WordUtils.capitalizeFully(tupleValue);
 
             // If the entity is of the type we're interested in
