@@ -54,6 +54,9 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
+import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
@@ -77,8 +80,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		rights = Licenses.UofINCSA,
 		tags = "tools, text,",
 		description = "This component converts a tuple field/value to a single output string. " +
-		              "For each set of incoming tuples, each tuple value is pushed separately."
-			          ,
+		              "For each set of incoming tuples, each tuple value is pushed separately.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class TupleValueToString extends AbstractExecutableComponent {
@@ -87,14 +89,14 @@ public class TupleValueToString extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples" +
+			description = "The set of tuples" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentInput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples" +
+			description = "The meta data for tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
@@ -103,14 +105,14 @@ public class TupleValueToString extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "the field value of the tuple" +
+			description = "The field value of the tuple" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuple (the fieldname)" +
+			description = "The meta data for tuple (the field name)" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
@@ -118,7 +120,7 @@ public class TupleValueToString extends AbstractExecutableComponent {
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
 	@ComponentProperty(
-	        description = "the field whose value will be written to the output",
+	        description = "The field whose value will be written to the output",
 		   name = "fieldname",
 		   defaultValue = ""
 	)
@@ -128,6 +130,7 @@ public class TupleValueToString extends AbstractExecutableComponent {
 
 
     String fieldname;
+    boolean _isStreaming = false;
 
 
     //--------------------------------------------------------------------------------------------
@@ -155,6 +158,12 @@ public class TupleValueToString extends AbstractExecutableComponent {
 
 		SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] {fieldname});
 
+		if (!_isStreaming) {
+		    StreamDelimiter si = new StreamInitiator();
+		    cc.pushDataComponentToOutput(OUT_META_TUPLE, si);
+		    cc.pushDataComponentToOutput(OUT_TEXT, si);
+		}
+
 		for (int i = 0; i < in.length; i++) {
 			tuple.setValues(in[i]);
 			String value = tuple.getValue(FIELD_IDX);
@@ -168,6 +177,12 @@ public class TupleValueToString extends AbstractExecutableComponent {
 
 		    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
 		}
+
+		if (!_isStreaming) {
+            StreamDelimiter st = new StreamTerminator();
+            cc.pushDataComponentToOutput(OUT_META_TUPLE, st);
+            cc.pushDataComponentToOutput(OUT_TEXT, st);
+        }
 	}
 
     @Override
@@ -181,6 +196,7 @@ public class TupleValueToString extends AbstractExecutableComponent {
         if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
+        _isStreaming = true;
         componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
         componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_TUPLES));
     }
@@ -190,6 +206,7 @@ public class TupleValueToString extends AbstractExecutableComponent {
         if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
+        _isStreaming = false;
         componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
         componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_TUPLES));
     }
