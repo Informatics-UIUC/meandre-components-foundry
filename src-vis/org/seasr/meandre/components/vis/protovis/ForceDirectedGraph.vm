@@ -1,12 +1,12 @@
 <html>
   <head>
-  
+
     <title>$title</title>
-    
-    
+
+
     <script type="text/javascript" src="$path"></script>
-    
-    
+
+
     <style type="text/css">
         #fig {
             width: 1000px;
@@ -17,11 +17,11 @@
   </head>
   <body><div id="center"><div id="fig">
     <script type="text/javascript+protovis">
-    
-    
+
+
     var graphData = $data;
-    
-    
+
+
 
       var color = pv.Colors.category19().by(function(d) d.group),
           w = 1000,
@@ -48,11 +48,17 @@
           .event("mousedown", pv.Behavior.drag())
           .event("drag", layout);
 
+      layout.label.add(pv.Label);
+
       vis.render();
 
     </script>
 <div class="caption">
-  TODO add caption
+  Network graphs are commonly represented as a force directed graph.
+  Each node is represented by a circle and the connecting lines represent relationships or interactions.
+  The node's size indicates the number of relationships.
+  Nodes can be selected and dragged across the screen to better see their connections.
+  The graph can also be dragged, zoomed in or zoomed out (using the mouse scroll wheel) for better viewing.
   </div>
   </div></div></body>
 </html>
