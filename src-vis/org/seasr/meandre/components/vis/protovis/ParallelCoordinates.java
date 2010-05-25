@@ -42,14 +42,11 @@
 
 package org.seasr.meandre.components.vis.protovis;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,19 +55,16 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
-import org.meandre.annotations.Component.Mode;
-
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
-
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
-
 import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 import org.seasr.meandre.support.components.utils.ComponentUtils;
+
 
 /**
  *

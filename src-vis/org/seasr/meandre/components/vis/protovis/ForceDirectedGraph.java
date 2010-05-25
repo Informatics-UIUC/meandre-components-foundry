@@ -42,14 +42,11 @@
 
 package org.seasr.meandre.components.vis.protovis;
 
-import java.io.IOException;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
-import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -57,7 +54,6 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
-
 import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 import org.seasr.meandre.support.components.utils.ComponentUtils;
 
@@ -66,6 +62,7 @@ import org.seasr.meandre.support.components.utils.ComponentUtils;
  * @author Mike Haberman
  *
  */
+
 
 @Component(
         creator = "Mike Haberman",
