@@ -172,7 +172,7 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
 
 		while (output.size() < count) {
 			String url = buildURL(query);
-			console.info("reading location " + url);
+			console.fine("Reading location " + url);
 			String json = HttpUtils.doGET(url, null);
 
 			List<SimpleTuple> tuples = jsonToTuples(json, tuplePeer, columnMap);
@@ -180,6 +180,10 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
 			for (int i = 0; i < tuples.size(); i++) {
 				SimpleTuple tuple = tuples.get(i);
 				output.add(tuple.convert());
+				
+				if (output.size() == count) {
+					break;
+				}
 			}
 		}
 
