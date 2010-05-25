@@ -72,7 +72,7 @@ import org.seasr.meandre.support.components.tuples.TupleUtilities;
 import org.seasr.meandre.support.generic.io.HttpUtils;
 
 /**
- * This component uses the google ajas/REST api for doing searches (web only)
+ * This component uses the Google AJAX/REST API for doing searches (web only)
  *
  * @author Mike Haberman
  *
@@ -86,20 +86,17 @@ import org.seasr.meandre.support.generic.io.HttpUtils;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "tuple, google, search, text",
-		description = "This component performs a google search by accessing the google search api."+
-		"The search term is an input and the search results are output as tuples.",
+		description = "This component performs a Google search by accessing the Google search API."+
+		              "The search term is an input and the search results are output as tuples.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class GoogleSearchToTuple extends AbstractExecutableComponent
-{
+public class GoogleSearchToTuple extends AbstractExecutableComponent {
 
-	int start = 0; // offset for page queries
-	
-	
 	//------------------------------ INPUTS -----------------------------------------------------
+
 	@ComponentInput(
 			name = "query",
-			description = "search query"
+			description = "Search query"
 	)
 	protected static final String IN_QUERY = "query";
 
@@ -107,7 +104,7 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "search results represented as tuples" +
+			description = "Search results represented as tuples" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
@@ -123,22 +120,24 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
 
 	@ComponentProperty(
 			name = "count",
-			description = "number of search results to output",
+			description = "Number of search results to output",
 		    defaultValue = "25"
 	)
 	protected static final String PROP_COUNT = "count";
 
 	//--------------------------------------------------------------------------------------------
 
+
 	SimpleTuplePeer tuplePeer;
     Map<String,String> columnMap = new HashMap<String,String>();
     int count;
+    int start = 0; // offset for page queries
+
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-    {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		count = Integer.parseInt(ccp.getProperty(PROP_COUNT).trim());
 	    String fields[] = {"url","title", "content"};
 		tuplePeer = new SimpleTuplePeer(fields);
@@ -146,9 +145,7 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
 		columnMap.put("titleNoFormatting", "title");
 	}
 
-	
-	protected String buildURL(String query)
-	{
+	protected String buildURL(String query) {
 		StringBuilder location = new StringBuilder();
 	    location.append("http://ajax.googleapis.com/ajax/services/search/web?v=1.0");
 	    location.append("&start=").append(start); // TODO, add a paging property ?
@@ -162,8 +159,7 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
 	}
 
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception
-    {
+    public void executeCallBack(ComponentContext cc) throws Exception {
 		String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_QUERY));
 		String query = input[0];
 		query = URLEncoder.encode(query, "UTF-8");
@@ -172,18 +168,16 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
 
 		while (output.size() < count) {
 			String url = buildURL(query);
-			console.fine("Reading location " + url);
+			console.fine("Reading location: " + url);
 			String json = HttpUtils.doGET(url, null);
 
 			List<SimpleTuple> tuples = jsonToTuples(json, tuplePeer, columnMap);
 
-			for (int i = 0; i < tuples.size(); i++) {
-				SimpleTuple tuple = tuples.get(i);
+			for (SimpleTuple tuple : tuples) {
 				output.add(tuple.convert());
-				
-				if (output.size() == count) {
+
+				if (output.size() == count)
 					break;
-				}
 			}
 		}
 
@@ -196,7 +190,7 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
 		// metaData for this tuple producer
 		//
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, tuplePeer.convert());
-	    
+
 	    //
 	    // TODO: push this functionality to the abstract
 	    // to reset variables for next execution (if in streaming mode) ?
@@ -211,8 +205,7 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent
     public List<SimpleTuple> jsonToTuples(String jsonData,
     		                              SimpleTuplePeer peer,
     		                              Map<String,String> columnMap)
-    throws Exception
-    {
+    throws Exception {
     	JSONObject json   = new JSONObject(jsonData);
     	JSONObject res    = json.getJSONObject("responseData");
     	JSONArray results = res.getJSONArray("results");
