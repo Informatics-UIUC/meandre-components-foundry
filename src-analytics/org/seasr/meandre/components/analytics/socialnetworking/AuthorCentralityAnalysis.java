@@ -119,7 +119,7 @@ public class AuthorCentralityAnalysis extends AbstractExecutableComponent {
 	//------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
-            defaultValue = "org/seasr/meandre/components/socialnetworking/AuthorCentralityAnalysis.vm",
+            defaultValue = "org/seasr/meandre/components/analytics/socialnetworking/AuthorCentralityAnalysis.vm",
             description = "The template to use for wrapping the HTML input",
             name = Names.PROP_TEMPLATE
     )
