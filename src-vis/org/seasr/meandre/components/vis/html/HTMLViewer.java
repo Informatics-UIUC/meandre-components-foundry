@@ -71,7 +71,16 @@ import org.seasr.meandre.support.generic.io.IOUtils;
 /**
  * @author Loretta Auvil
  * @author Boris Capitanu
+ * @author Mike Haberman
  */
+
+// Note the differences between HTMLViewer and GenericTemplate
+// This class will actually write the html to the local server's filesystem such
+// that it can be fetched inside an iFrame
+//
+// GenericTemplate is very similar except it returns the html in the HttpResponse
+// Perhaps both should be looked at and refactored using the best of both
+//
 
 @Component(
         creator = "Loretta Auvil",
@@ -133,6 +142,15 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
             _context.put("ccp", ccp);
         }
     }
+    
+    public String getWebUIUrl(ComponentContext cc) throws Exception
+    {
+    	String webUIUrl = cc.getWebUIUrl(true).toString();
+        if (webUIUrl.endsWith("/")) 
+        	webUIUrl = webUIUrl.substring(0, webUIUrl.length()-1);
+        return webUIUrl;
+    }
+    
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
@@ -166,6 +184,9 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
             }
 
             _done = false;
+            
+            String webURL = getWebUIUrl(cc);
+            console.info("webUIUrl " + webURL);
 
             cc.startWebUIFragment(this);
 
