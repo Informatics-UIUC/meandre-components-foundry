@@ -250,6 +250,8 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     private void generateAndPushOutputInternal() throws Exception {
         console.entering(getClass().getSimpleName(), "generateAndPushOutput");
 
+        console.info(String.format("Number of nodes: %d", _graph.size()));
+
         generateAndPushOutput();
 
         console.exiting(getClass().getSimpleName(), "generateAndPushOutput");
