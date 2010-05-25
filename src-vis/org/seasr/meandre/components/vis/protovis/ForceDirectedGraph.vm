@@ -1,11 +1,7 @@
 <html>
   <head>
-
     <title>$title</title>
-
-
     <script type="text/javascript" src="$path"></script>
-
 
     <style type="text/css">
         #fig {
@@ -13,52 +9,48 @@
             height: 700px;
         }
     </style>
-
   </head>
-  <body><div id="center"><div id="fig">
-    <script type="text/javascript+protovis">
+  <body>
+    <div id="center"><div id="fig">
+        <script type="text/javascript+protovis">
+            var graphData = $data;
 
+            var color = pv.Colors.category19().by(function(d) d.group),
+                  w = 1000,
+                  h = 600;
 
-    var graphData = $data;
+            var vis = new pv.Panel()
+                  .width(w)
+                  .height(h)
+                  .fillStyle("white")
+                  .event("mousedown", pv.Behavior.pan())
+                  .event("mousewheel", pv.Behavior.zoom());
 
+            var layout = vis.add(pv.Layout.Force)
+                  .nodes(graphData.nodes)
+                  .links(graphData.links);
 
+            layout.link.add(pv.Line);
 
-      var color = pv.Colors.category19().by(function(d) d.group),
-          w = 1000,
-          h = 600;
+            layout.node.add(pv.Dot)
+                  .size(function(d) (d.linkDegree + 4) * Math.pow(this.scale, -1.5))
+                  .fillStyle(function(d) d.fix ? "brown" : color(d))
+                  .strokeStyle(function() this.fillStyle().darker())
+                  .title(function(d) d.nodeName)
+                  .event("mousedown", pv.Behavior.drag())
+                  .event("drag", layout);
 
-      var vis = new pv.Panel()
-          .width(w)
-          .height(h)
-          .fillStyle("white")
-          .event("mousedown", pv.Behavior.pan())
-          .event("mousewheel", pv.Behavior.zoom());
+            layout.label.add(pv.Label);
 
-      var layout = vis.add(pv.Layout.Force)
-          .nodes(graphData.nodes)
-          .links(graphData.links);
-
-      layout.link.add(pv.Line);
-
-      layout.node.add(pv.Dot)
-          .size(function(d) (d.linkDegree + 4) * Math.pow(this.scale, -1.5))
-          .fillStyle(function(d) d.fix ? "brown" : color(d))
-          .strokeStyle(function() this.fillStyle().darker())
-          .title(function(d) d.nodeName)
-          .event("mousedown", pv.Behavior.drag())
-          .event("drag", layout);
-
-      layout.label.add(pv.Label);
-
-      vis.render();
-
-    </script>
-<div class="caption">
-  Network graphs are commonly represented as a force directed graph.
-  Each node is represented by a circle and the connecting lines represent relationships or interactions.
-  The node's size indicates the number of relationships.
-  Nodes can be selected and dragged across the screen to better see their connections.
-  The graph can also be dragged, zoomed in or zoomed out (using the mouse scroll wheel) for better viewing.
-  </div>
-  </div></div></body>
+            vis.render();
+        </script>
+        <div class="caption">
+          Network graphs are commonly represented as a force directed graph.
+          Each node is represented by a circle and the connecting lines represent relationships or interactions.
+          The node's size indicates the number of relationships.
+          Nodes can be selected and dragged across the screen to better see their connections.
+          The graph can also be dragged, zoomed in or zoomed out (using the mouse scroll wheel) for better viewing.
+        </div>
+    </div></div>
+  </body>
 </html>
