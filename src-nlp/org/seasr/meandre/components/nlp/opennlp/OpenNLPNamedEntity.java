@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import opennlp.maxent.io.BinaryGISModelReader;
@@ -75,7 +74,6 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
-import org.seasr.meandre.support.components.opennlp.StaticLocationFinder;
 import org.seasr.meandre.support.components.opennlp.StaticTextSpanFinder;
 import org.seasr.meandre.support.components.opennlp.StaticURLFinder;
 import org.seasr.meandre.support.components.opennlp.TextSpan;
@@ -303,7 +301,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     				String text    = textSpan.getText();
 
     				// clean the text
-    				text = text.replace("\r\n"," ");
+    				text = text.replace("\r\n","  ");
     				text = text.replace("\n"," ");
 
     				SimpleTuple tuple = tuplePeer.createTuple();
