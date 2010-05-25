@@ -246,7 +246,7 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
     	//
     	Strings input = (Strings) cc.getDataComponentFromInput(IN_TEXT);
 		String[] val = BasicDataTypesTools.stringsToStringArray (input);
-		console.info(count++ + " attempt to parse\n" + val[0]);
+		console.fine(count++ + " attempt to parse\n" + val[0]);
 
 		String originalText = val[0];
 
@@ -287,8 +287,8 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
             int len = text.length();
             if (len > 1 && text.endsWith(".")) {
 
-            	// HACK for how the tokenizer works
-            	// Ill. ==> tokenized into Ill.  and .
+            	// HACK for how the stanford tokenizer works
+            	// e.g. Ill. ==> tokenized into Ill.  and .
             	len--;
 
             }
