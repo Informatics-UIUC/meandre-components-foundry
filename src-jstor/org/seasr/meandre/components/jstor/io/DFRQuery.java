@@ -78,7 +78,32 @@ import org.w3c.dom.Document;
 
 @Component(
         creator = "Boris Capitanu",
-        description = "This component performs a query against the JSTOR 'Data For Research' data",
+        description = "This component performs a query against the JSTOR 'Data For Research' data. " +
+        		"The format of the query conforms to CQL (Contextual Query Language), a standard syntax " +
+        		"for representing queries. A formal definition of CQL can be found on the " +
+        		"<a href='http://www.loc.gov/standards/sru/specs/cql.html'>Library of Congress</a> web site.<br><br>" +
+        		"<h4>Searchable fields:</h4>" +
+        		"<p><ul>" +
+        		"<li><b>dc.creator</b> - Article author(s)</li>" +
+        		"<li><b>dc.date</b> - Searches the articles date of publication, format='YYYY-MM-DDT00:00:00Z'</li>" +
+        		"<li><b>dc.description</b> - Searches article abstract, if available</li>" +
+        		"<li><b>dc.identifier</b> - Article UID</li>" +
+        		"<li><b>dc.language</b> - Searches language field using a <a href='http://www.loc.gov/standards/iso639-2/php/code_list.php'>ISO 639-2 3 digit language code</a></li>" +
+        		"<li><b>dc.publisher</b> - Refer to <a href='http://dfr.jstor.org/?fc=pum2'>Publisher facet</a> on DfR Explore page for publisher names</li>" +
+        		"<li><b>dc.subject</b> - Searches auto-extracted keywords associated with article</li>" +
+        		"<li><b>dc.title</b> - Article title</li>" +
+        		"<li><b>jstor.articletype</b> - JSTOR article type, recognized values are 'research-article', 'book-review', 'misc', 'news', and 'editorial'</li>" +
+        		"<li><b>jstor.discipline</b> - Refer to <a href='http://dfr.jstor.org/?fc=dim1'>Discipline facet</a> on DfR Explore page for discipline names</li>" +
+        		"<li><b>jstor.journaltitle</b> - Refer to <a href='http://dfr.jstor.org/?fc=snm2'>Journal facet</a> facet on DfR Explore page for journal titles</li>" +
+        		"<li><b>jstor.text</b> - Searches everything</li>" +
+        		"</ul></p>" +
+        		"<h4>Sample queries:</h4>" +
+        		"<p><ul>" +
+        		"<li>Search for documents in 'Education' discipline: <code>jstor.discipline='Education'</code></li>" +
+        		"<li>Search for documents with keyterm 'space': <code>dc.subject=space</code></li>" +
+        		"<li>Search for documents with publisher 'Springer': <code>dc.publisher=springer</code></li>" +
+        		"<li>Search for documents with term 'jefferson' anywhere: <code>jstor.text=jefferson</code></li>" +
+        		"</ul></p>",
         name = "JSTOR DFR Query",
         tags = "jstor, dfr, data for research",
         rights = Licenses.UofINCSA,

@@ -10,17 +10,20 @@
     <table>
         <tr>
             <td>Total Syllables</td>
-            <td>${doc.getMeasure().getSyllables()}</td>
+            #set( $numSyllables = ${doc.getMeasure().getSyllables()} )
+            <td>$String.format('%,d', $numSyllables)</td>
         </tr>
 
         <tr>
             <td>Total Words</td>
-            <td>${doc.getMeasure().getWords()}</td>
+            #set( $numWords = ${doc.getMeasure().getWords()} )
+            <td>$String.format('%,d', $numWords)</td>
         </tr>
 
         <tr>
             <td>Total Sentences</td>
-            <td>${doc.getMeasure().getSentences()}</td>
+            #set( $numSentences = ${doc.getMeasure().getSentences()} )
+            <td>$String.format('%,d', $numSentences)</td>
         </tr>
 
         <tr>
