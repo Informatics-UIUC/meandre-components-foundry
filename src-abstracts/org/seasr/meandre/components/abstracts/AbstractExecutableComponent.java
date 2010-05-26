@@ -467,4 +467,17 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
 
         return propValue;
     }
+    
+    /**
+    * Attempts to retrieve the value of a property trims whitespace and fails if the value is empty
+    *
+    * @param propName The property name
+    * @param cc The component context
+    * @return The property value
+    * @throws ComponentExecutionException Thrown if the property does not exist, or if value of the property is empty
+    */
+    public static String getPropertyOrDieTrying(String propName, ComponentContextProperties context)
+    throws ComponentExecutionException {
+    	return getPropertyOrDieTrying(propName, true,true, context);
+    }
 }
