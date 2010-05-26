@@ -119,7 +119,7 @@ public class TextSegmentation extends AbstractExecutableComponent {
 		segSz = Integer.parseInt(cc.getProperty(PROP_SEGMENT_SIZE));
 		if(segSz<0)
 			throw new ComponentContextException(
-					"Invalid value for property setment size. The value must be greater than 0.");
+					"Invalid value for property segment size. The value must be greater than 0.");
 	}
 
 	@Override
@@ -145,8 +145,8 @@ public class TextSegmentation extends AbstractExecutableComponent {
 		for (int i=0; i<input.getKeyCount(); i++) {
 			String[] tokens = null;
 			String sentence = null;
-    		sentence      = input.getKey(i);    // this is the entire sentence (the key)
-    		Strings value = input.getValue(i);  // this is the set of tokens for that sentence
+    		sentence      = input.getKey(i);    //the entire sentence (the key)
+    		Strings value = input.getValue(i);  //the set of tokens for that sentence
     		tokens = DataTypeParser.parseAsString(value);
 
     		tokenCnt+=tokens.length;
@@ -160,7 +160,7 @@ public class TextSegmentation extends AbstractExecutableComponent {
     		}
 		}
 
-		if(tokenCnt!=0)//has remaining tokens
+		if(tokenCnt!=0)//remaining sentences exist
 			outputSegments();
 	}
 
@@ -178,7 +178,7 @@ public class TextSegmentation extends AbstractExecutableComponent {
 	 * output segments within the current slicing window.
 	 */
 	private void outputSegments() throws Exception {
-		console.info(sentenceCnt + " sentences processed.");
+		console.info(sentenceCnt + " sentences and " + tokenCnt + " tokens processed.");
 		smRes = res.build();
 		componentContext.pushDataComponentToOutput(
 				OUT_TOKENIZED_SENTENCES, smRes);
