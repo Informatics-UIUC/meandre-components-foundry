@@ -35,26 +35,48 @@ public class StanfordNEWrapper {
 	int sentenceId   = 0;
 	int startIdx     = 0;
 	
-
-    public StanfordNEWrapper(AbstractSequenceClassifier c)
+	public StanfordNEWrapper(AbstractSequenceClassifier c)
     {
-    	
-    	this.classifier = c;
+    	String[] fields = {};
+    	this.init(c, fields);
+    }
+	
+	public StanfordNEWrapper(AbstractSequenceClassifier c, String[] addFields)
+	{
+		this.init(c, addFields);
+	}
+	
+    public void init(AbstractSequenceClassifier c, String[] addFields)
+	{
+		List<String> fields = new ArrayList<String>();
+		fields.add(SENTENCE_ID_FIELD);
+		fields.add(TYPE_FIELD);
+		fields.add(TEXT_START_FIELD);
+		fields.add(TEXT_FIELD);
+		
+		for (String f : addFields) {
+			fields.add(f);
+		}
+		String[] f = fields.toArray(new String[0]);
+		
+		
+        this.classifier = c;
     	
     	//
     	// build the tuple (output) data
     	//
-    	String[] fields =
-    		new String[] {SENTENCE_ID_FIELD, TYPE_FIELD, TEXT_START_FIELD, TEXT_FIELD};
+    	
 
-    	tuplePeer = new SimpleTuplePeer(fields);
+    	tuplePeer = new SimpleTuplePeer(f);
 
     	TYPE_IDX        = tuplePeer.getIndexForFieldName(TYPE_FIELD);
     	SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
     	TEXT_START_IDX  = tuplePeer.getIndexForFieldName(TEXT_START_FIELD);
     	TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
-
-    }
+		
+		
+	}
+    
     public SimpleTuplePeer getTuplePeer()
     {
     	return tuplePeer;
