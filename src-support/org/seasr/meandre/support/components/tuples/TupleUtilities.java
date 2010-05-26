@@ -81,6 +81,13 @@ public class TupleUtilities {
 		return output;
 	}
 
+	//
+	// takes an array of tuples
+	// those tuples are added to a FrequencyMap whose key is fieldname
+	// the frequencyMap is then sorted and cut to be the top N
+	// the returned List is the key,value pair of the fieldname and the number of times
+	// the key occured in the incoming set of tuples
+	//
 	public static List<Map.Entry<String, Integer>> topNTupleValues(Object[] tuples, String fieldname, int N)
 	{
 		FrequencyMap<String> freqMap = new FrequencyMap<String>();
