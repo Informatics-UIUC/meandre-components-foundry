@@ -114,6 +114,8 @@ public class TextSegmentation extends AbstractExecutableComponent {
 	private StringsMap smRes;
 	private org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder res;
 
+	private int segmentCnt;
+
 	@Override
     public void initializeCallBack(ComponentContextProperties cc) throws Exception {
 		segSz = Integer.parseInt(cc.getProperty(PROP_SEGMENT_SIZE));
@@ -140,6 +142,8 @@ public class TextSegmentation extends AbstractExecutableComponent {
 	 * @param input contains sentences and tokens.
 	 */
 	private void processSegments(StringsMap input) throws Exception {
+		segmentCnt = 0;
+
 		initParameters();
 
 		for (int i=0; i<input.getKeyCount(); i++) {
@@ -152,6 +156,7 @@ public class TextSegmentation extends AbstractExecutableComponent {
     		tokenCnt+=tokens.length;
     		sentenceCnt++;
     		if(tokenCnt>=segSz) {
+    			++segmentCnt;
     			outputSegments();
     		} else {
     			res.addKey(sentence);
@@ -160,12 +165,16 @@ public class TextSegmentation extends AbstractExecutableComponent {
     		}
 		}
 
-		if(tokenCnt!=0)//remaining sentences exist
+		if(tokenCnt!=0) {//remaining sentences exist
+			++segmentCnt;
 			outputSegments();
+		}
+
+		console.info("The number of segments for the current doucment is " + segmentCnt + ".");
 	}
 
 	/**
-	 * initialize parameters for the current slicing window.
+	 * initialize parameters for each upcoming segment.
 	 */
 	private void initParameters() {
 		tokenCnt = 0;
@@ -178,7 +187,7 @@ public class TextSegmentation extends AbstractExecutableComponent {
 	 * output segments within the current slicing window.
 	 */
 	private void outputSegments() throws Exception {
-		console.info(sentenceCnt + " sentences and " + tokenCnt + " tokens processed.");
+		console.finest(sentenceCnt + " sentences and " + tokenCnt + " tokens processed.");
 		smRes = res.build();
 		componentContext.pushDataComponentToOutput(
 				OUT_TOKENIZED_SENTENCES, smRes);
