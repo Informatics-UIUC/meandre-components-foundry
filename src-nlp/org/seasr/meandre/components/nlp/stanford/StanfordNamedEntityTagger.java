@@ -173,16 +173,12 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 
 	StanfordNEWrapper neHelper;
 
-
-	
 	protected String modelsDir;
 	protected String taggerFile;
  
 
 	//--------------------------------------------------------------------------------------------
     int count = 0;
-
-
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception
@@ -199,13 +195,9 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 		AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(modelsDir + File.separator + taggerFile);
 		
 		neHelper = new StanfordNEWrapper(classifier);
-
-		
-
 	}
     
-    int sentenceId = 0;
-	int startIdx = 0;
+
 	@SuppressWarnings("unchecked")
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception
@@ -223,10 +215,9 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 		List<Strings> output = new ArrayList<Strings>();
 		
 		for (SimpleTuple tuple : tuples) {
-			 output.add(tuple.convert());
+		   output.add(tuple.convert());
 		}
-		SimpleTuplePeer tuplePeer = neHelper.getTuplePeer();
-
+		
         // push the whole collection, protocol safe
         Strings[] results = new Strings[output.size()];
         output.toArray(results);
@@ -237,6 +228,7 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
         //
     	// metaData for this tuple producer
     	//
+        SimpleTuplePeer tuplePeer = neHelper.getTuplePeer();
         cc.pushDataComponentToOutput(OUT_META_TUPLE, tuplePeer.convert());
     }
 
