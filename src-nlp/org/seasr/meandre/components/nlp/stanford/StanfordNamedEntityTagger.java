@@ -70,8 +70,6 @@ import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.ling.CoreAnnotations.AnswerAnnotation;
 
 
 
@@ -173,26 +171,13 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 
+	StanfordNEWrapper neHelper;
 
 
-	SimpleTuplePeer tuplePeer;
-
-    public static final String TYPE_FIELD        = "type";
-    public static final String SENTENCE_ID_FIELD = "sentenceId";
-    public static final String TEXT_START_FIELD  = "textStart";
-    public static final String TEXT_FIELD        = "text";
-
-    int TYPE_IDX        ;
-    int SENTENCE_ID_IDX ;
-    int TEXT_START_IDX  ;
-    int TEXT_IDX        ;
-
-
-
-
+	
 	protected String modelsDir;
 	protected String taggerFile;
-    AbstractSequenceClassifier classifier;
+ 
 
 	//--------------------------------------------------------------------------------------------
     int count = 0;
@@ -211,94 +196,36 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 		OpenNLPBaseUtilities.installJARModelContainingResource(modelsDir, taggerFile, console, getClass());
 		console.fine("Installed models into: " + modelsDir);
 
-		classifier = CRFClassifier.getClassifierNoExceptions(modelsDir + File.separator + taggerFile);
+		AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(modelsDir + File.separator + taggerFile);
+		
+		neHelper = new StanfordNEWrapper(classifier);
 
-		sentenceId   = 0;
-		startIdx     = 0;
-
-
-		//
-		// build the tuple (output) data
-		//
-		String[] fields =
-			new String[] {SENTENCE_ID_FIELD, TYPE_FIELD, TEXT_START_FIELD, TEXT_FIELD};
-
-		tuplePeer = new SimpleTuplePeer(fields);
-
-		TYPE_IDX        = tuplePeer.getIndexForFieldName(TYPE_FIELD);
-		SENTENCE_ID_IDX = tuplePeer.getIndexForFieldName(SENTENCE_ID_FIELD);
-		TEXT_START_IDX  = tuplePeer.getIndexForFieldName(TEXT_START_FIELD);
-		TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
-
+		
 
 	}
-
+    
     int sentenceId = 0;
 	int startIdx = 0;
 	@SuppressWarnings("unchecked")
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception
     {
-    	List<Strings> output = new ArrayList<Strings>();
-
+    	
     	// input was encoded via :
     	// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
     	//
     	Strings input = (Strings) cc.getDataComponentFromInput(IN_TEXT);
 		String[] val = BasicDataTypesTools.stringsToStringArray (input);
-		console.fine(count++ + " attempt to parse\n" + val[0]);
+		String text = val[0];
+		console.fine(count++ + " attempt to parse\n" + text);
 
-		String originalText = val[0];
-
-
-		SimpleTuple tuple   = tuplePeer.createTuple();
-
-		List<List<CoreLabel>> out = classifier.classify(originalText);
-        for (List<CoreLabel> sentence : out) {
-
-          for (CoreLabel word : sentence) {
-
-
-            String ne = word.get(AnswerAnnotation.class);
-            String type = null;
-            if ("LOCATION".equals(ne) || "PERSON".equals(ne) || "ORGANIZATION".equals(ne)) {
-            	type = ne.toLowerCase();
-            	// consistent with openNLP
-            }
-
-            String text = word.word();
-		   	int indexOfLastWord = originalText.indexOf(text, startIdx);
-
-            if (type != null) {
-
-            	//int idx  = word.index();
-                //int sIdx = word.sentIndex();
-
-               // console.info(word.word() + '/' +  type);
-               tuple.setValue(TYPE_IDX,        type);
-			   tuple.setValue(SENTENCE_ID_IDX, sentenceId);  // keep this zero based
-			   tuple.setValue(TEXT_START_IDX,  indexOfLastWord);
-			   tuple.setValue(TEXT_IDX,        text);
-			   output.add(tuple.convert());
-
-
-            }
-
-            int len = text.length();
-            if (len > 1 && text.endsWith(".")) {
-
-            	// HACK for how the stanford tokenizer works
-            	// e.g. Ill. ==> tokenized into Ill.  and .
-            	len--;
-
-            }
-            startIdx = indexOfLastWord + len;
-
-          }
-          sentenceId++;
-        }
-
-
+		List<SimpleTuple> tuples = neHelper.toTuples(text);
+		List<Strings> output = new ArrayList<Strings>();
+		
+		for (SimpleTuple tuple : tuples) {
+			 output.add(tuple.convert());
+		}
+		SimpleTuplePeer tuplePeer = neHelper.getTuplePeer();
 
         // push the whole collection, protocol safe
         Strings[] results = new Strings[output.size()];

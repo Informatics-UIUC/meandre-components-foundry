@@ -55,6 +55,10 @@ public class StanfordNEWrapper {
     	TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
 
     }
+    public SimpleTuplePeer getTuplePeer()
+    {
+    	return tuplePeer;
+    }
     
     public List<SimpleTuple> toTuples(String stringToParse) {
     	

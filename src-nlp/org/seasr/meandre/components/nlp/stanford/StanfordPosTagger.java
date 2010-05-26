@@ -88,8 +88,6 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
  *
  *  the jars contain conflicting classes.
  *
- *
- *
  * Based on stanford-postagger-full-2009-12-24 distribution
  *
  *
