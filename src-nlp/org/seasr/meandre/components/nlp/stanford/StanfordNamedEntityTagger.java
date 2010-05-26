@@ -209,7 +209,7 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
     	Strings input = (Strings) cc.getDataComponentFromInput(IN_TEXT);
 		String[] val = BasicDataTypesTools.stringsToStringArray (input);
 		String text = val[0];
-		console.fine(count++ + " attempt to parse\n" + text);
+		console.finest(count++ + " attempt to parse\n" + text);
 
 		List<SimpleTuple> tuples = neHelper.toTuples(text);
 		List<Strings> output = new ArrayList<Strings>();
