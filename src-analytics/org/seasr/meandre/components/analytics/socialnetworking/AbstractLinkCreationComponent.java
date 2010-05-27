@@ -105,6 +105,13 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     )
     protected static final String PROP_OFFSET = Names.PROP_OFFSET;
 
+//    @ComponentProperty(
+//            description = "Set to 'true' to remove uncorrelated entities." ,
+//            name = "remove_uncorrelated_entities",
+//            defaultValue = "true"
+//    )
+//    protected static final String PROP_REMOVE_EMPTY = "remove_uncorrelated_entities";
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -113,6 +120,7 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     protected Set<String> _entityTypes;
     protected int _offset;
     protected boolean _isStreaming;
+    protected boolean _removeUncorrelatedEntities;
 
     protected HashMap<Entity, KeyValuePair<Integer, HashSet<Entity>>> _graph;
 
@@ -123,11 +131,12 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         ID_COUNT = 0;
 
-        _offset = Integer.parseInt(ccp.getProperty(PROP_OFFSET));
+        _offset = Integer.parseInt(getPropertyOrDieTrying(PROP_OFFSET, true, true, ccp));
         if (_offset <= 0) throw new ComponentContextException(String.format("Property '%s' must be greater than zero", PROP_OFFSET));
 
-        String entityTypes = ccp.getProperty(PROP_ENTITIES).trim();
-        if (entityTypes.length() == 0) throw new ComponentContextException(String.format("Property '%s' must have a valid value", PROP_ENTITIES));
+        String entityTypes = getPropertyOrDieTrying(PROP_ENTITIES, true, true, ccp);
+
+//        _removeUncorrelatedEntities = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REMOVE_EMPTY, true, true, ccp));
 
         _entityTypes = new HashSet<String>();
         for (String entity : entityTypes.split(","))
@@ -251,6 +260,16 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
         console.entering(getClass().getSimpleName(), "generateAndPushOutput");
 
         console.info(String.format("Number of nodes: %d", _graph.size()));
+
+//        if (_removeUncorrelatedEntities) {
+//            List<Entity> toRemove = new ArrayList<Entity>();
+//            for (Map.Entry<Entity, KeyValuePair<Integer, HashSet<Entity>>> entry : _graph.entrySet())
+//                if (entry.getValue().getValue().isEmpty())
+//                    toRemove.add(entry.getKey());
+//
+//            for (Entity e : toRemove)
+//                _graph.remove(e);
+//        }
 
         generateAndPushOutput();
 
