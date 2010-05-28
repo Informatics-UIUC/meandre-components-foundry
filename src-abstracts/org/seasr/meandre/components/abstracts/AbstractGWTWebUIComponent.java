@@ -57,6 +57,11 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 import org.seasr.meandre.support.generic.io.JARInstaller;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
+/**
+ *
+ * @author Boris Capitanu
+ *
+ */
 public abstract class AbstractGWTWebUIComponent extends AbstractExecutableComponent implements ConfigurableWebUIFragmentCallback {
 
     protected VelocityContext _context;

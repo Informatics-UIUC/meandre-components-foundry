@@ -11,6 +11,7 @@
         window.__pageSize = $pageSize;
     </script>
 
+    <script> var isomorphicDir = "$gwt/sc/"; </script>
     <script type="text/javascript" language="javascript" src="$gwt/org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer.nocache.js"></script>
   </head>
 
