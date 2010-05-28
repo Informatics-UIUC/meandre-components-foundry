@@ -55,13 +55,11 @@ import java.util.StringTokenizer;
 
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
@@ -74,9 +72,9 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
  * NOTES:  This component is meant to be subclassed.  The subclass will add an input (the
  * data needed to do the transform.  The subclass will also provide a template name via
  * a property.
- * 
+ *
  * See GenericTemplate.java for notes on how the template is loaded/found
- * 
+ *
  */
 @Component(
         creator = "Mike Haberman",
@@ -86,19 +84,19 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         tags = "velocity,template,html",
         baseURL="meandre://seasr.org/components/foundry/",
         resources  = { "SampleTemplate.vm" },
-        dependency = { "velocity-1.6.2-dep.jar, protobuf-java-2.2.0.jar" }
+        dependency = { "velocity-1.6.2-dep.jar", "protobuf-java-2.2.0.jar" }
 )
-public class VelocityTemplateToHTML extends AbstractExecutableComponent 
+public class VelocityTemplateToHTML extends AbstractExecutableComponent
 {
 
     //------------------------------ INPUTS ------------------------------------------------------
-	
+
 	//
 	// subclasses should provide the necessary inputs
 	//
-	
+
 	//------------------------------ PROPERTIES --------------------------------------------------
-	
+
 	@ComponentProperty(
 	        description = "The template name",
 	        name = Names.PROP_TEMPLATE,
@@ -112,8 +110,8 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
 	        defaultValue = ""
 	)
 	protected static final String PROP_TEMPLATE_PROPERTIES = Names.PROP_PROPERTIES;
-	
-	
+
+
    //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
@@ -129,16 +127,16 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
     // convenience properties to easily push additional properties
     // not needed, template can always do $ccp.getProperty("title")
     protected String[] templateVariables = {};
-    
-    
+
+
     //--------------------------------------------------------------------------------------------
 
-    // subclasses should call super.initializeCallback BEFORE 
+    // subclasses should call super.initializeCallback BEFORE
     // they add component specific data to the context
     //
     @Override
-    public void initializeCallBack(ComponentContextProperties ccp) 
-    throws Exception 
+    public void initializeCallBack(ComponentContextProperties ccp)
+    throws Exception
     {
     	templateName = ccp.getProperty(PROP_TEMPLATE);
 
@@ -177,19 +175,19 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
     }
 
     @Override
-    public void executeCallBack(ComponentContext cc) 
-    throws Exception 
+    public void executeCallBack(ComponentContext cc)
+    throws Exception
     {
     	//
     	// subclasses should call super.executeCallback()
     	// AFTER they process and put any necessary data in the context
     	//
-    	
+
     	String sInstanceId = cc.getExecutionInstanceID();
         context.put("sInstanceId", sInstanceId);
         context.put("cc", cc);
         context.put("converter", this);
-        
+
         // render the template
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
         String html = velocity.generateOutput(context, templateName);
@@ -197,18 +195,18 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
     }
 
     @Override
-    public void disposeCallBack(ComponentContextProperties ccp) 
-    throws Exception 
+    public void disposeCallBack(ComponentContextProperties ccp)
+    throws Exception
     {
     }
-    
-    
+
+
 
     // TODO:
     // String finalDir = publicResourceDir + File.separator + "subDir" + File.separator + getClass().getName();
     // InstallStatus status = JARInstaller.installFromStream(new FileInputStream(jsFile), finalDir, false);
     //
-    
+
     @SuppressWarnings("unchecked")
 	public static String writeResourceFromJarToFilesystem(Class caller,                 // this.getClass()
     		                                              String publicResourceDir,     // ccp.getPublicResourcesDirectory();
