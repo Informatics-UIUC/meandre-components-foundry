@@ -151,7 +151,7 @@
     <path id="gwt.class.path">
         <pathelement location="${gwt.base.dir}/war/WEB-INF/classes"/>
         <pathelement location="${lib.gwt.dir}/gwt-user.jar"/>
-        <fileset dir="${lib.gwt.dir}" includes="gwt-dev*.jar"/>
+        <fileset dir="${lib.gwt.dir}" includes="gwt-dev.jar"/>
         <!-- Add any additional non-server libs (such as JUnit) -->
         <fileset dir="${gwt.base.dir}/war/WEB-INF/lib" includes="**/*.jar"/>
     </path>
