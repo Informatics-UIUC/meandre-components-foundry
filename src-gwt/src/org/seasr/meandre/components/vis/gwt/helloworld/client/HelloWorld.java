@@ -97,6 +97,7 @@ public class HelloWorld implements EntryPoint {
                 RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, contextPath + "?action=getMessage");
 
                 try {
+                    @SuppressWarnings("unused")
                     Request request = builder.sendRequest(null, new RequestCallback() {
                         public void onError(Request request, Throwable exception) {
                             Window.alert("Fail: " + exception.getMessage());
