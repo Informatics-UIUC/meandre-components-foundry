@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.tools.geo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,6 +162,7 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
     private final String valueField   = "text";
     private String windowField  = "sentenceId";
 
+    private final Map<String, GeoLocation> globalCache = new HashMap<String,GeoLocation>();
 
     // fields added to the outgoing tuples
     private final String locationField = "fqLocation";
@@ -177,11 +179,8 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 
    //--------------------------------------------------------------------------------------------
 
-    private final Map<String, GeoLocation> globalCache = new HashMap<String,GeoLocation>();
-
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-
 		this.keyField    = ccp.getProperty(DATA_PROPERTY_KEY_FIELD);
 		this.windowField = ccp.getProperty(DATA_PROPERTY_WINDOW_FIELD);
 	}
@@ -331,6 +330,27 @@ public class GeoLocationCleaner extends AbstractExecutableComponent {
 
     }
 
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
+    }
+
+    //--------------------------------------------------------------------------------------------
 
     //
     // This algorithm is based mostly on empirical data and heuristics
