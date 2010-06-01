@@ -42,7 +42,7 @@
 
 package org.seasr.meandre.components.analytics.socialnetworking;
 
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 
@@ -110,11 +110,11 @@ public class LinkCreationToGraphML extends AbstractLinkCreationComponent {
         Document doc = DOMUtils.createNewDocument();
         Element elGraph = initialzeDocGraph(doc);
 
-        for (Entry<Entity, KeyValuePair<Integer, HashSet<Entity>>> entry : _graph.entrySet())
+        for (Entry<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> entry : _graph.entrySet())
             addNode(entry.getKey(), elGraph);
 
-        for (Entry<Entity, KeyValuePair<Integer, HashSet<Entity>>> entry : _graph.entrySet())
-            for (Entity entity : entry.getValue().getValue())
+        for (Entry<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> entry : _graph.entrySet())
+            for (Entity entity : entry.getValue().getValue().keySet())
                 addEdge(entry.getKey(), entity, elGraph);
 
         String xmlString = DOMUtils.getString(doc, _xmlProperties);

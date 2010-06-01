@@ -43,7 +43,7 @@
 package org.seasr.meandre.components.analytics.socialnetworking;
 
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -115,20 +115,20 @@ public class LinkCreationToProtovis extends AbstractLinkCreationComponent {
         joOutput.put("nodes", jaNodes);
         joOutput.put("links", jaLinks);
 
-        SortedMap<Entity, KeyValuePair<Integer, HashSet<Entity>>> sortedGraph =
-            new TreeMap<Entity, KeyValuePair<Integer,HashSet<Entity>>>(new EntityComparator());
+        SortedMap<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> sortedGraph =
+            new TreeMap<Entity, KeyValuePair<Integer, Map<Entity, Integer>>>(new EntityComparator());
         sortedGraph.putAll(_graph);
 
         console.finest("Adding nodes");
 
-        for (Entry<Entity, KeyValuePair<Integer, HashSet<Entity>>> entry : sortedGraph.entrySet())
+        for (Entry<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> entry : sortedGraph.entrySet())
             addNode(entry.getKey(), jaNodes);
 
         console.finest("Adding edges");
 
-        for (Entry<Entity, KeyValuePair<Integer, HashSet<Entity>>> entry : sortedGraph.entrySet())
-            for (Entity entity : entry.getValue().getValue())
-                addEdge(entry.getKey(), entity, jaLinks);
+        for (Entry<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> entry : sortedGraph.entrySet())
+            for (Entry<Entity, Integer> relationship : entry.getValue().getValue().entrySet())
+                addEdge(entry.getKey(), relationship.getKey(), relationship.getValue(), jaLinks);
 
         String sOutput = String.format("%s", joOutput.toString(4));
         console.finest("Output: " + sOutput);
@@ -152,11 +152,11 @@ public class LinkCreationToProtovis extends AbstractLinkCreationComponent {
         jaNodes.put(joNode);
     }
 
-    private void addEdge(Entity entity1, Entity entity2, JSONArray jaLinks) throws JSONException {
+    private void addEdge(Entity entity1, Entity entity2, Integer strength, JSONArray jaLinks) throws JSONException {
         JSONObject joLink = new JSONObject();
         joLink.put("source", entity1.getId());
         joLink.put("target", entity2.getId());
-        joLink.put("value", 5);
+        joLink.put("value", strength);
 
         jaLinks.put(joLink);
     }

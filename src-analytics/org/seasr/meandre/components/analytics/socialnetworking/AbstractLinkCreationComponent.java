@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.WordUtils;
@@ -122,7 +123,9 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     protected boolean _isStreaming;
     protected boolean _removeUncorrelatedEntities;
 
-    protected HashMap<Entity, KeyValuePair<Integer, HashSet<Entity>>> _graph;
+    // Mapping from entities to KeyValuePairs containing the id of the entity (the key) and the Map<Entity, Integer>
+    // containing all the other entities related to it, and the strength of the relationship (the Integer count)
+    protected HashMap<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> _graph;
 
 
     //--------------------------------------------------------------------------------------------
@@ -142,7 +145,7 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
         for (String entity : entityTypes.split(","))
             _entityTypes.add(entity.trim());
 
-        _graph = new HashMap<Entity, KeyValuePair<Integer,HashSet<Entity>>>();
+        _graph = new HashMap<Entity, KeyValuePair<Integer, Map<Entity, Integer>>>();
 
         _isStreaming = false;
     }
@@ -187,12 +190,12 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
                 Entity entity = new Entity(tupleType, tupleValue);
 
                 // Check if we already recorded this entity before
-                KeyValuePair<Integer, HashSet<Entity>> oldEntityMapping = _graph.get(entity);
+                KeyValuePair<Integer, Map<Entity, Integer>> oldEntityMapping = _graph.get(entity);
                 if (oldEntityMapping == null) {
                     // If not, assign a new id to it and record it
                     int id = ID_COUNT++;
                     entity.setId(id);
-                    _graph.put(entity, new KeyValuePair<Integer, HashSet<Entity>>(id, new HashSet<Entity>()));
+                    _graph.put(entity, new KeyValuePair<Integer, Map<Entity, Integer>>(id, new HashMap<Entity, Integer>()));
                 } else
                     // Otherwise assign the id that we previously assigned to it
                     entity.setId(oldEntityMapping.getKey());
@@ -221,9 +224,13 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
                 // Iterate through all the sentences in the window
                 for (KeyValuePair<Integer, HashSet<Entity>> kvp : _sentencesWindow)
                     // ... and all the entities in each sentence
-                    for (Entity e : kvp.getValue())
+                    for (Entity e : kvp.getValue()) {
                         // ... and mark the new entity as being adjacent to all the entities in the window
-                        _graph.get(e).getValue().add(entity);
+                        Map<Entity, Integer> entityRelationshipCountMap = _graph.get(e).getValue();
+                        Integer count = entityRelationshipCountMap.get(entity);
+                        if (count == null) count = 0;
+                        entityRelationshipCountMap.put(entity, count + 1);
+                    }
 
                 // Add the new entity to the window
                 sentenceEntities.add(entity);
