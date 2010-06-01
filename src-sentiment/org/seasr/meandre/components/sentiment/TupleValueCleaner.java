@@ -155,7 +155,7 @@ public class TupleValueCleaner extends AbstractExecutableComponent {
 			//String prefix         = tokens.nextToken();
 			this.toFindPattern    = tokens.nextToken();
 			this.toReplacePattern = tokens.nextToken();
-			console.info("replace :" + toFindPattern + ": with :" + toReplacePattern);
+			console.fine("replace :" + toFindPattern + ": with :" + toReplacePattern);
 		}
 	}
 
