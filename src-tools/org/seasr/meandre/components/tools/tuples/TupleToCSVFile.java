@@ -180,32 +180,38 @@ public class TupleToCSVFile  extends AbstractExecutableComponent {
 
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
+		
+		StringBuilder sb = new StringBuilder();
 
 		//
 		// write out the fieldnames as the first row
 		//
 		int size = tuplePeer.size();
 		for (int i = 0; i < size; i++) {
-			output.write(tuplePeer.getFieldNameForIndex(i));
+			sb.append(tuplePeer.getFieldNameForIndex(i));
 			if (i + 1 < size) {
-				output.write(tokenSep);
+				sb.append(tokenSep);
 			}
 		}
-		output.write("\n");
+		sb.append("\n");
 
 		for (int i = 0; i < in.length; i++) {
 
 			tuple.setValues(in[i]);
 
 			for (int j = 0; j < size; j++) {
-				output.write(tuple.getValue(j));
+				sb.append(tuple.getValue(j));
 				if (j + 1 < size) {
-					output.write(tokenSep);
+					sb.append(tokenSep);
 				}
 			}
-			output.write("\n");
+			sb.append("\n");
 		}
+		
+	
+		output.write(sb.toString());
 		output.flush();
+		
 
 		Strings fn = BasicDataTypesTools.stringToStrings(filename);
 
