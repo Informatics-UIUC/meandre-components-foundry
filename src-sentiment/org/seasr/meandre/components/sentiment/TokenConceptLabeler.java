@@ -256,7 +256,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
         		ArrayList<String> labelList = new ArrayList<String>();
         		while(labels.hasMoreTokens()) {
         			String label = labels.nextToken().trim();
-        			// console.info("MAP value " + label + ":" + key);
+        			// console.fine("MAP value " + label + ":" + key);
         			allLabels.add(label);
         			labelList.add(label);
         			reverseMap.put(label, key);
@@ -288,7 +288,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 			throw new ComponentExecutionException("incoming tuple has no field named " + keyFieldName);
 		}
 
-		console.info("tuple count to label " + in.length);
+		console.fine("tuple count to label " + in.length);
 
 		int valuesWritten = 0;
 		List<Strings> output = new ArrayList<Strings>();
@@ -308,19 +308,19 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 				}
 
 
-			   console.info("need to label " + token);
+			   console.fine("need to label " + token);
 			   List<PathMetric> all = finder.getAllMetric(token, allLabels);
 			   if (all == null) {
-			    	console.info("Unable to label, service down");
+			    	console.fine("Unable to label, service down");
 			    	break;
 			   }
 
 			   PathMetric metric    = finder.getBestMetric(all);
 			   if (metric != null) {
 			      concept = reverseMap.get(metric.end);
-			      console.info(token + " ==> " + concept);
+			      console.fine(token + " ==> " + concept);
 			      wordToConceptMap.put(token, concept);
-			      // console.info(metric.toString());
+			      // console.fine(metric.toString());
 			      // label the tuple and save it
 
 			      valuesWritten++;
@@ -398,7 +398,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 
 		try {
 			File file = new File(filename);
-			console.info("reading from " + filename);
+			console.fine("reading from " + filename);
 
 			if (file.exists()) {
 
@@ -429,7 +429,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 			}
 			else {
 				// no file exists to read
-				console.info("file is empty: " + filename);
+				console.fine("file is empty: " + filename);
 			}
 		}
 		catch (IOException e) {
