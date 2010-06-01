@@ -110,10 +110,10 @@ public class FileResourceUtility {
 			resource = path.substring(idx+1);
 			path     = path.substring(0, idx);
 			
-			if (console != null) console.info("Discover: " + path + "-->" + resource);
+			if (console != null) console.fine("Discover: " + path + "-->" + resource);
 			boolean success = (new File(path)).mkdirs();
 		    if (success && console != null) {
-		      console.info("Created directories: " + path + " created");
+		      console.fine("Created directories: " + path + " created");
 		    }
 		}
 		
