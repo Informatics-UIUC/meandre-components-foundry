@@ -225,11 +225,23 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
                 for (KeyValuePair<Integer, HashSet<Entity>> kvp : _sentencesWindow)
                     // ... and all the entities in each sentence
                     for (Entity e : kvp.getValue()) {
+                        // ignore self-references
+                        if (e.equals(entity)) continue;
+
                         // ... and mark the new entity as being adjacent to all the entities in the window
-                        Map<Entity, Integer> entityRelationshipCountMap = _graph.get(e).getValue();
-                        Integer count = entityRelationshipCountMap.get(entity);
+
+                        // check if an inverse relationship already exists
+                        Map<Entity, Integer> entityRelationshipCountMap = _graph.get(entity).getValue();
+                        Integer count = entityRelationshipCountMap.get(e);
+                        Entity theEntity = e;
+                        if (count == null) {
+                            entityRelationshipCountMap = _graph.get(e).getValue();
+                            count = entityRelationshipCountMap.get(entity);
+                            theEntity = entity;
+                        }
+
                         if (count == null) count = 0;
-                        entityRelationshipCountMap.put(entity, count + 1);
+                        entityRelationshipCountMap.put(theEntity, count + 1);
                     }
 
                 // Add the new entity to the window
