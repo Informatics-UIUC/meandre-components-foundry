@@ -48,6 +48,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.WordUtils;
 import org.meandre.annotations.ComponentInput;
@@ -115,6 +117,8 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
 
     //--------------------------------------------------------------------------------------------
 
+    protected static final Pattern REGEXP_NONWHITESPACE = Pattern.compile("([^\\s]+)");
+    protected static final Pattern REGEXP_PERSON = Pattern.compile("(?:(\\p{Alpha}+)\\s*)");
 
     protected static int ID_COUNT;
 
@@ -182,10 +186,39 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
             String tupleType   = tuple.getValue(TYPE_IDX);
             String tupleValue  = tuple.getValue(TEXT_IDX);
 
-            tupleValue = WordUtils.capitalizeFully(tupleValue);
-
             // If the entity is of the type we're interested in
             if (_entityTypes.contains(tupleType)) {
+
+                // Normalize whitespaces
+                StringBuilder sb = new StringBuilder();
+                Matcher nonWhitespaceMatcher = REGEXP_NONWHITESPACE.matcher(tupleValue);
+                while (nonWhitespaceMatcher.find())
+                    sb.append(" ").append(nonWhitespaceMatcher.group(1));
+
+                if (sb.length() > 0)
+                    tupleValue = sb.substring(1);
+                else
+                    continue;
+
+                // Normalize people's names
+                if (tupleType.toLowerCase().equals("person")) {
+                    sb = new StringBuilder();
+                    Matcher personMatcher = REGEXP_PERSON.matcher(tupleValue);
+                    while (personMatcher.find())
+                        sb.append(" ").append(personMatcher.group(1));
+
+                    if (sb.length() > 0)
+                        tupleValue = sb.substring(1);
+                    else
+                        continue;
+
+                    // ignore names with 1 character
+                    if (tupleValue.length() == 1)
+                        continue;
+                }
+
+                tupleValue = WordUtils.capitalizeFully(tupleValue);
+
                 // ... create an object for it
                 Entity entity = new Entity(tupleType, tupleValue);
 
