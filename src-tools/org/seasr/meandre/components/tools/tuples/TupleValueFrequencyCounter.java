@@ -156,7 +156,10 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 		threshold = Integer.parseInt(ccp.getProperty(PROP_FILTER_THRESHOLD));
 		topN      = Integer.parseInt(ccp.getProperty(PROP_FILTER_TOP_N));
-		console.fine("Export all tuples whose count > " + threshold + "");
+		console.fine("Export all tuples whose count > " + threshold);
+		if (topN > 0) {
+			console.fine("export only the top " + topN + " tuples");
+		}
 	}
 
 	@Override
