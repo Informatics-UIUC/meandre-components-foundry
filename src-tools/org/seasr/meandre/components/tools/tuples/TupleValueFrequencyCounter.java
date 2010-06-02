@@ -131,11 +131,19 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 		    defaultValue = "0"
 		)
 	protected static final String PROP_FILTER_THRESHOLD = "threshold";
+	
+	@ComponentProperty(
+			name = "maxExport",
+			description = "optional export the top N tuples (must be > 0 to be active)",
+		    defaultValue = "-1"
+		)
+	protected static final String PROP_FILTER_TOP_N = "maxExport";
 
 	//--------------------------------------------------------------------------------------------
 
 	String KEY_FIELD_TUPLE;
 	int threshold = 0;
+	int topN = 0;
 
 	//--------------------------------------------------------------------------------------------
 
@@ -147,7 +155,8 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 		}
 
 		threshold = Integer.parseInt(ccp.getProperty(PROP_FILTER_THRESHOLD));
-		console.info("Export all tuples whose count > " + threshold);
+		topN      = Integer.parseInt(ccp.getProperty(PROP_FILTER_TOP_N));
+		console.fine("Export all tuples whose count > " + threshold + "");
 	}
 
 	@Override
@@ -197,7 +206,9 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 	    	if (count > threshold) {
 	    	   outTuple.setValue(COUNT_IDX, count);
 	    	   outTuple.setValue(TOKEN_IDX, v.getKey());
-	    	   output.add(outTuple.convert());
+	    	   
+	    	   if (topN <= 0 || topN > 0 && output.size() < topN)
+	    	      output.add(outTuple.convert());
 	    	}
 	    }
 
