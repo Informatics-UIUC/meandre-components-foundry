@@ -42,9 +42,9 @@
 
 package org.seasr.meandre.components.analytics.socialnetworking;
 
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Properties;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.transform.OutputKeys;
 
@@ -110,12 +110,23 @@ public class LinkCreationToGraphML extends AbstractLinkCreationComponent {
         Document doc = DOMUtils.createNewDocument();
         Element elGraph = initialzeDocGraph(doc);
 
-        for (Entry<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> entry : _graph.entrySet())
-            addNode(entry.getKey(), elGraph);
+        // Assign ids to entities and add nodes
+        int id = 0;
+        for (Entity entity : _entities.keySet()) {
+            entity.setId(id++);
+            addNode(entity, elGraph);
+        }
 
-        for (Entry<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> entry : _graph.entrySet())
-            for (Entity entity : entry.getValue().getValue().keySet())
-                addEdge(entry.getKey(), entity, elGraph);
+        for (Entity entity : _entities.keySet()) {
+            Set<Entity> relEntities = new HashSet<Entity>(entity.getInwardLinks().keySet());
+            relEntities.addAll(entity.getOutwardLinks().keySet());
+
+            for (Entity relEntity : relEntities) {
+                addEdge(entity, relEntity, elGraph);
+                relEntity.getInwardLinks().remove(entity);
+                relEntity.getOutwardLinks().remove(entity);
+            }
+        }
 
         String xmlString = DOMUtils.getString(doc, _xmlProperties);
         xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);

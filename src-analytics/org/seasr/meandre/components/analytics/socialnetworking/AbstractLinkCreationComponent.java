@@ -42,10 +42,12 @@
 
 package org.seasr.meandre.components.analytics.socialnetworking;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -108,48 +110,49 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     )
     protected static final String PROP_OFFSET = Names.PROP_OFFSET;
 
-//    @ComponentProperty(
-//            description = "Set to 'true' to remove uncorrelated entities." ,
-//            name = "remove_uncorrelated_entities",
-//            defaultValue = "true"
-//    )
-//    protected static final String PROP_REMOVE_EMPTY = "remove_uncorrelated_entities";
+    @ComponentProperty(
+            description = "Set to 'true' to apply normalization functions to entities." ,
+            name = "normalize_entities",
+            defaultValue = "true"
+    )
+    protected static final String PROP_NORMALIZE_ENTITIES = "normalize_entities";
+
+    @ComponentProperty(
+            description = "Set to 'true' to remove uncorrelated entities." ,
+            name = "remove_uncorrelated_entities",
+            defaultValue = "true"
+    )
+    protected static final String PROP_REMOVE_EMPTY = "remove_uncorrelated_entities";
 
     //--------------------------------------------------------------------------------------------
 
     protected static final Pattern REGEXP_NONWHITESPACE = Pattern.compile("([^\\s]+)");
     protected static final Pattern REGEXP_PERSON = Pattern.compile("(?:(\\p{Alpha}+)\\s*)");
 
-    protected static int ID_COUNT;
-
     protected Set<String> _entityTypes;
     protected int _offset;
     protected boolean _isStreaming;
     protected boolean _removeUncorrelatedEntities;
+    protected boolean _normalizeEntities;
 
-    // Mapping from entities to KeyValuePairs containing the id of the entity (the key) and the Map<Entity, Integer>
-    // containing all the other entities related to it, and the strength of the relationship (the Integer count)
-    protected HashMap<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> _graph;
+    protected final Map<Entity, Entity> _entities = new HashMap<Entity, Entity>();
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        ID_COUNT = 0;
-
         _offset = Integer.parseInt(getPropertyOrDieTrying(PROP_OFFSET, true, true, ccp));
         if (_offset <= 0) throw new ComponentContextException(String.format("Property '%s' must be greater than zero", PROP_OFFSET));
 
         String entityTypes = getPropertyOrDieTrying(PROP_ENTITIES, true, true, ccp);
 
-//        _removeUncorrelatedEntities = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REMOVE_EMPTY, true, true, ccp));
+        _normalizeEntities = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_NORMALIZE_ENTITIES, true, true, ccp));
+        _removeUncorrelatedEntities = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REMOVE_EMPTY, true, true, ccp));
 
         _entityTypes = new HashSet<String>();
         for (String entity : entityTypes.split(","))
             _entityTypes.add(entity.trim());
-
-        _graph = new HashMap<Entity, KeyValuePair<Integer, Map<Entity, Integer>>>();
 
         _isStreaming = false;
     }
@@ -172,6 +175,7 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
         int TYPE_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TYPE_FIELD);
         int TEXT_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_FIELD);
 
+        // Linked list of sentences keyed by sentence id - the HashSet is the set of entities in that sentence
         LinkedList<KeyValuePair<Integer, HashSet<Entity>>> _sentencesWindow = new LinkedList<KeyValuePair<Integer, HashSet<Entity>>>();
 
         // Note: The algorithm used to mark entities as adjacent if they fall within the specified sentence distance
@@ -189,49 +193,49 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
             // If the entity is of the type we're interested in
             if (_entityTypes.contains(tupleType)) {
 
-                // Normalize whitespaces
-                StringBuilder sb = new StringBuilder();
-                Matcher nonWhitespaceMatcher = REGEXP_NONWHITESPACE.matcher(tupleValue);
-                while (nonWhitespaceMatcher.find())
-                    sb.append(" ").append(nonWhitespaceMatcher.group(1));
-
-                if (sb.length() > 0)
-                    tupleValue = sb.substring(1);
-                else
-                    continue;
-
-                // Normalize people's names
-                if (tupleType.toLowerCase().equals("person")) {
-                    sb = new StringBuilder();
-                    Matcher personMatcher = REGEXP_PERSON.matcher(tupleValue);
-                    while (personMatcher.find())
-                        sb.append(" ").append(personMatcher.group(1));
+                if (_normalizeEntities) {
+                    // Normalize whitespaces
+                    StringBuilder sb = new StringBuilder();
+                    Matcher nonWhitespaceMatcher = REGEXP_NONWHITESPACE.matcher(tupleValue);
+                    while (nonWhitespaceMatcher.find())
+                        sb.append(" ").append(nonWhitespaceMatcher.group(1));
 
                     if (sb.length() > 0)
                         tupleValue = sb.substring(1);
                     else
                         continue;
 
-                    // ignore names with 1 character
-                    if (tupleValue.length() == 1)
-                        continue;
-                }
+                    // Normalize people's names
+                    if (tupleType.toLowerCase().equals("person")) {
+                        sb = new StringBuilder();
+                        Matcher personMatcher = REGEXP_PERSON.matcher(tupleValue);
+                        while (personMatcher.find())
+                            sb.append(" ").append(personMatcher.group(1));
 
-                tupleValue = WordUtils.capitalizeFully(tupleValue);
+                        if (sb.length() > 0)
+                            tupleValue = sb.substring(1);
+                        else
+                            continue;
+
+                        // ignore names with 1 character
+                        if (tupleValue.length() == 1)
+                            continue;
+                    }
+
+                    tupleValue = WordUtils.capitalizeFully(tupleValue);
+                }
 
                 // ... create an object for it
                 Entity entity = new Entity(tupleType, tupleValue);
 
                 // Check if we already recorded this entity before
-                KeyValuePair<Integer, Map<Entity, Integer>> oldEntityMapping = _graph.get(entity);
-                if (oldEntityMapping == null) {
-                    // If not, assign a new id to it and record it
-                    int id = ID_COUNT++;
-                    entity.setId(id);
-                    _graph.put(entity, new KeyValuePair<Integer, Map<Entity, Integer>>(id, new HashMap<Entity, Integer>()));
-                } else
-                    // Otherwise assign the id that we previously assigned to it
-                    entity.setId(oldEntityMapping.getKey());
+                Entity oldEntity = _entities.get(entity);
+                if (oldEntity == null)
+                    // If not, record it
+                    _entities.put(entity, entity);
+                else
+                    // Otherwise retrieve the entity we used before
+                    entity = oldEntity;
 
                 HashSet<Entity> sentenceEntities;
 
@@ -262,19 +266,8 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
                         if (e.equals(entity)) continue;
 
                         // ... and mark the new entity as being adjacent to all the entities in the window
-
-                        // check if an inverse relationship already exists
-                        Map<Entity, Integer> entityRelationshipCountMap = _graph.get(entity).getValue();
-                        Integer count = entityRelationshipCountMap.get(e);
-                        Entity theEntity = e;
-                        if (count == null) {
-                            entityRelationshipCountMap = _graph.get(e).getValue();
-                            count = entityRelationshipCountMap.get(entity);
-                            theEntity = entity;
-                        }
-
-                        if (count == null) count = 0;
-                        entityRelationshipCountMap.put(theEntity, count + 1);
+                        e.addOutwardLink(entity);
+                        entity.addInwardLink(e);
                     }
 
                 // Add the new entity to the window
@@ -298,6 +291,8 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
         _isStreaming = true;
+
+        reset();
     }
 
     @Override
@@ -311,17 +306,19 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     private void generateAndPushOutputInternal() throws Exception {
         console.entering(getClass().getSimpleName(), "generateAndPushOutput");
 
-        console.info(String.format("Number of nodes: %d", _graph.size()));
+        console.info(String.format("Number of nodes: %d", _entities.size()));
 
-//        if (_removeUncorrelatedEntities) {
-//            List<Entity> toRemove = new ArrayList<Entity>();
-//            for (Map.Entry<Entity, KeyValuePair<Integer, HashSet<Entity>>> entry : _graph.entrySet())
-//                if (entry.getValue().getValue().isEmpty())
-//                    toRemove.add(entry.getKey());
-//
-//            for (Entity e : toRemove)
-//                _graph.remove(e);
-//        }
+        if (_removeUncorrelatedEntities) {
+            List<Entity> toRemove = new ArrayList<Entity>();
+            for (Entity entity : _entities.keySet())
+                if (!(entity.hasInwardLinks() || entity.hasOutwardLinks()))
+                    toRemove.add(entity);
+
+            for (Entity e : toRemove)
+                _entities.remove(e);
+
+            console.info(String.format("Number of nodes after removing uncorrelated nodes: %d", _entities.size()));
+        }
 
         generateAndPushOutput();
 
@@ -333,8 +330,7 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     }
 
     private void reset() {
-        _graph.clear();
-        ID_COUNT = 0;
+        _entities.clear();
     }
 
     //--------------------------------------------------------------------------------------------
@@ -346,12 +342,16 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     class Entity {
         private final String _type;
         private final String _value;
-        private int _id;
+        private final Map<Entity, Integer> _in;
+        private final Map<Entity, Integer> _out;
+        private Integer _id;
 
         public Entity(String type, String value) {
             _type = type;
             _value = value;
-            _id = -1;
+            _in = new HashMap<Entity, Integer>();
+            _out = new HashMap<Entity, Integer>();
+            _id = null;
         }
 
         public String getType() {
@@ -362,12 +362,40 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
             return _value;
         }
 
-        public int getId() {
+        public void setId(int id) {
+            _id = id;
+        }
+
+        public Integer getId() {
             return _id;
         }
 
-        public void setId(int id) {
-            _id = id;
+        public void addInwardLink(Entity fromEntity) {
+            Integer count = _in.get(fromEntity);
+            if (count == null) count = 0;
+            _in.put(fromEntity, count + 1);
+        }
+
+        public void addOutwardLink(Entity toEntity) {
+            Integer count = _out.get(toEntity);
+            if (count == null) count = 0;
+            _out.put(toEntity, count + 1);
+        }
+
+        public boolean hasInwardLinks() {
+            return _in.size() > 0;
+        }
+
+        public boolean hasOutwardLinks() {
+            return _out.size() > 0;
+        }
+
+        public Map<Entity, Integer> getInwardLinks() {
+            return _in;
+        }
+
+        public Map<Entity, Integer> getOutwardLinks() {
+            return _out;
         }
 
         @Override
@@ -380,6 +408,11 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
             if (!(obj instanceof Entity) || obj == null) return false;
             Entity other = (Entity) obj;
             return (_type + _value).equals(other.getType() + other.getValue());
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s (%s)", _value, _type);
         }
     }
 

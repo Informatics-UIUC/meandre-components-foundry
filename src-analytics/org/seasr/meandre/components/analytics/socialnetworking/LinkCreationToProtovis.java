@@ -42,12 +42,9 @@
 
 package org.seasr.meandre.components.analytics.socialnetworking;
 
-import java.util.Comparator;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Properties;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.transform.OutputKeys;
 
@@ -115,20 +112,34 @@ public class LinkCreationToProtovis extends AbstractLinkCreationComponent {
         joOutput.put("nodes", jaNodes);
         joOutput.put("links", jaLinks);
 
-        SortedMap<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> sortedGraph =
-            new TreeMap<Entity, KeyValuePair<Integer, Map<Entity, Integer>>>(new EntityComparator());
-        sortedGraph.putAll(_graph);
-
         console.finest("Adding nodes");
 
-        for (Entry<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> entry : sortedGraph.entrySet())
-            addNode(entry.getKey(), jaNodes);
+        int id = 0;
+
+        // Assign ids to entities and create nodes
+        for (Entity entity : _entities.keySet()) {
+            entity.setId(id++);
+            addNode(entity, jaNodes);
+        }
 
         console.finest("Adding edges");
 
-        for (Entry<Entity, KeyValuePair<Integer, Map<Entity, Integer>>> entry : sortedGraph.entrySet())
-            for (Entry<Entity, Integer> relationship : entry.getValue().getValue().entrySet())
-                addEdge(entry.getKey(), relationship.getKey(), relationship.getValue(), jaLinks);
+        for (Entity entity : _entities.keySet()) {
+            Set<Entity> relEntities = new HashSet<Entity>(entity.getInwardLinks().keySet());
+            relEntities.addAll(entity.getOutwardLinks().keySet());
+
+            for (Entity relEntity : relEntities) {
+                Integer countIn = entity.getInwardLinks().get(relEntity);
+                if (countIn == null) countIn = 0;
+                Integer countOut = entity.getOutwardLinks().get(relEntity);
+                if (countOut == null) countOut = 0;
+
+                addEdge(entity, relEntity, countIn + countOut, jaLinks);
+
+                relEntity.getInwardLinks().remove(entity);
+                relEntity.getOutwardLinks().remove(entity);
+            }
+        }
 
         String sOutput = String.format("%s", joOutput.toString(4));
         console.finest("Output: " + sOutput);
@@ -159,11 +170,5 @@ public class LinkCreationToProtovis extends AbstractLinkCreationComponent {
         joLink.put("value", strength);
 
         jaLinks.put(joLink);
-    }
-
-    public class EntityComparator implements Comparator<Entity> {
-        public int compare(Entity e1, Entity e2) {
-            return new Integer(e1.getId()).compareTo(e2.getId());
-        }
     }
 }
