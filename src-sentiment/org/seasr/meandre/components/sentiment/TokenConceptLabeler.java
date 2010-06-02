@@ -163,23 +163,23 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
     protected static final String DATA_PROPERTY_CONCEPTS = "concepts";
 
 	@ComponentProperty(
-	        description = "filename of cached concepts to use instead of synNet host",
+	        description = "optional filename of cached concepts to use instead of synNet host",
 	        name = "conceptCacheFile",
-	        defaultValue = "posConceptCache.csv"
+	        defaultValue = ""
 	)
     protected static final String DATA_PROPERTY_CACHE = "conceptCacheFile";
 
 	@ComponentProperty(
-	        description = "filename of tokens to ignore, words with no concepts",
+	        description = "optional filename of tokens to ignore, words with no concepts",
 	        name = "ignoreTokensFile",
-	        defaultValue = "ignore.csv"
+	        defaultValue = ""
 	)
     protected static final String DATA_PROPERTY_IGNORE = "ignoreTokensFile";
 
 	@ComponentProperty(
-	        description = "filename of tokens to remap, use to change spellings, etc",
+	        description = "optional filename of tokens to remap, use to change spellings, etc",
 	        name = "remapFile",
-	        defaultValue = "remap.csv"
+	        defaultValue = ""
 	)
     protected static final String DATA_PROPERTY_WORDMAP = "remapFile";
 
@@ -210,10 +210,33 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 	PathMetricFinder finder;
 
     //--------------------------------------------------------------------------------------------
+	
+	public Map<String,String> buildCacheMap(ComponentContextProperties ccp, 
+			                                String key, 
+			                                StringBuilder filenameOut)
+	{
+		filenameOut.setLength(0);
+		String filename = ccp.getProperty(key);
+		if (filename == null || filename.trim().length() == 0) {
+			Map<String,String> map = new HashMap<String,String>();
+			return map;
+		}
+		
+		// key exists, use the given filename
+		String defaultDir = ccp.getPublicResourcesDirectory();
+		filename   = FileResourceUtility.buildResourcePath(defaultDir, filename);
+		FileResourceUtility.createPathToResource(filename, console);
+		
+		Map<String,String> map = readFromFile(filename);
+		filenameOut.append(filename);
+		return map;
+	}
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
 		this.keyFieldName = ccp.getProperty(DATA_PROPERTY_FIELDNAME_KEY);
+		
 		//
 		// init the synNet host
 		//
@@ -222,7 +245,19 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 
 
 		// create/build the cache file name
-		String defaultDir = ccp.getPublicResourcesDirectory();
+		StringBuilder sb = new StringBuilder();
+		
+		this.wordToConceptMap = buildCacheMap(ccp, DATA_PROPERTY_CACHE, sb );
+		this.cacheFileName = sb.toString();
+		
+		this.wordMap = buildCacheMap(ccp, DATA_PROPERTY_WORDMAP, sb );
+		this.wordMapFileName = sb.toString();
+		
+		this.noConceptMap = buildCacheMap(ccp, DATA_PROPERTY_IGNORE, sb);
+		this.wordMapFileName  = sb.toString();
+		
+
+		/*
 		this.cacheFileName     = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_CACHE));
 		this.wordMapFileName   = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_WORDMAP));
 		this.noConceptFileName = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_IGNORE));
@@ -235,6 +270,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 		this.wordToConceptMap = readFromFile(cacheFileName);
 		this.noConceptMap     = readFromFile(noConceptFileName);
 		this.wordMap          = readFromFile(wordMapFileName);
+		*/
 
 		//
 		// build the map for concepts
@@ -363,7 +399,8 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 	}
 
     @Override
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
     	writeToFile(wordToConceptMap, cacheFileName);
     	writeToFile(noConceptMap,     noConceptFileName);
     }
@@ -380,6 +417,17 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
     }
 
     private void writeToFile(Map<String,String>map, String filename) {
+    	
+    	if (filename == null || filename.length() == 0) {
+    		return;
+    	}
+    	
+    	
+    	File file = new File(filename);
+    	if (! file.exists()) {
+    		console.fine(filename + " does not exist");
+    	}
+    	
 		try {
 	        BufferedWriter out = new BufferedWriter(new FileWriter(filename));
 	        Iterator<String> it = map.keySet().iterator();
