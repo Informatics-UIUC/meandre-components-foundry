@@ -161,6 +161,13 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 
 		int KEY_FIELD_IDX = tuplePeer.getIndexForFieldName(KEY_FIELD_TUPLE);
+		if (KEY_FIELD_IDX == -1) {
+			String error = "Tuple does not have field " + KEY_FIELD_TUPLE;
+			console.warning(error);
+			console.warning(tuplePeer.toString());
+			throw new ComponentContextException(error);
+					
+		}
 		console.info("FIELD           " + KEY_FIELD_TUPLE);
 		console.info("key field index " + KEY_FIELD_IDX);
 
