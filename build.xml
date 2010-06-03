@@ -59,6 +59,7 @@
     <property name="build.dir" value="${basedir}/build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="dist.dir" value="${basedir}/dist"/>
+    <property name="descriptors.dir" value="${basedir}/descriptors"/>
     <property name="gwt.base.dir" value="${basedir}/src-gwt"/>
     <property name="gwt.src.dir" value="${gwt.base.dir}/src"/>
     <property name="gwt.modules.list" value="org.seasr.meandre.components.vis.gwt.helloworld.HelloWorld,org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer"/>
@@ -407,6 +408,19 @@
             <arg value="${username}"/>
             <arg value="-p"/>
             <arg value="${password}"/>
+        </java>
+    </target>
+
+    <target name="create-descriptors"
+            depends="compile"
+            description="-> creates descriptors for all components. Example: >ant create-descriptors [-Ddescriptors.dir=...]">
+        <java classname="org.meandre.tools.components.CreateDescriptors"
+              fork="yes"
+              maxmemory="1024m">
+            <classpath refid="classpath.devkit"/>
+            <arg value="${classes.dir}"/>
+            <arg value="${lib.dir}"/>
+            <arg value="${descriptors.dir}"/>
         </java>
     </target>
 
