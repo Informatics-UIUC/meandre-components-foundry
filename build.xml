@@ -99,11 +99,10 @@
     -->
     <!-- Confluence settings (for update-wiki task) -->
     <!-- These need to be handled differently - they should probably be set in $HOME/.SEASR/WikiCreateComponentPages.conf or specified via command line -->
-    <!--
-    <property name="confluence.server" value="https://apps.lis.uiuc.edu/wiki"/>
-    <property name="confluence.space" value="seasrD"/>
-    <property name="confluence.title" value="Available Components"/>
-    -->
+
+    <property name="confluence.server" value="http://dev-tools.seasr.org/confluence"/>
+    <property name="confluence.space" value="COOK"/>
+    <property name="confluence.title" value="Foundry-Components"/>
 
     <taskdef resource="net/sf/antcontrib/antlib.xml">
       <classpath>
@@ -391,16 +390,17 @@
         Creates/updates the wiki component documentation
     -->
     <target name="update-wiki"
+    		depends="create-descriptors"
             description="-> updates the wiki documentation for components.  Example: >ant update-wiki -Dusername=wiki_username -Dpassword=wiki_password">
-        <java classname="org.meandre.tools.components.WikiCreateComponentPages"
+        <java classname="org.meandre.tools.wiki.WikiCreateComponentPages"
               fork="yes"
               maxmemory="1024m">
-            <classpath refid="classpath.runtime"/>
+            <classpath refid="classpath.devkit"/>
             <jvmarg value="-showversion"/>
             <arg value="-s"/>
             <arg value="${confluence.server}"/>
             <arg value="-d"/>
-            <arg value="${componentsDescriptorsDir}"/>
+            <arg value="${descriptors.dir}"/>
             <arg value="--title"/>
             <arg value="${confluence.title}"/>
             <arg value="--space"/>
