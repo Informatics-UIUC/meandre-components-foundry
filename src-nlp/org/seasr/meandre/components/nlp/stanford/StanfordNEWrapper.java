@@ -82,11 +82,109 @@ public class StanfordNEWrapper {
     	return tuplePeer;
     }
     
+    public List<SimpleTuple> clean(List<SimpleTuple> tuples, String src) 
+    {
+    	if (tuples.size() < 2) {
+    		return tuples;
+    	}
+    	
+    	
+    	// partition the list into the varous types
+    	String[] types = new String[]{"person", "location", "organization"};
+    	List<SimpleTuple> tmp = new ArrayList<SimpleTuple>();
+    	List<SimpleTuple> output = new ArrayList<SimpleTuple>();
+    	
+    	for (String type : types) {
+    		
+    		tmp.clear();
+    		for (SimpleTuple tuple: tuples) {
+    			if (tuple.getValue(TYPE_IDX).equals(type)) {
+    				tmp.add(tuple);
+    			}
+    		}
+    		
+    		if (tmp.size() < 2) {
+    			for(SimpleTuple tuple: tmp) {
+    				output.add(tuple);
+    			}
+    			continue;
+    		}
+    		
+    		
+    		//
+    		// now process the list
+    		//
+    		int idx0 = 0;
+    		int idx1 = idx0 + 1;
+    		
+    		while(idx1 < tmp.size()) {
+    		
+    			SimpleTuple a = tmp.get(idx0);
+    			SimpleTuple b = tmp.get(idx1);
+    			int i = Integer.parseInt(a.getValue(TEXT_START_IDX));
+    			int j = Integer.parseInt(b.getValue(TEXT_START_IDX));
+    			String at = a.getValue(TEXT_IDX);
+    			String bt = b.getValue(TEXT_IDX);
+    			if ( j - (i + at.length()) < 2) {
+    				
+    				a.setValue(TEXT_IDX, at + " " + bt);
+    				
+    				//output.add(a);
+    				// idx0 = idx1 + 1;
+    				
+    				idx1 = idx1 + 1;
+    			
+    				// System.out.println("COMBO " + a.toString());
+    				// System.out.println(src);
+    				
+    				if (idx1 == tmp.size()) {
+    					output.add(a);
+    					// we are done
+    				}
+
+    			}
+    			else {
+    				
+    				output.add(a);
+    				idx0 = idx1;
+    				idx1 = idx0 + 1;
+    				
+    				if (idx1 == tmp.size()) {
+    					// we are done
+    					output.add(b);
+    				}
+    			}
+    				
+    			
+    		}
+    		
+    	
+    	}
+    	
+    	// person: abe tuple N
+    	// person: lincoln: tuple N+1
+    	// same sentenceId
+    	// b.startIdx - (a.startIdx + text.lenght) <= 3
+    	// combine the tuples into one
+    	// 
+    	
+    	
+    	return output;
+    }
+    
     public List<SimpleTuple> toTuples(String stringToParse) {
     	
     	List<SimpleTuple> output = new ArrayList<SimpleTuple>();
 
     	String originalText = stringToParse;
+    	
+    	boolean doPrint = false;
+    	/*
+    	if (originalText.toLowerCase().indexOf("francisco") > 0) {
+    		doPrint = true;
+    		System.out.println(originalText);
+    	}
+    	*/
 
 		List<List<CoreLabel>> out = classifier.classify(originalText);
         for (List<CoreLabel> sentence : out) {
@@ -115,6 +213,12 @@ public class StanfordNEWrapper {
 			   tuple.setValue(TEXT_START_IDX,  indexOfLastWord);
 			   tuple.setValue(TEXT_IDX,        text);
 			   output.add(tuple);
+			   
+			   
+			   if (doPrint) {
+				   System.out.println(tuplePeer.toString());
+				   System.out.println(tuple);
+			   }
             }
 
             int len = text.length();
@@ -131,7 +235,9 @@ public class StanfordNEWrapper {
           sentenceId++;
         }
         
-        return output;
+        //return output;
+        
+        return clean(output, originalText);
 
     }
 
