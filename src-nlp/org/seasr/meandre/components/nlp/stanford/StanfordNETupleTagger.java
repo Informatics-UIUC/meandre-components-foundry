@@ -56,8 +56,6 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
@@ -66,7 +64,6 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.components.nlp.opennlp.OpenNLPBaseUtilities;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
@@ -81,11 +78,13 @@ import edu.stanford.nlp.ie.crf.CRFClassifier;
  */
 
 //
-// General Path:  Text -> SentenceDetector -> SentenceTokenizer -> NETagger
+// This performs just like Stanford NE Tagger, but on values in a tuple
+// AND it then associates those togged tuples with the parent tuple
+// it adds a pid field to the tagged tuple
 //
 
 @Component(
-		name = "Stanford Named Entity Tagger",
+		name = "Stanford NE Tuple Tagger",
 		creator = "Mike Haberman",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
@@ -95,31 +94,54 @@ import edu.stanford.nlp.ie.crf.CRFClassifier;
 		description = "This component performs named entity tagging using Stanford's NLP facilities",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "stanfordModels.jar", "seasr-commons.jar"}
 )
-public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
+public class StanfordNETupleTagger extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
+
 	@ComponentInput(
-			name = Names.PORT_TEXT,
-			description = "The text to be split into sentences"
+			name = Names.PORT_TUPLES,
+			description = "incoming tuples, from which a field will be used to process text" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
-	protected static final String IN_TEXT = Names.PORT_TEXT;
+	protected static final String IN_TUPLES = Names.PORT_TUPLES;
+
+	@ComponentInput(
+			name = Names.PORT_META_TUPLE,
+			description = "meta data for incoming tuples" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+	)
+	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
-
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples: (sentenceId,type,textStart,text)" +
+			description = "same as input" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples: (sentenceId,type,textStart,text)" +
+			description = "same as input" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
+	
+	
+	@ComponentOutput(
+			name = "neTuples",
+			description = "set of ne tuples: (sentenceId,type,textStart,text, pid)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+	)
+	protected static final String OUT_NE_TUPLES = "neTuples";
+
+	@ComponentOutput(
+			name = "neMeta_tuple",
+			description = "meta data for ne tuples: (sentenceId,type,textStart,text, pid)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+	)
+	protected static final String OUT_NE_META_TUPLE = "neMeta_tuple";
 
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
@@ -144,6 +166,22 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 		    defaultValue = ""
 		)
 	protected static final String PROP_MODELS_DIR = "modelsDir";
+	
+	@ComponentProperty(
+			name = "textField",
+			description = "the field name of the incoming tuples that you want to do N.E. tagging on",
+		    defaultValue = ""
+		)
+	protected static final String PROP_TEXT = "textField";
+	
+	@ComponentProperty(
+			name = "idField",
+			description = "the field name of the incoming tuples that you want to use as a key for the labelled tuples",
+		    defaultValue = ""
+		)
+	protected static final String PROP_ID = "idField";
+	
+	
 
 
    /*
@@ -177,9 +215,15 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 	protected String taggerFile;
  
 
+	String pidField = "pid";
+	int pidFieldIdx = 0;
+	
+	
+	
+	
+    String textFieldName;
+	String idFieldName;
 	//--------------------------------------------------------------------------------------------
-    int count = 0;
-
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
@@ -194,42 +238,95 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
 
 		AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(modelsDir + File.separator + taggerFile);
 		
-		neHelper = new StanfordNEWrapper(classifier);
+		
+		textFieldName = getPropertyOrDieTrying(PROP_TEXT, true, true,ccp);
+		idFieldName   = getPropertyOrDieTrying(PROP_ID,   true, true, ccp);
+		
+		
+		String[] fields = new String[]{pidField};
+		
+		neHelper = new StanfordNEWrapper(classifier, fields);
+		SimpleTuplePeer peer = neHelper.getTuplePeer();
+		pidFieldIdx = peer.getIndexForFieldName(pidField);
+		
+		if (pidFieldIdx == -1) {
+			throw new RuntimeException("BAD programmer");
+		}
+		
+		
 	}
     
 
-	@SuppressWarnings("unchecked")
-    @Override
+    
+	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
     {
-    	
-    	// input was encoded via :
-    	// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
-    	//
-    	Strings input = (Strings) cc.getDataComponentFromInput(IN_TEXT);
-		String[] val = BasicDataTypesTools.stringsToStringArray (input);
-		String text = val[0];
-		console.finest(count++ + " attempt to parse\n" + text);
-
-		List<SimpleTuple> tuples = neHelper.toTuples(text);
-		List<Strings> output = new ArrayList<Strings>();
 		
-		for (SimpleTuple tuple : tuples) {
-		   output.add(tuple.convert());
+		int idFieldIdx = 0;
+	    int textIdx = 0;
+		
+		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
+		
+
+		idFieldIdx = tuplePeer.getIndexForFieldName(idFieldName);
+		textIdx    = tuplePeer.getIndexForFieldName(textFieldName);
+		
+		if (idFieldIdx == -1) {
+			console.info("WARNING no field named " + idFieldName);
+			console.info(tuplePeer.toString());
+		}
+		if (textIdx == -1) {
+			console.info("WARNING no field named " + textFieldName);
+			console.info(tuplePeer.toString());
 		}
 		
-        // push the whole collection, protocol safe
+		
+
+		SimpleTuple tuple = tuplePeer.createTuple();
+		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
+		
+		
+		List<Strings> output = new ArrayList<Strings>();
+		
+		
+		for (int i = 0; i < in.length; i++) {
+			tuple.setValues(in[i]);
+			
+			String text = tuple.getValue(textIdx);
+			String id   = tuple.getValue(idFieldIdx);
+			
+			List<SimpleTuple> neTuples = neHelper.toTuples(text);
+			for (SimpleTuple t : neTuples) {
+				t.setValue(pidFieldIdx, id);
+				output.add(t.convert());
+			}
+			
+			// do any custom labeling here
+		}
+		
+		
+		// push the original input
+		cc.pushDataComponentToOutput(OUT_TUPLES, input);
+		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
+		
+		
+		// now push the new N.E. tuples
+		
+		// push the whole collection, protocol safe
         Strings[] results = new Strings[output.size()];
         output.toArray(results);
 
         StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
-        cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+        cc.pushDataComponentToOutput(OUT_NE_TUPLES, outputSafe);
 
         //
     	// metaData for this tuple producer
     	//
-        SimpleTuplePeer tuplePeer = neHelper.getTuplePeer();
-        cc.pushDataComponentToOutput(OUT_META_TUPLE, tuplePeer.convert());
+        tuplePeer = neHelper.getTuplePeer();
+        cc.pushDataComponentToOutput(OUT_NE_META_TUPLE, tuplePeer.convert());
+        
     }
 
     @Override
@@ -237,7 +334,7 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
     }
 
     //--------------------------------------------------------------------------------------------
-
+/*
     @Override
     protected void handleStreamInitiators() throws Exception {
         StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_TEXT);
@@ -251,6 +348,7 @@ public class StanfordNamedEntityTagger extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_META_TUPLE, st);
         componentContext.pushDataComponentToOutput(OUT_TUPLES, ComponentUtils.cloneStreamDelimiter(st));
     }
+    */
 
     //--------------------------------------------------------------------------------------------
 
