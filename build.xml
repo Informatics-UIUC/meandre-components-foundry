@@ -190,6 +190,7 @@
     <target name="clean" description="-> removes build artifacts">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>
+        <delete dir="${descriptors.dir}"/>
         <delete dir="${test.logs.dir}"/>
         <delete dir="${test.output.dir}"/>
     	<delete dir="published_resources"/>
@@ -411,6 +412,9 @@
         </java>
     </target>
 
+	<!--
+		Creates the component descriptors and saves them to a particular folder
+	-->
     <target name="create-descriptors"
             depends="compile"
             description="-> creates descriptors for all components. Example: >ant create-descriptors [-Ddescriptors.dir=...]">
