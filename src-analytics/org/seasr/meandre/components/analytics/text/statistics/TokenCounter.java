@@ -56,6 +56,8 @@ import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 
@@ -64,6 +66,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
  *
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
+ * @author Lily Dong
  */
 
 @Component(
@@ -129,7 +132,15 @@ public class TokenCounter extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		String[] tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
+		Object obj = cc.getDataComponentFromInput(IN_TOKENS);
+
+		if(obj instanceof StringsMap) //tokenized sentences
+			processSentences((StringsMap)obj);
+		else if(obj instanceof Strings) //tokens only
+			processTokens(DataTypeParser.parseAsString(obj));
+
+
+		/*String[] tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
 
 		Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>(1000);
 
@@ -143,10 +154,50 @@ public class TokenCounter extends AbstractExecutableComponent {
 
 		console.fine(String.format("Found %,d unique tokens", htCounts.size()));
 
-		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts,bOrdered));
+		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts,bOrdered));*/
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    /**
+     *
+     * @param input contains both sentences and tokens
+     * @throws Exception
+     */
+    private void processSentences(StringsMap input) throws Exception {
+    	for (int i=0; i<input.getKeyCount(); i++) {
+			String[] tokens = null;
+			//String sentence = null;
+    		//sentence      = input.getKey(i);    // this is the entire sentence (the key)
+    		Strings value = input.getValue(i);  // this is the set of tokens for that sentence
+    		tokens = DataTypeParser.parseAsString(value);
+    		processTokens(tokens);
+		}
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    /**
+     *
+     * @param tokens only
+     * @throws Exception
+     */
+    private void processTokens(String[] tokens) throws Exception {
+    	Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>(1000);
+
+		// Retrieve the tokens and count them
+		for ( String sToken : tokens ) {
+			if ( htCounts.containsKey(sToken) )
+				htCounts.put(sToken, htCounts.get(sToken)+1);
+			else
+				htCounts.put(sToken, 1);
+		}
+
+		console.fine(String.format("Found %,d unique tokens", htCounts.size()));
+
+		componentContext.pushDataComponentToOutput(
+				OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts,bOrdered));
     }
 }
