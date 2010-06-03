@@ -222,8 +222,13 @@ public class TupleGrouper extends AbstractExecutableComponent {
 		//
 		// assumes, tuples are in order, so the last tuple has the biggest windowField value
 		//
-		tuple.setValues(in[in.length - 1]);
-		long end = Long.parseLong(tuple.getValue(START_IDX));
+		long end = 0;
+		if (in.length > 0) {
+		   tuple.setValues(in[in.length - 1]);
+		   end = Long.parseLong(tuple.getValue(START_IDX));
+		}else {
+			console.warning("NO tuples to process");
+		}
 
 		long numberOfWindows = 1;
 		if (DEFAULT_MAX_WINDOWS == -1 && DEFAULT_WINDOW_SIZE == -1) {
