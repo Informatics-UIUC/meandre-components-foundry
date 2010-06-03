@@ -70,7 +70,7 @@ import org.w3c.dom.Element;
         creator = "Boris Capitanu",
         description = "<p>Overview: <br> This component creates " +
                       "links between tuples that occur within a specified sentence distance from each other. " +
-                      "The resulting graph is outputted as a GraphML document.</p>",
+                      "The resulting graph is output as a GraphML document.</p>",
         name = "Link Creation to GraphML",
         tags = "tuple, link, GraphML",
         firingPolicy = FiringPolicy.all,
