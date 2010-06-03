@@ -217,9 +217,10 @@ public class WriteText extends AbstractExecutableComponent {
 	        String publicLoc = file.getAbsolutePath().substring(publicResourcesDir.length());
 	        URL outputURL = new URL(cc.getProxyWebUIUrl(true), "/public/resources/" + publicLoc);
 	        console.info("File accessible at: " + outputURL);
+	        cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(outputURL.toString()));
 	    }
-
-		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(file.toString()));
+	    else
+	        cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(file.toString()));
 		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
 	}
 
