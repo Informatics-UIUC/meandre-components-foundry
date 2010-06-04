@@ -149,7 +149,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
 	@ComponentProperty(
-	        description = "synNet host",
+	        description = "synNet service url (include http://)",
 			name = "host",
 			defaultValue = "http://services.seasr.org/synnet/"
 	)
@@ -232,6 +232,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 		return map;
 	}
 
+	private String host;
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
     {
@@ -240,7 +241,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 		//
 		// init the synNet host
 		//
-		String host   = ccp.getProperty(DATA_PROPERTY_HOST);
+		this.host   = ccp.getProperty(DATA_PROPERTY_HOST);
 		this.finder = new PathMetricFinder(host);
 
 
@@ -347,7 +348,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 			   console.fine("need to label " + token);
 			   List<PathMetric> all = finder.getAllMetric(token, allLabels);
 			   if (all == null) {
-			    	console.fine("Unable to label, service down");
+			    	console.info("Unable to label, service down " + this.host);
 			    	break;
 			   }
 
