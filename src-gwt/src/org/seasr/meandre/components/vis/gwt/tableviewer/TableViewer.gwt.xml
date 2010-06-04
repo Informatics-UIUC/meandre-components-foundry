@@ -3,5 +3,6 @@
 <module>
     <inherits name='com.google.gwt.user.User'/>
     <inherits name="com.smartgwt.SmartGwt"/>
+    <source path="client"/>
 	<entry-point class="org.seasr.meandre.components.vis.gwt.tableviewer.client.TableViewer" />
 </module>

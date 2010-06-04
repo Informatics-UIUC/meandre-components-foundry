@@ -11,6 +11,8 @@
   <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
+  <source path="client"/>
+
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.seasr.meandre.components.vis.gwt.helloworld.client.HelloWorld'/>
 </module>
