@@ -43,16 +43,34 @@
 package org.seasr.meandre.components.tools.text.io;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.meandre.annotations.Component;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.meandre.webui.WebUIException;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
+import org.seasr.datatypes.core.BasicDataTypes.Bytes;
 import org.seasr.meandre.components.abstracts.AbstractGWTWebUIComponent;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
@@ -65,7 +83,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         description = "This component allows the user to specify the dataset(s) to be processed. " +
         		      "The user can use URL(s), file(s), or input the raw text to be processed.",
         name = "Input Data",
-        tags = "input, data, file",
+        tags = "input, data, file, text, url",
         mode = Mode.webui,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
@@ -74,6 +92,48 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 )
 public class InputData extends AbstractGWTWebUIComponent {
 
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            name = Names.PORT_RAW_DATA,
+            description = "The data" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes"
+    )
+    protected static final String OUT_DATA = Names.PORT_RAW_DATA;
+
+
+
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            description = "Max number of URLs allowed",
+            name = "max_url_count",
+            defaultValue = "5"
+    )
+    protected static final String PROP_MAX_URL_COUNT = "max_url_count";
+
+    @ComponentProperty(
+            description = "Max number of files allowed",
+            name = "max_file_count",
+            defaultValue = "5"
+    )
+    protected static final String PROP_MAX_FILE_COUNT = "max_file_count";
+
+    @ComponentProperty(
+            description = "Max text length in characters (0 = unlimited)",
+            name = "max_text_length",
+            defaultValue = "0"
+    )
+    protected static final String PROP_MAX_TEXT_LENGTH = "max_text_length";
+
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the output be wrapped as a stream?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -81,6 +141,7 @@ public class InputData extends AbstractGWTWebUIComponent {
 
     private String _html;
     private boolean _done;
+    private boolean _wrapAsStream;
 
 
     //--------------------------------------------------------------------------------------------
@@ -89,14 +150,20 @@ public class InputData extends AbstractGWTWebUIComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
 
-        //_context.put("pageSize", Integer.parseInt(ccp.getProperty(PROP_PAGE_SIZE)));
+        _wrapAsStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, true, true, ccp));
+        int propMaxUrlCount = Integer.parseInt(getPropertyOrDieTrying(PROP_MAX_URL_COUNT, true, true, ccp));
+        int propMaxFileCount = Integer.parseInt(getPropertyOrDieTrying(PROP_MAX_FILE_COUNT, true, true, ccp));
+        int propMaxTextLength = Integer.parseInt(getPropertyOrDieTrying(PROP_MAX_TEXT_LENGTH, true, true, ccp));
+
+        _context.put("maxUrlCount", propMaxUrlCount);
+        _context.put("maxFileCount", propMaxFileCount);
+        _context.put("maxTextLength", propMaxTextLength);
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
 
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
-        //_context.put("columnFormatData", jaColumnFormat.toString());
 
         console.finest("Applying the Velocity template");
         _html = velocity.generateOutput(_context, TEMPLATE);
@@ -111,15 +178,11 @@ public class InputData extends AbstractGWTWebUIComponent {
         if (cc.isFlowAborting())
             console.info("Flow abort requested - terminating component execution...");
 
-//        if (_done)
-//            cc.pushDataComponentToOutput(OUT_TABLE, _origTable);
-
         cc.stopWebUIFragment(this);
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        // TODO Auto-generated method stub
 
     }
 
@@ -138,17 +201,126 @@ public class InputData extends AbstractGWTWebUIComponent {
         console.exiting(getClass().getName(), "emptyRequest");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
         console.entering(getClass().getName(), "handle", response);
 
-        String reqPath = request.getPathInfo();
-        console.fine("Request path: " + reqPath);
-        console.fine("query string: " + request.getQueryString());
+        console.finer("Request method:\t" + request.getMethod());
+        console.finer("Request content-type:\t" + request.getContentType());
+        console.finer("Request path:\t" + request.getPathInfo());
+        console.finer("Request query string:\t" + request.getQueryString());
 
         response.setStatus(HttpServletResponse.SC_OK);
 
-        if (request.getParameter("done") != null) {
+        String action = request.getParameter("action");
+        console.fine("Action: " + action);
+
+        if (action != null) {
+            if (action.equals("urls")) {
+                SortedMap<String, URL> urls = new TreeMap<String, URL>();
+                Enumeration<String> paramNames = request.getParameterNames();
+                while (paramNames.hasMoreElements()) {
+                    String paramName = paramNames.nextElement();
+                    if (paramName.startsWith("url_")) {
+                        String sUrl = request.getParameter(paramName);
+                        console.fine(paramName + ": " + sUrl);
+                        try {
+                            urls.put(paramName, new URL(sUrl));
+                        }
+                        catch (MalformedURLException e) {
+                            console.warning(sUrl + " is not a valid URL, ignoring it.");
+                            continue;
+                        }
+                    }
+                }
+
+                if (urls.size() == 0)
+                    throw new WebUIException("No URLs provided");
+
+                try {
+                    if (_wrapAsStream)
+                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamInitiator());
+
+                    for (URL url : urls.values())
+                        componentContext.pushDataComponentToOutput(OUT_DATA, url);
+
+                    if (_wrapAsStream)
+                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamTerminator());
+                }
+                catch (ComponentContextException e) {
+                    throw new WebUIException(e);
+                }
+            }
+
+            else
+
+            if (action.equals("text")) {
+                String text = request.getParameter("text");
+                if (text == null || text.length() == 0)
+                    throw new WebUIException("No text provided");
+
+                try {
+                    if (_wrapAsStream)
+                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamInitiator());
+
+                    componentContext.pushDataComponentToOutput(OUT_DATA, text);
+
+                    if (_wrapAsStream)
+                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamTerminator());
+                }
+                catch (ComponentContextException e) {
+                    throw new WebUIException(e);
+                }
+            }
+
+            else
+
+            if (action.equals("upload")) {
+                if (!ServletFileUpload.isMultipartContent(request))
+                    throw new WebUIException("File upload request needs to be done using a multipart content type");
+
+                ServletFileUpload fileUpload = new ServletFileUpload(new DiskFileItemFactory());
+                List<FileItem> uploadedFiles;
+                try {
+                    uploadedFiles = fileUpload.parseRequest(request);
+                }
+                catch (FileUploadException e) {
+                    throw new WebUIException(e);
+                }
+
+                try {
+                    if (_wrapAsStream)
+                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamInitiator());
+
+                    for (FileItem file : uploadedFiles) {
+                        if (file == null || !file.getFieldName().startsWith("file_"))
+                            continue;
+
+                        console.fine("isFormField:\t" + file.isFormField());
+                        console.fine("fieldName:\t" + file.getFieldName());
+                        console.fine("name:\t" + file.getName());
+                        console.fine("contentType:\t" + file.getContentType());
+                        console.fine("size:\t" + file.getSize());
+
+                        if (file.isFormField())
+                            continue;
+
+                        Bytes data = BasicDataTypesTools.byteArrayToBytes(file.get());
+                        componentContext.pushDataComponentToOutput(OUT_DATA, data);
+                    }
+
+                    if (_wrapAsStream)
+                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamTerminator());
+                }
+                catch (ComponentContextException e) {
+                    throw new WebUIException(e);
+                }
+            }
+
+            else
+                throw new WebUIException("Unknown action: " + action);
+
             _done = true;
             try {
                 response.getWriter().println("<html><head><meta http-equiv='REFRESH' content='1;url=/'></head><body></body></html>");
@@ -157,7 +329,6 @@ public class InputData extends AbstractGWTWebUIComponent {
                 throw new WebUIException(e);
             }
         }
-
         else
             emptyRequest(response);
 
@@ -167,7 +338,7 @@ public class InputData extends AbstractGWTWebUIComponent {
     //--------------------------------------------------------------------------------------------
 
     public String getContextPath() {
-        return "/inputdata";
+        return "/";
     }
 
     @Override

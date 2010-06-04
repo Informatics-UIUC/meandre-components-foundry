@@ -7,7 +7,9 @@
     <title>Input Data</title>
 
     <script type="text/javascript" language="javascript">
-
+       window.__maxUrlCount = $maxUrlCount;
+       window.__maxFileCount = $maxFileCount;
+       window.__maxTextLength = $maxTextLength;
     </script>
 
     <script> var isomorphicDir = "$gwt/sc/"; </script>

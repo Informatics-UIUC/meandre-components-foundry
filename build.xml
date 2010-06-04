@@ -62,7 +62,7 @@
     <property name="descriptors.dir" value="${basedir}/descriptors"/>
     <property name="gwt.base.dir" value="${basedir}/src-gwt"/>
     <property name="gwt.src.dir" value="${gwt.base.dir}/src"/>
-    <property name="gwt.modules.list" value="org.seasr.meandre.components.vis.gwt.helloworld.HelloWorld,org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer"/>
+    <property name="gwt.modules.list" value="org.seasr.meandre.components.vis.gwt.helloworld.HelloWorld,org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer,org.seasr.meandre.components.vis.gwt.inputdata.InputData"/>
 
 
     <!-- Default settings for the 'upload-components' task -->
