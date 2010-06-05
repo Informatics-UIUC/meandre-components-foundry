@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +69,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 /**
  *
  * @author Mike Haberman
+ * @author Boris Capitanu
  *
  */
 
@@ -120,24 +122,24 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 	@ComponentProperty(
 			name = "tupleField",
-			description = "to which field of the tuple to apply freq. counting",
+			description = "The field that should be counted",
 		    defaultValue = "token"
 		)
 	protected static final String PROP_FILTER_FIELD = "tupleField";
 
 	@ComponentProperty(
 			name = "threshold",
-			description = "export any tuples whose count is greater than this value",
+			description = "Minimum count for a tuple to be included in the result",
 		    defaultValue = "0"
 		)
 	protected static final String PROP_FILTER_THRESHOLD = "threshold";
-	
+
 	@ComponentProperty(
-			name = "maxExport",
-			description = "optional export the top N tuples (must be > 0 to be active)",
+			name = Names.PROP_MAX_SIZE,
+			description = "Maximum number of tuples to be included in the result",
 		    defaultValue = "-1"
 		)
-	protected static final String PROP_FILTER_TOP_N = "maxExport";
+	protected static final String PROP_FILTER_TOP_N = Names.PROP_MAX_SIZE;
 
 	//--------------------------------------------------------------------------------------------
 
@@ -149,17 +151,15 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		KEY_FIELD_TUPLE = ccp.getProperty(PROP_FILTER_FIELD).trim();
-		if (KEY_FIELD_TUPLE.length() == 0) {
-			throw new ComponentContextException("Property not set " + PROP_FILTER_FIELD);
-		}
+		KEY_FIELD_TUPLE = getPropertyOrDieTrying(PROP_FILTER_FIELD, true, true, ccp);
 
-		threshold = Integer.parseInt(ccp.getProperty(PROP_FILTER_THRESHOLD));
-		topN      = Integer.parseInt(ccp.getProperty(PROP_FILTER_TOP_N));
-		console.fine("Export all tuples whose count > " + threshold);
-		if (topN > 0) {
-			console.fine("export only the top " + topN + " tuples");
-		}
+		threshold = Integer.parseInt(getPropertyOrDieTrying(PROP_FILTER_THRESHOLD, true, true, ccp));
+		topN      = Integer.parseInt(getPropertyOrDieTrying(PROP_FILTER_TOP_N, true, true, ccp));
+
+		console.fine(String.format("Tuples with COUNT(%s) > %d will be included in the result", KEY_FIELD_TUPLE, threshold));
+
+		if (topN > 0)
+			console.fine(String.format("Will include only the top %d tuples in the result", topN));
 	}
 
 	@Override
@@ -171,17 +171,16 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-
 		int KEY_FIELD_IDX = tuplePeer.getIndexForFieldName(KEY_FIELD_TUPLE);
 		if (KEY_FIELD_IDX == -1) {
 			String error = "Tuple does not have field " + KEY_FIELD_TUPLE;
 			console.warning(error);
 			console.warning(tuplePeer.toString());
 			throw new ComponentContextException(error);
-					
 		}
-		console.info("FIELD           " + KEY_FIELD_TUPLE);
-		console.info("key field index " + KEY_FIELD_IDX);
+
+		console.fine("Tuple field to be counted: " + KEY_FIELD_TUPLE);
+		console.fine("Index of field in tuple:   " + KEY_FIELD_IDX);
 
 		FrequencyMap<String> freqMap = new FrequencyMap<String>();
 		for (int i = 0; i < in.length; i++) {
@@ -196,11 +195,11 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 		List<Map.Entry<String, Integer>> sortedEntries = freqMap.sortedEntries();
 
-	    SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[]{"count", "token"});
+	    SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] { "token", "count" });
 	    SimpleTuple outTuple = outPeer.createTuple();
 
-	    int COUNT_IDX = 0; // outPeer.getFieldIndex("count")
-	    int TOKEN_IDX = 1; // outPeer.getFieldIndex("token")
+        int TOKEN_IDX = 0; // outPeer.getFieldIndex("token")
+	    int COUNT_IDX = 1; // outPeer.getFieldIndex("count")
 
 	    List<Strings> output = new ArrayList<Strings>();
 
@@ -209,7 +208,7 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 	    	if (count > threshold) {
 	    	   outTuple.setValue(COUNT_IDX, count);
 	    	   outTuple.setValue(TOKEN_IDX, v.getKey());
-	    	   
+
 	    	   if (topN <= 0 || topN > 0 && output.size() < topN)
 	    	      output.add(outTuple.convert());
 	    	}
@@ -227,6 +226,26 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TUPLES, IN_META_TUPLE })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_TUPLES, IN_META_TUPLE })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
     }
 }
 

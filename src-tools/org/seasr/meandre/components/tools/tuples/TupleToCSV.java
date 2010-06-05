@@ -62,6 +62,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 /**
  *
  * @author Mike Haberman
+ * @author Boris Capitanu
  *
  */
 
@@ -76,20 +77,20 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		description = "This component writes the incoming set of tuples to CSV String" ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class TupleToCSV  extends AbstractExecutableComponent {
+public class TupleToCSV extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples" +
+			description = "The set of tuples" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentInput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples" +
+			description = "The meta data for tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
@@ -98,21 +99,21 @@ public class TupleToCSV  extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples (same as input)" +
+			description = "The set of tuples (same as input)" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuples (same as input)" +
+			description = "The meta data for the tuples (same as input)" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "csv string" +
+			description = "The CSV string" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
@@ -121,7 +122,7 @@ public class TupleToCSV  extends AbstractExecutableComponent {
 
 	@ComponentProperty(
 			name = "tokenSeparator",
-			description = "token to use to separate field values",
+			description = "The token to use to separate the field values",
 		    defaultValue = ","
 	)
 	protected static final String PROP_TOKEN_SEPARATOR = "tokenSeparator";
@@ -143,10 +144,9 @@ public class TupleToCSV  extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-    {
-	    tokenSep = ccp.getProperty(PROP_TOKEN_SEPARATOR).trim();
-	    bHeaderAdded = Boolean.parseBoolean(ccp.getProperty(PROP_HEADER));
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    tokenSep = getPropertyOrDieTrying(PROP_TOKEN_SEPARATOR, true, true, ccp);
+	    bHeaderAdded = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, true, true, ccp));
 	}
 
 	@Override
@@ -163,7 +163,7 @@ public class TupleToCSV  extends AbstractExecutableComponent {
 		int size = tuplePeer.size();;
 
 		//
-		// write out the fieldnames as the first row
+		// write out the field names as the first row
 		//
 		if ( bHeaderAdded ) {
 			for (int i = 0; i < size; i++) {
@@ -180,7 +180,15 @@ public class TupleToCSV  extends AbstractExecutableComponent {
 			tuple.setValues(in[i]);
 
 			for (int j = 0; j < size; j++) {
-				sb.append(tuple.getValue(j));
+				String value = tuple.getValue(j);
+
+				// make sure the value doesn't contain the separator or else we're in trouble
+				while (value.contains(tokenSep))
+				    value = value.replace(tokenSep, "");
+
+				//TODO what to do if value="" at this point?
+
+                sb.append(value);
 				if (j + 1 < size) {
 					sb.append(tokenSep);
 				}
@@ -188,13 +196,11 @@ public class TupleToCSV  extends AbstractExecutableComponent {
 			sb.append("\n");
 		}
 
-
 		Strings safe = BasicDataTypesTools.stringToStrings(sb.toString());
 
 		cc.pushDataComponentToOutput(OUT_TEXT,   safe);
 		cc.pushDataComponentToOutput(OUT_TUPLES,     input);
 		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
-
 	}
 
     @Override

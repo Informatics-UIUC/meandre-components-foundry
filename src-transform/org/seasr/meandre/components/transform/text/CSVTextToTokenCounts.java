@@ -48,16 +48,24 @@ import java.util.StringTokenizer;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
+/**
+ *
+ * @author Boris Capitanu
+ *
+ */
+
 @Component(
-        creator = "Lily Dong",
+        creator = "Boris Capitanu",
         description = "Converts CSV text to tount counts.",
         name = "CSV Text To Token Counts",
         tags = "CSV, text, token count",
@@ -89,34 +97,76 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 	)
 	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
+    //----------------------------- PROPERTIES ---------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_HEADER,
+            description = "Does the input contain a header?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_HEADER = Names.PROP_HEADER;
+
+    @ComponentProperty(
+            name = "tokenSeparator",
+            description = "The token to use to separate the field values",
+            defaultValue = ","
+    )
+    protected static final String PROP_TOKEN_SEPARATOR = "tokenSeparator";
+
+    @ComponentProperty(
+            name = Names.PROP_ORDERED,
+            description = "Should the resulting token counts be ordered?",
+            defaultValue = "false"
+    )
+    protected static final String PROP_ORDERED = Names.PROP_ORDERED;
+
 	//--------------------------------------------------------------------------------------------
+
+
+    private boolean bHeader, bOrdered;
+    private String separator;
+
+
+    //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        bHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, true, true, ccp));
+        bOrdered = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, true, true, ccp));
+        separator = getPropertyOrDieTrying(PROP_TOKEN_SEPARATOR, true, true, ccp);
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>(1000);
+    	Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>();
 
     	for (String text : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))) {
-    		StringTokenizer st = new StringTokenizer(text, ",\n\t");
-    		String prevToken="", currentToken;
-    		while(st.hasMoreTokens()) {
-    			currentToken = st.nextToken().trim();
-    			if(currentToken.matches("(\\d+)")) {//digit only
-    				if(prevToken.length() != 0) {
-    					if (htCounts.containsKey(prevToken))
-    						htCounts.put(prevToken, htCounts.get(prevToken)+Integer.parseInt(currentToken));
-    					else
-    						htCounts.put(prevToken, Integer.valueOf(currentToken));
-    				}
-    			}
-    			prevToken = currentToken;
-    		}
+    	    boolean skippedHeader = false;
+
+    	    StringTokenizer st = new StringTokenizer(text, "\n");  // tokenize each line
+    	    while (st.hasMoreTokens()) {
+    	        if (bHeader && !skippedHeader) {
+    	            st.nextToken();
+    	            skippedHeader = true;
+    	            continue;
+    	        }
+
+    	        String line = st.nextToken();
+                String[] tokens = line.split(separator);
+    	        if (tokens.length < 2)
+    	            throw new ComponentExecutionException(String.format("CSV line: '%s' does not contain enough values", line));
+
+    	        String token = tokens[0];
+    	        int count = Integer.parseInt(tokens[1]);
+
+    	        if (htCounts.containsKey(token))
+    	            console.warning(String.format("Token '%s' occurs more than once in the dataset - replacing previous count...", token));
+
+    	        htCounts.put(token, count);
+    	    }
         }
 
-    	cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts,false));
+    	cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts, bOrdered));
     }
 
     @Override
