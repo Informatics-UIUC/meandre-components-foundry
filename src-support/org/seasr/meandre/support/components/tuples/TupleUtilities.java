@@ -63,12 +63,15 @@ public class TupleUtilities {
     	return peer.getIndexForFieldName(fieldName);
     }
     
+    /*
+    // remove quotes and ()
 	static String regEx = "[\"\'()]+";
 	public static String normalizeText(String text)
 	{
 		text = text.replaceAll(regEx ,"");
 		return text.trim().toLowerCase();
 	}
+	*/
 
 	public static List<String> collapseTupleValues(Object[] tuples, String fieldname)
 	{
@@ -98,7 +101,10 @@ public class TupleUtilities {
 
 			// this should be an optional parameter
 			// pass in the method/interface to use to normalize
-			value = normalizeText(value);
+			//value = normalizeText(value);
+			// this could be dangerous to assume anything else
+			// esp. if the resulting values are used for keys into other data structures that did not
+			// use this normalizing function
 			freqMap.add(value);
 		}
 
