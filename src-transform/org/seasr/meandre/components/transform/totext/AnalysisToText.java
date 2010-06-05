@@ -56,6 +56,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
  *
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
+ * @author Lily Dong
  *
  */
 public abstract class AnalysisToText extends AbstractExecutableComponent {
@@ -204,7 +205,7 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 		if ( count<0 ) count = im.getKeyCount()-offset;
 		for ( count-- ; count>=0 ; offset++, count-- ) {
 			String sToken = im.getKey(offset);
-			ps.print(sToken+":");
+			ps.print(sToken+",");
 			for ( int iCounts:im.getValue(offset).getValueList() )
 				ps.print(" "+iCounts);
 			ps.println();
