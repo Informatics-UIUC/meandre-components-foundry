@@ -59,6 +59,7 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
@@ -175,7 +176,7 @@ public class StanfordNETagger extends AbstractExecutableComponent {
 
 	protected String modelsDir;
 	protected String taggerFile;
- 
+
 
 	//--------------------------------------------------------------------------------------------
     int count = 0;
@@ -193,31 +194,29 @@ public class StanfordNETagger extends AbstractExecutableComponent {
 		console.fine("Installed models into: " + modelsDir);
 
 		AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(modelsDir + File.separator + taggerFile);
-		
+
 		neHelper = new StanfordNEWrapper(classifier);
 	}
-    
 
-	@SuppressWarnings("unchecked")
+
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception
     {
-    	
+
     	// input was encoded via :
     	// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
     	//
-    	Strings input = (Strings) cc.getDataComponentFromInput(IN_TEXT);
-		String[] val = BasicDataTypesTools.stringsToStringArray (input);
+		String[] val = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 		String text = val[0];
 		console.finest(count++ + " attempt to parse\n" + text);
 
 		List<SimpleTuple> tuples = neHelper.toTuples(text);
 		List<Strings> output = new ArrayList<Strings>();
-		
+
 		for (SimpleTuple tuple : tuples) {
 		   output.add(tuple.convert());
 		}
-		
+
         // push the whole collection, protocol safe
         Strings[] results = new Strings[output.size()];
         output.toArray(results);
