@@ -101,6 +101,13 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 	)
 	protected static final String PROP_COUNT = Names.PROP_COUNT;
 
+	@ComponentProperty(
+			name = Names.PROP_SEPARATOR,
+			description = "Used to separate field values",
+		    defaultValue = ":"
+	)
+	protected static final String PROP_TEXT_SEPARATOR = Names.PROP_SEPARATOR;
+
 	//--------------------------------------------------------------------------------------------
 
 
@@ -116,6 +123,9 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 	/** The number of elements to print */
 	int iCount;
 
+	/** The printing separator */
+	String textSep;
+
 
 	//--------------------------------------------------------------------------------------------
 
@@ -125,6 +135,8 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 		this.sHeader = ccp.getProperty(PROP_MESSAGE);
 		this.iOffset = Integer.parseInt(ccp.getProperty(PROP_OFFSET));
 		this.iCount = Integer.parseInt(ccp.getProperty(PROP_COUNT));
+
+		this.textSep = ccp.getProperty(PROP_TEXT_SEPARATOR).trim();
 	}
 
 	@Override
@@ -162,7 +174,7 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 			ps.println(sHeader);
 		for ( int i=0, iMax=im.getKeyCount() ; i<iMax ; i++ ) {
 			String sToken = im.getKey(i);
-			ps.print(sToken+":");
+			ps.print(sToken+textSep);
 			for ( int iCounts:im.getValue(i).getValueList() )
 				ps.println(" "+iCounts);
 		}
@@ -205,7 +217,7 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 		if ( count<0 ) count = im.getKeyCount()-offset;
 		for ( count-- ; count>=0 ; offset++, count-- ) {
 			String sToken = im.getKey(offset);
-			ps.print(sToken+",");
+			ps.print(sToken+textSep);
 			for ( int iCounts:im.getValue(offset).getValueList() )
 				ps.print(" "+iCounts);
 			ps.println();
