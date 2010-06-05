@@ -126,18 +126,27 @@ public class TupleToCSV  extends AbstractExecutableComponent {
 	)
 	protected static final String PROP_TOKEN_SEPARATOR = "tokenSeparator";
 
-
+	@ComponentProperty(
+			name = Names.PROP_HEADER,
+			description = "Should the header be added? ",
+		    defaultValue = "true"
+	)
+	protected static final String PROP_HEADER = Names.PROP_HEADER;
 
     //--------------------------------------------------------------------------------------------
 
-
 	String tokenSep;
+
+	/** Should the header be added */
+	boolean bHeaderAdded;
+
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
 	    tokenSep = ccp.getProperty(PROP_TOKEN_SEPARATOR).trim();
+	    bHeaderAdded = Boolean.parseBoolean(ccp.getProperty(PROP_HEADER));
 	}
 
 	@Override
@@ -148,20 +157,23 @@ public class TupleToCSV  extends AbstractExecutableComponent {
 
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
-		
+
 		StringBuilder sb = new StringBuilder();
+
+		int size = tuplePeer.size();;
 
 		//
 		// write out the fieldnames as the first row
 		//
-		int size = tuplePeer.size();
-		for (int i = 0; i < size; i++) {
-			sb.append(tuplePeer.getFieldNameForIndex(i));
-			if (i + 1 < size) {
-				sb.append(tokenSep);
+		if ( bHeaderAdded ) {
+			for (int i = 0; i < size; i++) {
+				sb.append(tuplePeer.getFieldNameForIndex(i));
+				if (i + 1 < size) {
+					sb.append(tokenSep);
+				}
 			}
+			sb.append("\n");
 		}
-		sb.append("\n");
 
 		for (int i = 0; i < in.length; i++) {
 
@@ -175,8 +187,8 @@ public class TupleToCSV  extends AbstractExecutableComponent {
 			}
 			sb.append("\n");
 		}
-		
-	
+
+
 		Strings safe = BasicDataTypesTools.stringToStrings(sb.toString());
 
 		cc.pushDataComponentToOutput(OUT_TEXT,   safe);
