@@ -1,7 +1,7 @@
 <html>
   <head>
     <title>$title</title>
-    <script type="text/javascript" src="$path"></script>
+    <script type="text/javascript" src="$protovisAPI"></script>
 
     <style type="text/css">
         #fig {

@@ -43,6 +43,8 @@
 
 package org.seasr.meandre.components.vis.protovis;
 
+import java.util.Arrays;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
@@ -50,17 +52,15 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 /**
  *
  * @author Lily Dong
+ * @author Boris Capitanu
  *
  */
 
@@ -71,18 +71,18 @@ import org.seasr.meandre.support.components.utils.ComponentUtils;
         tags = "visualization, protovis",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.6.2-dep.jar" },
-        resources  = { "protovis-r3.2.js", "ArcDiagram.vm" }
+        dependency = { "velocity-1.6.2-dep.jar", "protovis-r3.2.jar" },
+        resources  = { "ArcDiagram.vm" }
 )
+public class ArcDiagram extends AbstractProtovisComponent {
 
-public class ArcDiagram extends VelocityTemplateToHTML {
 	//------------------------------ INPUTS -----------------------------------------------------
 
     @ComponentInput(
 	            name = Names.PORT_JSON,
 	            description = "JSON input data. Must be an two arrays of fields nodes and links" +
 	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	    )
+    )
 	protected static final String IN_JSON = Names.PORT_JSON;
 
 	//------------------------------ OUTPUTS -----------------------------------------------------
@@ -94,10 +94,6 @@ public class ArcDiagram extends VelocityTemplateToHTML {
 	)
 	protected static final String OUT_TEXT = Names.PORT_HTML;
 
-
-
-
-
 	//------------------------------ PROPERTIES --------------------------------------------------
 
 	@ComponentProperty(
@@ -107,7 +103,7 @@ public class ArcDiagram extends VelocityTemplateToHTML {
 	)
 	protected static final String PROP_TITLE = Names.PROP_TITLE;
 
-	static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/protovis/ArcDiagram.vm";
+	private static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/protovis/ArcDiagram.vm";
 	@ComponentProperty(
 	        description = "The template name",
 	        name = VelocityTemplateToHTML.PROP_TEMPLATE,
@@ -117,19 +113,11 @@ public class ArcDiagram extends VelocityTemplateToHTML {
 
 	//--------------------------------------------------------------------------------------------
 
-	protected static final String PROTOVIS_JS = "protovis-r3.2.js";
-
-	//--------------------------------------------------------------------------------------------
-
 	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-	{
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
 
-	    ComponentUtils.writePublicResource(getClass(), PROTOVIS_JS, "js", ccp, false);
-
-	    context.put("title",   ccp.getProperty(PROP_TITLE));
-	    context.put("path",    "/public/resources/js/" + PROTOVIS_JS);
+	    context.put("title", getPropertyOrDieTrying(PROP_TITLE, true, true, ccp));
 	}
 
 	@Override
@@ -150,15 +138,19 @@ public class ArcDiagram extends VelocityTemplateToHTML {
 
 	//--------------------------------------------------------------------------------------------
 
-	@Override
+    @Override
     protected void handleStreamInitiators() throws Exception {
-        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_JSON);
-        componentContext.pushDataComponentToOutput(OUT_TEXT, si);
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_JSON })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_JSON));
     }
 
     @Override
     protected void handleStreamTerminators() throws Exception {
-        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_JSON);
-        componentContext.pushDataComponentToOutput(OUT_TEXT, st);
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_JSON })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_JSON));
     }
 }

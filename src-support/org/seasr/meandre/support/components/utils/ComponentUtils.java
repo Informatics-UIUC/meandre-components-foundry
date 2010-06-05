@@ -45,10 +45,16 @@ package org.seasr.meandre.support.components.utils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.JarURLConnection;
+import java.net.URL;
 
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.seasr.meandre.support.generic.io.JARInstaller;
 import org.seasr.meandre.support.generic.io.StreamUtils;
+import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
+import org.seasr.meandre.support.generic.io.exceptions.ResourceNotFoundException;
 
 /**
  * This class provides utility functions for components
@@ -107,5 +113,34 @@ public class ComponentUtils {
         }
 
         return resPath;
+    }
+
+    /**
+     * Installs a JAR file that contains the specified resource to a particular location
+     *
+     * @param clazz The class used to resolve the resource
+     * @param resource The resource name
+     * @param location The location where the JAR should be installed
+     * @param force True to force overwrite, false to skip install if the location already exists
+     * @return The installation status result
+     * @throws IOException
+     */
+    public static InstallStatus installJARContainingResource(Class<?> clazz, String resource, String location, boolean force)
+        throws IOException, ResourceNotFoundException {
+
+        InputStream resInputStream = null;
+        URL resJarDepUrl = clazz.getClassLoader().getResource(resource);
+        if (resJarDepUrl != null) {
+            if (resJarDepUrl.getProtocol().equals("jar")) {
+                String sFile = resJarDepUrl.toString().split("!")[0] + "!/";
+                resJarDepUrl = new URL(sFile);
+                JarURLConnection jarConnection = (JarURLConnection)resJarDepUrl.openConnection();
+                resInputStream = jarConnection.getJarFileURL().openStream();
+            } else
+                resInputStream = resJarDepUrl.openStream();
+        } else
+            throw new ResourceNotFoundException(resource);
+
+        return JARInstaller.installFromStream(resInputStream, location, force);
     }
 }

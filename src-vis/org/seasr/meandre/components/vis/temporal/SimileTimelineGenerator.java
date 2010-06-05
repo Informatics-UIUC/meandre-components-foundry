@@ -43,11 +43,8 @@
 package org.seasr.meandre.components.vis.temporal;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.Writer;
-import java.net.JarURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,11 +65,11 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.support.components.utils.ComponentUtils;
 import org.seasr.meandre.support.generic.encoding.Base64;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.seasr.meandre.support.generic.io.IOUtils;
-import org.seasr.meandre.support.generic.io.JARInstaller;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 import org.w3c.dom.Document;
 
@@ -161,6 +158,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 	protected static final String SIMILE_API_PATH = "simile-timeline-api";   // this path is assumed to be appended to the published_resources location
+	protected static final String SIMILE_JS = "timeline-api.js";
 
 	protected static final String simileVelocityTemplate =
 	    "org/seasr/meandre/components/vis/temporal/SimileTimelineGenerator.vm";
@@ -180,48 +178,30 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        saveOutputToFile = Boolean.parseBoolean(ccp.getProperty(PROP_SAVE_OUTPUT_TO_FILE));
-        String timelineAPI = ccp.getProperty(PROP_TIMELINE_API_URL).trim();
+        saveOutputToFile = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SAVE_OUTPUT_TO_FILE, true, true, ccp));
+        String timelineAPI = getPropertyOrDieTrying(PROP_TIMELINE_API_URL, true, false, ccp);
 
     	_context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
 
         if (timelineAPI.length() == 0) {
-            InputStream apiInputStream = null;
-            URL simileJarDepUrl = getClass().getClassLoader().getResource("timeline-api.js");
-            if (simileJarDepUrl != null) {
-                console.fine(String.format("Found Simile Timeline API in %s", simileJarDepUrl));
-
-                if (simileJarDepUrl.getProtocol().equals("jar")) {
-                    String sFile = simileJarDepUrl.toString().split("!")[0] + "!/";
-                    simileJarDepUrl = new URL(sFile);
-                    JarURLConnection jarConnection = (JarURLConnection)simileJarDepUrl.openConnection();
-                    apiInputStream = jarConnection.getJarFileURL().openStream();
-                } else
-                    apiInputStream = simileJarDepUrl.openStream();
-            }
-
-            if (apiInputStream == null)
-                throw new ComponentContextException("Could not find Simile Timeline API (timeline-api.js) in the class path!");
-
-            console.fine("Installing Simile Timeline API from: " + simileJarDepUrl);
-
-            String simileApiDir = ccp.getPublicResourcesDirectory() + File.separator + SIMILE_API_PATH;
-            InstallStatus status = JARInstaller.installFromStream(apiInputStream, simileApiDir, false);
+            String timelineAPIDir = ccp.getPublicResourcesDirectory() + File.separator + SIMILE_API_PATH;
+            InstallStatus status = ComponentUtils.installJARContainingResource(getClass(), SIMILE_JS, timelineAPIDir, false);
             switch (status) {
                 case SKIPPED:
-                    console.fine("Installation skipped - Simile Timeline API is already installed");
+                    console.fine(String.format("Installation skipped - %s is already installed", SIMILE_JS));
                     break;
 
                 case FAILED:
-                    throw new ComponentContextException("Failed to install the Simile Timeline API at " + new File(simileApiDir).getAbsolutePath());
+                    throw new ComponentContextException(String.format("Failed to install %s at %s",
+                            SIMILE_JS, new File(timelineAPIDir).getAbsolutePath()));
             }
 
-            _context.put("simileTimelineAPI", "/public/resources/" + SIMILE_API_PATH + "/timeline-api.js");
-        } else {
-            console.fine("Using Simile Timline API from: " + timelineAPI);
-            _context.put("simileTimelineAPI", timelineAPI);
+            timelineAPI = "/public/resources/" + SIMILE_API_PATH.replaceAll("\\\\", "/") + "/" + SIMILE_JS;
         }
+
+        console.fine("Using Simile Timeline API from: " + timelineAPI);
+        _context.put("simileTimelineAPI", timelineAPI);
     }
 
     @Override

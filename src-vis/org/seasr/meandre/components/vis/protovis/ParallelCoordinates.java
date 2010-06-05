@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.vis.protovis;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -57,22 +58,18 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 
 /**
  *
  * @author Mike Haberman
+ * @author Boris Capitanu
  *
  */
-
-
 
 @Component(
         creator = "Mike Haberman",
@@ -81,23 +78,19 @@ import org.seasr.meandre.support.components.utils.ComponentUtils;
         tags = "string, visualization, protovis",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.6.2-dep.jar" },
-        resources  = { "protovis-r3.2.js", "ParallelCoordinates.vm" }
+        dependency = { "velocity-1.6.2-dep.jar", "protovis-r3.2.jar" },
+        resources  = { "ParallelCoordinates.vm" }
 )
-public class ParallelCoordinates extends VelocityTemplateToHTML
-{
+public class ParallelCoordinates extends AbstractProtovisComponent {
 
     //------------------------------ INPUTS -----------------------------------------------------
 
     @ComponentInput(
-	            name = "json",
-	            description = "JSON input data.  Must be an array of fields e.g. [{a:1,b:2,c:3}, {a:4,b:5,c:6}]" +
-	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	    )
-	    protected static final String IN_JSON = "json";
-
-
-	static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/protovis/ParallelCoordinates.vm";
+            name = "json",
+            description = "JSON input data.  Must be an array of fields e.g. [{a:1,b:2,c:3}, {a:4,b:5,c:6}]" +
+	                      "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String IN_JSON = "json";
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -111,7 +104,6 @@ public class ParallelCoordinates extends VelocityTemplateToHTML
 	)
 	protected static final String PROP_TITLE = Names.PROP_TITLE;
 
-
 	@ComponentProperty(
 	        description = "The attribute that will be highlighted",
 	        name = "active",
@@ -119,7 +111,7 @@ public class ParallelCoordinates extends VelocityTemplateToHTML
 	)
 	protected static final String PROP_ACTIVE = "active";
 
-
+    private static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/protovis/ParallelCoordinates.vm";
 	@ComponentProperty(
 	        description = "The template name",
 	        name = VelocityTemplateToHTML.PROP_TEMPLATE,
@@ -129,36 +121,16 @@ public class ParallelCoordinates extends VelocityTemplateToHTML
 
     //--------------------------------------------------------------------------------------------
 
-	protected static final String PROTOVIS_JS = "protovis-r3.2.js";
-
-    //--------------------------------------------------------------------------------------------
-
 	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-	{
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
 
-	    ComponentUtils.writePublicResource(getClass(), PROTOVIS_JS, "js", ccp, false);
-	    
-	    /*
-	    String path = VelocityTemplateToHTML.writeResourceFromJarToFilesystem(this.getClass(),
-                ccp.getPublicResourcesDirectory(),
-                "js",
-                PROTOVIS_JS);
-                */
-
-	    context.put("title",   ccp.getProperty(PROP_TITLE));
-	    context.put("path",    "/public/resources/js/" + PROTOVIS_JS);
-
-
-	    String a = ccp.getProperty(PROP_ACTIVE).trim();
-	    context.put("active", a);
+	    context.put("title", getPropertyOrDieTrying(PROP_TITLE, true, true, ccp));
+	    context.put("active", getPropertyOrDieTrying(PROP_ACTIVE, true, false, ccp));
 	}
 
-
     @Override
-    public void executeCallBack(ComponentContext cc) throws Exception
-    {
+    public void executeCallBack(ComponentContext cc) throws Exception {
     	//
     	// fetch the input, push it to the context
     	//
@@ -189,26 +161,33 @@ public class ParallelCoordinates extends VelocityTemplateToHTML
 
     	}
 
-
     	context.put("data", json);
     	context.put("unitMap", unitMap);
-    	
+
         // let velocity take over
     	super.executeCallBack(cc);
     }
-    
+
+    //--------------------------------------------------------------------------------------------
+
     @Override
     protected void handleStreamInitiators() throws Exception {
-        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_JSON);
-        componentContext.pushDataComponentToOutput(OUT_TEXT, si);
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_JSON })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_JSON));
     }
 
     @Override
     protected void handleStreamTerminators() throws Exception {
-        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_JSON);
-        componentContext.pushDataComponentToOutput(OUT_TEXT, st);
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_JSON })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_JSON));
     }
-    
+
+    //--------------------------------------------------------------------------------------------
+
  	/*
 	  "cylinders":    {unit: ""},
 	  "displacement": {unit: " cubic inch"},
@@ -220,10 +199,7 @@ public class ParallelCoordinates extends VelocityTemplateToHTML
 */
 
 	@SuppressWarnings("unchecked")
-	public Map<String,String>  parseForFields(String jsonData)
-	throws JSONException
-	{
-
+	public Map<String,String>  parseForFields(String jsonData) throws JSONException {
 		HashMap map = new HashMap<String,String>();
 		HashMap<String, List<String>> categories = new HashMap<String,List<String>>();
 
@@ -276,6 +252,4 @@ public class ParallelCoordinates extends VelocityTemplateToHTML
 
 		return map;
 	}
-
-
 }

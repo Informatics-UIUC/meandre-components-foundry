@@ -1,13 +1,13 @@
 <html>
   <head>
     <title>$title</title>
-    <script type="text/javascript" src="$path"></script>
+    <script type="text/javascript" src="$protovisAPI"></script>
     <!--
     <script type="text/javascript" src="/public/resources/js/cars.js"></script>
     -->
-    
+
     <script type="text/javascript">
-    
+
       var carsIgnore = [
     {
         "petallength": 1.4,
@@ -39,9 +39,9 @@
     }
 
       ];
-      
+
       var cars  = $data;
-      
+
     </script>
     <style type="text/css">
       #fig {
@@ -55,14 +55,14 @@
 	<h3>$title
 	    #if ($errorMsg) $errorMsg #end
 	</h3>
-	
+
     <script type="text/javascript+protovis">
 
 //
 // The units and dimensions to visualize, in order.
 // don't show the class field ... nothing works then
 //
-              
+
 /*
 var units = {
   "cylinders": {unit: ""},
@@ -76,13 +76,13 @@ var units = {
 */
 
 
-var units = { 
+var units = {
 #foreach($e in $unitMap.entrySet())
   "$e.key" : {unit: "$e.value"},
 #end
 };
 
-      
+
 
 var dims = pv.keys(units);
 
@@ -210,7 +210,7 @@ change.add(pv.Panel)
 vis.render();
 
     </script>
-    
+
 <div class="caption">
 Drag and resize the coordinate selection sliders to filter the data in any dimension.
 <br/>
