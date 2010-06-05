@@ -143,7 +143,7 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _offset = Integer.parseInt(getPropertyOrDieTrying(PROP_OFFSET, true, true, ccp));
-        if (_offset <= 0) throw new ComponentContextException(String.format("Property '%s' must be greater than zero", PROP_OFFSET));
+        if (_offset < 0) throw new ComponentContextException(String.format("Property '%s' must be greater than or equal to zero", PROP_OFFSET));
 
         String entityTypes = getPropertyOrDieTrying(PROP_ENTITIES, true, true, ccp);
 
