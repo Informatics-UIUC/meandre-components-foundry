@@ -73,7 +73,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  */
 
 @Component(
-		name = "CSV To Tuples",
+		name = "CSV To Tuple",
 		creator = "Mike Haberman",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
@@ -83,7 +83,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		description = "This component converts a csv string into tuples.  Each line of the incoming text is a new tuple. It does not handle missing values" ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class CSVToTuples extends AbstractExecutableComponent {
+public class CSVToTuple extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
