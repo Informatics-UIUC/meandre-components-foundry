@@ -71,6 +71,7 @@ import org.meandre.webui.WebUIException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Bytes;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.components.abstracts.AbstractGWTWebUIComponent;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
@@ -97,11 +98,18 @@ public class InputData extends AbstractGWTWebUIComponent {
     @ComponentOutput(
             name = Names.PORT_RAW_DATA,
             description = "The data" +
+                "<br>TYPE: java.net.URL" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes"
     )
     protected static final String OUT_DATA = Names.PORT_RAW_DATA;
 
-
+    @ComponentOutput(
+            name = "label",
+            description = "The label" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_LABEL = "label";
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -217,6 +225,9 @@ public class InputData extends AbstractGWTWebUIComponent {
         console.fine("Action: " + action);
 
         if (action != null) {
+            StreamInitiator si = new StreamInitiator();
+            StreamTerminator st = new StreamTerminator();
+
             if (action.equals("urls")) {
                 SortedMap<String, URL> urls = new TreeMap<String, URL>();
                 Enumeration<String> paramNames = request.getParameterNames();
@@ -239,14 +250,20 @@ public class InputData extends AbstractGWTWebUIComponent {
                     throw new WebUIException("No URLs provided");
 
                 try {
-                    if (_wrapAsStream)
-                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamInitiator());
+                    if (_wrapAsStream) {
+                        componentContext.pushDataComponentToOutput(OUT_LABEL, si);
+                        componentContext.pushDataComponentToOutput(OUT_DATA, si);
+                    }
 
-                    for (URL url : urls.values())
+                    for (URL url : urls.values()) {
+                        componentContext.pushDataComponentToOutput(OUT_LABEL, BasicDataTypesTools.stringToStrings(url.toString()));
                         componentContext.pushDataComponentToOutput(OUT_DATA, url);
+                    }
 
-                    if (_wrapAsStream)
-                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamTerminator());
+                    if (_wrapAsStream) {
+                        componentContext.pushDataComponentToOutput(OUT_LABEL, st);
+                        componentContext.pushDataComponentToOutput(OUT_DATA, st);
+                    }
                 }
                 catch (ComponentContextException e) {
                     throw new WebUIException(e);
@@ -261,13 +278,18 @@ public class InputData extends AbstractGWTWebUIComponent {
                     throw new WebUIException("No text provided");
 
                 try {
-                    if (_wrapAsStream)
-                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamInitiator());
+                    if (_wrapAsStream) {
+                        componentContext.pushDataComponentToOutput(OUT_LABEL, si);
+                        componentContext.pushDataComponentToOutput(OUT_DATA, si);
+                    }
 
+                    componentContext.pushDataComponentToOutput(OUT_LABEL, BasicDataTypesTools.stringToStrings("text_input"));
                     componentContext.pushDataComponentToOutput(OUT_DATA, text);
 
-                    if (_wrapAsStream)
-                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamTerminator());
+                    if (_wrapAsStream) {
+                        componentContext.pushDataComponentToOutput(OUT_LABEL, st);
+                        componentContext.pushDataComponentToOutput(OUT_DATA, st);
+                    }
                 }
                 catch (ComponentContextException e) {
                     throw new WebUIException(e);
@@ -290,8 +312,10 @@ public class InputData extends AbstractGWTWebUIComponent {
                 }
 
                 try {
-                    if (_wrapAsStream)
-                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamInitiator());
+                    if (_wrapAsStream) {
+                        componentContext.pushDataComponentToOutput(OUT_LABEL, si);
+                        componentContext.pushDataComponentToOutput(OUT_DATA, si);
+                    }
 
                     for (FileItem file : uploadedFiles) {
                         if (file == null || !file.getFieldName().startsWith("file_"))
@@ -306,12 +330,17 @@ public class InputData extends AbstractGWTWebUIComponent {
                         if (file.isFormField())
                             continue;
 
+                        Strings label = BasicDataTypesTools.stringToStrings(file.getName());
                         Bytes data = BasicDataTypesTools.byteArrayToBytes(file.get());
+
+                        componentContext.pushDataComponentToOutput(OUT_LABEL, label);
                         componentContext.pushDataComponentToOutput(OUT_DATA, data);
                     }
 
-                    if (_wrapAsStream)
-                        componentContext.pushDataComponentToOutput(OUT_DATA, new StreamTerminator());
+                    if (_wrapAsStream) {
+                        componentContext.pushDataComponentToOutput(OUT_LABEL, st);
+                        componentContext.pushDataComponentToOutput(OUT_DATA, st);
+                    }
                 }
                 catch (ComponentContextException e) {
                     throw new WebUIException(e);
