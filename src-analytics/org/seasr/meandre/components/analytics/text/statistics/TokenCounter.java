@@ -42,7 +42,8 @@
 
 package org.seasr.meandre.components.analytics.text.statistics;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -59,6 +60,8 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+
+import de.intarsys.tools.component.ComponentException;
 
 
 /**
@@ -127,77 +130,52 @@ public class TokenCounter extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.bOrdered = Boolean.parseBoolean(ccp.getProperty(PROP_ORDERED));
+		bOrdered = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, true, true, ccp));
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
 		Object obj = cc.getDataComponentFromInput(IN_TOKENS);
 
-		if(obj instanceof StringsMap) //tokenized sentences
-			processSentences((StringsMap)obj);
-		else if(obj instanceof Strings) //tokens only
-			processTokens(DataTypeParser.parseAsString(obj));
+		Map<String, Integer> tokenCounts = new HashMap<String, Integer>();
 
+		if (obj instanceof StringsMap) //tokenized sentences
+			processSentences((StringsMap)obj, tokenCounts);
 
-		/*String[] tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
+		else
 
-		Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>(1000);
+		if (obj instanceof Strings) //tokens only
+			processTokens(DataTypeParser.parseAsString(obj), tokenCounts);
 
-		// Retrieve the tokens and count them
-		for ( String sToken : tokens ) {
-			if ( htCounts.containsKey(sToken) )
-				htCounts.put(sToken, htCounts.get(sToken)+1);
-			else
-				htCounts.put(sToken, 1);
-		}
+		else
+		    throw new ComponentException("Don't know how to process input of type: " + obj.getClass().getName());
 
-		console.fine(String.format("Found %,d unique tokens", htCounts.size()));
+		console.fine(String.format("Found %,d unique tokens", tokenCounts.size()));
 
-		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts,bOrdered));*/
+		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
+		        BasicDataTypesTools.mapToIntegerMap(tokenCounts, bOrdered));
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
-    /**
-     *
-     * @param input contains both sentences and tokens
-     * @throws Exception
-     */
-    private void processSentences(StringsMap input) throws Exception {
-    	for (int i=0; i<input.getKeyCount(); i++) {
-			String[] tokens = null;
-			//String sentence = null;
-    		//sentence      = input.getKey(i);    // this is the entire sentence (the key)
-    		Strings value = input.getValue(i);  // this is the set of tokens for that sentence
-    		tokens = DataTypeParser.parseAsString(value);
-    		processTokens(tokens);
+    //--------------------------------------------------------------------------------------------
+
+    private void processSentences(StringsMap sentences, Map<String, Integer> tokenCounts) throws Exception {
+    	for (int i = 0, iMax = sentences.getKeyCount(); i < iMax; i++) {
+    		Strings value = sentences.getValue(i);  // this is the set of tokens for that sentence
+    		processTokens(DataTypeParser.parseAsString(value), tokenCounts);
 		}
     }
 
-    //--------------------------------------------------------------------------------------------
-
-    /**
-     *
-     * @param tokens only
-     * @throws Exception
-     */
-    private void processTokens(String[] tokens) throws Exception {
-    	Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>(1000);
-
+    private void processTokens(String[] tokens, Map<String, Integer> tokenCounts) throws Exception {
 		// Retrieve the tokens and count them
-		for ( String sToken : tokens ) {
-			if ( htCounts.containsKey(sToken) )
-				htCounts.put(sToken, htCounts.get(sToken)+1);
-			else
-				htCounts.put(sToken, 1);
+		for (String token : tokens) {
+		    Integer count = tokenCounts.get(token);
+		    if (count == null) count = 0;
+
+			tokenCounts.put(token, count + 1);
 		}
-
-		console.fine(String.format("Found %,d unique tokens", htCounts.size()));
-
-		componentContext.pushDataComponentToOutput(
-				OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts,bOrdered));
     }
 }

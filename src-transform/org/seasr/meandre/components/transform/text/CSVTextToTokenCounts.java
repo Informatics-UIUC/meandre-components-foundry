@@ -116,7 +116,7 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
     @ComponentProperty(
             name = Names.PROP_ORDERED,
             description = "Should the resulting token counts be ordered?",
-            defaultValue = "false"
+            defaultValue = "true"
     )
     protected static final String PROP_ORDERED = Names.PROP_ORDERED;
 
