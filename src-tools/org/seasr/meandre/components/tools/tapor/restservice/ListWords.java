@@ -57,7 +57,6 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -73,7 +72,6 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
            baseURL="meandre://seasr.org/components/foundry/",
            dependency = {"protobuf-java-2.2.0.jar"}
 )
-
 public class ListWords extends AbstractExecutableComponent {
 
 	//------------------------------ INPUTS ------------------------------------------------------
@@ -126,7 +124,7 @@ public class ListWords extends AbstractExecutableComponent {
 	protected static final String PROP_OPTION_SELECTION = Names.PROP_TAPoR_OPTION_SELECTION;
 
 	@ComponentProperty(
-	        description = "A select controlsorting, and value can be " +
+	        description = "A select control sorting, and value can be " +
 	        "2(by frequency), " +
 	        "1(alphabetically), " +
 	        "3(by the order of appearrence) or " +
@@ -151,58 +149,67 @@ public class ListWords extends AbstractExecutableComponent {
 
 	private static String serviceLoc = "http://tapor1-dev.mcmaster.ca/~restserv/html/listwords";
 
+	String htmlTag;
+    String listOption;
+    String optionSelection;
+    String sorting;
+    String outFormat;
+
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    htmlTag         = getPropertyOrDieTrying(PROP_HTML_TAG, true, true, ccp);
+	    listOption      = getPropertyOrDieTrying(PROP_LIST_OPTION, true, true, ccp);
+	    optionSelection = getPropertyOrDieTrying(PROP_OPTION_SELECTION, true, true, ccp);
+	    sorting         = getPropertyOrDieTrying(PROP_SORTING, true, true, ccp);
+	    outFormat       = getPropertyOrDieTrying(PROP_OUT_FORMAT, true, true, ccp);
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		String htmlTag = cc.getProperty(PROP_HTML_TAG);
-		String listOption = cc.getProperty(PROP_LIST_OPTION);
-		String optionSelection = cc.getProperty(PROP_OPTION_SELECTION);
-		String sorting = cc.getProperty(PROP_SORTING);
-		String outFormat = cc.getProperty(PROP_OUT_FORMAT);
+	    String htmlInput = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
 
-        String htmlInput = DataTypeParser.parseAsString(
-        		cc.getDataComponentFromInput(IN_TEXT))[0];
+	    URL url = new URL(serviceLoc);
 
-    	try {
-    		URL url = new URL(serviceLoc);
+	    HostConfiguration hostConfig = new HostConfiguration();
+	    hostConfig.setHost(url.getHost(), url.getPort());
+	    HttpClient httpClient = new HttpClient(new SimpleHttpConnectionManager());
+	    httpClient.setHostConfiguration(hostConfig);
+	    PostMethod postMethod = new PostMethod(serviceLoc);
 
-    		HostConfiguration hostConfig = new HostConfiguration();
-        	hostConfig.setHost(url.getHost(), url.getPort());
-        	HttpClient httpClient = new HttpClient(new SimpleHttpConnectionManager());
-        	httpClient.setHostConfiguration(hostConfig);
-        	PostMethod postMethod = new PostMethod(serviceLoc);
+	    postMethod.addParameter("htmlInput", htmlInput);
+	    postMethod.addParameter("htmlTag", htmlTag);
+	    postMethod.addParameter("listOption", listOption);
+	    postMethod.addParameter("optionSelection", optionSelection);
+	    postMethod.addParameter("sorting", sorting);
+	    postMethod.addParameter("outFormat", outFormat);
 
-        	postMethod.addParameter("htmlInput", htmlInput);
-        	postMethod.addParameter("htmlTag", htmlTag);
-        	postMethod.addParameter("listOption", listOption);
-        	postMethod.addParameter("optionSelection", optionSelection);
-        	postMethod.addParameter("sorting", sorting);
-        	postMethod.addParameter("outFormat", outFormat);
+	    httpClient.executeMethod(postMethod);
 
-        	httpClient.executeMethod(postMethod);
+	    BufferedReader in = new BufferedReader(new InputStreamReader(postMethod.getResponseBodyAsStream()));
+	    String line = null;
+	    boolean firstLine = true;
+	    StringBuilder buf = new StringBuilder();
 
-        	BufferedReader in = new BufferedReader(
-        			new InputStreamReader(postMethod.getResponseBodyAsStream()));
-        	String line = null;
-        	StringBuffer buf = new StringBuffer();
-        	while((line = in.readLine()) != null)
-        		buf.append(line).append("\n");
+	    while ((line = in.readLine()) != null) {
+	        if (firstLine && line.startsWith("<pre>")) {
+	            line = line.substring(5);
+	            firstLine = false;
+	        }
+	        else
+	            if (line.trim().equals("</pre>"))
+	                continue;
 
-        	in.close();
+	        buf.append(line).append("\n");
+	    }
 
-        	cc.pushDataComponentToOutput(
-        			OUT_TEXT,
-        			BasicDataTypesTools.stringToStrings(buf.toString()));
+	    in.close();
 
-    	}catch(Exception e) {
-    		throw new ComponentExecutionException(e);
-    	}
-    }
+	    cc.pushDataComponentToOutput(
+	            OUT_TEXT,
+	            BasicDataTypesTools.stringToStrings(buf.toString()));
+	}
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
