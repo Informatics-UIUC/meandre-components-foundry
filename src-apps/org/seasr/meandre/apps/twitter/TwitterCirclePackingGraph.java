@@ -67,7 +67,7 @@ import org.seasr.meandre.support.components.utils.ComponentUtils;
 @Component(
         creator = "Mike Haberman",
         description = "Twitter Circle Packing Graph",
-        name = "Circle Packing Graph",
+        name = "Twitter Circle Packing Graph",
         tags = "string, visualization, protovis",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
