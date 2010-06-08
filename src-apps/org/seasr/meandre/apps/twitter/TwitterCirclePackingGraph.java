@@ -66,7 +66,7 @@ import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 @Component(
         creator = "Mike Haberman",
-        description = "Protovis Circle Packing Graph",
+        description = "Twitter Circle Packing Graph",
         name = "Circle Packing Graph",
         tags = "string, visualization, protovis",
         rights = Licenses.UofINCSA,
