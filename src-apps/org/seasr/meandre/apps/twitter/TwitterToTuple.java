@@ -51,7 +51,7 @@ import twitter4j.User;
 		rights = Licenses.UofINCSA,
 		tags = "tuple, twitter",
 		description = "This component reads a twitter stream and pushes out tuples (id,text,userid, followers, location)",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "twitter4j-core-2.1.2.jar"}
 )
 public class TwitterToTuple extends AbstractExecutableComponent
 implements Runnable, StatusListener {
@@ -388,10 +388,4 @@ implements Runnable, StatusListener {
     	//return sb.toString().toLowerCase();
     	
     }
-
-
-	
-    
-    
-    
 }
