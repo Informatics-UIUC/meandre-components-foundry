@@ -81,7 +81,7 @@ import org.seasr.meandre.support.components.tuples.TupleUtilities;
 
 /**
  * This class implements a component that using the WebUI accepts post requests
- *
+ * It assumes the input are tagged (named entity) tuples
  * @author mike haberman
  */
 
