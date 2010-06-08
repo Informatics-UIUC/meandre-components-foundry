@@ -1,0 +1,207 @@
+<html>
+  <head>
+  <title>Yikes</title>
+    <script type="text/javascript" src="/public/resources/js/protovis-r3.2.js"></script>
+    <title>Circle Packing</title>
+    
+    <style type="text/css">
+
+#fig {
+  width: 800px;
+  height: 800px;
+}
+
+  </style>
+  </head>
+
+  <body><div id="center"><div id="fig">
+
+<script type="text/javascript+protovis">
+var flare = {
+$data 
+}; 
+
+function getName(node) {
+
+   // text:rank:count:tuples
+   var parts = node.nodeName.split(":")
+   if (parts.length == 5) { // its a parent
+      var name   = parts[0];
+      var rank   = parts[1];
+      var count  = parts[2];
+      var tuples = parts[3];
+      var pct    = parts[4];
+      var val = parseInt(rank);
+      if (!isNaN(val)) {
+         return name;
+      }
+   }
+   else if (parts.length == 3) { // it's a child
+      var name   = parts[0]
+      var rank   = parts[1];
+      var val = parseInt(rank);
+      if (!isNaN(val)) {
+      
+         var idx = name.indexOf("rem ");
+         if (idx == 0) {  // format is rem 55/89% 
+            idx = name.indexOf("/");
+            return name.substring(4,idx);
+         }
+     
+         return name;
+      }
+   }
+   return node.nodeName;
+}
+
+function getSize(node) {
+   var parts = node.nodeName.split(":")
+   if (parts.length == 5) {
+      // text:rank:count:tuples:pct
+      var name   = parts[0];
+      var rank   = parts[1];
+      var count  = parts[2];
+      var tuples = parts[3];
+      var pct    = parts[4];
+
+      var val = parseInt(pct);
+      if (!isNaN(val)) {
+         return pct * 100.0;
+      }
+   }
+   else if (parts.length == 3) {
+      // text:rank:count:tuples:pct
+      var name   = parts[0];
+      var idx = name.indexOf("rem ");
+      if (idx == 0) {
+         return getSize(node.parentNode) * 10.0; // a fixed size node for all the rem words
+      }
+   }
+
+   if (node.parentNode) {
+      return getSize(node.parentNode) * (node.nodeValue * 100.0);
+      //return node.nodeValue;
+   }
+
+   return node.nodeValue;
+}
+
+function getNameOLD(node) { 
+   var idx = node.nodeName.indexOf(":");
+   if (idx > 0) {
+      var sz = node.nodeName.substring(idx+1);
+      var val = parseInt(sz);
+      if (!isNaN(val)) {
+         return node.nodeName.substring(0,idx); 
+      }
+   }
+   return node.nodeName;
+}
+function getSizeOLD(node) { 
+   var idx = node.nodeName.indexOf(":");
+   if (idx > 0) {
+      var sz = node.nodeName.substring(idx+1);
+      var val = parseInt(sz);
+      if (! isNaN(val)) {
+         return val; 
+      }
+   }
+
+   if (node.parentNode) {
+      return getSize(node.parentNode) + node.nodeValue;
+   }
+   else { 
+      return node.nodeValue;
+   }
+}
+
+
+/* For pretty number formatting. */
+var format = pv.Format.number();
+
+var vis = new pv.Panel()
+    .width(796)
+    .height(796)
+    .margin(2);
+
+var pack = vis.add(pv.Layout.Pack)
+    .nodes(pv.dom(flare).root("flare").nodes())
+    .size(function(d) getSize(d));
+
+pack.node.add(pv.Dot)
+    .fillStyle(function(d) d.firstChild ? "rgba(31, 119, 180, .25)" : "#ff7f0e")
+    .title(function(d) getName(d) + (d.firstChild ? "" : ": " + format(d.nodeValue)))
+    .size(function(d) getSize(d))
+    .lineWidth(1);
+
+var l1 = pack.label.add(pv.Label)
+    /*
+    .visible(function(d) !d.firstChild)  
+    .text(function(d) getName(d).substring(0, Math.min( getName(d).length, 10)));
+
+    .text(function(d) getName(d).substring(0, Math.sqrt( getSize(d.nodeValue)) / 20));
+    */
+    
+    .text(function(d) {
+       var name = getName(d);
+       if (d.firstChild) {
+          var idx = name.indexOf(' ');
+          if (idx > 1) {
+             var f = name.substring(0,idx);
+             var l = name.substring(idx+1);
+             return f.substring(0, Math.min(f.length, 10));
+          }
+          return name.substring(0, Math.min(name.length, 12));
+       }
+       else {
+          return name.substring(0, Math.min(name.length,10));
+       }
+    })
+    
+    .visible(function(d) getName(d) != "flare")
+    
+    .textStyle(function(d) {
+    
+       if (d.firstChild) {
+          return "rgba(250,250,250,0.70)"; 
+          // return pv.rgb(50,50,50,0.50); 
+          // return pv.color("black");
+       }
+       return pv.color("black");
+       })
+    
+    .font(function(d) {
+       if (d.firstChild) {
+          // console.log(d.index);
+          //var size = Math.min(10, 16 - d.index);
+          //return size.toString() + 'px sans-serif';
+          return "28px serif";
+       }
+    });
+
+   l1.add(pv.Label)
+    .visible(function(d) d.firstChild) 
+   .top(function() l1.top() + 20)
+   .text(function(d) {
+       var name = getName(d);
+       if (d.firstChild) {
+          var idx = name.indexOf(' ');
+          if (idx > 1) {
+             var f = name.substring(0,idx);
+             var l = name.substring(idx+1);
+             return l.substring(0, Math.min(l.length, 10));
+          }
+          return "";
+       }
+       else {
+          return "error"; 
+       }
+    })
+    
+vis.render();
+
+</script>
+
+
+</div></div></body>
+</html>
