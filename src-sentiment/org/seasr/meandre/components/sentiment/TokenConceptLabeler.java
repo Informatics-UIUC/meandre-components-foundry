@@ -69,9 +69,9 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.meandre.apps.sentiment.support.PathMetric;
+import org.seasr.meandre.apps.sentiment.support.PathMetricFinder;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.components.sentiment.PathMetric;
-import org.seasr.meandre.support.components.sentiment.PathMetricFinder;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.components.utils.FileResourceUtility;
@@ -210,9 +210,9 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 	PathMetricFinder finder;
 
     //--------------------------------------------------------------------------------------------
-	
-	public Map<String,String> buildCacheMap(ComponentContextProperties ccp, 
-			                                String key, 
+
+	public Map<String,String> buildCacheMap(ComponentContextProperties ccp,
+			                                String key,
 			                                StringBuilder filenameOut)
 	{
 		filenameOut.setLength(0);
@@ -221,12 +221,12 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 			Map<String,String> map = new HashMap<String,String>();
 			return map;
 		}
-		
+
 		// key exists, use the given filename
 		String defaultDir = ccp.getPublicResourcesDirectory();
 		filename   = FileResourceUtility.buildResourcePath(defaultDir, filename);
 		FileResourceUtility.createPathToResource(filename, console);
-		
+
 		Map<String,String> map = readFromFile(filename);
 		filenameOut.append(filename);
 		return map;
@@ -234,10 +234,10 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 
 	private String host;
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
 		this.keyFieldName = ccp.getProperty(DATA_PROPERTY_FIELDNAME_KEY);
-		
+
 		//
 		// init the synNet host
 		//
@@ -247,16 +247,16 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 
 		// create/build the cache file name
 		StringBuilder sb = new StringBuilder();
-		
+
 		this.wordToConceptMap = buildCacheMap(ccp, DATA_PROPERTY_CACHE, sb );
 		this.cacheFileName = sb.toString();
-		
+
 		this.wordMap = buildCacheMap(ccp, DATA_PROPERTY_WORDMAP, sb );
 		this.wordMapFileName = sb.toString();
-		
+
 		this.noConceptMap = buildCacheMap(ccp, DATA_PROPERTY_IGNORE, sb);
 		this.wordMapFileName  = sb.toString();
-		
+
 
 		/*
 		this.cacheFileName     = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_CACHE));
@@ -400,7 +400,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 	}
 
     @Override
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception 
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception
     {
     	writeToFile(wordToConceptMap, cacheFileName);
     	writeToFile(noConceptMap,     noConceptFileName);
@@ -418,17 +418,17 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
     }
 
     private void writeToFile(Map<String,String>map, String filename) {
-    	
+
     	if (filename == null || filename.length() == 0) {
     		return;
     	}
-    	
-    	
+
+
     	File file = new File(filename);
     	if (! file.exists()) {
     		console.fine(filename + " does not exist");
     	}
-    	
+
 		try {
 	        BufferedWriter out = new BufferedWriter(new FileWriter(filename));
 	        Iterator<String> it = map.keySet().iterator();
