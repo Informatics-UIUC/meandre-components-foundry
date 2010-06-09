@@ -1,7 +1,10 @@
 <html>
   <head>
   <title>Yikes</title>
+ <!--
     <script type="text/javascript" src="/public/resources/js/protovis-r3.2.js"></script>
+    -->
+    <script type="text/javascript" src="$protovisAPI"></script>
     <title>Circle Packing</title>
     
     <style type="text/css">

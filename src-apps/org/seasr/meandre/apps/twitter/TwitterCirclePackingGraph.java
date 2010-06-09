@@ -55,7 +55,7 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
+import org.seasr.meandre.components.vis.protovis.AbstractProtovisComponent;
 
 /**
  *
@@ -74,7 +74,7 @@ import org.seasr.meandre.support.components.utils.ComponentUtils;
         dependency = { "velocity-1.6.2-dep.jar" },
         resources  = { "protovis-r3.2.js", "TwitterCirclePackingGraph.vm" }
 )
-public class TwitterCirclePackingGraph extends VelocityTemplateToHTML
+public class TwitterCirclePackingGraph extends AbstractProtovisComponent
 {
 
     //------------------------------ INPUTS -----------------------------------------------------
@@ -124,7 +124,7 @@ public class TwitterCirclePackingGraph extends VelocityTemplateToHTML
     protected static final String OUT_TEXT = Names.PORT_HTML;
 
    
-    protected static final String PROTOVIS_JS = "protovis-r3.2.js";
+    // protected static final String PROTOVIS_JS = "protovis-r3.2.js";
 
     //--------------------------------------------------------------------------------------------
 
@@ -133,17 +133,18 @@ public class TwitterCirclePackingGraph extends VelocityTemplateToHTML
 	{
 	    super.initializeCallBack(ccp);
 
-	    ComponentUtils.writePublicResource(getClass(), PROTOVIS_JS, "js", ccp, false);
+	    
 	    
 	    /*
+	     * ComponentUtils.writePublicResource(getClass(), PROTOVIS_JS, "js", ccp, false);
 	    String path = VelocityTemplateToHTML.writeResourceFromJarToFilesystem(this.getClass(),
                 ccp.getPublicResourcesDirectory(),
                 "js",
                 PROTOVIS_JS);
+                ComponentUtils.writePublicResource(getClass(), PROTOVIS_JS, "js", ccp, false);
                 */		    	
 
 	    context.put("title",   ccp.getProperty(PROP_TITLE));
-	    context.put("path",    "/public/resources/js/" + PROTOVIS_JS);
 	}
 
     @Override
