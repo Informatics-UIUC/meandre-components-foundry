@@ -1,0 +1,6 @@
+This "branch" is intended to temporarly hold applications that should be
+moved into their own svn.  Right now, due to convenience only, there are here.
+Once we decide how/where they should go, they will.
+
+If components can be used outside of these applications, they should be moved appropriately.
+
