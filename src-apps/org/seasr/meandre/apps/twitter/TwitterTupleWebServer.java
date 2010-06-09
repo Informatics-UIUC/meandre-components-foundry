@@ -757,7 +757,7 @@ public class TwitterTupleWebServer extends AbstractExecutableComponent
     	LRUCache<SimpleTuple> map = getTweetCache(type, value);
     	JSONArray items = new JSONArray();
        	
-    	int MAX_EXPORT = 5;
+    	int MAX_EXPORT = 6;
     
 		if (map != null) {
 			List<Map.Entry<String, Integer>> sorted = getTopNWords(map, stopWords, value);
@@ -765,14 +765,17 @@ public class TwitterTupleWebServer extends AbstractExecutableComponent
 			int i = 0;
 			double sum = 0;
 			double total = 0;
+			int STOP = 0;
 			for (Map.Entry<String, Integer> e : sorted) {
 				String  k  = e.getKey();
 				Integer v  = e.getValue();
 				total += v;
-				if (i++ <= MAX_EXPORT) {
+				if (++i <= MAX_EXPORT) {
 					sum += v.doubleValue();
+					STOP = i;
 				}
 			}
+		
 			
 			double SUM = 100.0;
 			double SUM_5 = 100.0;
@@ -794,7 +797,7 @@ public class TwitterTupleWebServer extends AbstractExecutableComponent
 				item.put("p", pct);
 				item.put("p5", pct5);
 			
-				if (i++ > MAX_EXPORT) {
+				if (++i == STOP) {
 					break;
 				}
 			}
