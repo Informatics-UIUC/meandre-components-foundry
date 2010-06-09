@@ -783,8 +783,8 @@ public class TwitterTupleWebServer extends AbstractExecutableComponent
 				
 				double pct = round(v.doubleValue()/total);
 				double pct5 = round(v.doubleValue()/sum);
-				SUM -= pct;
-				SUM_5 -= pct5;
+				SUM   -= (pct * 100.0);
+				SUM_5 -= (pct5 * 100.0);
 				
 				JSONObject item = new JSONObject();
 				items.put(item);
@@ -799,16 +799,16 @@ public class TwitterTupleWebServer extends AbstractExecutableComponent
 				}
 			}
 			
-			if (SUM > 1) {
-			   JSONObject item = new JSONObject();
-			   items.put(item);
+            // add the remaining/leftovers
+			JSONObject item = new JSONObject();
+			items.put(item);
+
+			int left = sorted.size() - i;
+			item.put("k", "rem " + left +"/" + round(SUM) + "%");
+			item.put("rank", i + 1);
+			item.put("p", round(SUM/100.0));
+			item.put("p5", round(SUM_5/100.0));
 			
-			   int left = sorted.size() - i;
-			   item.put("k", "rem " + left +"/" + round(SUM) + "%");
-			   item.put("rank", i + 1);
-			   item.put("p", round(SUM/100.0));
-			   item.put("p5", round(SUM_5/100.0));
-			}
 			
 		}
 		return items;
