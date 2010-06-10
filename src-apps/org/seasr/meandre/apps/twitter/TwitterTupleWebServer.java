@@ -87,8 +87,8 @@ import org.seasr.meandre.support.components.tuples.TupleUtilities;
 
 @Component(
 		creator = "Mike Haberman",
-		description = "Service head for a service that gets data via posts",
-		name = "Tuple Web Server",
+		description = "Service head for a twitter data service that gets data via posts",
+		name = "Twitter Tuple Web Server",
 		tags = "WebUI, post, process request",
 		rights = Licenses.UofINCSA,
 		mode = Mode.webui,
