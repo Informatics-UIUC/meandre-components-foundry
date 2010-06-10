@@ -66,7 +66,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 
 @Component(
         creator = "Lily Dong",
-        description = "Interface to Protovis arc diagram.",
+        description = "This components creates a Protovis arc diagram based on JSON data that specifies the nodes and links.",
         name = "Arc Diagram",
         tags = "visualization, protovis",
         rights = Licenses.UofINCSA,
@@ -130,8 +130,6 @@ public class ArcDiagram extends AbstractProtovisComponent {
 	    String json = data[0];
 
 	    context.put("data", json);
-
-		console.info("data " +  json);
 
 		super.executeCallBack(cc);
 	}
