@@ -67,9 +67,10 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 @Component(
         creator = "Lily Dong",
-        description = "Transforms document tokenized into sentences into " +
-        "segments of size approximating the input document's size in tokens. " +
-        "Segments always end at sentence boundaries.",
+        description = "The component breaks a document into chunks (segments) for further processing." +
+        		"It transforms the document of tokenized sentences into " +
+        		"segments of size that approximates the number of tuples specified in the property . " +
+        		"Segments always end at sentence boundaries.",
         name = "Text Segmentation",
         tags = "text, segment",
         firingPolicy = FiringPolicy.any,
@@ -100,7 +101,7 @@ public class TextSegmentation extends AbstractExecutableComponent {
 	//------------------------------ PROPERTIES --------------------------------------------------
 
 	@ComponentProperty(
-	        description = "segment size in tokens.",
+	        description = "The number of tokens for a given segment.",
             name = Names.PROP_SEGMENT_SIZE,
             defaultValue =  "200"
 	)
@@ -170,7 +171,7 @@ public class TextSegmentation extends AbstractExecutableComponent {
 			outputSegments();
 		}
 
-		console.info("The number of segments for the current doucment is " + segmentCnt + ".");
+		console.info("The number of segments for the current document is " + segmentCnt + ".");
 	}
 
 	/**
