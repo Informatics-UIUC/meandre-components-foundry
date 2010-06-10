@@ -24,6 +24,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
 import twitter4j.StatusListener;
+import twitter4j.StatusStream;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.User;
@@ -104,7 +105,8 @@ implements Runnable, StatusListener {
 
 	private synchronized void waitForStatus() {
         try {
-            this.wait(Integer.MAX_VALUE);
+            //this.wait(Integer.MAX_VALUE);
+            this.wait();
             System.out.println("notified.");
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -129,6 +131,14 @@ implements Runnable, StatusListener {
 
 		// twitterStream = new TwitterStream("seasrSalad", "0penNlp", this);
 
+	
+		// this will force an exception if invalid
+		TwitterStream tsTmp = new TwitterStreamFactory().getInstance(userName, passwd);
+		StatusStream tmp = tsTmp.getSampleStream();
+		tmp.close();
+		tsTmp.cleanup();
+		
+		// if we got this far, we are good to go
 		twitterStream = new TwitterStreamFactory().getInstance(userName, passwd);
 		twitterStream.setStatusListener(this);
 
@@ -144,16 +154,24 @@ implements Runnable, StatusListener {
 		*/
 
 
-
-         waitForStatus();
-         twitterStream.cleanup();
+          // black forever
+          waitForStatus();
+         
 	   }
 	   catch(Exception e) {
-		   throw new RuntimeException("unable to read twitter");
+		   console.info("unable to read twitter " + e.toString());
+	   }
+	   finally {
+		   if (twitterStream != null)
+		      twitterStream.cleanup();
 	   }
 
 	   console.info("Stop Twitter service");
 
+	   noExceptions = false;   
+	   synchronized(buffer) {
+		   buffer.notifyAll();
+	   }
 
    }
 
@@ -192,6 +210,8 @@ implements Runnable, StatusListener {
 	int FOLLOWERS_IDX;
 	int LOCATION_IDX;
 
+	boolean noExceptions = true;
+	
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception
 	{
@@ -199,7 +219,7 @@ implements Runnable, StatusListener {
 		Thread t = new Thread(this);
 		t.start();
 
-		while(true) {
+		while(noExceptions) {
 
 			Strings[] results;
 			// console.info("acquire the lock");
@@ -210,7 +230,11 @@ implements Runnable, StatusListener {
 					try {
 						buffer.wait();
 					}
-					catch (InterruptedException ie) {}
+					catch (InterruptedException ie) {console.info(ie.toString());}
+					
+					if (!noExceptions) {
+						break;
+					}
 				}
 
 				results = new Strings[buffer.size()];
@@ -224,6 +248,8 @@ implements Runnable, StatusListener {
 			cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 		}
 
+		
+		console.info("ending service");
 
 	}
 
@@ -264,7 +290,7 @@ implements Runnable, StatusListener {
     	}
     	*/
 
-    	// console.info("Raw      " + status.getText());
+    	//console.info("Raw      " + status.getText());
     	if (status.isRetweet()) {
     		console.fine("YES RT " + status.getText());
     	}
@@ -305,7 +331,27 @@ implements Runnable, StatusListener {
     }
     public void onTrackLimitationNotice(int numberOfLimitedStatuses){}
     public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice){}
-    public void onException(Exception ex) {console.warning(ex.toString());}
+    public void onException(Exception ex) 
+    {
+    	noExceptions = false;
+    	console.warning(ex.toString());
+    	
+    	
+    	
+    	synchronized(buffer) {
+ 		   buffer.notifyAll();
+ 	   }
+    	
+    	
+    	// get a null pointer error from twitter4J
+    	if (twitterStream != null) {
+    	   twitterStream.cleanup();
+    	}
+    	
+    	
+    	
+    	// throw new RuntimeException(ex.toString());
+    }
 
 
 
