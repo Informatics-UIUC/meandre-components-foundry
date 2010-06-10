@@ -67,9 +67,9 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 @Component(
         creator = "Lily Dong",
-        description = "The component breaks a document into chunks (segments) for further processing." +
+        description = "The component breaks a document into chunks (segments) for further processing. " +
         		"It transforms the document of tokenized sentences into " +
-        		"segments of size that approximates the number of tuples specified in the property . " +
+        		"segments of size that approximates the number of tuples specified in the property. " +
         		"Segments always end at sentence boundaries.",
         name = "Text Segmentation",
         tags = "text, segment",
