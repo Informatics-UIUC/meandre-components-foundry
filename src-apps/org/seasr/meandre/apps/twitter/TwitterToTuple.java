@@ -30,11 +30,11 @@ import twitter4j.User;
 
 
 /**
- * 
+ *
  * TESTING ONLY  (DO NOT USE for production ... yet)
- * 
+ *
  * Data Server:   TwitterToTuple --> StanfordNETupleTagger --> TwitterTupleWebServer
- * 
+ *
  * Vis:           URLReader -> TwitterCircleGraphVis -> GenericViewer
  *
  * @author Mike Haberman;
@@ -43,7 +43,7 @@ import twitter4j.User;
 
 
 @Component(
-		name = "twitter to tuple",
+		name = "Twitter to Tuple",
 		creator = "Mike Haberman",
 		baseURL = "meandre://seasr.org/components/tools/",
 		firingPolicy = FiringPolicy.all,
@@ -55,25 +55,25 @@ import twitter4j.User;
 )
 public class TwitterToTuple extends AbstractExecutableComponent
 implements Runnable, StatusListener {
-	
+
 
     //------------------------------ INPUTS ------------------------------------------------------
-	
+
 	//------------------------------ OUTPUTS -----------------------------------------------------
-	
+
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
 			description = "tuples (one tuple: title, location, tweet/content, text(cleaned)"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
-	
+
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
 			description = "meta data for the tuple (title, location, content)"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
-		
-	
+
+
 	//----------------------------- PROPERTIES ---------------------------------------------------
 	@ComponentProperty(
 			name = "twitterUser",
@@ -81,27 +81,27 @@ implements Runnable, StatusListener {
 		    defaultValue = ""
 		)
 	protected static final String PROP_USER = "twitterUser";
-	
+
 	@ComponentProperty(
 			name = "twitterPassword",
 			description = "password used to sign on to twitter",
 		    defaultValue = ""
 		)
 	protected static final String PROP_PASSWORD = "twitterPassword";
-	
+
 
 	//
-	// how many tuples to buffer before 
+	// how many tuples to buffer before
 	// pushing them to the output
 	//
 	int WINDOW_SIZE = 5;
-	
+
 	//--------------------------------------------------------------------------------------------
 
 	SimpleTuple outTuple;
 	protected TwitterStream twitterStream = null;
 	List<Strings> buffer = new ArrayList<Strings>();
-	
+
 	private synchronized void waitForStatus() {
         try {
             this.wait(Integer.MAX_VALUE);
@@ -118,32 +118,32 @@ implements Runnable, StatusListener {
 	   try {
 		Thread.currentThread().sleep(5000);
 	    console.info("Start Twitter reader");
-		
+
 	    /*
 	    Twitter tweet = new Twitter("seasrSalad" , "0penNlp");
 	    Status status = tweet.updateStatus("Hello world2 {\"name\":\"mike\"}");
 	    User me = status.getUser();
 	    console.info("user is " + me.getId());
 	    */
-	    
-	    
+
+
 		// twitterStream = new TwitterStream("seasrSalad", "0penNlp", this);
-		
+
 		twitterStream = new TwitterStreamFactory().getInstance(userName, passwd);
 		twitterStream.setStatusListener(this);
-       
+
 		// for a continuous unfiltered stream:
 		twitterStream.sample();
-		
-		
+
+
 		/*
 		int count = 0; // last 100 messages, NOT supported
 		int[] follow = new int[0]; // don't follow any specific users
 		String[] tags = new String[]{"#apple", "Balloon Boy"};
 		twitterStream.filter(count, follow, tags);
 		*/
-		
-		
+
+
 
          waitForStatus();
          twitterStream.cleanup();
@@ -151,35 +151,35 @@ implements Runnable, StatusListener {
 	   catch(Exception e) {
 		   throw new RuntimeException("unable to read twitter");
 	   }
-	   
+
 	   console.info("Stop Twitter service");
-	   
-       
+
+
    }
-   
-   
+
+
 	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
-	{	    
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception
+	{
 	    String ID   = "id";
 	    String TEXT = "text";
 	    String TWEET = "tweet";
 	    String USER = "userId";
 	    String FOLL = "followers";
 	    String LOC  = "location";
-	    
+
 
 	    SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[]{ID,TWEET,TEXT,USER,FOLL,LOC});
 		outTuple = outPeer.createTuple();
-		
+
 		ID_IDX         = outPeer.getIndexForFieldName(ID);
 		TEXT_IDX       = outPeer.getIndexForFieldName(TEXT);
 		TWEET_IDX      = outPeer.getIndexForFieldName(TWEET);
 		USER_IDX       = outPeer.getIndexForFieldName(USER);
 		FOLLOWERS_IDX  = outPeer.getIndexForFieldName(FOLL);
 		LOCATION_IDX   = outPeer.getIndexForFieldName(LOC);
-		
-		
+
+
 		userName = ccp.getProperty(PROP_USER);
 		passwd   = ccp.getProperty(PROP_PASSWORD);
 
@@ -191,20 +191,20 @@ implements Runnable, StatusListener {
 	int USER_IDX;
 	int FOLLOWERS_IDX;
 	int LOCATION_IDX;
-	
+
 	@Override
-	public void executeCallBack(ComponentContext cc) throws Exception 
-	{	
-		
+	public void executeCallBack(ComponentContext cc) throws Exception
+	{
+
 		Thread t = new Thread(this);
 		t.start();
-		
+
 		while(true) {
-			
+
 			Strings[] results;
 			// console.info("acquire the lock");
 			synchronized (buffer) {
-			
+
 				// block until I have some data
 				while(buffer.isEmpty()) {
 					try {
@@ -212,118 +212,118 @@ implements Runnable, StatusListener {
 					}
 					catch (InterruptedException ie) {}
 				}
-              
+
 				results = new Strings[buffer.size()];
 				buffer.toArray(results);
 				buffer.clear();
-			} // release the lock	
+			} // release the lock
 
 
 			cc.pushDataComponentToOutput(OUT_META_TUPLE, outTuple.getPeer().convert());
 			StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
 			cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 		}
-		
-		
+
+
 	}
 
     @Override
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        
+
     }
-    
-   
+
+
     // StatusListener interface
     static int ID = 1;
-    public void onStatus(Status status) 
+    public void onStatus(Status status)
     {
     	String text = status.getText();
-    	
+
     	//
     	// cull out as much as possible here
     	//
     	text = TwitterServices.convertToASCII(text);
-    	if (text == null) {    	
+    	if (text == null) {
     		// console.info("SKIP non-ascii " + status.getText());
     		return;
     	}
-    
-    	float pct = TwitterServices.parsingPercentage(text);    	
+
+    	float pct = TwitterServices.parsingPercentage(text);
     	if (pct < 0.40) {
     		// console.info("SKIP " + pct + " " + text);
     		return;
     	}
-    		
-    	
+
+
     	User user = status.getUser();
     	String location = TwitterServices.getLocation(status);
-    	
+
     	/*
     	if (location == TwitterServices.NO_LOCATION) {
     		return;
     	}
     	*/
-    	
+
     	// console.info("Raw      " + status.getText());
     	if (status.isRetweet()) {
     		console.fine("YES RT " + status.getText());
     	}
-    	
+
     	String clean = clean(text);
-    	
+
     	/*
     	if (c.length() != text.length()) {
     		console.info(text);
     		console.info(c);
     	}
     	*/
-        
+
     	outTuple.setValue(ID_IDX,        ID++);
     	outTuple.setValue(USER_IDX,      user.getId());
         outTuple.setValue(FOLLOWERS_IDX, user.getFavouritesCount());
         outTuple.setValue(TWEET_IDX,     text);
         outTuple.setValue(TEXT_IDX,      clean);
         outTuple.setValue(LOCATION_IDX,  location);
-        
-        
+
+
         // console.info("got data ");
-        
+
         synchronized(buffer) {
-        	
+
         	buffer.add(outTuple.convert());
-            
+
             if (buffer.size() > WINDOW_SIZE) {
-            	
+
             	// console.info("wake the waiter " + buffer.size());
             	buffer.notifyAll();
-            	
+
             }
-        	
+
         }
         // console.info("leaving");
-        
+
     }
     public void onTrackLimitationNotice(int numberOfLimitedStatuses){}
     public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice){}
     public void onException(Exception ex) {console.warning(ex.toString());}
-    
-    
-    
-    public String clean(String tweet) 
+
+
+
+    public String clean(String tweet)
     {
     	tweet = tweet.replaceAll("[)(]", "");
-    	
+
     	// based on heuristics, certainly not perfect
     	// trade off speed
-    	
+
     	// first split the tokens, consuming consecutive white space
     	String[] tokens = tweet.split("[\\s]+");
     	List<String> keep = new ArrayList<String>();
     	for (String token : tokens) {
-    		
+
     		// keep urls, twitter hashes, twitter users
-    		
-    		if (token.indexOf("http") == 0 || 
+
+    		if (token.indexOf("http") == 0 ||
     			token.indexOf("www")  == 0 ||
     			token.indexOf("@")    == 0 ||
     			token.indexOf("#")    == 0)
@@ -331,21 +331,21 @@ implements Runnable, StatusListener {
     			keep.add(token);
     			continue;
     		}
-    		
+
     		if (TwitterServices.containsDomain(token)) {
     			keep.add(token);
 				// console.info("YES " + token);
 				continue;
     		}
     		int len = token.length();
-    					
-    		
+
+
     		//
-    	    // handle most basic contractions: it's what's I'm don't we've 
+    	    // handle most basic contractions: it's what's I'm don't we've
     		// otherwise, you will end up with it ' s  and what ' s
     		//
-    		
-    		
+
+
     		if (len > 2 && token.charAt(len - 2) == '\'') {
     			// might want to strip off leading and trailing punct
     		    keep.add(token);
@@ -356,17 +356,17 @@ implements Runnable, StatusListener {
     		    keep.add(token);
     			continue;
     		}
-    		
-    		
+
+
     		//replace consecutive non alpha/numeric chars with a single
     		//??????????????? ==> ?
     		//shower?....I    ==> shower?.I
-    		
+
     		token = token.replaceAll("([^0-9A-Za-z])\\1+", "$1");
-    		
-    		// GOAL: put spaces between punct and alpha/numeric 
+
+    		// GOAL: put spaces between punct and alpha/numeric
     		// separate with spaces those tokens with punct inside of them
-    		// shower?.I ==> shower ?. I 
+    		// shower?.I ==> shower ?. I
     		// but don't do digits
     		// 20% ==> 20 %
     		// 10/10/2010 ==> 10 / 10 / 2010
@@ -374,7 +374,7 @@ implements Runnable, StatusListener {
     	    token = token.replaceAll("([^A-Za-z0-9])([A-Za-z])", "$1 $2");
     		keep.add(token);
     	}
-    	
+
     	StringBuilder sb = new StringBuilder();
     	int len = keep.size();
     	for (int i = 0; i < len; i++) {
@@ -383,9 +383,9 @@ implements Runnable, StatusListener {
     			sb.append(" ");
     	}
     	return sb.toString();
-    	
+
     	// this won't work: Named Entity depends on capitalization
     	//return sb.toString().toLowerCase();
-    	
+
     }
 }

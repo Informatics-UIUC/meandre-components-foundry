@@ -135,7 +135,7 @@ public class ForceDirectedGraph extends AbstractProtovisComponent {
 
         context.put("data", json);
 
-        // console.info("data " +  json);
+        console.finest("data: " +  json);
 
         //
         // now let the super take care of business (i.e. velocity will rumble)

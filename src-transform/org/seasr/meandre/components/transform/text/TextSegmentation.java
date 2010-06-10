@@ -68,9 +68,9 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 @Component(
         creator = "Lily Dong",
         description = "The component breaks a document into chunks (segments) for further processing. " +
-        		"It transforms the document of tokenized sentences into " +
-        		"segments of size that approximates the number of tuples specified in the property. " +
-        		"Segments always end at sentence boundaries.",
+        		      "It transforms the document of tokenized sentences into " +
+        		      "segments of size that approximates the number of tuples specified in the property. " +
+        		      "Segments always end at sentence boundaries.",
         name = "Text Segmentation",
         tags = "text, segment",
         firingPolicy = FiringPolicy.any,
@@ -78,7 +78,6 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-
 public class TextSegmentation extends AbstractExecutableComponent {
 	//------------------------------ INPUTS ------------------------------------------------------
 
@@ -116,6 +115,8 @@ public class TextSegmentation extends AbstractExecutableComponent {
 	private org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder res;
 
 	private int segmentCnt;
+
+	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties cc) throws Exception {
