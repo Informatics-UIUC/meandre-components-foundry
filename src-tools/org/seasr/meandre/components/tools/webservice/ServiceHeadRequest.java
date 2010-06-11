@@ -43,9 +43,8 @@
 package org.seasr.meandre.components.tools.webservice;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
@@ -58,7 +57,6 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.WebUIException;
 import org.meandre.webui.WebUIFragmentCallback;
@@ -90,8 +88,8 @@ public class ServiceHeadRequest extends AbstractExecutableComponent
 
 	@ComponentOutput(
 	        name = Names.PORT_REQUEST_DATA,
-			description = "A map object containing the key elements of the request and the associated values" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.BytesMap"
+			description = "A mapping between request parameter names and the values associated." +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
 	)
 	protected static final String OUT_REQUEST = Names.PORT_REQUEST_DATA;
 
@@ -160,32 +158,24 @@ public class ServiceHeadRequest extends AbstractExecutableComponent
 	            request.getMethod(), request.getRemoteHost(), request.getRemoteAddr(), request.getRemotePort(),
 	            ((request.getRemoteUser() != null) ? "[" + request.getRemoteUser() + "]" : "")));
 
-		Map<String,byte[]> map = new Hashtable<String,byte[]>();
-		Enumeration mapRequest = request.getParameterNames();
-		while ( mapRequest.hasMoreElements() ) {
-			String sName = mapRequest.nextElement().toString();
-			String [] sa = request.getParameterValues(sName);
-			String sAcc = "";
-			for ( String s:sa ) sAcc+=s;
-			try {
-                map.put(sName, sAcc.getBytes("UTF-8"));
-            }
-            catch (UnsupportedEncodingException e) {
-                throw new WebUIException(e);
-            }
+		Map<String, String[]> paramMap = new HashMap<String, String[]>();
+		Enumeration paramNames = request.getParameterNames();
+		while (paramNames.hasMoreElements()) {
+			String paramName = paramNames.nextElement().toString();
+			String[] paramValues = request.getParameterValues(paramName);
+			paramMap.put(paramName, paramValues);
 		}
 
 		try {
 			Semaphore sem = new Semaphore(1, true);
 			sem.acquire();
-			componentContext.pushDataComponentToOutput(OUT_REQUEST, BasicDataTypesTools.mapToByteMap(map));
+			componentContext.pushDataComponentToOutput(OUT_REQUEST, BasicDataTypesTools.mapToStringMap(paramMap));
 			componentContext.pushDataComponentToOutput(OUT_RESPONSE, response);
 			componentContext.pushDataComponentToOutput(OUT_SEMAPHORE, sem);
 			sem.acquire();
 			sem.release();
-		} catch (InterruptedException e) {
-			throw new WebUIException(e);
-		} catch (ComponentContextException e) {
+		}
+		catch (Exception e) {
 			throw new WebUIException(e);
 		}
 	}

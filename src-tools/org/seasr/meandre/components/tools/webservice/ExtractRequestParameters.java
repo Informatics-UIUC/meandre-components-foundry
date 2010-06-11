@@ -51,9 +51,11 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.BytesMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 /** Extracts a field from a given request map provided by a service head
@@ -63,21 +65,24 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 @Component(
         creator = "Xavier Llora",
-        description = "Extract the given field in the property pushing the content of that field to the output port",
-        name = "Extract Text Field From Map",
+        description = "Extract the given field in the property from the request, pushing the values one by one to the output. " +
+        		"<br>Note: If used in streaming mode, the component outputs the initiator and terminator markers only on the " +
+        		"raw data output port.",
+        name = "Extract Request Parameters",
         tags = "webservice, field, value, extract",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class ExtractTextFieldFromMap extends AbstractExecutableComponent {
+public class ExtractRequestParameters extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
             name = Names.PORT_REQUEST_DATA,
-    		description = "A map object containing the key elements of the request and the associated values" +
-    		    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.BytesMap"
+    		description = "A mapping between request parameters and the values associated." +
+    		    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap" +
+    		    "<br>TYPE: java.util.Map<java.lang.String, java.lang.String[]>"
     )
     protected static final String IN_REQUEST = Names.PORT_REQUEST_DATA;
 
@@ -92,42 +97,64 @@ public class ExtractTextFieldFromMap extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_REQUEST_DATA,
-    		description = "The original map object" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.BytesMap"
+    		description = "The original request mapping (given as the input)"
     )
     protected static final String OUT_REQUEST = Names.PORT_REQUEST_DATA;
 
     //------------------------------ PROPERTIES ---------------------------------------------------
 
     @ComponentProperty (
-    		description = "The name of the filed to filter",
+    		description = "The name of the field to filter",
     		name = Names.PROP_FIELD_NAME,
     		defaultValue = "url"
     )
     protected static final String PROP_FIELD = Names.PROP_FIELD_NAME;
 
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the pushed message be wrapped as a stream. ",
+            defaultValue = "false"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+
+    //--------------------------------------------------------------------------------------------
+
+    private boolean _wrapStream;
+    private String _field;
+
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, true, true, ccp));
+        _field = getPropertyOrDieTrying(PROP_FIELD, true, true, ccp);
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	Object obj = cc.getDataComponentFromInput(IN_REQUEST);
-    	Map<String, byte[]> map = BasicDataTypesTools.ByteMapToMap((BytesMap)obj);
-        String fieldName = cc.getProperty(PROP_FIELD);
+    	Object input = cc.getDataComponentFromInput(IN_REQUEST);
+        Map<String, String[]> map = DataTypeParser.parseAsStringStringArrayMap(input);
 
-        cc.getLogger().info("Keys available "+map.keySet().toString());
-		if ( map.containsKey(fieldName) )
-    		cc.pushDataComponentToOutput(OUT_RAW_DATA,BasicDataTypesTools.stringToStrings(new String(map.get(fieldName))));
+        if (_wrapStream)
+            cc.pushDataComponentToOutput(OUT_RAW_DATA, new StreamInitiator());
+
+        console.fine("Keys available: " + map.keySet().toString());
+
+		if (map.containsKey(_field))
+		    for (String paramValue : map.get(_field))
+		        cc.pushDataComponentToOutput(OUT_RAW_DATA, BasicDataTypesTools.stringToStrings(paramValue));
 		else
-    		cc.pushDataComponentToOutput(OUT_RAW_DATA,BasicDataTypesTools.stringToStrings(""));
+    		cc.pushDataComponentToOutput(OUT_ERROR, "The request does not have a parameter named '" + _field + "'");
 
-    	cc.pushDataComponentToOutput(OUT_REQUEST,obj);
+    	cc.pushDataComponentToOutput(OUT_REQUEST, input);
+
+    	if (_wrapStream)
+    	    cc.pushDataComponentToOutput(OUT_RAW_DATA, new StreamTerminator());
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
+
+    //--------------------------------------------------------------------------------------------
 }

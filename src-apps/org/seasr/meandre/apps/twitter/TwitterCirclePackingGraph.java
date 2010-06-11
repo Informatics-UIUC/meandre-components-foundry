@@ -63,7 +63,6 @@ import org.seasr.meandre.components.vis.protovis.AbstractProtovisComponent;
  *
  */
 
-
 @Component(
         creator = "Mike Haberman",
         description = "Twitter Circle Packing Graph",
@@ -72,84 +71,59 @@ import org.seasr.meandre.components.vis.protovis.AbstractProtovisComponent;
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.6.2-dep.jar", "protovis-r3.2.jar" },
-        resources  = { "protovis-r3.2.js", "TwitterCirclePackingGraph.vm" }
+        resources  = { "TwitterCirclePackingGraph.vm" }
 )
-public class TwitterCirclePackingGraph extends AbstractProtovisComponent
-{
+public class TwitterCirclePackingGraph extends AbstractProtovisComponent {
 
     //------------------------------ INPUTS -----------------------------------------------------
 
-	
     @ComponentInput(
-	            name = "json",
-	            description = "JSON input data.  Must be an two arrays of fields nodes and links" +
-	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	    )
-	    protected static final String IN_JSON = "json";
-	    
-	    
+            name = "json",
+            description = "JSON input data.  Must be an two arrays of fields nodes and links" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String IN_JSON = "json";
 
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
-	static final String DEFAULT_TEMPLATE = "org/seasr/meandre/apps/twitter/TwitterCirclePackingGraph.vm";
+    @ComponentOutput(
+            name = Names.PORT_HTML,
+            description = "Text containing the transformed input to html via a velocity template" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_TEXT = Names.PORT_HTML;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
 	//
 	// specific to this component
-	//
-	@ComponentProperty(
-	        description = "The title for the page",
-	        name = Names.PROP_TITLE,
-	        defaultValue = "Circle Packing"
-	)
-	protected static final String PROP_TITLE = Names.PROP_TITLE;
+    //
+    @ComponentProperty(
+            description = "The title for the page",
+            name = Names.PROP_TITLE,
+            defaultValue = "Circle Packing"
+    )
+    protected static final String PROP_TITLE = Names.PROP_TITLE;
 
-
-   @ComponentProperty(
-	        description = "The template name",
-	        name = VelocityTemplateToHTML.PROP_TEMPLATE,
-	        defaultValue = DEFAULT_TEMPLATE
-	)
+    static final String DEFAULT_TEMPLATE = "org/seasr/meandre/apps/twitter/TwitterCirclePackingGraph.vm";
+    @ComponentProperty(
+            description = "The template name",
+            name = VelocityTemplateToHTML.PROP_TEMPLATE,
+            defaultValue = DEFAULT_TEMPLATE
+    )
     protected static final String PROP_TEMPLATE = VelocityTemplateToHTML.PROP_TEMPLATE;
 
-   //--------------------------------------------------------------------------------------------
-   
-   //------------------------------ OUTPUTS -----------------------------------------------------
-   
-   @ComponentOutput(
-           name = Names.PORT_HTML,
-           description = "Text containing the transformed input to html via a velocity template" +
-               "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-   )
-    protected static final String OUT_TEXT = Names.PORT_HTML;
-
-   
-    // protected static final String PROTOVIS_JS = "protovis-r3.2.js";
-
-    //--------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------
 
 	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-	{
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
-
-	    
-	    
-	    /*
-	     * ComponentUtils.writePublicResource(getClass(), PROTOVIS_JS, "js", ccp, false);
-	    String path = VelocityTemplateToHTML.writeResourceFromJarToFilesystem(this.getClass(),
-                ccp.getPublicResourcesDirectory(),
-                "js",
-                PROTOVIS_JS);
-                ComponentUtils.writePublicResource(getClass(), PROTOVIS_JS, "js", ccp, false);
-                */		    	
 
 	    context.put("title",   ccp.getProperty(PROP_TITLE));
 	}
 
     @Override
-    public void executeCallBack(ComponentContext cc) throws Exception
-    {
+    public void executeCallBack(ComponentContext cc) throws Exception {
     	//
     	// fetch the input, push it to the context
     	//
@@ -168,7 +142,9 @@ public class TwitterCirclePackingGraph extends AbstractProtovisComponent
     	//
     	super.executeCallBack(cc);
     }
-    
+
+    //--------------------------------------------------------------------------------------------
+
     @Override
     protected void handleStreamInitiators() throws Exception {
         StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_JSON);

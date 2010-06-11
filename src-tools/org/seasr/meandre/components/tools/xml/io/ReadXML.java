@@ -150,8 +150,9 @@ public class ReadXML extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		
+
 		URI location = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
+		console.fine("Parsing location: " + location);
 
 		Document doc;
 

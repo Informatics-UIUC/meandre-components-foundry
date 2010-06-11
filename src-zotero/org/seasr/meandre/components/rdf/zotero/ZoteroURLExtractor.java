@@ -93,9 +93,9 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 
 	@ComponentInput(
 	        name = Names.PORT_REQUEST_DATA,
-			description = "A map object containing the key elements of the request and the associated values" +
-    			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.BytesMap" +
-    			"<br>TYPE: java.util.Map<java.lang.String, byte[]>"
+			description = "A mapping between request parameters and their values" +
+    			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap" +
+    			"<br>TYPE: java.util.Map<java.lang.String, java.lang.String[]>"
 	)
 	protected static final String IN_REQUEST = Names.PORT_REQUEST_DATA;
 
@@ -130,6 +130,7 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
     private boolean bWrapped;
     private int itemCount;
 
+
     //--------------------------------------------------------------------------------------------
 
 	@Override
@@ -139,57 +140,52 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		Map<String,byte[]> map = DataTypeParser.parseAsStringByteArrayMap(cc.getDataComponentFromInput(IN_REQUEST));
+		Map<String, String[]> map = DataTypeParser.parseAsStringStringArrayMap(cc.getDataComponentFromInput(IN_REQUEST));
+        String[] zoteroRdfs = map.get("zoterordf");
 
-		itemCount = 0;
+        if (bWrapped)
+            pushInitiator();
 
-		for ( String sKey:map.keySet() ) {
-		    int count = 0;
-			Map<String, String> mapURLs = null;
-			try {
-				Model model = ModelUtils.getModel(map.get(sKey), "meandre://specialUri");
-				mapURLs = ZoteroUtils.extractURLs(model);
-				count = mapURLs.size();
-				itemCount += count;
-			} catch (Exception e) {
-			    if (bWrapped)
-			        pushInitiator(sKey);
+		if (zoteroRdfs != null) {
+		    itemCount = 0;
 
-			    outputError("Error in data format", e, Level.WARNING);
+		    for (String rdf : zoteroRdfs) {
+		        int count = 0;
+		        Map<String, String> mapURLs;
 
-			    if (bWrapped)
-			        pushTerminator(sKey);
-				return;
-			}
+		        try {
+		            Model model = ModelUtils.getModel(rdf, "meandre://specialUri");
+		            mapURLs = ZoteroUtils.extractURLs(model);
+		            count = mapURLs.size();
+		            itemCount += count;
+		        }
+		        catch (Exception e) {
+		            outputError("Error in data format", e, Level.WARNING);
+		            break;
+		        }
 
-			if (count == 0)
-			    continue;
+		        if (count == 0)
+		            continue;
 
-			if (bWrapped)
-			    pushInitiator(sKey);
+		        for (Entry<String, String> item : mapURLs.entrySet()) {
+		            String sURI = item.getKey().replaceAll(" ", "%20");
+		            String sTitle = item.getValue();
+		            console.fine("[ uri = '" + sURI + "' title = '" + sTitle + "' ]");
 
-			for (Entry<String, String> item : mapURLs.entrySet()) {
-			    String sURI = item.getKey().replaceAll(" ", "%20");
-			    String sTitle = item.getValue();
-			    console.fine("[ uri = '" + sURI + "' title = '" + sTitle + "' ]");
+		            cc.pushDataComponentToOutput(OUT_ITEM_LOCATION, sURI);
+		            cc.pushDataComponentToOutput(OUT_ITEM_TITLE, sTitle);
+		        }
+		    }
 
-			    cc.pushDataComponentToOutput(OUT_ITEM_LOCATION, sURI);
-	            cc.pushDataComponentToOutput(OUT_ITEM_TITLE, sTitle);
-			}
+		    console.fine("Pushed out a total of " + itemCount + " URLs extracted from the Zotero input");
 
-			if (bWrapped)
-			    pushTerminator(sKey);
-		}
+		    if (itemCount == 0)
+	            outputError("Your items contained no URL information. Check to see that the URL attribute contains a valid url.", Level.WARNING);
+		} else
+		    outputError("Cannot find Zotero request information in the input data", Level.WARNING);
 
-        if (itemCount == 0) {
-            if (bWrapped)
-                pushInitiator("");
-
-            outputError("Your items contained no URL information. Check to see that the URL attribute contains a valid url.", Level.WARNING);
-
-            if (bWrapped)
-                pushTerminator("");
-        }
+		if (bWrapped)
+		    pushTerminator();
 	}
 
     @Override
@@ -201,34 +197,22 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
     /**
      * Pushes an initiator.
      *
-     * @param sDoc The document being processed
      * @throws Exception Something went wrong when pushing
      */
-    private void pushInitiator(String sDoc) throws Exception {
-        console.fine("Pushing " + StreamInitiator.class.getSimpleName());
-
+    private void pushInitiator() throws Exception {
         StreamInitiator si = new StreamInitiator();
-        si.put(OUT_ITEM_TITLE, sDoc);
-
         componentContext.pushDataComponentToOutput(OUT_ITEM_LOCATION, si);
-        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE,
-                ComponentUtils.cloneStreamDelimiter(si));
+        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE, ComponentUtils.cloneStreamDelimiter(si));
     }
 
     /**
      * Pushes a terminator.
      *
-     * @param sDoc The document being processed
      * @throws Exception Something went wrong when pushing
      */
-    private void pushTerminator(String sDoc) throws Exception {
-        console.fine("Pushing " + StreamTerminator.class.getSimpleName());
-
+    private void pushTerminator() throws Exception {
         StreamTerminator st = new StreamTerminator();
-        st.put(OUT_ITEM_TITLE, sDoc);
-
         componentContext.pushDataComponentToOutput(OUT_ITEM_LOCATION, st);
-        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE,
-                ComponentUtils.cloneStreamDelimiter(st));
+        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE, ComponentUtils.cloneStreamDelimiter(st));
     }
 }
