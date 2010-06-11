@@ -131,6 +131,8 @@ public class ArcDiagram extends AbstractProtovisComponent {
 
 	    context.put("data", json);
 
+	    console.finest("data: " + json);
+
 		super.executeCallBack(cc);
 	}
 
