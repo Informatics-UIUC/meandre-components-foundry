@@ -60,6 +60,7 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.KeyValuePair;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
@@ -413,24 +414,6 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
         @Override
         public String toString() {
             return String.format("%s (%s)", _value, _type);
-        }
-    }
-
-    class KeyValuePair<K,V> {
-        private final K _key;
-        private final V _value;
-
-        public KeyValuePair(K key, V value) {
-            _key = key;
-            _value = value;
-        }
-
-        public K getKey() {
-            return _key;
-        }
-
-        public V getValue() {
-            return _value;
         }
     }
 }
