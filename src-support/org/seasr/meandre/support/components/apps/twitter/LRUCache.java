@@ -1,4 +1,4 @@
-package org.seasr.meandre.apps.twitter.support;
+package org.seasr.meandre.support.components.apps.twitter;
 
 import java.util.ArrayList;
 import java.util.List;

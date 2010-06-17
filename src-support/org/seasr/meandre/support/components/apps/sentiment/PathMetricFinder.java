@@ -40,7 +40,7 @@
  *
  */
 
-package org.seasr.meandre.apps.sentiment.support;
+package org.seasr.meandre.support.components.apps.sentiment;
 
 
 import java.io.BufferedReader;
