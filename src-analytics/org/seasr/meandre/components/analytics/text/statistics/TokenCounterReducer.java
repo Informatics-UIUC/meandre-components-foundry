@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.analytics.text.statistics;
 
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -122,20 +123,20 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 
 
 	/** The accumulated counts */
-	protected Hashtable<String,Integer> htAcc;
+	protected Hashtable<String,Integer> _accumulator;
 
 	/** Number of models accumulated */
-	protected int iCnt;
+	protected int _modelCounter;
 
 	/** Should the tokens be ordered */
-	private boolean bOrdered;
+	private boolean _shouldOrderTokens;
 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    this.bOrdered = Boolean.parseBoolean(ccp.getProperty(PROP_ORDERED));
+	    _shouldOrderTokens = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, true, true, ccp));
 
 	    initializeReduction();
 	}
@@ -144,7 +145,7 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
 		Object obj = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
 
-		if ( this.htAcc==null )
+		if (_accumulator == null)
 			cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, obj);
 		else
 		    reduceModel(DataTypeParser.parseAsStringIntegerMap(obj));
@@ -152,9 +153,9 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.htAcc = null;
-        this.iCnt = 0;
-        this.bOrdered = false;
+        _accumulator = null;
+        _modelCounter = 0;
+        _shouldOrderTokens = false;
     }
 
 	//-----------------------------------------------------------------------------------
@@ -163,16 +164,21 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
     protected void handleStreamInitiators() throws Exception {
         console.entering(getClass().getName(), "handleStreamInitiators");
 
-        // Try to revalance a stream
-        if ( this.htAcc!=null ) {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TOKEN_COUNTS })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        if (_accumulator != null) {
             String sMessage = "Unbalanced wrapped stream. Got a new initiator without a terminator.";
             console.warning(sMessage);
-            if ( this.ignoreErrors )
+            if (ignoreErrors)
                 pushReduction();
             else
                 throw new ComponentExecutionException(sMessage);
         }
-        htAcc = new Hashtable<String, Integer>();
+
+        initializeReduction();
+
+        _accumulator = new Hashtable<String, Integer>();
 
         console.exiting(getClass().getName(), "handleStreamInitiators");
     }
@@ -181,10 +187,10 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
     protected void handleStreamTerminators() throws Exception {
         console.entering(getClass().getName(), "handleStreamTerminators");
 
-        if ( this.htAcc==null ) {
+        if (_accumulator == null) {
             String sMessage = "Unbalanced wrapped stream. Got a new terminator without an initiator. Dropping it to try to rebalance.";
             console.warning(sMessage);
-            if ( !this.ignoreErrors )
+            if (!ignoreErrors)
                 throw new ComponentExecutionException(sMessage);
         }
 
@@ -201,8 +207,8 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	 *
 	 */
 	protected void initializeReduction() {
-		this.htAcc = null;
-		this.iCnt = 0;
+		_accumulator = null;
+		_modelCounter = 0;
 	}
 
 	/**
@@ -214,13 +220,13 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 		// Create the delimiters
 		StreamInitiator si = new StreamInitiator();
 		StreamTerminator st = new StreamTerminator();
-		si.put("count", this.iCnt); si.put("accumulated", 1);
-		st.put("count", this.iCnt); st.put("accumulated", 1);
+		si.put("count", _modelCounter); si.put("accumulated", 1);
+		st.put("count", _modelCounter); st.put("accumulated", 1);
 
 		// Push
 		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, si);
-		if (htAcc != null && htAcc.size() > 0)
-		    componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htAcc,bOrdered));
+		if (_accumulator != null && _accumulator.size() > 0)
+		    componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(_accumulator, _shouldOrderTokens));
 		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, st);
 	}
 
@@ -231,13 +237,16 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	 */
 	protected void reduceModel(Map<String, Integer> im) {
 	    for (Entry<String, Integer> entry : im.entrySet()) {
-			String sToken = entry.getKey();
-			int  iCounts = entry.getValue();
-			if ( htAcc.containsKey(sToken) )
-				htAcc.put(sToken, htAcc.get(sToken)+iCounts);
-			else
-				htAcc.put(sToken, iCounts);
+			String token = entry.getKey();
+			int count = entry.getValue();
+
+			Integer oldCount = _accumulator.get(token);
+			if (oldCount != null)
+			    count += oldCount;
+
+			_accumulator.put(token, count);
 		}
-		this.iCnt++;
+
+	    _modelCounter++;
 	}
 }
