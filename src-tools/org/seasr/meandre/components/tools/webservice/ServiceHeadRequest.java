@@ -158,6 +158,8 @@ public class ServiceHeadRequest extends AbstractExecutableComponent
 	            request.getMethod(), request.getRemoteHost(), request.getRemoteAddr(), request.getRemotePort(),
 	            ((request.getRemoteUser() != null) ? "[" + request.getRemoteUser() + "]" : "")));
 
+	    console.fine(String.format("Query string: %s", request.getQueryString()));
+
 		Map<String, String[]> paramMap = new HashMap<String, String[]>();
 		Enumeration paramNames = request.getParameterNames();
 		while (paramNames.hasMoreElements()) {

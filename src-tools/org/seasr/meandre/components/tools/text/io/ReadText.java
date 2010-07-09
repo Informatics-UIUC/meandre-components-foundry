@@ -123,7 +123,10 @@ public class ReadText extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        URI uri = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
+        Object input = cc.getDataComponentFromInput(IN_LOCATION);
+        console.fine("Reading from URL: " + input.toString());
+
+        URI uri = DataTypeParser.parseAsURI(input);
         String sRes =  IOUtils.getTextFromReader(IOUtils.getReaderForResource(uri));
 
         cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(uri.toString()));
