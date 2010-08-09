@@ -46,12 +46,13 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.Names;
@@ -117,6 +118,7 @@ public class TriggerMessage extends AbstractExecutableComponent {
 
 	protected Queue<Object> triggerQueue;
 	protected Object object;
+	private StreamDelimiter delayedTerminator;
 
 
     //--------------------------------------------------------------------------------------------
@@ -125,6 +127,7 @@ public class TriggerMessage extends AbstractExecutableComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		triggerQueue = new LinkedList<Object>();
 		object = null;
+		delayedTerminator = null;
 	}
 
     @Override
@@ -146,6 +149,11 @@ public class TriggerMessage extends AbstractExecutableComponent {
 			}
 
 			triggerQueue.clear();
+			
+			if (delayedTerminator != null) {
+			    pushDelimiter(delayedTerminator);
+			    delayedTerminator = null;
+			}
 		}
     }
 
@@ -165,8 +173,7 @@ public class TriggerMessage extends AbstractExecutableComponent {
 
 		// Forward the stream delimiter we received downstream
         StreamDelimiter sd = (StreamDelimiter)componentContext.getDataComponentFromInput(IN_TRIGGER);
-        componentContext.pushDataComponentToOutput(OUT_OBJECT, sd);
-		componentContext.pushDataComponentToOutput(OUT_TRIGGER, sd);
+        pushDelimiter(sd);
     }
 
     @Override
@@ -177,6 +184,15 @@ public class TriggerMessage extends AbstractExecutableComponent {
 
         // Forward the stream delimiter we received downstream
         StreamDelimiter sd = (StreamDelimiter)componentContext.getDataComponentFromInput(IN_TRIGGER);
+        if (triggerQueue.size() == 0)
+            pushDelimiter(sd);
+        else
+            delayedTerminator = sd;
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    private void pushDelimiter(StreamDelimiter sd) throws ComponentContextException {
         componentContext.pushDataComponentToOutput(OUT_OBJECT, sd);
         componentContext.pushDataComponentToOutput(OUT_TRIGGER, sd);
     }
