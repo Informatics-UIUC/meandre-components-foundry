@@ -42,19 +42,23 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
+import java.util.Arrays;
+
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.Names;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -205,6 +209,28 @@ public class TupleToCSV extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+    
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TUPLES, IN_META_TUPLE })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator());
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_TUPLES, IN_META_TUPLE })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator());
     }
 }
 
