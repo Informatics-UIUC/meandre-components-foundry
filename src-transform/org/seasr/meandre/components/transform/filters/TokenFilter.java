@@ -47,27 +47,27 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
@@ -94,7 +94,8 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 				      "filter are provide they either replace the current ones " +
 				      "or add them to the black list. The component waits for a black list and then " +
 				      "begins processing the data it receives. The component outputs the " +
-				      "filtered tokens, token counts or tokenized sentences.",
+				      "filtered tokens, token counts or tokenized sentences. The comparison of blacklisted "+
+				      "tokens to the data will ignore case by default. Set ignore_case=false to work in case sensitive mode.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
 @SuppressWarnings("unchecked")
@@ -173,12 +174,22 @@ public class TokenFilter extends AbstractExecutableComponent {
             defaultValue = "true"
     )
     protected static final String PROP_REPLACE = Names.PROP_REPLACE;
+    
+    @ComponentProperty(
+            name = "ignore_case",
+            description = "If set to true then the comparison between the blacklisted tokens and data " +
+                          "will ignore case, otherwise case sensitivity will be respected.",
+            defaultValue = "true"
+    )
+    protected static final String PROP_IGNORE_CASE = "ignore_case";
 
 	//--------------------------------------------------------------------------------------------
 
 
 	/** Should the token black list be replaced */
 	protected boolean bReplace;
+	
+	protected boolean bIgnoreCase;
 
 	/** The temporary initial queue */
 	protected Queue<Object>[] queues  = new Queue[3];
@@ -197,7 +208,8 @@ public class TokenFilter extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.bReplace = Boolean.parseBoolean(ccp.getProperty(PROP_REPLACE));
+	    this.bIgnoreCase = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_CASE, true, true, ccp));
+		this.bReplace = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REPLACE, true, true, ccp));
 		this.queues[PORT_TOKENS] = new LinkedList<Object>();
 		this.queues[PORT_TOKEN_COUNTS] = new LinkedList<Object>();
 		this.queues[PORT_TOKENIZED_SENTENCES] = new LinkedList<Object>();
@@ -300,8 +312,10 @@ public class TokenFilter extends AbstractExecutableComponent {
 			this.setBlacklist = new HashSet<String>(100);
 		if ( this.bReplace )
 			this.setBlacklist.clear();
-		for ( String s : words )
-			this.setBlacklist.add(s);
+		for ( String s : words ) {
+		    if (bIgnoreCase) s = s.toLowerCase();
+			this.setBlacklist.add(s.trim());
+		}
 	}
 
 	/**
@@ -360,11 +374,13 @@ public class TokenFilter extends AbstractExecutableComponent {
 			String sKey = im.getKey(i);
 			Strings sVals = im.getValue(i);
 			org.seasr.datatypes.core.BasicDataTypes.Strings.Builder resFiltered = BasicDataTypes.Strings.newBuilder();
-			for ( String s:sVals.getValueList())
-				if ( !this.setBlacklist.contains(s) )
+			for ( String s:sVals.getValueList()) {
+			    String token = (bIgnoreCase) ? s.toLowerCase().trim() : s.trim();
+				if ( !this.setBlacklist.contains(token) )
 					resFiltered.addValue(s);
 				else
 				    nFilteredTokens++;
+			}
 
 			nKeptTokens += resFiltered.getValueCount();
 
@@ -404,7 +420,8 @@ public class TokenFilter extends AbstractExecutableComponent {
 		for ( Entry<String, Integer> entry : im.entrySet()) {
 			String sKey = entry.getKey();
 			Integer iVal = entry.getValue();
-			if ( !this.setBlacklist.contains(sKey) )
+			String token = (bIgnoreCase) ? sKey.toLowerCase().trim() : sKey.trim();
+			if ( !this.setBlacklist.contains(token) )
 				res.put(sKey, iVal);
 			else
 			    nFilteredTokens++;
@@ -439,11 +456,13 @@ public class TokenFilter extends AbstractExecutableComponent {
         int nFilteredTokens = 0;
 
 		org.seasr.datatypes.core.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
-		for ( String sTok : tokens )
-			if ( !this.setBlacklist.contains(sTok) )
+		for ( String sTok : tokens ) {
+		    String token = (bIgnoreCase) ? sTok.toLowerCase().trim() : sTok.trim();
+			if ( !this.setBlacklist.contains(token) )
 				res.addValue(sTok);
 			else
 			    nFilteredTokens++;
+		}
 
 		console.fine(String.format("tokens: Filtered: %,d  Kept: %,d  Total: %,d",
 		        nFilteredTokens, res.getValueCount(), nFilteredTokens + res.getValueCount()));
