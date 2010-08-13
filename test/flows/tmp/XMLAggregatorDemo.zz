@@ -1,0 +1,48 @@
+import <file://////E:/Eclipse-workspace/descriptors/PushText.rdf>
+alias <meandre://seasr.org/components/foundry/push-text> as PUSHTEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/ReadXML.rdf>
+alias <meandre://seasr.org/components/foundry/read-xml> as XMLREADER
+
+import <file://////E:/Eclipse-workspace/descriptors/XMLAggregator.rdf>
+alias <meandre://seasr.org/components/foundry/xml-aggregator> as XMLAGGREGATOR
+
+import <file://////E:/Eclipse-workspace/descriptors/XMLToText.rdf>
+alias <meandre://seasr.org/components/foundry/xml-to-text> as XML2TEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/PrintToConsole.rdf>
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT2CONSOLE
+
+import <file://////E:/Eclipse-workspace/descriptors/ForkX2.rdf>
+alias <meandre://seasr.org/components/foundry/fork-x2> as FORKX2
+
+
+
+
+
+push = PUSHTEXT()
+push.message = "file:///E:/Limin/code/java/A00710-1.xml"
+push.wrap_stream = "false"
+
+xmlreader = XMLREADER()
+
+xmlaggregator = XMLAGGREGATOR()
+
+xml2text = XML2TEXT()
+
+print2console = PRINT2CONSOLE()
+#print2console.wrap_stream = "false"
+
+
+
+
+
+@anything = push()
+
+@reader = xmlreader(location: anything.text)
+
+@aggregator = xmlaggregator(xml: reader.xml)
+
+@x2t = xml2text(xml: aggregator.xml)
+
+print2console(object: x2t.text)

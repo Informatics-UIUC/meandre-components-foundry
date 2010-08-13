@@ -1,0 +1,21 @@
+import <file://////E:/Eclipse-workspace/descriptors/ScpWrapper.rdf>
+alias <meandre://seasr.org/components/foundry/scp-wrapper> as SCPWRAPPER
+
+scpwrapper = SCPWRAPPER()
+scpwrapper.hostname = "dev-demo.seasr.org"
+scpwrapper.username = "demo"
+scpwrapper.filename = "E:\Limin\code\j2ssh\id_rsa"
+
+scpwrapper.local_filename_get = "E:\Limin\code\j2ssh\authorized_keys"
+scpwrapper.remote_filename_get = "/home/demo/.ssh/authorized_keys"
+
+scpwrapper.local_filename_put = "E:\Limin\code\j2ssh\file1.txt"
+scpwrapper.remote_filename_put = "/home/demo/.ssh/file1.txt"
+
+scpwrapper()
+
+
+
+
+
+

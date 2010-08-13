@@ -1,0 +1,134 @@
+import <file://////E:/Eclipse-workspace/descriptors/PushText.rdf>
+alias <meandre://seasr.org/components/foundry/push-text> as PUSHTEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/UniversalTextExtractor.rdf>
+alias <meandre://seasr.org/components/foundry/universal-text-extractor> as TEXTEXTRACTOR
+
+import <file://////E:/Eclipse-workspace/descriptors/ToLowercase.rdf>
+alias <meandre://seasr.org/components/foundry/to-lowercase> as LOWERCASE
+
+import <file://////E:/Eclipse-workspace/descriptors/OpenNLPSentenceDetector.rdf>
+alias <meandre://seasr.org/components/foundry/opennlp-sentence-detector> as SENTENCEDETECTOR
+
+import <file://////E:/Eclipse-workspace/descriptors/OpenNLPSentenceTokenizer.rdf>
+alias <meandre://seasr.org/components/foundry/opennlp-sentence-tokenizer> as SENTENCETOKENIZER
+
+import <file://////E:/Eclipse-workspace/descriptors/ConcatenateText.rdf>
+alias <meandre://seasr.org/components/foundry/concatenate-text> as CONCATENATETEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/OpenNLPTokenizer.rdf>
+alias <meandre://seasr.org/components/foundry/opennlp-tokenizer> as TOKENIZER
+
+import <file://////E:/Eclipse-workspace/descriptors/TokenFilter.rdf>
+alias <meandre://seasr.org/components/foundry/token-filter> as TOKENFILTER
+
+import <file://////E:/Eclipse-workspace/descriptors/HITSSummarizer.rdf>
+alias <meandre://seasr.org/components/foundry/hits-summarizer> as HITSSUMMARIZER
+
+import <file://////E:/Eclipse-workspace/descriptors/SummarizerViewer.rdf>
+alias <meandre://seasr.org/components/foundry/summarizer-viewer> as SUMMARIZERVIEWER
+
+import <file://////E:/Eclipse-workspace/descriptors/HTMLViewer.rdf>
+alias <meandre://seasr.org/components/foundry/html-viewer> as HTMLVIEWER
+
+import <file://////E:/Eclipse-workspace/descriptors/SentencesToText.rdf>
+alias <meandre://seasr.org/components/foundry/sentences-to-text> as SENTENCES2TEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/TokensToText.rdf>
+alias <meandre://seasr.org/components/foundry/tokens-to-text> as TOKENS2TEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/ForkX2.rdf>
+alias <meandre://seasr.org/components/foundry/fork-x2> as FORKX2
+
+import <file://////E:/Eclipse-workspace/descriptors/PrintToConsole.rdf>
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT2CONSOLE
+
+
+
+
+
+push = PUSHTEXT()
+push.message = "http://millercenter.org/scripps/archive/speeches/detail/4427"
+
+push_2 = PUSHTEXT()
+push_2.message = "http://repository.seasr.org/Datasets/Text/common_words.txt"
+
+push_3 = PUSHTEXT()
+push_3.message = ". , ; : ' ( ) = { } [ ] / ? //"
+
+textextractor = TEXTEXTRACTOR()
+
+textextractor_2 = TEXTEXTRACTOR()
+
+lowercase = LOWERCASE()
+
+sentencedetector = SENTENCEDETECTOR()
+
+sentencetokenizer = SENTENCETOKENIZER()
+
+concatenatetext = CONCATENATETEXT()
+
+tokenizer = TOKENIZER()
+
+tokenfilter = TOKENFILTER()
+
+hitssummarizer = HITSSUMMARIZER()
+
+summarizerviewer = SUMMARIZERVIEWER()
+
+htmlviewer = HTMLVIEWER()
+
+sentences2text = SENTENCES2TEXT()
+
+tokens2text = TOKENS2TEXT()
+
+fx2 = FORKX2()
+
+print2console = PRINT2CONSOLE()
+
+
+
+
+
+
+@anything = push()
+
+@extractor = textextractor(location: anything.text)
+
+@lc = lowercase(text: extractor.text)
+
+@detector = sentencedetector(text: lc.text)
+
+@tokenizer = sentencetokenizer(sentences: detector.sentences)
+
+
+
+@anything_2 = push_2()
+
+@extractor_2 = textextractor_2(location: anything_2.text)
+
+@anything_3 = push_3()
+
+@ct = concatenatetext(text: extractor_2.text text2: anything_3.text)
+
+@tk = tokenizer(text: ct.text)
+
+
+
+@filter = tokenfilter(tokens_blacklist: tk.tokens tokenized_sentences: tokenizer.tokenized_sentences)
+
+@summarizer = hitssummarizer(tokenized_sentences: filter.tokenized_sentences)
+
+@sviewer = summarizerviewer(sentences: summarizer.sentences tokens: summarizer.tokens)
+
+#@s2t = sentences2text(sentences: summarizer.sentences)
+
+#@t2t = tokens2text(tokens: summarizer.tokens)
+
+#@fx2 = forkx2(object: ld.location)
+
+#print2console(object: t2t.text)
+
+htmlviewer(html: sviewer.html)
+
+

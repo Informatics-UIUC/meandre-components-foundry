@@ -1,0 +1,54 @@
+import <file://////E:/Eclipse-workspace/descriptors/PushText.rdf>
+alias <meandre://seasr.org/components/foundry/push-text> as PUSHTEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/UniversalTextExtractor.rdf>
+alias <meandre://seasr.org/components/foundry/universal-text-extractor> as TEXTEXTRACTOR
+
+import <file://////E:/Eclipse-workspace/descriptors/ListWords.rdf>
+alias <meandre://seasr.org/components/list-words> as LISTWORDS
+
+import <file://////E:/Eclipse-workspace/descriptors/ListTagsHTML.rdf>
+alias <meandre://seasr.org/components/foundry/list-html-tags> as LISTHTMLTAGS
+
+import <file://////E:/Eclipse-workspace/descriptors/XMLToTokenCount.rdf>
+alias <meandre://seasr.org/components/foundry/xml-to-token-count> as XML2TOKENCOUNT
+
+import <file://////E:/Eclipse-workspace/descriptors/PrintToConsole.rdf>
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT2CONSOLE
+
+
+
+
+
+
+push = PUSHTEXT()
+push.message = "http://www.cnn.com"
+
+textextractor = TEXTEXTRACTOR()
+
+listwords = LISTWORDS()
+
+listhtmltags = LISTHTMLTAGS()
+
+xml2tokencount = XML2TOKENCOUNT()
+
+print2console = PRINT2CONSOLE()
+
+
+
+
+
+
+@anything = push()
+
+@extractor = textextractor(location: anything.text)
+
+#print2console(object: x2tc.token_counts)
+
+#@lw = listwords(text: extractor.text)
+
+listhtmltags(text: extractor.text)
+
+
+
+

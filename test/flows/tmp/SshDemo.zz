@@ -1,0 +1,16 @@
+import <file://////E:/Eclipse-workspace/descriptors/SshWrapper.rdf>
+alias <meandre://seasr.org/components/foundry/ssh-wrapper> as SSHWRAPPER
+
+sshwrapper = SSHWRAPPER()
+sshwrapper.hostname = "turing.cse.uiuc.edu"
+sshwrapper.username = "donglm"
+sshwrapper.password = "7W9^HZTgn^)q"
+sshwrapper.command = "ls"
+
+sshwrapper()
+
+
+
+
+
+

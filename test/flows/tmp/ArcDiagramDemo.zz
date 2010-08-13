@@ -1,0 +1,58 @@
+import <file://////E:/Eclipse-workspace/descriptors/PushText.rdf>
+alias <meandre://seasr.org/components/foundry/push-text> as PUSHTEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/UniversalTextExtractor.rdf>
+alias <meandre://seasr.org/components/foundry/universal-text-extractor> as TEXTEXTRACTOR
+
+import <file://////E:/Eclipse-workspace/descriptors/StanfordNETagger.rdf>
+alias <meandre://seasr.org/components/foundry/stanford-ne-tagger> as NAMEDENTITYTAGGER
+
+import <file://////E:/Eclipse-workspace/descriptors/LinkCreationToProtovis.rdf>
+alias <meandre://seasr.org/components/foundry/link-creation-to-protovis> as LINKCREATION2PROTOVIS
+
+import <file://////E:/Eclipse-workspace/descriptors/ArcDiagram.rdf>
+alias <meandre://seasr.org/components/foundry/arc-diagram> as ARCDIAGRAM
+
+import <file://////E:/Eclipse-workspace/descriptors/HTMLViewer.rdf>
+alias <meandre://seasr.org/components/foundry/html-viewer> as VIEWER
+
+import <file://////E:/Eclipse-workspace/descriptors/PrintToConsole.rdf>
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT2CONSOLE
+
+
+
+
+
+push = PUSHTEXT()
+push.message = "http://www.gutenberg.org/files/98/98.txt"
+
+textextractor = TEXTEXTRACTOR()
+
+namedentitytagger = NAMEDENTITYTAGGER()
+
+linkcreation2protovis = LINKCREATION2PROTOVIS()
+
+arcdiagram = ARCDIAGRAM()
+
+viewer = VIEWER()
+
+print2console = PRINT2CONSOLE()
+
+
+
+
+
+@anything = push()
+
+@extractor = textextractor(location: anything.text)
+
+@tagger = namedentitytagger(text: extractor.text)
+
+@lc2protovis = linkcreation2protovis(meta_tuple: tagger.meta_tuple tuples: tagger.tuples)
+
+#print2console(object: lc2protovis.json)
+
+@arc = arcdiagram(json: lc2protovis.json)
+
+viewer(html: arc.html)
+

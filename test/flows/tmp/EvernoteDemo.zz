@@ -1,0 +1,46 @@
+import <file://////E:/Eclipse-workspace/descriptors/ReadEvernote.rdf>
+alias <meandre://seasr.org/components/foundry/read-evernote> as READEVERNOTE
+
+import <file://////E:/Eclipse-workspace/descriptors/WriteEvernote.rdf>
+alias <meandre://seasr.org/components/foundry/write-evernote> as WRITEEVERNOTE
+
+import <file://////E:/Eclipse-workspace/descriptors/PrintToConsole.rdf>
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT2CONSOLE
+
+import <file://////E:/Eclipse-workspace/descriptors/PushText.rdf>
+alias <meandre://seasr.org/components/foundry/push-text> as PUSHTEXT
+
+
+
+
+
+readevernote = READEVERNOTE()
+readevernote.username = "li2"
+readevernote.password = "91234567"
+
+writeevernote = WRITEEVERNOTE()
+writeevernote.username = "li2"
+writeevernote.password = "91234567"
+writeevernote.title = "WriteEvernote testing"
+
+print2console = PRINT2CONSOLE()
+
+pushtext = PUSHTEXT()
+pushtext.message = "<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE en-note SYSTEM 'http://xml.evernote.com/pub/enml.dtd'><en-note>HYPMS, and ...<br clear='none'/></en-note>"
+
+
+
+
+
+#@reader = readevernote()
+#@writer = writeevernote()
+#@reader = readevernote()
+#print2console(object: reader.title)
+#print2console(object: reader.text)
+
+@anything = pushtext()
+@writer = writeevernote(text: anything.text)
+
+
+
+

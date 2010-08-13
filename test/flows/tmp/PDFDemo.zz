@@ -1,0 +1,39 @@
+import <file://////E:/Eclipse-workspace/descriptors/PushText.rdf>
+alias <meandre://seasr.org/components/foundry/push-text> as PUSHTEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/UniversalTextExtractor.rdf>
+alias <meandre://seasr.org/components/foundry/universal-text-extractor> as TEXTEXTRACTOR
+
+import <file://////E:/Eclipse-workspace/descriptors/PDFTextExtractor.rdf>
+alias <meandre://seasr.org/components/foundry/pdf-text-extractor> as PDFEXTRACTOR
+
+import <file://////E:/Eclipse-workspace/descriptors/PrintToConsole.rdf>
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT2CONSOLE
+
+
+
+
+
+push = PUSHTEXT()
+#push.message = "http://www.jstor.org/page/termsConfirm.jsp?redirectUri=/stable/pdfplus/3193909.pdf"
+#push.message = "http://www.gutenberg.org/files/158/158-pdf.pdf"
+push.message = "http://www.sec.gov/litigation/admin/2009/34-61256.pdf"
+
+textextractor = TEXTEXTRACTOR()
+#pdfextractor = PDFEXTRACTOR()
+
+print2console = PRINT2CONSOLE()
+
+
+
+
+
+
+@anything = push()
+
+@extractor = textextractor(location: anything.text)
+#@extractor = pdfextractor(location: anything.text)
+
+print2console(object: extractor.text)
+
+

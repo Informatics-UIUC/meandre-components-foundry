@@ -1,0 +1,63 @@
+import <file://////E:/Eclipse-workspace/descriptors/PushText.rdf>
+alias <meandre://seasr.org/components/foundry/push-text> as PUSHTEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/ReadXML.rdf>
+alias <meandre://seasr.org/components/foundry/read-xml> as XMLREADER
+
+import <file://////E:/Eclipse-workspace/descriptors/XMLToText.rdf>
+alias <meandre://seasr.org/components/foundry/xml-to-text> as XML2TEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/TextCleaner.rdf>
+alias <meandre://seasr.org/components/foundry/text-cleaner> as TEXTCLEANER
+
+import <file://////E:/Eclipse-workspace/descriptors/HTMLViewer.rdf>
+alias <meandre://seasr.org/components/foundry/html-viewer> as VIEWER
+
+import <file://////E:/Eclipse-workspace/descriptors/PrintToConsole.rdf>
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT2CONSOLE
+
+
+
+
+
+push = PUSHTEXT()
+push.message = "file:///E:/Limin/code/A07669.xml"
+
+xmlreader = XMLREADER()
+
+xml2text = XML2TEXT()
+
+textcleaner = TEXTCLEANER()
+textcleaner.remove = "[~|||^]+"
+textcleaner.find = "<L>"
+textcleaner.replace = "<BR>"
+textcleaner.find2 = "</L>"
+textcleaner.replace2 = ""
+
+textcleaner2 = 	TEXTCLEANER()
+textcleaner2.find = "<ROW"
+textcleaner2.find2 = "</ROW>"
+textcleaner2.find3 = "<CELL"
+textcleaner2.find4 = "</CELL>"
+
+textcleaner2.replace = "<tr"
+textcleaner2.replace2 = "</tr>"
+textcleaner2.replace3 = "<th"
+textcleaner2.replace4 = "</th"
+
+viewer = VIEWER()
+
+print2console = PRINT2CONSOLE()
+
+
+
+
+@anything = push()
+@reader = xmlreader(location: anything.text)
+@x2t = xml2text(xml: reader.xml)
+@cleaner = textcleaner(text: x2t.text)
+@cleaner2 = textcleaner2(text: cleaner.text)
+#print2console(object: cleaner2.text)
+viewer(html: cleaner2.text)
+
+

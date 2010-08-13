@@ -1,0 +1,51 @@
+import <file://////E:/Eclipse-workspace/descriptors/PushText.rdf>
+alias <meandre://seasr.org/components/foundry/push-text> as PUSHTEXT
+
+import <file://////E:/Eclipse-workspace/descriptors/UniversalTextExtractor.rdf>
+alias <meandre://seasr.org/components/foundry/universal-text-extractor> as TEXTEXTRACTOR
+
+import <file://////E:/Eclipse-workspace/descriptors/Concordance.rdf>
+alias <meandre://seasr.org/components/foundry/concordance> as CONCORDANCE
+
+import <file://////E:/Eclipse-workspace/descriptors/ListWords.rdf>
+alias <meandre://seasr.org/components/foundry/list-words> as LISTWORDS
+
+import <file://////E:/Eclipse-workspace/descriptors/TabDelimitedTextToTokenCounts.rdf>
+alias <meandre://seasr.org/components/foundry/tab-delimited-text-to-token-counts> as TAB2TOKENCOUNTS
+
+
+import <file://////E:/Eclipse-workspace/descriptors/PrintToConsole.rdf>
+alias <meandre://seasr.org/components/foundry/print-to-console> as PRINT2CONSOLE
+
+
+
+
+push = PUSHTEXT()
+push.message = "http://www.cnn.com"
+
+textextractor = TEXTEXTRACTOR()
+
+concordance = CONCORDANCE()
+concordance.out_format = "4"
+
+listwords = LISTWORDS()
+listwords.out_format = "4"
+
+tab2tokencounts = TAB2TOKENCOUNTS()
+
+print2console = PRINT2CONSOLE()
+
+
+
+
+@anything = push()
+
+@extractor = textextractor(location: anything.text)
+
+#@cc = concordance(text: extractor.text)
+@lw = listwords(text: extractor.text)
+
+@t2tc = tab2tokencounts(text: lw.text)
+
+print2console(object: t2tc.token_counts)
+
