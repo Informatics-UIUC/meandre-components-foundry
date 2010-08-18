@@ -193,7 +193,13 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
     {
+		
+		if (connect == null) {
+			console.severe("sql connection never established");
+			return;
+		}
 
+		
 		Statement statement = null;
 		ResultSet resultSet = null;
 
