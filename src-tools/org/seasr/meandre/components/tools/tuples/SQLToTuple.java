@@ -58,6 +58,7 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
@@ -181,6 +182,12 @@ public class SQLToTuple extends AbstractExecutableComponent {
 
 		// Setup the connection with the DB
 		connect = DriverManager.getConnection(fullURL, user, password);
+		
+		if (connect == null) {
+			String msg = "unable to get connection to database";
+			console.severe(msg);
+			throw new ComponentExecutionException(msg);
+		}
 	}
 
 	@Override
@@ -233,8 +240,11 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	}
 
     @Override
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-
-    	connect.close();
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception 
+    {
+        if (connect != null) {
+           connect.close();
+        }
+    	
     }
 }
