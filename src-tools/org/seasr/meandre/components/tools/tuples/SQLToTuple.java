@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -60,6 +61,7 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
@@ -89,6 +91,14 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 )
 public class SQLToTuple extends AbstractExecutableComponent {
 
+    //------------------------------ INPUTS -----------------------------------------------------
+
+    @ComponentInput(
+            name = Names.PORT_QUERY,
+            description = "Database query statement whose contents will be pushed out e.g. select * from a,b where a.id = b.id"
+    )
+    protected static final String IN_QUERY = Names.PORT_QUERY;
+
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
@@ -107,12 +117,6 @@ public class SQLToTuple extends AbstractExecutableComponent {
 
 
 	//----------------------------- PROPERTIES ---------------------------------------------------
-	@ComponentProperty(
-			name = "select",
-			description = "select statement whose contents will be pushed out e.g. select * from a,b where a.id = b.id",
-		    defaultValue = ""
-	)
-	protected static final String PROP_SELECT = "select";
 
 	@ComponentProperty(
 			name = "user",
@@ -152,14 +156,10 @@ public class SQLToTuple extends AbstractExecutableComponent {
 
 
 	//--------------------------------------------------------------------------------------------
-	SimpleTuplePeer outPeer;
-	SimpleTuple outTuple;
-
+	Connection connect = null;
 	//--------------------------------------------------------------------------------------------
 
 
-	Connection connect = null;
-	String SQL;
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception
@@ -170,7 +170,6 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	    String hostDB     = ccp.getProperty(PROP_DB).trim();
 	    String JDBC_DRIVER = ccp.getProperty(PROP_JDBC).trim();
 
-	    SQL = ccp.getProperty(PROP_SELECT).trim();
 
 	    //String fullURL = protocol + hostDB + "?" + "user="+user + "&password="+password;
 	    String fullURL = protocol + hostDB;
@@ -193,15 +192,19 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
     {
+		SimpleTuplePeer outPeer;
+		SimpleTuple outTuple;
 		
 		if (connect == null) {
 			console.severe("sql connection never established");
 			return;
 		}
 
-		
 		Statement statement = null;
 		ResultSet resultSet = null;
+		String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_QUERY));
+
+		String SQL = input[0].trim();
 
 		// Statements allow to issue SQL queries to the database
 		statement = connect.createStatement();
