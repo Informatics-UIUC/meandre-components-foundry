@@ -26,7 +26,7 @@ import com.ontotext.gate.gazetteer.*;
 
 
 /*
- * simple wrapper class to process text into tuples using Stanford's named entity classifier
+ * simple wrapper class to process text into tuples using GATE's Gazetteer
  */
 
 
@@ -80,9 +80,6 @@ public class AdvGazetteerWrapper implements AnnotationReceiver {
 		}
 		String[] f = fields.toArray(new String[0]);
 
-    	//
-    	// build the tuple (output) data
-    	//
 
 
     	tuplePeer = new SimpleTuplePeer(f);
@@ -153,8 +150,6 @@ public class AdvGazetteerWrapper implements AnnotationReceiver {
 
     				idx1 = idx1 + 1;
 
-    				// System.out.println("COMBO " + a.toString());
-    				// System.out.println(src);
 
     				if (idx1 == tmp.size()) {
     					output.add(a);
@@ -180,12 +175,6 @@ public class AdvGazetteerWrapper implements AnnotationReceiver {
 
     	}
 
-    	// person: abe tuple N
-    	// person: lincoln: tuple N+1
-    	// same sentenceId
-    	// b.startIdx - (a.startIdx + text.lenght) <= 3
-    	// combine the tuples into one
-    	//
 
 
     	return output;
@@ -223,8 +212,6 @@ public class AdvGazetteerWrapper implements AnnotationReceiver {
 			String mention= m_annotationSet.get(i).toString();
 			String cat=mention.split(":")[2];
 			cat=cat.replaceAll(".null","");
-			//System.out.println(cat);
-			//System.out.println(("<"+","+mention.split(":")[0]+","+cat+","+mention.split(":")[1].split("-")[0]+","+mention.split(":")[1].split("-")[1]+">"+"\n"));
 			SimpleTuple tuple   = tuplePeer.createTuple();
 			tuple.setValue(TYPE_IDX,cat);
 			tuple.setValue(SENTENCE_ID_IDX, count);
@@ -236,58 +223,9 @@ public class AdvGazetteerWrapper implements AnnotationReceiver {
 
 
 
-//		List<List<CoreLabel>> out = classifier.classify(originalText);
-//        for (List<CoreLabel> sentence : out) {
-//
-//          for (CoreLabel word : sentence) {
-//
-//
-//            String ne = word.get(AnswerAnnotation.class);
-//            String type = null;
-//            if ("LOCATION".equals(ne) || "PERSON".equals(ne) || "ORGANIZATION".equals(ne)) {
-//            	type = ne.toLowerCase();
-//            	// consistent with openNLP
-//            }
-//
-//            String text = word.word();
-//		   	int indexOfLastWord = originalText.indexOf(text, startIdx);
-//
-//            if (type != null) {
-//
-//            	//int idx  = word.index();
-//                //int sIdx = word.sentIndex();
-//               SimpleTuple tuple   = tuplePeer.createTuple();
-//               // console.info(word.word() + '/' +  type);
-//               tuple.setValue(TYPE_IDX,        type);
-//			   tuple.setValue(SENTENCE_ID_IDX, sentenceId);  // keep this zero based
-//			   tuple.setValue(TEXT_START_IDX,  indexOfLastWord);
-//			   tuple.setValue(TEXT_IDX,        text);
-//			   output.add(tuple);
-//
-//
-//			   if (doPrint) {
-//				   System.out.println(tuplePeer.toString());
-//				   System.out.println(tuple);
-//			   }
-//            }
-//
-//            int len = text.length();
-//            if (len > 1 && text.endsWith(".")) {
-//
-//            	// HACK for how the stanford tokenizer works
-//            	// e.g. Ill. ==> tokenized into Ill.  and .
-//            	len--;
-//
-//            }
-//            startIdx = indexOfLastWord + len;
-//
-//          }
-//          sentenceId++;
-//        }
 
         return output;
 
-       // return clean(output, strLine);
 
     }
 
@@ -306,12 +244,10 @@ public class AdvGazetteerWrapper implements AnnotationReceiver {
         try {
 			while ((str = br.readLine()) != null)   {
 			    String sMessage="file:///Users/kdd-admin/Documents/meandre/Components-Foundry/lists/lists.def";
-				// Print the content on the console
 				URL loc = StreamUtils.getURLforResource(DataTypeParser.parseAsURI(sMessage));
 				if(str.length()!=0)
 				{
 System.out.println(">>>>>"+sid++);
-//					List<SimpleTuple> tuples = gazHelper.toTuples(str,sid,"0","/Users/kdd-admin/Documents/meandre/Components-Foundry/lists/lists.def");
 					List<SimpleTuple> tuples = gazHelper.toTuples(str,sid,"0",loc.getPath());
 
 					System.out.println(tuples);

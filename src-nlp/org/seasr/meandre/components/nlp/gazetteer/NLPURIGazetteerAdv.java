@@ -80,18 +80,18 @@ import org.seasr.meandre.support.generic.io.StreamUtils;
  */
 
 //
-// General Path:  Text -> SentenceDetector -> SentenceTokenizer -> Gazetteer
+// General Path:  Text -> SentenceDetector  -> Gazetteer
 //
 
 @Component(
-		name = "OpenNLPGazetteer",
+		name = "NE from Gazetteer",
 		creator = "Surya Kallumadi",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "semantic, text, nlp, information extraction, entity, entity extraction",
-		description = "This component performs named entity tagging using Stanford's NLP facilities",
+		description = "This component performs named entity tagging using GATE's Stand Alone Gazetteer facilities",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "StandAloneGaz.jar", "seasr-commons.jar"}
 )
 public class NLPURIGazetteerAdv extends AbstractExecutableComponent {
@@ -106,12 +106,6 @@ public class NLPURIGazetteerAdv extends AbstractExecutableComponent {
     protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
 
     //------------------------------ INPUTS ------------------------------------------------------
-
-//	@ComponentInput(
-//			name = Names.PORT_TEXT,
-//			description = "The text to be split into sentences"
-//	)
-//	protected static final String IN_TEXT = Names.PORT_TEXT;
 
 	@ComponentInput(
             name = Names.PORT_LOCATION,
@@ -148,51 +142,6 @@ public class NLPURIGazetteerAdv extends AbstractExecutableComponent {
 
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
-	/*
-	 * 	ner-eng-ie.crf-3-all2008-distsim.ser.gz
-		ner-eng-ie.crf-3-all2008.ser.gz
-		ner-eng-ie.crf-4-conll-distsim.ser.gz
-		ner-eng-ie.crf-4-conll.ser.gz
-
-	 */
-//modify this to the list files and list files directory to be used
-//	@ComponentProperty(
-//			name = "classifierModel",
-//			description = "The classifier model to be used ",
-//		    defaultValue = "modelsEnglish/ner-eng-ie.crf-3-all2008.ser.gz"
-//		)
-//	protected static final String PROP_TAGGER = "classifierModel";
-//
-//	@ComponentProperty(
-//			name = "modelsDir",
-//			description = "models directory, if non-empty, skip install",
-//		    defaultValue = ""
-//		)
-//	protected static final String PROP_MODELS_DIR = "modelsDir";
-
-
-   /*
-	@ComponentProperty(
-			name = "ExtendedNETypes",
-			description = "Extended Named Entties types:(url).",
-		    defaultValue = "url"
-	)
-	protected static final String PROP_EX_NE_TYPES = "ExtendedNETypes";
-
-
-	@ComponentProperty(
-			name = "LocationMap",
-	        description = "values for locations to be remapped. These are values missed or skipped by OpenNLP. " +
-	        "values are comma separated:  <text to find> = <replacement>, ",
-	        defaultValue = "Ill.=Illinois, VA=Virginia"
-	)
-    protected static final String PROP_LOCATION_MAP = "LocationMap";
-    String[] extendedFinders = {"url"};
-	StaticTextSpanFinder[] simpleFinders = null;
-	simpleFinders = OpenNLPNamedEntity.buildExtendedFinders(types,null);
-
-    */
-
 	//--------------------------------------------------------------------------------------------
 
 
@@ -210,16 +159,6 @@ public class NLPURIGazetteerAdv extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
-        //taggerFile = getPropertyOrDieTrying(PROP_TAGGER, true, true, ccp);
-
-//		modelsDir = getPropertyOrDieTrying(PROP_MODELS_DIR, true, false, ccp);
-		//if (modelsDir.length() == 0)
-		  //  modelsDir = ccp.getRunDirectory()+File.separator+"stanfordNLP";//modify this when details available
-
-		//OpenNLPBaseUtilities.installJARModelContainingResource(modelsDir, taggerFile, console, getClass());
-		//console.fine("Installed models into: " + modelsDir);
-
-		//AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(modelsDir + File.separator + taggerFile);
     	 sMessage = ccp.getProperty(PROP_MESSAGE);
 		gazHelper = new AdvGazetteerWrapper();//not required
 	}
@@ -228,25 +167,15 @@ public class NLPURIGazetteerAdv extends AbstractExecutableComponent {
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception
     {
-
-    	// input was encoded via :
-    	// cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(ta));
-
-    	//
     	String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_SENTENCES));
 
-		//String[] val = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 		String[] location = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION));
-		//String[] msg=DataTypeParser.parseAsString(cc.getDataComponentFromInput(PROP_MESSAGE));
-		//String text = val[0];
-		//console.finest(count++ + " attempt to parse\n" + text);
 		URL loc = StreamUtils.getURLforResource(DataTypeParser.parseAsURI(sMessage));
 
 
 
 		List<Strings> output = new ArrayList<Strings>();
 
-	//	StringTokenizer st =new StringTokenizer(text,".;");
 		count=0;
 		for (String sentence : inputs)
 
@@ -257,16 +186,12 @@ public class NLPURIGazetteerAdv extends AbstractExecutableComponent {
 		   output.add(tuple.convert());
 		}
 		}
-        // push the whole collection, protocol safe
         Strings[] results = new Strings[output.size()];
         output.toArray(results);
 
         StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
         cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 
-        //
-    	// metaData for this tuple producer
-    	//
         SimpleTuplePeer tuplePeer = gazHelper.getTuplePeer();
         cc.pushDataComponentToOutput(OUT_META_TUPLE, tuplePeer.convert());
     }
@@ -301,19 +226,6 @@ public class NLPURIGazetteerAdv extends AbstractExecutableComponent {
                 componentContext.getDataComponentFromInput(IN_LOCATION));
 	}
 	//--------------------------------------------------------------------------------------------
-//    @Override
-//    protected void handleStreamInitiators() throws Exception {
-//        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_TEXT);
-//        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, si);
-//        componentContext.pushDataComponentToOutput(OUT_TUPLES, ComponentUtils.cloneStreamDelimiter(si));
-//    }
-//
-//    @Override
-//    protected void handleStreamTerminators() throws Exception {
-//        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_TEXT);
-//        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, st);
-//        componentContext.pushDataComponentToOutput(OUT_TUPLES, ComponentUtils.cloneStreamDelimiter(st));
-//    }
 
 
 }
