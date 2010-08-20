@@ -49,10 +49,10 @@ import java.util.logging.Level;
 import javax.imageio.ImageIO;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
@@ -145,72 +145,115 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
     protected static final String PROP_SHOW_COUNT = Names.PROP_SHOW_COUNT;
 
 	@ComponentProperty(
-	        defaultValue = "",
-    		description = "Set a random seed value to be used to " +
-    		              "initiate randomness for each tag cloud generated. "+
-    		              "If no value is given, then the current time will be used.",
-    		name = Names.PROP_SEED
+	        defaultValue = "50",
+    		description = "The number of pixels to increase the width by in the event all the words " +
+    				      "cannot be displayed in the tag cloud",
+    		name = "width_adjustment"
 	)
+    protected static final String PROP_WIDTH_ADJ = "width_adjustment";
+	
+	@ComponentProperty(
+            defaultValue = "50",
+            description = "The number of pixels to increase the height by in the event all the words " +
+                          "cannot be displayed in the tag cloud",
+            name = "height_adjustment"
+    )
+    protected static final String PROP_HEIGHT_ADJ = "height_adjustment";
+	
+	@ComponentProperty(
+            defaultValue = "5.0",
+            description = "The value to decrease the maximum font size by in the event all the words " +
+                          "cannot be displayed in the tag cloud",
+            name = "max_font_size_adjustment"
+    )
+    protected static final String PROP_FONT_SIZE_ADJ = "max_font_size_adjustment";
+	
+	@ComponentProperty(
+            defaultValue = "",
+            description = "Set a random seed value to be used to " +
+                          "initiate randomness for each tag cloud generated. "+
+                          "If no value is given, then the current time will be used.",
+            name = Names.PROP_SEED
+    )
     protected static final String PROP_SEED = Names.PROP_SEED;
 
     //--------------------------------------------------------------------------------------------
 
 
-	private org.seasr.meandre.support.generic.text.TagCloudImageMaker _tagCloudImageMaker;
+	int canvasWidth, canvasHeight;
+	int widthAdj, heightAdj;
+	float fontSizeMin, fontSizeMax;
+	float fontSizeMaxAdj;
+	String fontName;
+	boolean showCounts;
+	long seed;
 
-
+	
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        int canvasWidth = Integer.parseInt(ccp.getProperty(PROP_CANVAS_WIDTH));
-        int canvasHeight = Integer.parseInt(ccp.getProperty(PROP_CANVAS_HEIGHT));
+        canvasWidth = Integer.parseInt(getPropertyOrDieTrying(PROP_CANVAS_WIDTH, true, true, ccp));
+        canvasHeight = Integer.parseInt(getPropertyOrDieTrying(PROP_CANVAS_HEIGHT, true, true, ccp));
+        
+        widthAdj = Integer.parseInt(getPropertyOrDieTrying(PROP_WIDTH_ADJ, true, true, ccp));
+        heightAdj = Integer.parseInt(getPropertyOrDieTrying(PROP_HEIGHT_ADJ, true, true, ccp));
+        
 
-        String fontName = ccp.getProperty(PROP_FONT_NAME).trim();
+        String fontName = getPropertyOrDieTrying(PROP_FONT_NAME, true, false, ccp);
         if (fontName.length() == 0)
             fontName = null;
 
-        float fontSizeMin = Float.parseFloat(ccp.getProperty(PROP_FONT_MIN_SIZE));
-        float fontSizeMax = Float.parseFloat(ccp.getProperty(PROP_FONT_MAX_SIZE));
+        fontSizeMin = Float.parseFloat(getPropertyOrDieTrying(PROP_FONT_MIN_SIZE, true, true, ccp));
+        fontSizeMax = Float.parseFloat(getPropertyOrDieTrying(PROP_FONT_MAX_SIZE, true, true, ccp));
+        
+        fontSizeMaxAdj = Float.parseFloat(getPropertyOrDieTrying(PROP_FONT_SIZE_ADJ, true, true, ccp));
 
-        boolean showCounts = Boolean.parseBoolean(ccp.getProperty(PROP_SHOW_COUNT));
+        showCounts = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SHOW_COUNT, true, true, ccp));
 
-        String seedString = ccp.getProperty(PROP_SEED).trim();
-        long seed = seedString.equals("") ? System.currentTimeMillis() : Long.parseLong(seedString);
-
-        _tagCloudImageMaker = new org.seasr.meandre.support.generic.text.TagCloudImageMaker(seed,
-                canvasWidth, canvasHeight, fontName, fontSizeMin, fontSizeMax, showCounts);
+        String seedString = getPropertyOrDieTrying(PROP_CANVAS_WIDTH, true, false, ccp);
+        seed = seedString.equals("") ? System.currentTimeMillis() : Long.parseLong(seedString);
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Map<String, Integer> table = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
-        console.fine("Creating the tag cloud image");
-        TagCloudImage image = _tagCloudImageMaker.createTagCloudImage(table);
-
-        if (image == null) {
-            outputError("The tag cloud image cannot be created - no word counts found", Level.WARNING);
-            return;
-        }
-
-        console.fine("Tag cloud image created");
-
-        if (!image.hasAllWords()) {
-            StringBuffer buf = new StringBuffer();
-            buf.append("Only " + image.getShownWords() + " of " + image.getTotalWords() + " words displayed due to limited space.\n");
-            buf.append("For viewing all of the words, the alternatives you can choose are\n");
-            buf.append("1) Increase the width or height of canvas\n");
-            buf.append("2) Decrease the number of words to be displayed.\n");
-            buf.append("3) Decrease the minimum font size.\n");
-            buf.append("4) Decrease the maximum font size.\n");
-            console.warning(buf.toString());
-        }
+        org.seasr.meandre.support.generic.text.TagCloudImageMaker tagCloudImageMaker;
+        TagCloudImage image;
+        int nTries = 1;
+        
+        do {
+            tagCloudImageMaker = new org.seasr.meandre.support.generic.text.TagCloudImageMaker(seed,
+                    canvasWidth, canvasHeight, fontName, fontSizeMin, fontSizeMax, showCounts);
+            
+            console.fine(String.format("Attempt %s: Creating the tag cloud image", nTries));
+            image = tagCloudImageMaker.createTagCloudImage(table);
+    
+            if (image == null) {
+                outputError("The tag cloud image cannot be created - no word counts found", Level.WARNING);
+                return;
+            }
+    
+            console.fine(String.format("Attempt %s: Tag cloud image created", nTries));
+            
+            canvasWidth += widthAdj;
+            canvasHeight += heightAdj;
+            fontSizeMax -= fontSizeMaxAdj;
+            nTries++;
+            
+            if (fontSizeMax <= fontSizeMin && !image.hasAllWords()) {
+                console.warning("Minimum font size reached - adjusting only canvas size...");
+                fontSizeMax = fontSizeMin;
+                fontSizeMaxAdj = 0;
+            }
+            
+        } while (!image.hasAllWords());
 
 	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	    ImageIO.write(image, "png", baos);
 	    baos.flush();
-
+	    
  		cc.pushDataComponentToOutput(OUT_IMAGE_RAW, baos.toByteArray());
     }
 
