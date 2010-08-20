@@ -49,6 +49,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
@@ -177,13 +178,25 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	    console.info("connect using " + fullURL);
 
 		// This will load the MySQL driver, each DB has its own driver
-		Class.forName(JDBC_DRIVER);
+	    try {
+	        Class.forName(JDBC_DRIVER);
+	    }
+	    catch (Exception e) {
+	        console.log(Level.SEVERE, "Could not load the JDBC driver: " + JDBC_DRIVER, e);
+	        throw e;
+	    }
 
 		// Setup the connection with the DB
-		connect = DriverManager.getConnection(fullURL, user, password);
-		
+		try {
+		    connect = DriverManager.getConnection(fullURL, user, password);
+		}
+		catch (Exception e) {
+		    console.log(Level.SEVERE, "Could not connect to the DB", e);
+		    throw e;
+		}
+
 		if (connect == null) {
-			String msg = "unable to get connection to database";
+			String msg = "Unable to get connection to database";
 			console.severe(msg);
 			throw new ComponentExecutionException(msg);
 		}
@@ -194,7 +207,7 @@ public class SQLToTuple extends AbstractExecutableComponent {
     {
 		SimpleTuplePeer outPeer;
 		SimpleTuple outTuple;
-		
+
 		if (connect == null) {
 			console.severe("sql connection never established");
 			return;
@@ -249,11 +262,11 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	}
 
     @Override
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception 
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception
     {
         if (connect != null) {
            connect.close();
         }
-    	
+
     }
 }
