@@ -242,9 +242,9 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
             fontSizeMax -= fontSizeMaxAdj;
             nTries++;
             
-            if (fontSizeMax <= fontSizeMin && !image.hasAllWords()) {
-                console.warning("Minimum font size reached - adjusting only canvas size...");
-                fontSizeMax = fontSizeMin;
+            if (fontSizeMax - fontSizeMin < 20 && !image.hasAllWords()) {
+                console.warning("Minimum acceptable font size reached - adjusting only canvas size...");
+                fontSizeMax = fontSizeMin + 20;
                 fontSizeMaxAdj = 0;
             }
             
