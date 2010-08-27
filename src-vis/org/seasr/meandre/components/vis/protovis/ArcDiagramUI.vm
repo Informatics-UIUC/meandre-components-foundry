@@ -1,7 +1,7 @@
 <html>
   <head>
-    <title>Arc Diagram</title>
-    <script type="text/javascript" src="http://vis.stanford.edu/protovis/protovis-r3.2.js"></script>
+    <title>$title</title>
+    <script type="text/javascript" src="$protovisAPI"></script>
 
     <style type="text/css">
         #fig {

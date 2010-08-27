@@ -72,7 +72,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.6.2-dep.jar", "protovis-r3.2.jar" },
-        resources  = { "ArcDiagram.vm" }
+        resources  = { "ArcDiagram.vm", "ArcDiagramUI.vm" }
 )
 public class ArcDiagram extends AbstractProtovisComponent {
 
