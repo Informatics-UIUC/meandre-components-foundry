@@ -170,9 +170,6 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	    String protocol    = ccp.getProperty(PROP_PROTOCOL).trim();
 	    String hostDB     = ccp.getProperty(PROP_DB).trim();
 	    String JDBC_DRIVER = ccp.getProperty(PROP_JDBC).trim();
-
-
-	    //String fullURL = protocol + hostDB + "?" + "user="+user + "&password="+password;
 	    String fullURL = protocol + hostDB;
 
 	    console.info("connect using " + fullURL);
@@ -244,10 +241,8 @@ public class SQLToTuple extends AbstractExecutableComponent {
 			output.add(outTuple.convert());
 		}
 
-
 		resultSet.close();
 		statement.close();
-
 
 		Strings[] results = new Strings[output.size()];
 		output.toArray(results);
@@ -259,6 +254,9 @@ public class SQLToTuple extends AbstractExecutableComponent {
 		//
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
 
+	    // Output message to the error output port
+	    if (output.size() == 0)
+	        outputError("No database records match the search query.", Level.WARNING);
 	}
 
     @Override
@@ -267,6 +265,5 @@ public class SQLToTuple extends AbstractExecutableComponent {
         if (connect != null) {
            connect.close();
         }
-
     }
 }
