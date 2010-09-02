@@ -11,27 +11,31 @@
     </style>
   </head>
   <body>
+    <div class="caption">
+          An arc diagram uses nodes and labels to represent subjects and
+          circular arcs to represent links connecting any pair of subjects.
+    </div>
     <div id="center"><div id="fig">
 
         <!--
         <script type="text/javascript" src="CMI.js"></script>
         -->
-        
-         
+
+
         <script type="text/javascript+protovis">
             var graphData = $data;
-            var minWidth = 25.0; /* icon min size */
-            var baseLog  = 2;    /* radius of the nodes */ 
+            var minWidth = 20.0; /* icon min size */
+            var baseLog  = 2;    /* radius of the nodes */
             var colors = pv.Scale.linear(0, 1).range('yellow', 'red');
-            
+
             var mean = pv.mean(graphData.links, function(d) d.value);
             var sd   = pv.deviation(graphData.links, function(d) d.value);
             var max  = pv.max(graphData.links, function(d) d.value);
-            
+
 
             var vis = new pv.Panel()
-                .width(graphData.nodes.length * minWidth * 1.10)
-                .height(800)
+                .width(graphData.nodes.length * minWidth * 1.50)
+                .height(graphData.nodes.length * 10)
                 .margin(10)
                 .bottom(200);
 
@@ -50,7 +54,7 @@
                    if (est <= 0) {
                      est = -1.0 * est;
                    }
-                   if (est > 2.0) { 
+                   if (est > 2.0) {
                       est = 2.0;
                   }
                   // normalize to 0..1
@@ -64,38 +68,35 @@
 
             layout.node.add(pv.Dot)
                 // .size(function(d) d.linkDegree + 4)
-                .radius(function(d) + minWidth/2.0 + pv.log(d.linkDegree,baseLog))
+                .radius(function(d) + minWidth/4.0 + pv.log(d.linkDegree,baseLog))
                 .fillStyle(pv.Colors.category19().by(function(d) d.group))
                 .strokeStyle(function() this.fillStyle().darker());
 
             layout.label.add(pv.Label)
-				   .font(function(n,l)  24 + "px sans-serif")
+				   .font(function(n,l)  20 + "px sans-serif")
 					;
 
 
             vis.render();
         </script>
 
-        <div class="caption">
-          An arc diagram uses nodes and labels to represent subjects and
-          circular arcs to represent links connecting any pair of subjects.
+        <div>
           <table>
             <tr>
-            <td>Nodes</td>
-            <td>
-              <div id='size'>
-              <script type="text/javascript+protovis">
-                var max = pv.max(graphData.links, function(d) d.value);
-                var len = graphData.nodes.length;
-                document.getElementById('size').innerHTML = len 
-              </script>
-            </div>
-            </td>
+            <td>Number of Nodes</td>
+            <td align="right"> <div id='NumNodes'> </div> </td>
             </tr>
-
-
-
+            <tr>
+            <td>Number of Links</td>
+            <td align="right"> <div id='NumLinks'> </div> </td>
+            </tr>
           </table>
+
+        <script type="text/javascript+protovis">
+                document.getElementById('NumNodes').innerHTML = graphData.nodes.length;
+                document.getElementById('NumLinks').innerHTML = graphData.links.length;
+        </script>
+
         </div>
 
     </div></div>

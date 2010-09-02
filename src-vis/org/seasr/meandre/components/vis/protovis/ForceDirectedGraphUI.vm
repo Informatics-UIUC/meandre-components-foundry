@@ -11,6 +11,14 @@
     </style>
   </head>
   <body>
+    <div class="caption">
+          Network graphs are commonly represented as a force directed graph.
+          Each node is represented by a circle and the connecting lines represent relationships or interactions.
+          The node's size indicates the number of relationships.
+          Nodes can be selected and dragged across the screen to better see their connections.
+          The graph can also be dragged, zoomed in or zoomed out (using the mouse scroll wheel) for better viewing.
+    </div>
+
     <div id="center"><div id="fig">
         <script type="text/javascript+protovis">
             var graphData = $data;
@@ -71,27 +79,23 @@
             vis.render();
         </script>
 
-        <div class="caption">
-          Network graphs are commonly represented as a force directed graph.
-          Each node is represented by a circle and the connecting lines represent relationships or interactions.
-          The node's size indicates the number of relationships.
-          Nodes can be selected and dragged across the screen to better see their connections.
-          The graph can also be dragged, zoomed in or zoomed out (using the mouse scroll wheel) for better viewing.
+                  
+        <div>
           <table>
             <tr>
-            <td>Nodes</td>
-
-            <td>
-              <div id='size'>
-              <script type="text/javascript+protovis">
-                var max = pv.max(graphData.links, function(d) d.value);
-                var len = graphData.nodes.length;
-                document.getElementById('size').innerHTML = len
-              </script>
-            </div>
-            </td>
+            <td>Number of Nodes</td>
+            <td align="right"> <div id='NumNodes'> </div> </td>
+            </tr>
+            <tr>
+            <td>Number of Links</td>
+            <td align="right"> <div id='NumLinks'> </div> </td>
             </tr>
           </table>
+
+        <script type="text/javascript+protovis">
+                document.getElementById('NumNodes').innerHTML = graphData.nodes.length;
+                document.getElementById('NumLinks').innerHTML = graphData.links.length;
+        </script>
 
         </div>
 
