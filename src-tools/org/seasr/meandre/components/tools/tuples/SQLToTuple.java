@@ -43,9 +43,9 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,13 +70,19 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
+import com.jolbox.bonecp.BoneCP;
+import com.jolbox.bonecp.BoneCPConfig;
 
 
 /**
  * This component reads from an sql SELECT pushes its content inside of a tuple
  *
  * @author Mike Haberman
- *
+ * see http://jolbox.com/ for connection pool
+ * RUNTIME: depends on:
+ * guava-r06.jar   (google collections)
+ * slf4j-api-1.6.1.jar, slf4j-log4j12-1.6.1.jar (connection pooling logging)
+ * 
  */
 
 @Component(
@@ -88,7 +94,8 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		rights = Licenses.UofINCSA,
 		tags = "tuple, tools, database",
 		description = "This component reads a mysql database",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", 
+				      "guava-r06.jar", "slf4j-api-1.6.1.jar","slf4j-log4j12-1.6.1.jar"}
 )
 public class SQLToTuple extends AbstractExecutableComponent {
 
@@ -157,9 +164,9 @@ public class SQLToTuple extends AbstractExecutableComponent {
 
 
 	//--------------------------------------------------------------------------------------------
-	Connection connect = null;
 	//--------------------------------------------------------------------------------------------
 
+	BoneCP connectionPool = null;
 
 
 	@Override
@@ -182,7 +189,45 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	        console.log(Level.SEVERE, "Could not load the JDBC driver: " + JDBC_DRIVER, e);
 	        throw e;
 	    }
+	    
+	    
+	    Connection connection = null;
+	    try { 
+			// setup the connection pool
+			BoneCPConfig config = new BoneCPConfig();
+			config.setJdbcUrl(fullURL); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+			config.setUsername(user); 
+			config.setPassword(password);
+			config.setMinConnectionsPerPartition(5);
+			config.setMaxConnectionsPerPartition(10);
+			config.setPartitionCount(1);
+			
+			connectionPool = new BoneCP(config); // setup the connection pool
+			
+			// test it now, before we execute
+			connection = connectionPool.getConnection(); // fetch a connection
+			
+			if (connection != null){
+			   console.info("Connection successful!");
+			}
+			
+		} catch (SQLException e) {
+			console.warning(e.toString());
+			String msg = "Unable to get connection to database";
+			console.severe(msg);
+			throw new ComponentExecutionException(msg);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					console.warning(e.toString());
+				}
+			}
+		}
+	
 
+        /* OLD WAY before connection pooloing
 		// Setup the connection with the DB
 		try {
 		    connect = DriverManager.getConnection(fullURL, user, password);
@@ -197,18 +242,23 @@ public class SQLToTuple extends AbstractExecutableComponent {
 			console.severe(msg);
 			throw new ComponentExecutionException(msg);
 		}
+		*/
+		
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
     {
-		SimpleTuplePeer outPeer;
-		SimpleTuple outTuple;
-
-		if (connect == null) {
-			console.severe("sql connection never established");
+		Connection connect = connectionPool.getConnection(); // fetch a connection
+		
+		if (connect == null){
+			console.severe("sql connection can not be established");
 			return;
 		}
+
+		
+		SimpleTuplePeer outPeer;
+		SimpleTuple outTuple;
 
 		Statement statement = null;
 		ResultSet resultSet = null;
@@ -219,6 +269,7 @@ public class SQLToTuple extends AbstractExecutableComponent {
 		// Statements allow to issue SQL queries to the database
 		statement = connect.createStatement();
 		// Result set get the result of the SQL query
+		console.info(SQL);
 		resultSet = statement.executeQuery(SQL);
 		ResultSetMetaData rsMetaData = resultSet.getMetaData();
 
@@ -230,7 +281,8 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	    }
 	    outPeer = new SimpleTuplePeer(fieldNames);
 		outTuple = outPeer.createTuple();
-
+		
+		
 		List<Strings> output = new ArrayList<Strings>();
 		while (resultSet.next()) {
 			for (int i = 0; i < numberOfColumns; i++) {
@@ -240,9 +292,29 @@ public class SQLToTuple extends AbstractExecutableComponent {
 			}
 			output.add(outTuple.convert());
 		}
+		// Output message to the error output port
+	    if (output.size() == 0) {
+	        outputError("No database records match the search query.", Level.WARNING);
+	    }
+	    
 
-		resultSet.close();
-		statement.close();
+	    
+	 // shut down the dbase stuff
+		try {
+			resultSet.close();
+			statement.close();
+		}
+		catch (SQLException e) {
+			console.warning("sql close exceptions " + e.toString());
+		} finally {
+		   try {
+			   connect.close();
+			} catch (SQLException e) {
+			   console.severe(e.toString());
+		   }
+	    }
+			
+		
 
 		Strings[] results = new Strings[output.size()];
 		output.toArray(results);
@@ -254,16 +326,16 @@ public class SQLToTuple extends AbstractExecutableComponent {
 		//
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
 
-	    // Output message to the error output port
-	    if (output.size() == 0)
-	        outputError("No database records match the search query.", Level.WARNING);
+	    
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception
     {
-        if (connect != null) {
-           connect.close();
-        }
+    	try {
+    	   connectionPool.shutdown(); // shutdown connection pool.
+    	}
+    	catch (Exception e) {
+    	}
     }
 }
