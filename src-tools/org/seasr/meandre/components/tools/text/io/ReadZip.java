@@ -43,30 +43,32 @@
 package org.seasr.meandre.components.tools.text.io;
 
 import java.io.BufferedInputStream;
-import java.net.URI;
-import java.util.Enumeration;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamDelimiter;
-import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
+import org.seasr.meandre.support.generic.io.StreamUtils;
 
 /**
  *
  * @author Loretta Auvil
+ * @author Boris Capitanu
  *
  */
 
@@ -87,7 +89,7 @@ public class ReadZip extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the model to read" +
+			description = "The URL or file name to read" +
                 "<br>TYPE: java.net.URI" +
                 "<br>TYPE: java.net.URL" +
                 "<br>TYPE: java.lang.String" +
@@ -99,102 +101,77 @@ public class ReadZip extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the model read" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+			description = "A URL reference for each entry in the archive" +
+                "<br>TYPE: java.net.URL"
 	)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
-	@ComponentOutput(
-			name = Names.PORT_RAW_DATA,
-			description = "The raw data of the objects containing in the zip file." +
-                "<br>TYPE: byte[]"
-	)
-	private final static String OUT_BYTES = Names.PORT_RAW_DATA;
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		try {
-
-		}
-		catch (Throwable t) {
-
-		}
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-
-		URI location = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
-		console.fine("Parsing location: " + location);
-
+	    URL location = StreamUtils.getURLforResource(
+	            DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION)));
+	    
+		console.fine("Reading ZIP file from: " + location);
+		JarInputStream zipStream = new JarInputStream(new BufferedInputStream(location.openStream()));
+		
 		try {
+		    pushStreamInitiator();
 
-		ZipFile zipfile = new ZipFile("location");
-		Enumeration e = zipfile.entries();
-		ZipEntry entry;
-		BufferedInputStream is;
-		byte bytes[] = null;
-
-		while(e.hasMoreElements()) {
-		    entry = (ZipEntry) e.nextElement();
-
-		    console.info("Extracting: " +entry+":"+entry.getName());
-		    is = new BufferedInputStream(zipfile.getInputStream(entry));
-		    int count = (int)entry.getSize();
-		    is.read(bytes,0,count);
-            is.close();
-
-	        cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(entry.getName()));
-	        cc.pushDataComponentToOutput(OUT_BYTES, bytes);
-	        bytes = null;
-		 }
-
-
-
+		    ZipEntry entry;
+		    while ((entry = zipStream.getNextEntry()) != null) {
+		        URL entryUrl = new URL("jar:" + location.toString() + "!/" + entry);
+		        console.finer("Pushing " + entryUrl);
+		        cc.pushDataComponentToOutput(OUT_LOCATION, entryUrl);
+		    }
 		}
-		catch (Throwable t) {
-			console.warning("Could not read Zipfile from location " + location.toString());
-
-			if ( !ignoreErrors )
-				throw new ComponentExecutionException(t);
+		finally {
+		    zipStream.close();
 		}
+        
+        pushStreamTerminator();
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-
     }
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     protected void handleStreamInitiators() throws Exception {
-        pushDelimiters((StreamDelimiter)componentContext.getDataComponentFromInput(IN_LOCATION));
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_LOCATION })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        pushDelimiter((StreamDelimiter) componentContext.getDataComponentFromInput(IN_LOCATION));
     }
 
     @Override
     protected void handleStreamTerminators() throws Exception {
-        pushDelimiters((StreamDelimiter)componentContext.getDataComponentFromInput(IN_LOCATION));
-    }
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_LOCATION })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
+        pushDelimiter((StreamDelimiter) componentContext.getDataComponentFromInput(IN_LOCATION));
+    }
+    
     //--------------------------------------------------------------------------------------------
 
-	/**
-	 * Push the delimiters
-	 *
-	 * @param sdLoc The delimiter object
-	 * @throws Exception
-	 */
-	private void pushDelimiters(StreamDelimiter sdLoc) throws Exception {
-	    componentContext.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
-
-		try {
-		    componentContext.pushDataComponentToOutput(OUT_BYTES, ComponentUtils.cloneStreamDelimiter(sdLoc));
-		} catch (Exception e) {
-			console.warning("Failed to create a new delimiter - reusing existing one");
-			componentContext.pushDataComponentToOutput(OUT_BYTES, sdLoc);
-		}
-	}
+    private void pushStreamInitiator() throws ComponentContextException {
+        pushDelimiter(new StreamInitiator());
+    }
+    
+    private void pushStreamTerminator() throws ComponentContextException {
+        pushDelimiter(new StreamTerminator());
+    }
+    
+    private void pushDelimiter(StreamDelimiter sd) throws ComponentContextException {
+        for (String output : connectedOutputs)
+            componentContext.pushDataComponentToOutput(output, sd);
+    }
 }
