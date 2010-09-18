@@ -130,12 +130,12 @@ public class ReadZip extends AbstractExecutableComponent {
 		        console.finer("Pushing " + entryUrl);
 		        cc.pushDataComponentToOutput(OUT_LOCATION, entryUrl);
 		    }
+		    
+	        pushStreamTerminator();
 		}
 		finally {
 		    zipStream.close();
 		}
-        
-        pushStreamTerminator();
 	}
 
     @Override
@@ -171,7 +171,9 @@ public class ReadZip extends AbstractExecutableComponent {
     }
     
     private void pushDelimiter(StreamDelimiter sd) throws ComponentContextException {
-        for (String output : connectedOutputs)
+        for (String output : connectedOutputs) {
+            if (output.equals(OUT_ERROR)) continue;
             componentContext.pushDataComponentToOutput(output, sd);
+        }
     }
 }
