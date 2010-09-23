@@ -193,30 +193,29 @@ public class TagCloudImageMaker extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        canvasWidth = Integer.parseInt(getPropertyOrDieTrying(PROP_CANVAS_WIDTH, true, true, ccp));
-        canvasHeight = Integer.parseInt(getPropertyOrDieTrying(PROP_CANVAS_HEIGHT, true, true, ccp));
-        
-        widthAdj = Integer.parseInt(getPropertyOrDieTrying(PROP_WIDTH_ADJ, true, true, ccp));
-        heightAdj = Integer.parseInt(getPropertyOrDieTrying(PROP_HEIGHT_ADJ, true, true, ccp));
-        
-
-        String fontName = getPropertyOrDieTrying(PROP_FONT_NAME, true, false, ccp);
-        if (fontName.length() == 0)
-            fontName = null;
-
-        fontSizeMin = Float.parseFloat(getPropertyOrDieTrying(PROP_FONT_MIN_SIZE, true, true, ccp));
-        fontSizeMax = Float.parseFloat(getPropertyOrDieTrying(PROP_FONT_MAX_SIZE, true, true, ccp));
-        
-        fontSizeMaxAdj = Float.parseFloat(getPropertyOrDieTrying(PROP_FONT_SIZE_ADJ, true, true, ccp));
-
-        showCounts = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SHOW_COUNT, true, true, ccp));
-
-        String seedString = getPropertyOrDieTrying(PROP_CANVAS_WIDTH, true, false, ccp);
+        String seedString = getPropertyOrDieTrying(PROP_SEED, true, false, ccp);
         seed = seedString.equals("") ? System.currentTimeMillis() : Long.parseLong(seedString);
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+        canvasWidth = Integer.parseInt(getPropertyOrDieTrying(PROP_CANVAS_WIDTH, true, true, cc));
+        canvasHeight = Integer.parseInt(getPropertyOrDieTrying(PROP_CANVAS_HEIGHT, true, true, cc));
+        
+        widthAdj = Integer.parseInt(getPropertyOrDieTrying(PROP_WIDTH_ADJ, true, true, cc));
+        heightAdj = Integer.parseInt(getPropertyOrDieTrying(PROP_HEIGHT_ADJ, true, true, cc));
+
+        String fontName = getPropertyOrDieTrying(PROP_FONT_NAME, true, false, cc);
+        if (fontName.length() == 0)
+            fontName = null;
+
+        fontSizeMin = Float.parseFloat(getPropertyOrDieTrying(PROP_FONT_MIN_SIZE, true, true, cc));
+        fontSizeMax = Float.parseFloat(getPropertyOrDieTrying(PROP_FONT_MAX_SIZE, true, true, cc));
+        
+        fontSizeMaxAdj = Float.parseFloat(getPropertyOrDieTrying(PROP_FONT_SIZE_ADJ, true, true, cc));
+
+        showCounts = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SHOW_COUNT, true, true, cc));
+
         Map<String, Integer> table = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
         org.seasr.meandre.support.generic.text.TagCloudImageMaker tagCloudImageMaker;
