@@ -49,10 +49,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.WebUIException;
@@ -244,7 +244,7 @@ public class HelloWorld extends AbstractGWTWebUIComponent {
     }
 
     @Override
-    public String getGWTModuleJARName() {
-        return "org.seasr.meandre.components.vis.gwt.helloworld.HelloWorld.jar";
+    public String getGWTModuleName() {
+        return "org.seasr.meandre.components.vis.gwt.helloworld.HelloWorld";
     }
 }

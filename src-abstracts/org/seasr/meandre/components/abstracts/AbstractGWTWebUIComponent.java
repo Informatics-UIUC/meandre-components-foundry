@@ -43,7 +43,6 @@
 package org.seasr.meandre.components.abstracts;
 
 import java.io.File;
-import java.io.FileInputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,8 +52,8 @@ import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.ConfigurableWebUIFragmentCallback;
 import org.meandre.webui.WebUIException;
+import org.seasr.meandre.support.components.utils.ComponentUtils;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
-import org.seasr.meandre.support.generic.io.JARInstaller;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 /**
@@ -70,16 +69,9 @@ public abstract class AbstractGWTWebUIComponent extends AbstractExecutableCompon
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        File gwtJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
-                "contexts" + File.separator + "java" + File.separator + getGWTModuleJARName());
-        if (!gwtJar.exists())
-            throw new ComponentContextException("Could not find dependency: " + gwtJar.toString());
-
-        console.fine("Deploying GWT module: " + gwtJar.toString());
-
+        console.fine("Deploying GWT module: " + getGWTModuleName());
         String gwtDeployDir = ccp.getPublicResourcesDirectory() + File.separator + "gwt" + File.separator + getClass().getName();
-
-        InstallStatus status = JARInstaller.installFromStream(new FileInputStream(gwtJar), gwtDeployDir, false);
+        InstallStatus status = ComponentUtils.installJARContainingResource(getClass(), getGWTModuleName() + ".nocache.js", gwtDeployDir, false);
 
         switch (status) {
             case SUCCESS:
@@ -108,5 +100,5 @@ public abstract class AbstractGWTWebUIComponent extends AbstractExecutableCompon
 
     //--------------------------------------------------------------------------------------------
 
-    public abstract String getGWTModuleJARName();
+    public abstract String getGWTModuleName();
 }

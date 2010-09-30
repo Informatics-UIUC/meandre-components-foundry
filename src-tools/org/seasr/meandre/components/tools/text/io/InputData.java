@@ -58,20 +58,20 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.meandre.webui.WebUIException;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Bytes;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractGWTWebUIComponent;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
@@ -371,8 +371,8 @@ public class InputData extends AbstractGWTWebUIComponent {
     }
 
     @Override
-    public String getGWTModuleJARName() {
-        return "org.seasr.meandre.components.vis.gwt.inputdata.InputData.jar";
+    public String getGWTModuleName() {
+        return "org.seasr.meandre.components.vis.gwt.inputdata.InputData";
     }
 
     //--------------------------------------------------------------------------------------------

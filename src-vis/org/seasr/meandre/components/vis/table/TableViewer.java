@@ -46,8 +46,8 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 import java.util.Map.Entry;
+import java.util.Stack;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,18 +55,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
+import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
-import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.WebUIException;
 import org.seasr.datatypes.core.Names;
+import org.seasr.datatypes.datamining.table.Column.SortMode;
 import org.seasr.datatypes.datamining.table.ColumnTypes;
 import org.seasr.datatypes.datamining.table.MutableTable;
-import org.seasr.datatypes.datamining.table.Column.SortMode;
 import org.seasr.datatypes.datamining.table.basic.AbstractColumn;
 import org.seasr.meandre.components.abstracts.AbstractGWTWebUIComponent;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
@@ -215,7 +215,6 @@ public class TableViewer extends AbstractGWTWebUIComponent {
         console.exiting(getClass().getName(), "emptyRequest");
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
         console.entering(getClass().getName(), "handle", response);
@@ -256,6 +255,7 @@ public class TableViewer extends AbstractGWTWebUIComponent {
 
                     // retrieve any column search filters
                     Map<Integer, String> filterColumns = new HashMap<Integer, String>();
+                    @SuppressWarnings("rawtypes")
                     Enumeration e = request.getParameterNames();
                     while (e.hasMoreElements()) {
                         String param = (String)e.nextElement();
@@ -357,8 +357,8 @@ public class TableViewer extends AbstractGWTWebUIComponent {
     }
 
     @Override
-    public String getGWTModuleJARName() {
-        return "org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer.jar";
+    public String getGWTModuleName() {
+        return "org.seasr.meandre.components.vis.gwt.tableviewer.TableViewer";
     }
 
     //--------------------------------------------------------------------------------------------
