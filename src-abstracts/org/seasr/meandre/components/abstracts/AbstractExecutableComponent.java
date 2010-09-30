@@ -454,10 +454,15 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
         throws ComponentExecutionException {
 
         String propValue = context.getProperty(propName);
-        if (propValue == null)
+        if (propValue == null) {
+            StringBuilder sb = new StringBuilder();
+            for (String name : context.getPropertyNames())
+                sb.append(", ").append(name);
+            
             throw new ComponentExecutionException(String.format(
                     "Missing property '%s' - check the component RDF descriptor! " +
-                    "Available properties: %s", propName, context.getPropertyNames()));
+                    "Available properties: [%s]", propName, sb.substring(2)));
+        }
 
         if (ignoreWhitespace)
             propValue = propValue.trim();
