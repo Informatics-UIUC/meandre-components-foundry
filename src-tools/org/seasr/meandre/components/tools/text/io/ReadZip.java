@@ -54,6 +54,7 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
@@ -105,12 +106,26 @@ public class ReadZip extends AbstractExecutableComponent {
                 "<br>TYPE: java.net.URL"
 	)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
+	
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Wrap output in a stream?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
 
 	//--------------------------------------------------------------------------------------------
 
+    private boolean wrapStream;
+    
+    //--------------------------------------------------------------------------------------------
+
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
 	}
 
 	@Override
@@ -122,7 +137,8 @@ public class ReadZip extends AbstractExecutableComponent {
 		JarInputStream zipStream = new JarInputStream(new BufferedInputStream(location.openStream()));
 		
 		try {
-		    pushStreamInitiator();
+		    if (wrapStream)
+		        pushStreamInitiator();
 
 		    ZipEntry entry;
 		    while ((entry = zipStream.getNextEntry()) != null) {
@@ -131,7 +147,8 @@ public class ReadZip extends AbstractExecutableComponent {
 		        cc.pushDataComponentToOutput(OUT_LOCATION, entryUrl);
 		    }
 		    
-	        pushStreamTerminator();
+		    if (wrapStream)
+		        pushStreamTerminator();
 		}
 		finally {
 		    zipStream.close();
