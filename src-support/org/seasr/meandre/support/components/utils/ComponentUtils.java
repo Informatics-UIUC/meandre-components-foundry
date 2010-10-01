@@ -52,8 +52,8 @@ import java.net.URL;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.meandre.support.generic.io.JARInstaller;
-import org.seasr.meandre.support.generic.io.StreamUtils;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
+import org.seasr.meandre.support.generic.io.StreamUtils;
 import org.seasr.meandre.support.generic.io.exceptions.ResourceNotFoundException;
 
 /**
@@ -88,16 +88,16 @@ public class ComponentUtils {
      *
      * @param clazz The class used to resolve the resource
      * @param resourceName The resource name
-     * @param relativeFolderPath The relative folder (relative to the public resources directory) where to write the resource
+     * @param relativeResourcePath The relative path (relative to the public resources directory) where to write the resource
      * @param ccp The ComponentContextProperties
      * @param overwrite True to overwrite the resource if it exists, False otherwise
      * @return The file reference to the resource
      * @throws IOException
      */
-    public static File writePublicResource(Class<?> clazz, String resourceName, String relativeFolderPath,
+    public static File writePublicResource(Class<?> clazz, String resourceName, String relativeResourcePath,
             ComponentContextProperties ccp, boolean overwrite) throws IOException {
 
-        File resPath = new File(ccp.getPublicResourcesDirectory() + File.separator + relativeFolderPath, resourceName);
+        File resPath = new File(ccp.getPublicResourcesDirectory() + File.separator + relativeResourcePath);
         if (!resPath.exists() || overwrite) {
             // Ensure that the output folder exists
             resPath.getParentFile().mkdirs();

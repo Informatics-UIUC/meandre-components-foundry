@@ -54,12 +54,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
@@ -215,7 +215,7 @@ public class WriteText extends AbstractExecutableComponent {
 
 	    if (file.getAbsolutePath().startsWith(publicResourcesDir)) {
 	        String publicLoc = file.getAbsolutePath().substring(publicResourcesDir.length());
-	        URL outputURL = new URL(cc.getProxyWebUIUrl(true), "/public/resources/" + publicLoc);
+	        URL outputURL = new URL(cc.getWebUIUrl(true), "/public/resources/" + publicLoc);
 	        console.info("File accessible at: " + outputURL);
 	        cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(outputURL.toString()));
 	    }

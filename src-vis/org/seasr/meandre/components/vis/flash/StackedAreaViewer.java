@@ -43,25 +43,23 @@
 package org.seasr.meandre.components.vis.flash;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.tools.text.io.GenericTemplate;
+import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 
 /**
@@ -124,16 +122,6 @@ public class StackedAreaViewer extends GenericTemplate {
 	)
 	protected static final String PROP_NODE_NAME_FIELD = "nodeNameField";
 
-	/*
-	@ComponentProperty(
-	        description = "data url",
-	        name = "dataUrl",
-	        defaultValue = ""
-	)
-	protected static final String PROP_DATA_URL= "dataUrl";
-	*/
-
-
 	@ComponentProperty(
 	        description = "x axis column",
 	        name = "fieldX",
@@ -148,7 +136,6 @@ public class StackedAreaViewer extends GenericTemplate {
 	)
 	protected static final String PROP_FIELD_Y= "fieldY";
 
-
 	@ComponentProperty(
 	        description = "The template name",
 	        name = GenericTemplate.PROP_TEMPLATE,
@@ -159,34 +146,17 @@ public class StackedAreaViewer extends GenericTemplate {
     //--------------------------------------------------------------------------------------------
 
 
-	// the swf file will be unjar'ed and written to public_resources/SWF_DIR/SWF_FILE
-    protected static String SWF_DIR  = "flash";
-    protected static String SWF_FILE = "StackedAreaViewer.swf";
-
-
     //--------------------------------------------------------------------------------------------
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
 
-	    //
-	    // get the swf from jar to public resources
-	    //
-	    String destination = ccp.getPublicResourcesDirectory();
-	    String path = unjarFlashSWF(destination);
+	    ComponentUtils.writePublicResource(getClass(), 
+	            "org/seasr/meandre/components/vis/flash/StackedAreaViewer.swf", 
+	            "flash" + File.separator + "StackedAreaViewer.swf", ccp, false);
 
-
-	    /*
-	    String url = ccp.getProperty(PROP_DATA_URL).trim();
-	    if (url.length() == 0) {
-	    	throw new RuntimeException(PROP_DATA_URL + " needs to be specified");
-	    }
-	    context.put(PROP_DATA_URL,url);
-	    */
-
-
-	    context.put("swf",           path);
+	    context.put("swf",           "flash/StackedAreaViewer.swf");
 	    context.put(PROP_TITLE,      ccp.getProperty(PROP_TITLE));
 	    context.put(PROP_FIELD_X,    ccp.getProperty(PROP_FIELD_X));
 	    context.put(PROP_FIELD_Y,    ccp.getProperty(PROP_FIELD_Y));
@@ -226,94 +196,4 @@ public class StackedAreaViewer extends GenericTemplate {
 	protected boolean processRequest(HttpServletRequest request) throws IOException {
 	    return true;
 	}
-
-    //--------------------------------------------------------------------------------------------
-
-	protected String unjarFlashSWF(String dir) {
-	    dir = dir + File.separator + SWF_DIR;
-
-	    File swfDir = new File(dir);
-	    if (! swfDir.exists()) {
-
-	        if (! swfDir.mkdir() ) {
-	            String msg = "Unable to create " + dir;
-	            console.info(msg);
-	            throw new RuntimeException(msg);
-	        }
-
-	    }
-
-	    // unjar the swf and write to dir + SWF_FILE
-	    String dest = dir + File.separator + SWF_FILE;
-	    console.info("Writing " + dest);
-
-	    InputStream  in = null;
-	    OutputStream out = null;
-
-	    try {
-	        in = this.getClass().getResourceAsStream(SWF_FILE);
-	        out = new FileOutputStream(dest);
-
-	        byte[] buf = new byte[4096];
-	        int len;
-	        while ((len = in.read(buf)) != -1){
-	            out.write(buf, 0, len);
-	        }
-
-	    }
-	    catch (IOException e){
-	        throw new RuntimeException(e);
-	    }
-	    finally {
-
-	        try {
-	            in.close();
-	            out.close();
-	        }
-	        catch (Exception ignore){}
-	    }
-
-	    return SWF_DIR + File.separator + SWF_FILE;
-	}
 }
-
-/*
-//
-// we assume this is a file that exists on the local filesystem
-// we need to copy it to the server's public/resources directory
-// so that it is available via http
-//
-File src = new File(fileOrURL);
-if (! src.canRead()) {
-	throw new RuntimeException("unable to read " + fileOrURL);
-}
-
-
-int idx = fileOrURL.lastIndexOf(File.separator);
-console.info("new path " + idx + " " + fileOrURL + " " + File.separator);
-
-if (idx > 0) {
-	fileOrURL = fileOrURL.substring(idx+1);
-
-}
-File dst = new File(fileOrURL);
-
-console.info("moving file " + dst.getAbsolutePath());
-
-try {
-	InputStream inS   = new FileInputStream(src);
-    OutputStream out = new FileOutputStream(dst);
-
-    // Transfer bytes from in to out
-    byte[] buf = new byte[1024];
-    int len;
-    while ((len = inS.read(buf)) > 0) {
-        out.write(buf, 0, len);
-    }
-    inS.close();
-    out.close();
-}
-catch (IOException ioe) {
-	throw new RuntimeException("unable to copy file ");
-}
-*/
