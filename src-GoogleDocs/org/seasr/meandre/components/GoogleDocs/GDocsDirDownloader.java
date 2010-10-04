@@ -45,11 +45,11 @@
 package org.seasr.meandre.components.GoogleDocs;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.Names;
@@ -69,14 +69,14 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 //
 
 @Component(
-		name = "GoogleDocDownloader",
+		name = "Google Docs Downloader",
 		creator = "Surya Kallumadi",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "Google,Googledocs,Download directory",
-		description = "This component extracts Data from Google documents Directory and Creates a local copy of the Directory",
+		tags = "google, google doc, download",
+		description = "This component extracts data from a Google Docs directory and creates a local copy of the directory",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "activation.jar","gdata-client-1.0.jar","gdata-client-meta-1.0.jar","gdata-core-1.0.jar","gdata-docs-3.0.jar","gdata-docs-meta-3.0.jar","gdata-media-1.0.jar","google-collect-1.0-rc1.jar","jsr305.jar","mail.jar","servlet-api-6.0.29.jar", "seasr-commons.jar"}
 )
 public class GDocsDirDownloader extends AbstractExecutableComponent {
@@ -91,32 +91,32 @@ public class GDocsDirDownloader extends AbstractExecutableComponent {
     protected static final String PROP_GMAILID ="GMailId" ;
 
     @ComponentProperty(
-            name = "Password",
+            name = Names.PROP_PASSWORD,
             description = "Password of the GMailId ",
             defaultValue = "Seasr.Meandre"
     )
-    protected static final String PROP_PASSWORD = "Password";
+    protected static final String PROP_PASSWORD = Names.PROP_PASSWORD;
 
     @ComponentProperty(
-            name = "Directory Name",
-            description = "The name of the directory whose contents have to be downloaded",
+            name = "folder_name",
+            description = "The name of the folder whose content will be downloaded",
             defaultValue = "gaz"
     )
-    protected static final String PROP_DIR = "Directory Name";
+    protected static final String PROP_DIR = "folder_name";
 
     @ComponentProperty(
-            name = "List File",
-            description = "The super lists file Name",
+            name = Names.PROP_FILENAME,
+            description = "The file that contains the list of gazeteer files",
             defaultValue = "lists.def"
     )
-    protected static final String PROP_LISTS = "List File";
+    protected static final String PROP_LISTS = Names.PROP_FILENAME;
 
     @ComponentProperty(
-            name = "Target Directory",
-            description = "The target path of the Directory ",
+            name = "target_folder",
+            description = "The local path where the gazeteers should be saved",
             defaultValue = "NewLists"
     )
-    protected static final String PROP_PATH = "Target Directory";
+    protected static final String PROP_PATH = "target_folder";
 
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
