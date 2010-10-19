@@ -44,17 +44,16 @@ package org.seasr.meandre.components.tools.text.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
@@ -63,7 +62,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.meandre.webui.WebUIException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.support.generic.io.JARInstaller;
+import org.seasr.meandre.support.components.utils.ComponentUtils;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 import com.oreilly.servlet.multipart.FilePart;
@@ -113,7 +112,7 @@ public class UploadFile extends GenericTemplate {
 	@ComponentProperty(
 	        description = "The template name",
 	        name = GenericTemplate.PROP_TEMPLATE,
-	        defaultValue = "org/seasr/meandre/components/tools/text/io/FluidInfusionUploader.vm"
+	        defaultValue = "org/seasr/meandre/components/tools/text/io/UploadFile.vm"
 	)
     protected static final String PROP_TEMPLATE = GenericTemplate.PROP_TEMPLATE;
 
@@ -145,24 +144,19 @@ public class UploadFile extends GenericTemplate {
 	    wrapStream = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	    maxFileSize = Integer.parseInt(ccp.getProperty(PROP_MAX_SIZE));
 	    maxFileSize *= 1024 * 1024;
-
-	    context.put("title", "File Uploader");
-	    context.put("FPath", "/public/resources/infusion/infusion-1.2");
-
-	    String sFluidDir = ccp.getPublicResourcesDirectory() + File.separator + "infusion";
-	    File fluidJar = new File(ccp.getPublicResourcesDirectory() + File.separator +
-	            "contexts" + File.separator + "java" + File.separator + "infusion-1.2.jar");
-	    if (!fluidJar.exists())
-	        throw new ComponentContextException("Could not find dependency: " + fluidJar.toString());
-
-	    console.fine("Installing Fluid components from: " + fluidJar.toString());
-
-        InstallStatus status = JARInstaller.installFromStream(new FileInputStream(fluidJar), sFluidDir, false);
+	    
+        String sFluidDir = ccp.getPublicResourcesDirectory() + File.separator + "infusion";	    
+	    InstallStatus status = ComponentUtils.installJARContainingResource(getClass(), 
+	            "infusion-1.2/components/uploader/js/Uploader.js", sFluidDir, false);
+	    
         if (status == InstallStatus.SKIPPED)
             console.fine("Installation skipped - Fluid components already installed");
 
         if (status == InstallStatus.FAILED)
             throw new ComponentContextException("Failed to install Fluid components at " + new File(sFluidDir).getAbsolutePath());
+
+	    context.put("title", "File Uploader");
+	    context.put("FPath", "/public/resources/infusion/infusion-1.2");
     }
 
     @Override
