@@ -44,9 +44,12 @@ package org.seasr.meandre.components.vis.gwt.inputdata.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.DOM;
+import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.Encoding;
 import com.smartgwt.client.types.Side;
+import com.smartgwt.client.types.VerticalAlignment;
 import com.smartgwt.client.widgets.IButton;
+import com.smartgwt.client.widgets.Label;
 import com.smartgwt.client.widgets.events.ClickEvent;
 import com.smartgwt.client.widgets.events.ClickHandler;
 import com.smartgwt.client.widgets.form.DynamicForm;
@@ -85,14 +88,16 @@ public class InputData implements EntryPoint {
         final VLayout vLayout = new VLayout();
         vLayout.setWidth100();
         vLayout.setHeight100();
+        vLayout.setMargin(20);
+        vLayout.setMembersMargin(10);
 
         final DynamicForm formUrls = new DynamicForm();
-        formUrls.setWidth100();
-        formUrls.setHeight100();
+        formUrls.setCellSpacing(5);
         formUrls.setAction(contextPath + "?action=urls");
         final FormItem[] fiUrls = new FormItem[getMaxUrlCount() + 1];
         for (int i = 0, iMax = getMaxUrlCount(); i < iMax; i++) {
             TextItem tiUrl = new TextItem();
+            tiUrl.setWidth(350);
             tiUrl.setName("url_" + (i+1));
             tiUrl.setTitle("URL");
             fiUrls[i] = tiUrl;
@@ -115,7 +120,6 @@ public class InputData implements EntryPoint {
 
         final DynamicForm formText = new DynamicForm();
         formText.setNumCols(2);
-        formText.setWidth100();
         formText.setHeight100();
         formText.setAction(contextPath + "?action=text");
         TextAreaItem taText = new TextAreaItem();
@@ -129,13 +133,13 @@ public class InputData implements EntryPoint {
         formText.setFields(taText);
 
         final DynamicForm formFiles = new DynamicForm();
-        formFiles.setWidth100();
         formFiles.setHeight100();
         formFiles.setEncoding(Encoding.MULTIPART);
         formFiles.setAction(contextPath + "?action=upload");
         final FormItem[] fiFiles = new FormItem[getMaxFileCount() + 1];
         for (int i = 0, iMax = getMaxFileCount(); i < iMax; i++) {
             UploadItem uiFile = new UploadItem();
+            uiFile.setWidth(350);
             uiFile.setName("file_" + (i+1));
             uiFile.setTitle("File");
             fiFiles[i] = uiFile;
@@ -143,7 +147,7 @@ public class InputData implements EntryPoint {
                 uiFile.setVisible(false);
         }
         final ButtonItem biAddFile = new ButtonItem();
-        biAddFile.setTitle("Add file");
+        biAddFile.setTitle("Add File");
         biAddFile.addClickHandler(new com.smartgwt.client.widgets.form.fields.events.ClickHandler() {
             public void onClick(com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
                 for (FormItem fi : fiFiles)
@@ -156,27 +160,80 @@ public class InputData implements EntryPoint {
         fiFiles[fiFiles.length-1] = biAddFile;
         formFiles.setItems(fiFiles);
 
-        IButton btnAddUrl = new IButton("Submit");
-        btnAddUrl.addClickHandler(new ClickHandler() {
+        IButton btnSubmit = new IButton("Submit");
+        btnSubmit.setLayoutAlign(Alignment.CENTER);
+        btnSubmit.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 DynamicForm selectedForm = (DynamicForm)selectedTabs[0].getPane();
                 selectedForm.submitForm();
             }
         });
+        
+        Label lblUrls = new Label();  
+        lblUrls.setHeight(20);  
+        lblUrls.setPadding(5);  
+        lblUrls.setValign(VerticalAlignment.CENTER);  
+        lblUrls.setWrap(false);  
+        lblUrls.setIcon("[SKIN]/Dialog/say.png"); 
+        lblUrls.setShowEdges(true);  
+        lblUrls.setContents("<b>Instructions</b>" +
+        		"<p>Type a URL into the textbox below, then press <i>Submit</i> to proceed." +
+        		" (press <i>Add URL</i> if you want to add more URLs)" +
+        		"<br><u>Note:</u> You can only insert up to " + getMaxUrlCount() + " URLs (as set in the component properties).</p>");
+        
+        Label lblText = new Label();  
+        lblText.setHeight(20);  
+        lblText.setPadding(5);  
+        lblText.setValign(VerticalAlignment.CENTER);  
+        lblText.setWrap(false);  
+        lblText.setIcon("[SKIN]/Dialog/say.png"); 
+        lblText.setShowEdges(true);  
+        lblText.setContents("<b>Instructions</b>" +
+                "<p>Type or paste some text into the textbox, then press <i>Submit</i> to proceed." +
+                "<br><u>Note:</u> You can only enter up to " + getMaxTextLength() + " characters (as set in the component properties).</p>");
 
+        Label lblFiles = new Label();  
+        lblFiles.setHeight(20);  
+        lblFiles.setPadding(5);  
+        lblFiles.setValign(VerticalAlignment.CENTER);  
+        lblFiles.setWrap(false);  
+        lblFiles.setIcon("[SKIN]/Dialog/say.png"); 
+        lblFiles.setShowEdges(true);  
+        lblFiles.setContents("<b>Instructions</b>" +
+                "<p>Click <i>Add File</i> as many times as the number of files you want to submit, then for " +
+                "each entry select the desired file. Finally press <i>Submit</i> to proceed." +
+                "<br><u>Note:</u> You can only select up to " + getMaxFileCount() + " files (as set in the component properties).</p>");
+        
+        VLayout vLayoutUrl = new VLayout();
+        vLayoutUrl.setMembersMargin(10);
+        vLayoutUrl.addMember(lblUrls);
+        vLayoutUrl.addMember(formUrls);
+        
+        VLayout vLayoutText = new VLayout();
+        vLayoutText.setHeight100();
+        vLayoutText.setMembersMargin(10);
+        vLayoutText.addMember(lblText);
+        vLayoutText.addMember(formText);
+        
+        VLayout vLayoutFiles = new VLayout();
+        vLayoutFiles.setHeight100();
+        vLayoutFiles.setMembersMargin(10);
+        vLayoutFiles.addMember(lblFiles);
+        vLayoutFiles.addMember(formFiles);
+        
         Tab tabUrls = new Tab("URLs");
-        tabUrls.setPane(formUrls);
+        tabUrls.setPane(vLayoutUrl);
 
         Tab tabText = new Tab("Text");
-        tabText.setPane(formText);
+        tabText.setPane(vLayoutText);
 
         Tab tabFiles = new Tab("Files");
-        tabFiles.setPane(formFiles);
+        tabFiles.setPane(vLayoutFiles);
 
         tabSet.setTabs(tabUrls, tabText, tabFiles);
 
         vLayout.addMember(tabSet);
-        vLayout.addMember(btnAddUrl);
+        vLayout.addMember(btnSubmit);
 
         vLayout.draw();
     }
