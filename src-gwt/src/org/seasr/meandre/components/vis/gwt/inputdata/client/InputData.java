@@ -173,7 +173,7 @@ public class InputData implements EntryPoint {
         lblUrls.setHeight(20);  
         lblUrls.setPadding(5);  
         lblUrls.setValign(VerticalAlignment.CENTER);  
-        lblUrls.setWrap(false);  
+        lblUrls.setWrap(true);  
         lblUrls.setIcon("[SKIN]/Dialog/say.png"); 
         lblUrls.setShowEdges(true);  
         lblUrls.setContents("<b>Instructions</b>" +
@@ -185,7 +185,7 @@ public class InputData implements EntryPoint {
         lblText.setHeight(20);  
         lblText.setPadding(5);  
         lblText.setValign(VerticalAlignment.CENTER);  
-        lblText.setWrap(false);  
+        lblText.setWrap(true);  
         lblText.setIcon("[SKIN]/Dialog/say.png"); 
         lblText.setShowEdges(true);  
         lblText.setContents("<b>Instructions</b>" +
@@ -196,7 +196,7 @@ public class InputData implements EntryPoint {
         lblFiles.setHeight(20);  
         lblFiles.setPadding(5);  
         lblFiles.setValign(VerticalAlignment.CENTER);  
-        lblFiles.setWrap(false);  
+        lblFiles.setWrap(true);  
         lblFiles.setIcon("[SKIN]/Dialog/say.png"); 
         lblFiles.setShowEdges(true);  
         lblFiles.setContents("<b>Instructions</b>" +
