@@ -164,13 +164,12 @@ public class InputData implements EntryPoint {
         btnSubmit.setLayoutAlign(Alignment.CENTER);
         btnSubmit.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                DynamicForm selectedForm = (DynamicForm)selectedTabs[0].getPane();
+                DynamicForm selectedForm = (DynamicForm)((VLayout)selectedTabs[0].getPane()).getMember(1);
                 selectedForm.submitForm();
             }
         });
         
         Label lblUrls = new Label();  
-        lblUrls.setHeight(20);  
         lblUrls.setPadding(5);  
         lblUrls.setValign(VerticalAlignment.CENTER);  
         lblUrls.setWrap(true);  
@@ -182,7 +181,6 @@ public class InputData implements EntryPoint {
         		"<br><u>Note:</u> You can only insert up to " + getMaxUrlCount() + " URLs (as set in the component properties).</p>");
         
         Label lblText = new Label();  
-        lblText.setHeight(20);  
         lblText.setPadding(5);  
         lblText.setValign(VerticalAlignment.CENTER);  
         lblText.setWrap(true);  
@@ -190,10 +188,12 @@ public class InputData implements EntryPoint {
         lblText.setShowEdges(true);  
         lblText.setContents("<b>Instructions</b>" +
                 "<p>Type or paste some text into the textbox, then press <i>Submit</i> to proceed." +
-                "<br><u>Note:</u> You can only enter up to " + getMaxTextLength() + " characters (as set in the component properties).</p>");
+                ((getMaxTextLength() > 0) ?
+                        "<br><u>Note:</u> You can only enter up to " + getMaxTextLength() + " characters (as set in the component properties)." : 
+                        "") + 
+                "</p>");
 
         Label lblFiles = new Label();  
-        lblFiles.setHeight(20);  
         lblFiles.setPadding(5);  
         lblFiles.setValign(VerticalAlignment.CENTER);  
         lblFiles.setWrap(true);  
