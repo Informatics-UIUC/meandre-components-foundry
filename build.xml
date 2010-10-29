@@ -38,7 +38,10 @@
     <!-- Check whether Ant 1.7 is being used. 1.7 is needed for junit4
     support (junit4 allows annotations to declare test cases). -->
     <condition property="using.ant.1.7">
-        <contains string="${ant.version}" substring="1.7"/>
+        <or>
+			<contains string="${ant.version}" substring="1.7"/>
+			<contains string="${ant.version}" substring="1.8"/>
+		</or>
     </condition>
 
     <!-- Make sure we're running under the correct environment -->
