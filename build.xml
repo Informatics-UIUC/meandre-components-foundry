@@ -45,7 +45,7 @@
     </condition>
 
     <!-- Make sure we're running under the correct environment -->
-    <fail message="This package requires Ant 1.7." unless="using.ant.1.7"/>
+    <fail message="This package requires at least Ant 1.7." unless="using.ant.1.7"/>
     <fail message="This package requires at least Java 5. Please set JAVA_HOME to point to where JDK 1.5 or higher is installed."
           unless="using.java.1.5"/>
 
@@ -141,12 +141,8 @@
         <path refid="classpath.runtime"/>
     </path>
 
-    <!-- Runtime class path for component installer (alpha)-->
+    <!-- Classpath for Meandre utilities -->
     <path id="classpath.devkit">
-    	<path refid="classpath.foundry"/>
-        <path refid="classpath.build"/>
-        <pathelement location="${classes.dir}"/>
-        <pathelement path="${java.class.path}"/>
         <fileset dir="${lib.devkit.dir}" includes="*.jar"/>
     </path>
 
@@ -209,10 +205,10 @@
         depends="init"
         description="-> compiles all components">
         <!-- compile -->
-        <javac source="1.5"
-               debug="on"
-               debuglevel="lines,vars,source"
-               destdir="${classes.dir}">
+        <javac source="1.5" target="1.5"
+               debug="on" debuglevel="lines,vars,source"
+               destdir="${classes.dir}"
+        	   includeantruntime="false">
             <src refid="src.code.dirs"/>
             <classpath refid="classpath.build"/>
             <!-- <compilerarg value="-Xlint:deprecation"/> -->
@@ -241,7 +237,7 @@
         <javac srcdir="${gwt.src.dir}" includes="**" encoding="utf-8"
             destdir="${gwt.base.dir}/war/WEB-INF/classes"
             source="1.5" target="1.5" nowarn="true"
-            debug="true" debuglevel="lines,vars,source">
+            debug="true" debuglevel="lines,vars,source" includeantruntime="false">
           <classpath refid="gwt.class.path"/>
         </javac>
         <copy todir="${gwt.base.dir}/war/WEB-INF/classes">
@@ -291,9 +287,10 @@
             depends="dist"
             description="-> compiles the unit tests">
         <!-- compile -->
-        <javac debug="on"
-               debuglevel="lines,vars,source"
-               destdir="${test.classes.dir}">
+        <javac source="1.5" target="1.5"
+        	   debug="on" debuglevel="lines,vars,source"
+               destdir="${test.classes.dir}"
+        	   includeantruntime="false">
             <src refid="src.test.root.dirs"/>
             <classpath refid="classpath.runtime"/>
         </javac>
@@ -360,7 +357,7 @@
     <target name="upload-components"
         depends="compile"
         description="-> uploads and installs components to a Meandre Infrastructure server running on the local machine">
-        <java classname="org.meandre.tools.components.InstallComponentsCMD"
+        <java classname="org.meandre.tools.components.installer.InstallComponentsCMD"
               fork="yes"
               maxmemory="1024m">
             <classpath refid="classpath.devkit"/>
