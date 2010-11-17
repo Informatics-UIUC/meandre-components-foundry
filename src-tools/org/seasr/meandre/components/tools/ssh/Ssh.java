@@ -42,13 +42,12 @@
 
 package org.seasr.meandre.components.tools.ssh;
 
-import java.io.File;
 import java.io.InputStream;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -58,21 +57,20 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import com.sshtools.j2ssh.SshClient;
 import com.sshtools.j2ssh.authentication.AuthenticationProtocolState;
 import com.sshtools.j2ssh.authentication.PasswordAuthenticationClient;
-import com.sshtools.j2ssh.authentication.PublicKeyAuthenticationClient;
 import com.sshtools.j2ssh.session.SessionChannelClient;
 import com.sshtools.j2ssh.transport.IgnoreHostKeyVerification;
 
 @Component(
         creator = "Lily Dong",
         description = "Executes a command based on SSH and returns result.",
-        name = "SSH Wrapper",
-        tags = "SSH, command",
+        name = "SSH",
+        tags = "ssh, command",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 
-public class SshWrapper extends AbstractExecutableComponent {
+public class Ssh extends AbstractExecutableComponent {
 	//------------------------------ OUTPUTS -----------------------------------------------------
 	@ComponentOutput(
 			description = "The return value of command." +

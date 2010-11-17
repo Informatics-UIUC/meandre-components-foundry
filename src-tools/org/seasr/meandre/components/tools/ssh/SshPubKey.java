@@ -47,15 +47,15 @@ import java.io.FileReader;
 import java.io.InputStream;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
-import com.sshtools.j2ssh.ScpClient;
 import com.sshtools.j2ssh.SshClient;
 import com.sshtools.j2ssh.authentication.AuthenticationProtocolState;
 import com.sshtools.j2ssh.authentication.PublicKeyAuthenticationClient;
@@ -66,17 +66,23 @@ import com.sshtools.j2ssh.transport.publickey.SshPrivateKeyFile;
 
 @Component(
         creator = "Lily Dong",
-        description = "Executes SCP get or put command. " +
-        "Get or put command needs local file name and remote file name as input parameters, " +
-        "If any parameter is null, the relevand command is unexecutable.",
-        name = "SCP Wrapper",
-        tags = "SCP, get, put",
+        description = "Executes a command based on SSH and returns result.",
+        name = "SSH Public Key",
+        tags = "ssh, command",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 
-public class ScpWrapper extends AbstractExecutableComponent {
+public class SshPubKey extends AbstractExecutableComponent {
+	//------------------------------ OUTPUTS -----------------------------------------------------
+	@ComponentOutput(
+			description = "The return value of command." +
+			"<br><br>TYPE: org.seasr.datatypes.BasicDataTypes.String",
+	        name = Names.PORT_TEXT
+	)
+	protected static final String OUT_TEXT = Names.PORT_TEXT;
+
 	//------------------------------ PROPERTIES --------------------------------------------------
 	@ComponentProperty(
 			description = "Hostname.",
@@ -111,35 +117,15 @@ public class ScpWrapper extends AbstractExecutableComponent {
 	        name = Names.PROP_FILENAME,
 	        defaultValue = ""
 	)
-	protected static final String PROP_FILENAME = Names.PROP_FILENAME;
+	protected static final String PROP_FILE_NAME = Names.PROP_FILENAME;
 
 	@ComponentProperty(
-	        description = "Lcal file for get command.",
-	        name = Names.PROP_LOCAL_FILENAME_GET,
-	        defaultValue = ""
+	        description = "Command to execute.",
+	        name = Names.PROP_COMMAND,
+	        defaultValue = "ls"
 	)
-	protected static final String PROP_LOCAL_FILENAME_GET = Names.PROP_LOCAL_FILENAME_GET;
+	protected static final String PROP_COMMAND = Names.PROP_COMMAND;
 
-	@ComponentProperty(
-	        description = "Remote file for get command.",
-	        name = Names.PROP_REMOTE_FILENAME_GET,
-	        defaultValue = ""
-	)
-	protected static final String PROP_REMOTE_FILENAME_GET = Names.PROP_REMOTE_FILENAME_GET;
-
-	@ComponentProperty(
-	        description = "Lcal file for put command.",
-	        name = Names.PROP_LOCAL_FILENAME_PUT,
-	        defaultValue = ""
-	)
-	protected static final String PROP_LOCAL_FILENAME_PUT = Names.PROP_LOCAL_FILENAME_PUT;
-
-	@ComponentProperty(
-	        description = "Remote file for PUT command.",
-	        name = Names.PROP_REMOTE_FILENAME_PUT,
-	        defaultValue = ""
-	)
-	protected static final String PROP_REMOTE_FILENAME_PUT = Names.PROP_REMOTE_FILENAME_PUT;
 	//--------------------------------------------------------------------------------------------
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -153,14 +139,8 @@ public class ScpWrapper extends AbstractExecutableComponent {
 		String portnumber = cc.getProperty(PROP_PORT_NUMBER);
 		String username   = cc.getProperty(PROP_USERNAME);
 		String passphrase = cc.getProperty(PROP_PASSPHRASE);
-		String filename   = cc.getProperty(PROP_FILENAME);
-
-		String localFileForGet = cc.getProperty(PROP_LOCAL_FILENAME_GET);
-		String remoteFileForGet = cc.getProperty(PROP_REMOTE_FILENAME_GET);
-
-		String localFileForPut = cc.getProperty(PROP_LOCAL_FILENAME_PUT);
-		String remoteFileForPut = cc.getProperty(PROP_REMOTE_FILENAME_PUT);
-
+		String filename   = cc.getProperty(PROP_FILE_NAME);
+		String command    = cc.getProperty(PROP_COMMAND);
 
 		//construct connection
 		console.info("construct connection");
@@ -189,25 +169,25 @@ public class ScpWrapper extends AbstractExecutableComponent {
         int result = ssh.authenticate(pk);
         if(result == AuthenticationProtocolState.COMPLETE) { // Authentication complete
 			console.info("The authentication is complete");
-			ScpClient scpClient = ssh.openScpClient();
 
-			//local, remote(local is copied into remote)
-			if((localFileForPut!=null&&localFileForPut.length()!=0) &&
-			   (remoteFileForPut!=null&&remoteFileForPut.length()!=0))
-				scpClient.put(localFileForPut, remoteFileForPut, false);
-				/*scpClient.put(
-					"E:/Limin/code/j2ssh/file1.txt",
-					"/home/demo/.ssh/file1.txt",
-					false);*/
-
-			//local, remote(remote is copied into local)
-			if((localFileForGet!=null&&localFileForGet.length()!=0) &&
-			   (remoteFileForGet!=null&&remoteFileForGet.length()!=0))
-				scpClient.get(localFileForGet, remoteFileForGet, false);
-				/*scpClient.get(
-					"E:/Limin/code/j2ssh/authorized_keys",
-					"/home/demo/.ssh/authorized_keys",
-					false);*/
+			if(command!=null && command.length()!=0) {
+				SessionChannelClient session = ssh.openSessionChannel();
+				session.executeCommand(command+"\n");
+				InputStream in = session.getInputStream();
+				byte buffer[] = new byte[255];
+				int read;
+				buf.delete(0, buf.length());
+				while((read = in.read(buffer)) > 0) {
+					String out = new String(buffer, 0, read);
+					buf.append(out).append("\n");
+					//console.info(out);
+				}
+				session.close();
+				console.info(buf.toString());
+				cc.pushDataComponentToOutput(
+						OUT_TEXT, 
+						BasicDataTypesTools.stringToStrings(buf.toString()));
+			}
         }
 	}
 
