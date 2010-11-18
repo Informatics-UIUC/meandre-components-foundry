@@ -19,9 +19,11 @@
                 <td align="right">$password_prompt</td>
                 <td><input type="password" name="password" value="$default_password"/></td>
             </tr>
+            
+            <tr>
+                <td colspan="2" align="center"><input type="submit" value="Submit" /></td>
+            </tr>
         </table>
-
-        <input type="submit" value="Submit" />
     </form>
 </body>
 </html>
