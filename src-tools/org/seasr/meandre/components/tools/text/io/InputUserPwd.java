@@ -96,21 +96,65 @@ public class InputUserPwd extends GenericTemplate {
 	        defaultValue = "org/seasr/meandre/components/tools/text/io/InputUserPwd.vm"
 	)
     protected static final String PROP_TEMPLATE = GenericTemplate.PROP_TEMPLATE;
+	
+	@ComponentProperty(
+            description = "Username prompt",
+            name = "username_prompt",
+            defaultValue = "Username"
+    )
+    protected static final String PROP_USERNAME_PROMPT = "username_prompt";
+	
+	@ComponentProperty(
+            description = "Default username",
+            name = "default_username",
+            defaultValue = ""
+    )
+    protected static final String PROP_DEFAULT_USERNAME = "default_username";
+	
+	@ComponentProperty(
+            description = "Password prompt",
+            name = "password_prompt",
+            defaultValue = "Password"
+    )
+    protected static final String PROP_PASSWORD_PROMPT = "password_prompt";
+	
+	@ComponentProperty(
+            description = "Default password",
+            name = "default_password",
+            defaultValue = ""
+    )
+    protected static final String PROP_DEFAULT_PASSWORD = "default_password";
+	
+	@ComponentProperty(
+            description = "Ask for username?",
+            name = "ask_username",
+            defaultValue = "true"
+    )
+    protected static final String PROP_ASK_USERNAME = "ask_username";
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
+	    
+	    context.put("username_prompt", getPropertyOrDieTrying(PROP_USERNAME_PROMPT, ccp));
+	    context.put("default_username", getPropertyOrDieTrying(PROP_DEFAULT_USERNAME, false, false, ccp));
+	    context.put("password_prompt", getPropertyOrDieTrying(PROP_PASSWORD_PROMPT, ccp));
+	    context.put("default_password", getPropertyOrDieTrying(PROP_DEFAULT_PASSWORD, false, false, ccp));
+	    context.put("ask_username", Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ASK_USERNAME, ccp)));
 	}
 
 	@Override
 	protected boolean processRequest(HttpServletRequest request) throws IOException {
 	    try {
-            componentContext.pushDataComponentToOutput(OUT_USERNAME,
-                    BasicDataTypesTools.stringToStrings(request.getParameter("username")));
-            componentContext.pushDataComponentToOutput(OUT_PASSWORD,
-                    BasicDataTypesTools.stringToStrings(request.getParameter("password")));
+            String username = request.getParameter("username");
+            if (username != null)
+                componentContext.pushDataComponentToOutput(OUT_USERNAME, BasicDataTypesTools.stringToStrings(username));
+            
+            String password = request.getParameter("password");
+            if (password != null)
+                componentContext.pushDataComponentToOutput(OUT_PASSWORD, BasicDataTypesTools.stringToStrings(password));
         }
         catch (ComponentContextException e) {
             throw new IOException(e.toString());

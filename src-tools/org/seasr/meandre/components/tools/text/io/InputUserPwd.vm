@@ -8,14 +8,16 @@
 <body>
     <form method="POST" action="/${sInstanceId}?done=true">
         <table border="0">
+        #if ($ask_username)
             <tr>
-                <td align="right">Username:</td>
-                <td><input type="text" name="username"/></td>
+                <td align="right">$username_prompt</td>
+                <td><input type="text" name="username" value="$default_username"/></td>
             </tr>
+        #end
             
             <tr>
-                <td align="right">Password:</td>
-                <td><input type="password" name="password"/></td>
+                <td align="right">$password_prompt</td>
+                <td><input type="password" name="password" value="$default_password"/></td>
             </tr>
         </table>
 
