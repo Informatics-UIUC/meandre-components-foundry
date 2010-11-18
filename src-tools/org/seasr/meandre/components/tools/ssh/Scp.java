@@ -63,14 +63,16 @@ import com.sshtools.j2ssh.transport.IgnoreHostKeyVerification;
 
 @Component(
         creator = "Boris Capitanu",
-        description = "Securely copies a file or directory from a local to a remote server or from a remote server to local",
+        description = "Securely copies a file or directory from a local to a remote server " +
+        		"or from a remote server to local. One of the source or destination inputs needs to " +
+        		"specify the remote resource to be copied in the following format:  [host]:[path]\n" +
+        		"Example: source=my.server.com:/tmp/file.txt   destination=/tmp\n",
         name = "SCP",
         tags = "scp, file",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-
 public class Scp extends AbstractExecutableComponent {
     
     //------------------------------ INPUTS ------------------------------------------------------
