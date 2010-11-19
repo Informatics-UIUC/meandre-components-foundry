@@ -48,17 +48,17 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.FiringPolicy;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 //
@@ -105,11 +105,7 @@ public class TextReplacement extends AbstractExecutableComponent{
                 "Note this replacement does NOT use regular expressions and is token based.  Hence it will attemp to do " +
                 "matching based on whole tokens (not prefixes, suffix, parts)" +
                 "see Text Cleaner for a component that uses regular expressions." +
-            "<br>TYPE: java.lang.String" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-                "<br>TYPE: byte[]" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-                "<br>TYPE: java.lang.Object",
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
             name = "mapData"
     )
     protected static final String IN_MAP_DATA = "mapData";
