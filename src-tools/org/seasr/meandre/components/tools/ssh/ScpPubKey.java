@@ -64,7 +64,10 @@ import com.sshtools.j2ssh.transport.publickey.SshPrivateKeyFile;
 
 @Component(
         creator = "Boris Capitanu",
-        description = "Securely copies a file or directory from a local to a remote server or from a remote server to local",
+        description = "Securely copies a file or directory from a local to a remote server " +
+                      "or from a remote server to local. One of the source or destination inputs needs to " +
+                      "specify the remote resource to be copied in the following format:  [host]:[path]<br>" +
+                      "Example: source=my.server.com:/tmp/file.txt   destination=/tmp",        
         name = "SCP Public Key",
         tags = "scp, file",
         rights = Licenses.UofINCSA,
@@ -75,43 +78,70 @@ import com.sshtools.j2ssh.transport.publickey.SshPrivateKeyFile;
 public class ScpPubKey extends AbstractExecutableComponent {
     
     //------------------------------ INPUTS ------------------------------------------------------
-
+    
     @ComponentInput(
-            description = "The user name to authenticate to the remote server",
-            name = "username"
+            name = "username",
+            description = "The user name to authenticate to the remote server" +
+                          "<br>TYPE: java.lang.String" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                          "<br>TYPE: byte[]" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                          "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_USERNAME = "username";
     
     @ComponentInput(
-            description = "The private key for the user",
-            name = "private_key"
+            name = "private_key",
+            description = "The private key for the user" +
+                          "<br>TYPE: byte[]" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes"
     )
     protected static final String IN_PRIVKEY = "private_key";
 
     @ComponentInput(
-            description = "The passphrase for the private key",
-            name = "passphrase"
+            name = "passphrase",
+            description = "The passphrase for the private key" +
+                          "<br>TYPE: java.lang.String" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                          "<br>TYPE: byte[]" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                          "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_PASSPHRASE = "passphrase";
     
     @ComponentInput(
-            description = "The source file or directory",
-            name = "source"
+            name = "source",
+            description = "The source file or directory" +
+                          "<br>TYPE: java.lang.String" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                          "<br>TYPE: byte[]" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                          "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_SOURCE = "source";
 
     @ComponentInput(
-            description = "The destination file or directory",
-            name = "destination"
+            name = "destination",
+            description = "The destination file or directory" +
+                          "<br>TYPE: java.lang.String" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                          "<br>TYPE: byte[]" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                          "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_DESTINATION = "destination";
     
     @ComponentInput(
-            description = "Recursive?",
-            name = "recursive"
+            name = "recursive",
+            description = "Recursive?" +
+                          "<br>TYPE: java.lang.String" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                          "<br>TYPE: byte[]" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                          "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_RECURSIVE = "recursive";
-
+ 
 	//------------------------------ PROPERTIES --------------------------------------------------
 
 	@ComponentProperty(

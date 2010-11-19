@@ -64,9 +64,9 @@ import com.sshtools.j2ssh.transport.IgnoreHostKeyVerification;
 @Component(
         creator = "Boris Capitanu",
         description = "Securely copies a file or directory from a local to a remote server " +
-        		"or from a remote server to local. One of the source or destination inputs needs to " +
-        		"specify the remote resource to be copied in the following format:  [host]:[path]<br>" +
-        		"Example: source=my.server.com:/tmp/file.txt   destination=/tmp",
+            		  "or from a remote server to local. One of the source or destination inputs needs to " +
+            		  "specify the remote resource to be copied in the following format:  [host]:[path]<br>" +
+            		  "Example: source=my.server.com:/tmp/file.txt   destination=/tmp",
         name = "SCP",
         tags = "scp, file",
         rights = Licenses.UofINCSA,
