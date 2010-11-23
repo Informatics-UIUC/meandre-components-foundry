@@ -3,14 +3,19 @@ package org.monkproject.utils;
 /*	Please see the license information at the end of this file. */
 
 import java.io.Serializable;
-import java.util.*;
 
 /**
  * Associates a string with a score.
  */
-
+ 
+@SuppressWarnings("rawtypes")
 public class ScoredString implements Comparable, Serializable {
-	/** The string. */
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1067552764264355139L;
+
+    /** The string. */
 
 	protected String string;
 
@@ -89,7 +94,8 @@ public class ScoredString implements Comparable, Serializable {
 	 * @return String followed by score in parentheses.
 	 */
 
-	public String toString() {
+	@Override
+    public String toString() {
 		return string + " (" + score + ")";
 	}
 
@@ -102,7 +108,8 @@ public class ScoredString implements Comparable, Serializable {
 	 * @return true if other object is equal to this one.
 	 */
 
-	public boolean equals(Object other) {
+	@Override
+    public boolean equals(Object other) {
 		boolean result = false;
 
 		if (other instanceof ScoredString) {

@@ -2,7 +2,11 @@ package org.monkproject.utils;
 
 /*	Please see the license information at the end of this file. */
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
 
 /**
  * Sorted array list.
@@ -26,10 +30,14 @@ import java.util.*;
 
 public class SortedArrayList<E> extends ArrayList<E> {
 	/**
+     * 
+     */
+    private static final long serialVersionUID = -3258475350373747185L;
+    /**
 	 * Optional Comparator used for comparing objects in the list.
 	 */
 
-	protected Comparator comparator = null;
+	protected Comparator<E> comparator = null;
 
 	/**
 	 * Create empty sorted array list.
@@ -79,7 +87,7 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 * Create empty sorted array list with specified Comparator.
 	 */
 
-	public SortedArrayList(Comparator comparator) {
+	public SortedArrayList(Comparator<E> comparator) {
 		super();
 
 		this.comparator = comparator;
@@ -95,7 +103,7 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 */
 
 	public SortedArrayList(Collection<? extends E> collection,
-			Comparator comparator) {
+			Comparator<E> comparator) {
 		// Create empty list.
 		super();
 		// Set comparator.
@@ -115,7 +123,7 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 *            The comparator.
 	 */
 
-	public SortedArrayList(E[] array, Comparator comparator) {
+	public SortedArrayList(E[] array, Comparator<E> comparator) {
 		// Create empty list.
 		super();
 		// Set comparator.
@@ -132,7 +140,7 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 * comparator.
 	 */
 
-	public SortedArrayList(int initialCapacity, Comparator comparator) {
+	public SortedArrayList(int initialCapacity, Comparator<E> comparator) {
 		super(initialCapacity);
 
 		this.comparator = comparator;
@@ -145,7 +153,7 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 *            The comparator.
 	 */
 
-	public void setComparator(Comparator comparator) {
+	public void setComparator(Comparator<E> comparator) {
 		this.comparator = comparator;
 	}
 
@@ -158,7 +166,8 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 * @return True if object added.
 	 */
 
-	public boolean add(E object) {
+	@Override
+    public boolean add(E object) {
 		// Don't allow adding null objects.
 
 		if (object == null)
@@ -192,7 +201,8 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 * Add element at specified index. Not allowed.
 	 */
 
-	public void add(int index, E object) {
+	@Override
+    public void add(int index, E object) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -205,12 +215,13 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 * @return True if all objects added, false otherwise.
 	 */
 
-	public boolean addAll(Collection<? extends E> collection) {
+	@Override
+    public boolean addAll(Collection<? extends E> collection) {
 		boolean result = true;
 
 		if (collection != null) {
 			for (Iterator<? extends E> i = collection.iterator(); i.hasNext();) {
-				E e = (E) (i.next());
+				E e = (i.next());
 				if (!add(e))
 					result = false;
 			}
@@ -245,7 +256,8 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 * Add all elements of a collection at a specified index. Not allowed.
 	 */
 
-	public boolean addAll(int index, Collection<? extends E> collection) {
+	@Override
+    public boolean addAll(int index, Collection<? extends E> collection) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -258,7 +270,8 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 * @return true if the list contains specified object, false otherwise.
 	 */
 
-	public boolean contains(Object object) {
+	@Override
+    public boolean contains(Object object) {
 		return (indexOf(object) >= 0);
 	}
 
@@ -272,7 +285,8 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 *         matching object is found.
 	 */
 
-	public int indexOf(Object object) {
+	@Override
+    public int indexOf(Object object) {
 		int result = -1;
 		// Null object returns -1.
 
@@ -321,7 +335,8 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 *         matching object is found.
 	 */
 
-	public int lastIndexOf(Object object) {
+	@Override
+    public int lastIndexOf(Object object) {
 		int result = -1;
 		// Null object returns -1.
 
@@ -364,7 +379,8 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 * Set specified element of list. Not allowed.
 	 */
 
-	public E set(int index, E object) {
+	@Override
+    public E set(int index, E object) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -390,10 +406,10 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	@SuppressWarnings("unchecked")
 	protected int compare(Object object1, Object object2) {
 		if (comparator != null) {
-			return comparator.compare(object1, object2);
+			return comparator.compare((E)object1, (E)object2);
 		} else if ((object1 instanceof Comparable)
 				&& (object2 instanceof Comparable)) {
-			return ((Comparable) object1).compareTo((Comparable) object2);
+			return ((Comparable<Object>) object1).compareTo(object2);
 		} else {
 			String s1 = null;
 			String s2 = null;

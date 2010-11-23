@@ -15,11 +15,17 @@ package org.monkproject.utils;
  */
 public class ReverseScoredString extends ScoredString {
 
-	public ReverseScoredString(String string, double score) {
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -4627324130561708083L;
+
+    public ReverseScoredString(String string, double score) {
 		super(string, score);
 	}
 
-	public int compareTo(Object other) {
+	@Override
+    public int compareTo(Object other) {
 		return super.compareTo(other);
 	}
 }

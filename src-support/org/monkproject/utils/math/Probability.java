@@ -4,8 +4,6 @@ package org.monkproject.utils.math;
 
 import java.io.Serializable;
 
-import org.monkproject.utils.math.ArithUtils;
-
 /**
  * Probability: stores and operates on log probabilties.
  * 
@@ -220,7 +218,8 @@ public class Probability implements XCloneable, Comparable, Serializable {
 	 * @return Probability converted to string.
 	 */
 
-	public String toString() {
+	@Override
+    public String toString() {
 		return getProbability() + "";
 	}
 
@@ -230,7 +229,8 @@ public class Probability implements XCloneable, Comparable, Serializable {
 	 * @return Clone of this object.
 	 */
 
-	public Object clone() {
+	@Override
+    public Object clone() {
 		return new Probability(logProbability);
 	}
 
@@ -255,7 +255,8 @@ public class Probability implements XCloneable, Comparable, Serializable {
 	 * @return true if other object is equal to this one.
 	 */
 
-	public boolean equals(Object object) {
+	@Override
+    public boolean equals(Object object) {
 		return Double.compare(this.logProbability,
 				((Probability) object).logProbability) == 0;
 	}
@@ -270,7 +271,8 @@ public class Probability implements XCloneable, Comparable, Serializable {
 	 *         </p>
 	 */
 
-	public int hashCode() {
+	@Override
+    public int hashCode() {
 
 		long bits = Double.doubleToLongBits(logProbability);
 		return (int) (bits ^ (bits >>> 32));

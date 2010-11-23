@@ -2,9 +2,16 @@ package org.monkproject.utils;
 
 /*	Please see the license information at the end of this file. */
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.monkproject.utils.math.NumberOps;
 
@@ -37,7 +44,7 @@ public class CountMapUtils {
 
 		result[0] = 0.0D;
 		result[1] = 0.0D;
-		result[2] = (double) map.size();
+		result[2] = map.size();
 
 		Set<?> keyset = map.keySet();
 		Iterator<?> iterator = keyset.iterator();
@@ -322,7 +329,8 @@ public class CountMapUtils {
 
 			// Get source map count for this word.
 
-			Number sourceCount = sourceMap.get(key);
+			@SuppressWarnings("unused")
+            Number sourceCount = sourceMap.get(key);
 
 			// If the destination map does not contain
 			// this word, add it with a count of one.
@@ -422,7 +430,7 @@ public class CountMapUtils {
 	 * @return List of words appearing in both maps.
 	 */
 
-	public static <K> java.util.List getWordsInCommon(
+	public static <K> java.util.List<?> getWordsInCommon(
 			Map<K, ? extends Number> countMap1,
 			Map<K, ? extends Number> countMap2) {
 		// Holds sorted list of shared words.
@@ -714,7 +722,7 @@ public class CountMapUtils {
 			// associated count.
 
 			K key = iterator.next();
-			Number value = (Number) countMap.get(key);
+			Number value = countMap.get(key);
 
 			// Holds the duplicated String key.
 
