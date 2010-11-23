@@ -205,7 +205,7 @@
         depends="init"
         description="-> compiles all components">
         <!-- compile -->
-        <javac source="1.5" target="1.5"
+        <javac target="1.5"
                debug="on" debuglevel="lines,vars,source"
                destdir="${classes.dir}"
         	   includeantruntime="false">
@@ -287,7 +287,7 @@
             depends="dist"
             description="-> compiles the unit tests">
         <!-- compile -->
-        <javac source="1.5" target="1.5"
+        <javac target="1.5"
         	   debug="on" debuglevel="lines,vars,source"
                destdir="${test.classes.dir}"
         	   includeantruntime="false">
