@@ -49,11 +49,11 @@ import opennlp.tools.lang.english.SentenceDetector;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
@@ -84,7 +84,7 @@ import org.seasr.datatypes.core.Names;
 		tags = "nlp, text, opennlp, sentence detector",
 		description = "This component splits sentences of the text contained in the input  " +
 				      "using OpenNLP tokenizing facilities.",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar", "seasr-commons.jar"}
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar"}
 )
 public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
 
