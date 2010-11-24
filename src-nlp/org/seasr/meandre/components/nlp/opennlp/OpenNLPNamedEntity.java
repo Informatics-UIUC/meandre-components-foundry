@@ -74,12 +74,12 @@ import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
+import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.components.opennlp.StaticTextSpanFinder;
 import org.seasr.meandre.support.components.opennlp.StaticURLFinder;
 import org.seasr.meandre.support.components.opennlp.TextSpan;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 /**
  * This component perform Named Entity Extraction via OpenNLP.

@@ -60,7 +60,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
+import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.generic.io.ModelUtils;
 import org.seasr.meandre.support.generic.zotero.ZoteroUtils;
 

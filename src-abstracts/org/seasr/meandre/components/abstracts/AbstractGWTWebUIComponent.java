@@ -52,7 +52,7 @@ import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.ConfigurableWebUIFragmentCallback;
 import org.meandre.webui.WebUIException;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
+import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 

@@ -59,7 +59,7 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
+import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.generic.io.StreamUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;

@@ -62,7 +62,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.meandre.webui.WebUIException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
+import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 import com.oreilly.servlet.multipart.FilePart;

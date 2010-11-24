@@ -87,8 +87,11 @@
 
     <!-- Code locations -->
     <path id="src.code.dirs">
-        <dirset dir="${basedir}" includes="src-*" excludes="src-test, src-gwt"/>
+        <dirset dir="${basedir}" includes="src-*" excludes="src-test, src-gwt, src-abstracts, src-datatype"/>
     </path>
+
+	<property name="src.abstracts.dir" value="${basedir}/src-abstracts"/>
+	<property name="src.datatype.dir" value="${basedir}/src-datatype"/>
 
     <!-- Test locations -->
     <path id="src.test.root.dirs">
@@ -198,19 +201,65 @@
         <delete dir="log"/>
     </target>
 
+	<!--
+		Compiles and generates the foundry-abstracts, foundry-datatype-datamining, foundry-datatype-core libs
+	-->
+	<target name="update-foundry-libs" depends="init" description="-> compiles and regenerates the foundry-*.jar libs">
+		<mkdir dir="${build.dir}/classes-datatype"/>
+		<javac target="1.5"
+			   srcdir="${src.datatype.dir}"
+			   destdir="${build.dir}/classes-datatype"
+			   includeantruntime="false"
+			   classpathref="classpath.build"
+			   updatedProperty="datatype.updated"/>
+
+		<jar destfile="${lib.dir}/foundry/foundry-datatype-core.jar"
+			 basedir="${build.dir}/classes-datatype"
+			 includes="org/seasr/datatypes/core/**">
+			<fileset dir="${basedir}/src-datatype" includes="org/seasr/datatypes/core/**"/>
+		</jar>
+
+		<jar destfile="${lib.dir}/foundry/foundry-datatype-datamining.jar"
+			 basedir="${build.dir}/classes-datatype"
+			 includes="org/seasr/datatypes/datamining/**">
+			<fileset dir="${basedir}/src-datatype" includes="org/seasr/datatypes/datamining/**"/>
+		</jar>
+			
+		<mkdir dir="${build.dir}/classes-abstracts"/>
+		<javac target="1.5" 
+			   srcdir="${src.abstracts.dir}" 
+			   destdir="${build.dir}/classes-abstracts" 
+			   includeantruntime="false" 
+			   updatedProperty="abstracts.updated">
+			<classpath>
+				<path refid="classpath.build"/>
+				<path refid="classpath.foundry"/>
+			</classpath>
+		</javac>
+
+		<jar destfile="${lib.dir}/foundry/foundry-abstracts.jar"
+			 basedir="${build.dir}/classes-abstracts">
+			<fileset dir="${basedir}/src-abstracts"/>
+		</jar>
+	</target>
+
     <!--
         Compiles components code
     -->
     <target name="compile"
-        depends="init"
+        depends="init, update-foundry-libs"
         description="-> compiles all components">
+
         <!-- compile -->
         <javac target="1.5"
                debug="on" debuglevel="lines,vars,source"
                destdir="${classes.dir}"
         	   includeantruntime="false">
             <src refid="src.code.dirs"/>
-            <classpath refid="classpath.build"/>
+            <classpath>
+				<path refid="classpath.build"/>
+				<path refid="classpath.foundry"/>
+			</classpath>
             <!-- <compilerarg value="-Xlint:deprecation"/> -->
         </javac>
 
@@ -292,7 +341,10 @@
                destdir="${test.classes.dir}"
         	   includeantruntime="false">
             <src refid="src.test.root.dirs"/>
-            <classpath refid="classpath.runtime"/>
+            <classpath>
+				<path refid="classpath.runtime"/>
+				<path refid="classpath.foundry"/>
+			</classpath>
         </javac>
 
         <!-- include other files that should be available to runtime classpath-->

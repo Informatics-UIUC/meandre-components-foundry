@@ -58,8 +58,8 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
+import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.components.tools.text.io.GenericTemplate;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 
 /**

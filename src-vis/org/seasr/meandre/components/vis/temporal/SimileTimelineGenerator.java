@@ -65,7 +65,7 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
+import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.generic.encoding.Base64;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 import org.seasr.meandre.support.generic.io.DOMUtils;

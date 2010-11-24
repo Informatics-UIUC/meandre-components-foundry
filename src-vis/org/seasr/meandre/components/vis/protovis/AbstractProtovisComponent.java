@@ -47,8 +47,8 @@ import java.io.File;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 /**

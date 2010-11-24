@@ -40,7 +40,7 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.meandre.support.components.utils;
+package org.seasr.meandre.components.abstracts.util;
 
 import java.io.File;
 import java.io.FileOutputStream;

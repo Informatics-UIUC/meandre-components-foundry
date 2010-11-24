@@ -58,8 +58,8 @@ import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.components.text.normalize.porter.PorterStemmer;
-import org.seasr.meandre.support.components.utils.ComponentUtils;
 
 
 /**
