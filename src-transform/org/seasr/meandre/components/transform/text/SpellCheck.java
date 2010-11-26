@@ -148,7 +148,7 @@ public class SpellCheck extends AbstractExecutableComponent {
             description = "True to correct misspelled words, False otherwise",
             defaultValue = "true"
     )
-    protected static final String PROP_DO_CORRECTION = "labelled";
+    protected static final String PROP_DO_CORRECTION = "do_correction";
 
     //--------------------------------------------------------------------------------------------
     
