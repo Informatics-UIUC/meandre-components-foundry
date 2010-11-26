@@ -402,7 +402,7 @@ public class SpellCheck extends AbstractExecutableComponent {
                 sb.append(rule);
             }
             
-            return sb.substring(2);
+            return sb.length() > 2 ? sb.substring(2) : "";
         }
         
         public Map<String, Set<String>> getReplacements() {
