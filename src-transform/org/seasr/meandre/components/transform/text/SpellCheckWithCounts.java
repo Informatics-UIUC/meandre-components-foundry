@@ -54,6 +54,12 @@ import org.meandre.core.ComponentContext;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 
+/**
+ * 
+ * @author Boris Capitanu
+ *
+ */
+
 @Component(
         creator = "Boris Capitanu",
         description = "Performs spell checking on the input and optionally replaces misspelled words " +
@@ -65,7 +71,7 @@ import org.seasr.datatypes.core.Names;
         firingPolicy = FiringPolicy.any,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = {"protobuf-java-2.2.0.jar"}
+        dependency = {"protobuf-java-2.2.0.jar", "jazzy-core.jar"}
 )
 public class SpellCheckWithCounts extends SpellCheck {
     
@@ -135,8 +141,10 @@ public class SpellCheckWithCounts extends SpellCheck {
             }
             
             if (replacement == null) {
-                _logger.warning(String.format("None of the suggestions for the misspelled word '%s' " +
-                		"has been found in the supplied token counts. Using first suggestion.", invalidWord));
+                if (_logger != null)
+                    _logger.finer(String.format("None of the suggestions for the misspelled word '%s' " +
+                            "has been found in the supplied token counts. Using first suggestion.", invalidWord));
+                
                 replacement = super.getReplacement(invalidWord, suggestions);
             }
             

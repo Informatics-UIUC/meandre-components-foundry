@@ -78,6 +78,12 @@ import com.swabunga.spell.event.SpellCheckListener;
 import com.swabunga.spell.event.SpellChecker;
 import com.swabunga.spell.event.StringWordTokenizer;
 
+/**
+ * 
+ * @author Boris Capitanu
+ *
+ */
+
 @Component(
         creator = "Boris Capitanu",
         description = "Performs spell checking on the input and optionally replaces misspelled words " +
