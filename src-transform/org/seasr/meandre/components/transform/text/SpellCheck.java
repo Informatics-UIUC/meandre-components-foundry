@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
@@ -389,6 +390,13 @@ public class SpellCheck extends AbstractExecutableComponent {
             List<?> suggestions = event.getSuggestions();
             
             if (!suggestions.isEmpty()) {
+                if (_logger != null && (_logger.getLevel() == Level.FINEST || _logger.getLevel() == Level.ALL)) {
+                    StringBuilder sb = new StringBuilder();
+                    for (Object suggestion : suggestions)
+                        sb.append(", ").append(suggestion.toString());
+                    _logger.finest("Suggestions: " + sb.substring(2));
+                }
+                
                 String topRankedSuggestion = getReplacement(event.getInvalidWord(), suggestions);
                 if (_logger != null) _logger.finer("Top suggestion: " + topRankedSuggestion);
                 
