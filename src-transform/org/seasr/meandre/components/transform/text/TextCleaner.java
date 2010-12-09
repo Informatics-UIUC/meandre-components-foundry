@@ -73,7 +73,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TextCleaner extends AbstractExecutableComponent{
+public class TextCleaner extends AbstractExecutableComponent {
 
 	//------------------------------ INPUTS ------------------------------------------------------
 
