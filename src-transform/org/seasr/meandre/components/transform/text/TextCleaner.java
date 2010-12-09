@@ -42,14 +42,17 @@
 
 package org.seasr.meandre.components.transform.text;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -57,9 +60,13 @@ import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
+/**
+ * @author Boris Capitanu
+ */
+
 @Component(
-        creator = "Lily Dong",
-        description = "Removes characters or replaces characters with replacement.",
+        creator = "Boris Capitanu",
+        description = "Performs find and replace on text using regular expressions",
         name = "Text Cleaner",
         tags = "text, remove, replace",
         rights = Licenses.UofINCSA,
@@ -72,11 +79,11 @@ public class TextCleaner extends AbstractExecutableComponent{
 
     @ComponentInput(
             description = "The text to clean or replace" +
-                "<br>TYPE: java.lang.String" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-                "<br>TYPE: byte[]" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-                "<br>TYPE: java.lang.Object",
+                          "<br>TYPE: java.lang.String" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                          "<br>TYPE: byte[]" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                          "<br>TYPE: java.lang.Object",
             name = Names.PORT_TEXT
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
@@ -85,32 +92,31 @@ public class TextCleaner extends AbstractExecutableComponent{
 
     @ComponentOutput(
             description = "The cleaned or replaced text" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
             name = Names.PORT_TEXT
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
-    @ComponentProperty(
-	        description = "The regular expression to clean out the matched substring. " +
-	        "For example, if specifying the regular expression as [~|||^]+, " +
-	        "~, |, ^ are removed.",
-            name = Names.PROP_REMOVE,
-            defaultValue = ""
-	)
-	protected static final String PROP_REMOVE = Names.PROP_REMOVE;
 
 	@ComponentProperty(
 	        description = "The regular expression to find the matched substring. " +
-	        "For example, if specifying the regular expression as push and " +
-	        "the replacement as pushing, push is substituted with pushing",
+            	          "For example, if specifying the regular expression as 'push' and " +
+            	          "the replacement as 'pushing', then the sequence of " + 
+            	          "characters 'push' contained in any word is substituted with 'pushing'. " +
+            	          "Additionally, capturing groups can be used and referenced in the replacement string as " +
+            	          "$1 for the first capturing group, $2 for second, and so on.",
             name = Names.PROP_FIND,
             defaultValue = ""
 	)
 	protected static final String PROP_FIND = Names.PROP_FIND;
 
 	@ComponentProperty(
-	        description = "The replacement to substitute the matched substring found by find.",
+	        description = "The replacement to substitute the matched substring found by find. " +
+	                      "If the replacement string needs to contain the literals $ and \\ then " +
+	                      "they should be escaped because they have special meaning. For example, as part of the replacement " +
+	                      "string one can use '$1' to refer to the first capturing group defined in the regular expression " +
+	                      "for find, $2 for the second, and so on.  If the literal '$1' is desired, then it should be escaped as '\\$1'.",
             name = Names.PROP_REPLACE,
             defaultValue = ""
 	)
@@ -160,48 +166,60 @@ public class TextCleaner extends AbstractExecutableComponent{
 
 	//--------------------------------------------------------------------------------------------
 
-	private static final int NUM = 4; //the number of find-replace pairs
-	private static final String FIND = "find";
-	private static final String REPLACE = "replace";
+	private final Map<Pattern,String> replacements = new LinkedHashMap<Pattern,String>();
+
+	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    String find = getPropertyOrDieTrying(PROP_FIND, false, false, ccp);
+	    if (find.length() > 0)
+	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE, false, false, ccp));
+	    
+	    find = getPropertyOrDieTrying(PROP_FIND_2, false, false, ccp);
+	    if (find.length() > 0)
+	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_2, false, false, ccp));
+	    
+	    find = getPropertyOrDieTrying(PROP_FIND_3, false, false, ccp);
+	    if (find.length() > 0)
+	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_3, false, false, ccp));
+	    
+	    find = getPropertyOrDieTrying(PROP_FIND_4, false, false, ccp);
+	    if (find.length() > 0)
+	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_4, false, false, ccp));
+	
+	    if (replacements.size() == 0)
+	        console.warning("No find/replace regular expressions have been set. No action will be taken on the input text.");
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
+		String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+		String[] output = new String[input.length];
+		
+		for (int i = 0, iMax = input.length; i < iMax; i++) {
+		    String text = input[i];
+		    
+		    for (Entry<Pattern,String> entry : replacements.entrySet()) {
+		        Pattern regexp = entry.getKey();
+		        String replacement = entry.getValue();
+		        
+		        Matcher matcher = regexp.matcher(text);
+		        
+		        while (matcher.find())
+    		        for (int n = 1, nMax = matcher.groupCount(); n <= nMax; n++)
+    		            if (matcher.group(n) != null)
+    		                console.fine(String.format("Group %2$d ($%2$d) match: '%s'", matcher.group(n), n));
 
-		Pattern pattern;
-		Matcher matcher;
-
-		String regex = cc.getProperty(PROP_REMOVE).trim();
-		if(regex!=null && regex.trim().length()!=0) {
-			pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-			matcher = pattern.matcher(text);
-			text = matcher.replaceAll("");
+                matcher.reset();
+                
+		        text = matcher.replaceAll(replacement);
+		    }
+		    
+		    output[i] = text;
 		}
 
-		for(int i=1; i<=NUM; i++) {
-			String propertyName = FIND;
-			propertyName = (i==1)? propertyName: propertyName+Integer.toString(i);
-			regex = cc.getProperty(propertyName);
-			if(regex!=null) {
-				pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-				matcher = pattern.matcher(text);
-
-				propertyName = REPLACE;
-				propertyName = (i==1)? propertyName: propertyName+Integer.toString(i);
-				String replacement = cc.getProperty(propertyName);
-				if(replacement!=null)
-					text = matcher.replaceAll(replacement);
-			}
-		}
-
-		text = text.replaceAll("[\\s]+", " ");
-
-		cc.pushDataComponentToOutput(
-				OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(output));
 	}
 
 	@Override
