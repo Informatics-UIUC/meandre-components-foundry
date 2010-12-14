@@ -45,11 +45,12 @@ package org.seasr.meandre.components.tools.text.io;
 import java.net.URI;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
@@ -114,11 +115,35 @@ public class ReadText extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            description = "The connection timeout in milliseconds " +
+                    "(amount of time to wait for a connection to be established before giving up; 0 = wait forever)",
+            name = Names.PROP_CONNECTION_TIMEOUT,
+            defaultValue = "0"
+    )
+    protected static final String PROP_CONNECTION_TIMEOUT = Names.PROP_CONNECTION_TIMEOUT;
+
+    @ComponentProperty(
+            description = "The read timeout in milliseconds " +
+                    "(amount of time to wait for a read operation to complete before giving up; 0 = wait forever)",
+            name = Names.PROP_READ_TIMEOUT,
+            defaultValue = "0"
+    )
+    protected static final String PROP_READ_TIMEOUT = Names.PROP_READ_TIMEOUT;
 
 	//--------------------------------------------------------------------------------------------
 
+    protected int connectionTimeout;
+    protected int readTimeout;
+
+    //--------------------------------------------------------------------------------------------
+
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        connectionTimeout = Integer.parseInt(getPropertyOrDieTrying(PROP_CONNECTION_TIMEOUT, ccp));
+        readTimeout = Integer.parseInt(getPropertyOrDieTrying(PROP_READ_TIMEOUT, ccp));
     }
 
     @Override
@@ -127,7 +152,7 @@ public class ReadText extends AbstractExecutableComponent {
         console.fine("Reading from URL: " + input.toString());
 
         URI uri = DataTypeParser.parseAsURI(input);
-        String sRes =  IOUtils.getTextFromReader(IOUtils.getReaderForResource(uri));
+        String sRes =  IOUtils.getTextFromReader(IOUtils.getReaderForResource(uri, connectionTimeout, readTimeout));
 
         cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(uri.toString()));
         cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sRes));
