@@ -49,10 +49,10 @@ import java.net.URLConnection;
 import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
@@ -132,16 +132,16 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    private int connectionTimeout;
-    private int readTimeout;
+    protected int connectionTimeout;
+    protected int readTimeout;
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        connectionTimeout = Integer.parseInt(ccp.getProperty(PROP_CONNECTION_TIMEOUT));
-        readTimeout = Integer.parseInt(ccp.getProperty(PROP_READ_TIMEOUT));
+        connectionTimeout = Integer.parseInt(getPropertyOrDieTrying(PROP_CONNECTION_TIMEOUT, ccp));
+        readTimeout = Integer.parseInt(getPropertyOrDieTrying(PROP_READ_TIMEOUT, ccp));
     }
 
     @Override
