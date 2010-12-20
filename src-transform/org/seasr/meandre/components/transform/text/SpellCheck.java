@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.transform.text;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
@@ -80,7 +81,7 @@ import com.swabunga.spell.event.SpellChecker;
 import com.swabunga.spell.event.StringWordTokenizer;
 
 /**
- * 
+ *
  * @author Boris Capitanu
  *
  */
@@ -111,7 +112,7 @@ public class SpellCheck extends AbstractExecutableComponent {
                           "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
-    
+
     @ComponentInput(
             name = "dictionary",
             description = "The wordlist to be used as dictionary or the location of the wordlist file" +
@@ -124,30 +125,30 @@ public class SpellCheck extends AbstractExecutableComponent {
                           "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_DICTIONARY = "dictionary";
-    
+
     //------------------------------ OUTPUTS -----------------------------------------------------
-    
+
     @ComponentOutput(
             name = "replacement_rules",
             description = "The replacement rules for misspelled words in the following format: correctedWord = {badWord1, badWord2, ... }; ..." +
                           "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_RULES = "replacement_rules";
-    
+
     @ComponentOutput(
             name = "replacements",
             description = "The replacements suggested for misspelled words" +
                           "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
     )
     protected static final String OUT_REPLACEMENTS = "replacements";
-    
+
     @ComponentOutput(
             name = Names.PORT_TEXT,
             description = "The original text with corrections applied if the 'do_correction' property was set to 'true'" +
                           "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
-    
+
     //------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
@@ -158,13 +159,14 @@ public class SpellCheck extends AbstractExecutableComponent {
     protected static final String PROP_DO_CORRECTION = "do_correction";
 
     //--------------------------------------------------------------------------------------------
-    
+
     protected boolean _doCorrection;
     protected Queue<Object> _inputQueue;
     protected SpellChecker _spellChecker;
-    
+    protected SpellDictionary _spellDictionary;
+
     //--------------------------------------------------------------------------------------------
-    
+
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _doCorrection = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_DO_CORRECTION, ccp));
@@ -175,29 +177,13 @@ public class SpellCheck extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         if (cc.isInputAvailable(IN_DICTIONARY)) {
             Object in_dictionary = cc.getDataComponentFromInput(IN_DICTIONARY);
-            Reader dictReader;
-            
-            try {
-                // try parsing as url
-                URI dictUri = DataTypeParser.parseAsURI(in_dictionary);
-                dictReader = IOUtils.getReaderForResource(dictUri);
-            }
-            catch (Exception e) {
-                // parse as wordlist
-                String[] wordList = DataTypeParser.parseAsString(in_dictionary);
-                StringBuilder sb = new StringBuilder();
-                for (String word : wordList)
-                    sb.append(word).append("\n");
-                dictReader = new StringReader(sb.toString());
-            }
-            
-            SpellDictionary dictionary = new SpellDictionaryHashMap(dictReader);
-            _spellChecker = new SpellChecker(dictionary);
+            _spellDictionary = getDictionary(in_dictionary);
+            _spellChecker = new SpellChecker(_spellDictionary);
         }
-        
+
         if (cc.isInputAvailable(IN_TEXT))
             _inputQueue.offer(cc.getDataComponentFromInput(IN_TEXT));
-        
+
         if (isReadyToProcessInputs()) {
             for (int i = 0, iMax = _inputQueue.size(); i < iMax; i++) {
                 Object input = _inputQueue.poll();
@@ -228,7 +214,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         _inputQueue.clear();
         _spellChecker = null;
     }
-    
+
     //--------------------------------------------------------------------------------------------
 
     @Override
@@ -242,7 +228,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_RULES, componentContext.getDataComponentFromInput(IN_TEXT));
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, componentContext.getDataComponentFromInput(IN_TEXT));
     }
-    
+
     @Override
     protected void handleStreamTerminators() throws Exception {
         if (!inputPortsWithTerminators.contains(IN_TEXT)) {
@@ -254,11 +240,31 @@ public class SpellCheck extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_RULES, componentContext.getDataComponentFromInput(IN_TEXT));
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, componentContext.getDataComponentFromInput(IN_TEXT));
     }
-    
+
     //--------------------------------------------------------------------------------------------
 
     protected boolean isReadyToProcessInputs() {
         return _spellChecker != null && _inputQueue.size() > 0;
+    }
+
+    protected SpellDictionary getDictionary(Object in_dictionary) throws UnsupportedDataTypeException, IOException {
+        Reader dictReader;
+
+        try {
+            // try parsing as url
+            URI dictUri = DataTypeParser.parseAsURI(in_dictionary);
+            dictReader = IOUtils.getReaderForResource(dictUri);
+        }
+        catch (Exception e) {
+            // parse as wordlist
+            String[] wordList = DataTypeParser.parseAsString(in_dictionary);
+            StringBuilder sb = new StringBuilder();
+            for (String word : wordList)
+                sb.append(word).append("\n");
+            dictReader = new StringReader(sb.toString());
+        }
+
+        return new SpellDictionaryHashMap(dictReader);
     }
 
     protected SuggestionListener getSuggestionListener() {
@@ -268,20 +274,20 @@ public class SpellCheck extends AbstractExecutableComponent {
     private void processText(String[] text) throws ComponentContextException {
         SuggestionListener listener = getSuggestionListener();
         _spellChecker.addSpellCheckListener(listener);
-        
+
         for (int i = 0, iMax = text.length; i < iMax; i++) {
             StringWordTokenizer wordTokenizer = new StringWordTokenizer(text[i]);
             _spellChecker.checkSpelling(wordTokenizer);
             text[i] = wordTokenizer.getContext();
         }
-        
+
         _spellChecker.removeSpellCheckListener(listener);
-        
+
         String replacementRules = listener.getReplacementRules();
         console.fine("Replacement rules: " + replacementRules);
-        
+
         Map<String,Set<String>> replacements = listener.getReplacements();
-        
+
         componentContext.pushDataComponentToOutput(OUT_RULES, BasicDataTypesTools.stringToStrings(replacementRules));
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, BasicDataTypesTools.mapToStringMap(getReplacementsMap(replacements)));
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
@@ -290,38 +296,38 @@ public class SpellCheck extends AbstractExecutableComponent {
     private void processTokenizedSentences(Map<String, String[]> tokenizedSentences) throws ComponentContextException {
         SuggestionListener listener = getSuggestionListener();
         _spellChecker.addSpellCheckListener(listener);
-        
+
         Map<String, String[]> correctedTokenizedSentences = new HashMap<String, String[]>(tokenizedSentences.size());
         for (Entry<String, String[]> entry : tokenizedSentences.entrySet()) {
             String sentence = entry.getKey();
             String[] tokens = entry.getValue();
-            
+
             StringWordTokenizer wordTokenizer = new StringWordTokenizer(sentence);
             _spellChecker.checkSpelling(wordTokenizer);
-            
+
             if (_doCorrection) {
                 sentence = wordTokenizer.getContext();
-                
+
                 for (int i = 0, iMax = tokens.length; i < iMax; i++) {
                     wordTokenizer = new StringWordTokenizer(tokens[i]);
                     _spellChecker.checkSpelling(wordTokenizer);
                     tokens[i] = wordTokenizer.getContext();
                 }
-                
+
                 correctedTokenizedSentences.put(sentence, tokens);
             }
         }
-        
+
         if (!_doCorrection)
             correctedTokenizedSentences = tokenizedSentences;
-        
+
         _spellChecker.removeSpellCheckListener(listener);
-        
+
         String replacementRules = listener.getReplacementRules();
         console.fine("Replacement rules: " + replacementRules);
-        
+
         Map<String,Set<String>> replacements = listener.getReplacements();
-        
+
         componentContext.pushDataComponentToOutput(OUT_RULES, BasicDataTypesTools.stringToStrings(replacementRules));
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, BasicDataTypesTools.mapToStringMap(getReplacementsMap(replacements)));
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.mapToStringMap(correctedTokenizedSentences));
@@ -330,7 +336,7 @@ public class SpellCheck extends AbstractExecutableComponent {
     private void processTokenCounts(Map<String, Integer> tokenCounts) throws ComponentContextException {
         SuggestionListener listener = getSuggestionListener();
         _spellChecker.addSpellCheckListener(listener);
-        
+
         Map<String, Integer> correctedTokenCounts = new HashMap<String, Integer>(tokenCounts.size());
         for (Entry<String,Integer> entry : tokenCounts.entrySet()) {
             StringWordTokenizer wordTokenizer = new StringWordTokenizer(entry.getKey());
@@ -341,32 +347,32 @@ public class SpellCheck extends AbstractExecutableComponent {
                 correctedTokenCounts.put(token,  oldCount + entry.getValue());
             }
         }
-        
+
         if (!_doCorrection)
             correctedTokenCounts = tokenCounts;
-        
+
         _spellChecker.removeSpellCheckListener(listener);
-        
+
         String replacementRules = listener.getReplacementRules();
         console.fine("Replacement rules: " + replacementRules);
-        
+
         Map<String,Set<String>> replacements = listener.getReplacements();
-        
+
         componentContext.pushDataComponentToOutput(OUT_RULES, BasicDataTypesTools.stringToStrings(replacementRules));
-        componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, BasicDataTypesTools.mapToStringMap(getReplacementsMap(replacements)));   
+        componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, BasicDataTypesTools.mapToStringMap(getReplacementsMap(replacements)));
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.mapToIntegerMap(correctedTokenCounts, false));
     }
-    
+
     private Map<String,String[]> getReplacementsMap(Map<String,Set<String>> map) {
         Map<String,String[]> result = new HashMap<String, String[]>(map.size());
         for (Entry<String,Set<String>> entry : map.entrySet()) {
             String[] arr = new String[entry.getValue().size()];
             result.put(entry.getKey(), entry.getValue().toArray(arr));
         }
-        
+
         return result;
     }
-    
+
     //--------------------------------------------------------------------------------------------
 
     public static class SuggestionListener implements SpellCheckListener {
@@ -378,7 +384,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         public SuggestionListener(boolean doCorrection) {
             this(doCorrection, null);
         }
-        
+
         public SuggestionListener(boolean doCorrection, Logger logger) {
             _replacements = new HashMap<String, Set<String>>();
             _doCorrection = doCorrection;
@@ -388,7 +394,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         public void spellingError(SpellCheckEvent event) {
             if (_logger != null) _logger.finer("Misspelling: " + event.getInvalidWord());
             List<?> suggestions = event.getSuggestions();
-            
+
             if (!suggestions.isEmpty()) {
                 if (_logger != null && (_logger.getLevel() == Level.FINEST || _logger.getLevel() == Level.ALL)) {
                     StringBuilder sb = new StringBuilder();
@@ -396,17 +402,17 @@ public class SpellCheck extends AbstractExecutableComponent {
                         sb.append(", ").append(suggestion.toString());
                     _logger.finest("Suggestions: " + sb.substring(2));
                 }
-                
+
                 String topRankedSuggestion = getReplacement(event.getInvalidWord(), suggestions);
                 if (_logger != null) _logger.finer("Top suggestion: " + topRankedSuggestion);
-                
+
                 Set<String> misspellings = _replacements.get(topRankedSuggestion);
                 if (misspellings == null) {
                     misspellings = new HashSet<String>();
                     _replacements.put(topRankedSuggestion, misspellings);
                 }
                 misspellings.add(event.getInvalidWord());
-                
+
                 if (_doCorrection)
                     event.replaceWord(topRankedSuggestion, true);
                 else
@@ -417,7 +423,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         protected String getReplacement(String invalidWord, List<?> suggestions) {
             return suggestions.iterator().next().toString();
         }
-        
+
         public String getReplacementRules() {
             StringBuilder sb = new StringBuilder();
             for (Entry<String, Set<String>> entry : _replacements.entrySet()) {
@@ -427,10 +433,10 @@ public class SpellCheck extends AbstractExecutableComponent {
                 String rule = String.format("; %s = {%s}", entry.getKey(), sbWord.substring(2));
                 sb.append(rule);
             }
-            
+
             return sb.length() > 2 ? sb.substring(2) : "";
         }
-        
+
         public Map<String, Set<String>> getReplacements() {
             return _replacements;
         }
