@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -137,7 +138,7 @@ public class TextReplacement extends AbstractExecutableComponent{
     //--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception 
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
 		String ic = ccp.getProperty(PROP_IGNORE_CASE).trim();
 		ignoreCase = Boolean.valueOf(ic);
@@ -152,7 +153,7 @@ public class TextReplacement extends AbstractExecutableComponent{
 			Strings input = (Strings) cc.getDataComponentFromInput(IN_MAP_DATA);
 			String[] val = BasicDataTypesTools.stringsToStringArray (input);
 
-			dictionary = buildDictionary(val[0]);
+			dictionary = buildDictionary(val[0], console);
 			phraseReplaceDictionary = new HashMap<String,String>();
 			for (String key : dictionary.keySet()) {
 				if (key.indexOf(" ") > 1) {
@@ -163,8 +164,8 @@ public class TextReplacement extends AbstractExecutableComponent{
 			for (String key : phraseReplaceDictionary.keySet()) {
 				dictionary.remove(key);
 			}
-			
-			
+
+
 			if (ignoreCase) {
 				HashMap<String,String>tmp = new HashMap<String,String>();
 				for (String key : dictionary.keySet()) {
@@ -173,7 +174,7 @@ public class TextReplacement extends AbstractExecutableComponent{
 				}
 				dictionary = tmp;
 			}
-			
+
 			/*
 			for (String key : dictionary.keySet()) {
 				String v = dictionary.get(key);
@@ -207,11 +208,11 @@ public class TextReplacement extends AbstractExecutableComponent{
 			r = (r == null) ? (t) : (r);
 			sb.append(r);
 		}
-		
+
 		text = cleanPhrases(sb.toString());
-		
-		
-		
+
+
+
 
 		//
 		// Option B: use Pattern (RegEx) and just do a replaceAll or match
@@ -223,14 +224,14 @@ public class TextReplacement extends AbstractExecutableComponent{
 
 		// console.info(sb.toString());
 	}
-	
-	String cleanPhrases(String text) 
+
+	String cleanPhrases(String text)
 	{
 		for (String key : phraseReplaceDictionary.keySet()) {
 			String replace = phraseReplaceDictionary.get(key);
-			
+
 			//
-			// TODO: for ignoreCase, you have to make a new RegEx 
+			// TODO: for ignoreCase, you have to make a new RegEx
 			// out of key such that case is ignored
 			//
 			text = text.replaceAll(key, replace);
@@ -264,7 +265,7 @@ public class TextReplacement extends AbstractExecutableComponent{
 
     //--------------------------------------------------------------------------------------------
 
-    public Map<String,String> buildDictionary(String configData) 
+    public static Map<String,String> buildDictionary(String configData, Logger console)
 	{
 		configData = configData.replaceAll("\n","");
 	    Map<String,String> map = new HashMap<String,String>();
@@ -272,21 +273,21 @@ public class TextReplacement extends AbstractExecutableComponent{
 	    while (tokens.hasMoreTokens()) {
 	        String line = tokens.nextToken();
 	        String[] parts = line.split("=");
-	       
+
 	        if (parts.length != 2) {            // lots of = signs
 	        	parts = line.split(":=");
 	        }
-	        
+
 	        if (parts.length != 2) {
 	        	console.warning("unable to build dictionary " + configData);
 	        	return map;
 	        }
-	        
+
 	        String key    = parts[0].trim();
 	        String values = parts[1].trim();
-	
+
 	        // if (ignoreCase) {values = values.toLowerCase();}
-	
+
 	        values = values.replace("{","");
 	        values = values.replace("}","");
 	        StringTokenizer vTokens = new StringTokenizer(values,",");
