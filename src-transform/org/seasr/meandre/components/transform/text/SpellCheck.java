@@ -395,15 +395,17 @@ public class SpellCheck extends AbstractExecutableComponent {
             if (_logger != null) _logger.finer("Misspelling: " + event.getInvalidWord());
             List<?> suggestions = event.getSuggestions();
 
-            if (!suggestions.isEmpty()) {
-                if (_logger != null && (_logger.getLevel() == Level.FINEST || _logger.getLevel() == Level.ALL)) {
-                    StringBuilder sb = new StringBuilder();
-                    for (Object suggestion : suggestions)
-                        sb.append(", ").append(suggestion.toString());
+            if (_logger != null && (_logger.getLevel() == Level.FINEST || _logger.getLevel() == Level.ALL)) {
+                StringBuilder sb = new StringBuilder();
+                for (Object suggestion : suggestions)
+                    sb.append(", ").append(suggestion.toString());
+                if (sb.length() > 0)
                     _logger.finest("Suggestions: " + sb.substring(2));
-                }
+            }
 
-                String topRankedSuggestion = getReplacement(event.getInvalidWord(), suggestions);
+            String topRankedSuggestion = getReplacement(event.getInvalidWord(), suggestions);
+
+            if (topRankedSuggestion != null) {
                 if (_logger != null) _logger.finer("Top suggestion: " + topRankedSuggestion);
 
                 Set<String> misspellings = _replacements.get(topRankedSuggestion);
@@ -417,11 +419,12 @@ public class SpellCheck extends AbstractExecutableComponent {
                     event.replaceWord(topRankedSuggestion, true);
                 else
                     event.ignoreWord(true);
-            }
+            } else
+                _logger.finer("Suggestions: <none>");
         }
 
         protected String getReplacement(String invalidWord, List<?> suggestions) {
-            return suggestions.iterator().next().toString();
+            return suggestions.isEmpty() ? null : suggestions.iterator().next().toString();
         }
 
         public String getReplacementRules() {
