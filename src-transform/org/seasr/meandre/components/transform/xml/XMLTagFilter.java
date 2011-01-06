@@ -70,8 +70,8 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "xml, tag, xsl, filter",
-		description = "This component generates an xsl template for extracting the structed content " +
-		    "under the specific tag. The tag is set up through property.",
+		description = "This component generates an xsl template for extracting the structured content " +
+		    "for a specific tag. The tag is set up through a property.",
 		dependency = {"protobuf-java-2.2.0.jar", "velocity-1.6.2-dep.jar"},
 		resources = { "XMLTagFilter.vm" }
 )
@@ -81,7 +81,7 @@ public class XMLTagFilter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_XSL,
-			description = "The XSL template for filtering dates." +
+			description = "The XSL template for extracting a specific tag." +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_XSL = Names.PORT_XSL;
