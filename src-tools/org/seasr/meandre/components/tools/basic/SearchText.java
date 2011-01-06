@@ -46,10 +46,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -69,9 +69,11 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         name = "Search Text",
         creator = "Loretta Auvil",
 		description = "Searches the text input for the regular expression pattern. "+
-		              "If the pattern is found then the matching text is pushed out on port Text_Found "+
-		              "(multiple outputs are possible), otherwise, it outputs the original "+
-		              "text on port Text.",
+		              "If the pattern is found and the regular expression specifies a capturing group, " +
+		              "then the matching text for the capturing group is pushed out on port Text_Found. " +
+		              "If the pattern is found and there are no capturing groups defined, the maching text for the " +
+		              "pattern is pushed out on port Text_Found.  In both cases multiple outputs are possible." +
+		              "If the pattern is not found, it outputs the original text on port Text.",
 		tags = "text, string, search",
 		rights = Licenses.UofINCSA,
 		baseURL = "meandre://seasr.org/components/foundry/",
@@ -120,14 +122,14 @@ public class SearchText extends AbstractExecutableComponent {
 
 
 	/** The regular expression */
-	private String sExpression;
+	protected Pattern _regexp;
 
 
 	// --------------------------------------------------------------------------------------------
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		sExpression = ccp.getProperty(PROP_EXPRESSION);
+		_regexp = Pattern.compile(getPropertyOrDieTrying(PROP_EXPRESSION, false, true, ccp));
 	}
 
 	@Override
@@ -135,37 +137,33 @@ public class SearchText extends AbstractExecutableComponent {
 		String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 
 		for (String text : input) {
-    		console.finest(String.format("input text: %s", text));
-    		console.finer(String.format("regular expression: %s", sExpression));
+    		console.finest(String.format("Input text: %s", text));
+    		console.finer(String.format("Using regular expression: %s", _regexp.pattern()));
 
-    		Pattern compiledRegex = Pattern.compile(sExpression);
-    		Matcher regexMatcher = compiledRegex.matcher(text);
-    		String matchingText;
+    		Matcher matcher = _regexp.matcher(text);
     		boolean found = false;
 
-    		while (regexMatcher.find()) {
-    			console.finer("start = " + regexMatcher.start());
-    			console.finer("end = " + regexMatcher.end());
+    		while (matcher.find()) {
+                found = true;
 
-    			matchingText = text.substring(regexMatcher.start(), regexMatcher.end());
+                console.finer(String.format("Match: start=%d, end=%d", matcher.start(), matcher.end()));
+                for (int i = 0, iMax = matcher.groupCount() + 1; i < iMax; i++)
+                    console.finer(String.format("Group %d: match='%s'", i, matcher.group(i)));
 
-    			console.fine(String.format("Match: %s", matchingText));
+                String matchText = matcher.groupCount() > 0 ? matcher.group(1) : matcher.group();
+                if (matchText == null) continue;
 
-    			found = true;
-
-    			componentContext.pushDataComponentToOutput(OUT_MATCHED_TEXT,
-                        BasicDataTypesTools.stringToStrings(matchingText));
+    			componentContext.pushDataComponentToOutput(OUT_MATCHED_TEXT, BasicDataTypesTools.stringToStrings(matchText));
     		}
 
     		if (!found)
-    		    componentContext.pushDataComponentToOutput(OUT_TEXT,
-    		            BasicDataTypesTools.stringToStrings(text));
+    		    componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
 		}
 	}
 
 	@Override
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		sExpression = null;
+		_regexp = null;
 	}
 
 	// --------------------------------------------------------------------------------------------
