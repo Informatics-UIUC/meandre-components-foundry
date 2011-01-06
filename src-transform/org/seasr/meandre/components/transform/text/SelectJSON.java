@@ -42,21 +42,20 @@
 
 package org.seasr.meandre.components.transform.text;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
@@ -64,144 +63,121 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 /**
  * @author Loretta Auvil
+ * @author Boris Capitanu
  */
 
 @Component(
         creator = "Loretta Auvil",
-        description = "Select JSON attribute and return its value.",
+        description = "Select a JSON attribute and return its value.",
         name = "Select JSON attribute",
         tags = "JSON, transformation, select",
-        firingPolicy = FiringPolicy.any,
+        firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class SelectJSON extends AbstractExecutableComponent {
 
-    //------------------------------ INPUTS ------------------------------
+    // ------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
             name = "JSON_attribute",
             description = "The attribute" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+                          "<br>TYPE: java.lang.String" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                          "<br>TYPE: byte[]" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                          "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_ATTRIB = "JSON_attribute";
 
     @ComponentInput(
             name = "JSON_data",
             description = "The JSON data" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+                          "<br>TYPE: java.lang.String" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                          "<br>TYPE: byte[]" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                          "<br>TYPE: java.lang.Object"
     )
     protected static final String IN_JSON = "JSON_data";
 
-    //------------------------------ OUTPUTS ------------------------------
+    // ------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
             name = "JSON_value",
             description = "text output as JSON" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_JSON = "JSON_value";
 
-    //--------------------------------------------------------------------
+    // ------------------------------ PROPERTIES --------------------------------------------------
 
-    protected Queue<String> queue; //json objects
-    protected String attribute;
-    private boolean _gotInitiator;
+    @ComponentProperty(
+            name = "ignore_null_values",
+            description = "Do not output attribute values that are NULL",
+            defaultValue = "true"
+    )
+    protected static final String PROP_IGNORE_NULL = "ignore_null_values";
+
+    //--------------------------------------------------------------------------------------------
+
+
+    protected boolean _ignoreNullValues;
+
+
+    //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        queue = new LinkedList<String>();
-        attribute = null;
-
-        _gotInitiator = false;    }
+        _ignoreNullValues = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_NULL, ccp));
+    }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        if (cc.isInputAvailable(IN_JSON))
-            queue.offer(DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_JSON))[0]);
+        String attribute = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_ATTRIB))[0];
+        List<String> results = new ArrayList<String>();
 
-        if (cc.isInputAvailable(IN_ATTRIB)) {
-            if (attribute == null) {
-                attribute = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_ATTRIB))[0];
-            } else
-                console.warning("XSL transformation already set - ignoring new XSL data input");
-        }
+        for (String json : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_JSON))) {
+            json = json.trim();
+            if (json.length() == 0) continue;
 
-        if (attribute != null && queue.size() > 0)
-            // Process in non-streaming mode
-            processQueued();
-    }
+            switch (json.charAt(0)) {
+                case '{':
+                    JSONObject jo = new JSONObject(json);
+                    if (jo.has(attribute) && (!jo.isNull(attribute) || _ignoreNullValues))
+                        results.add(jo.getString(attribute));
+                    break;
 
-    protected void processQueued() throws Exception {
-        console.fine(String.format("Processing %d queued XML documents...", queue.size()));
-
-        for (String json : queue) {
-            process(json);
-        }
-
-        queue.clear();
-    }
-
-    protected void process(String json) throws JSONException, ComponentContextException {
-
-//        String attribute = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_ATTRIB))[0];
-//        String json = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_JSON))[0];
-
-        int size;
-        //Handle via JSONObject
-        if (json.charAt(0)=='{') {
-            JSONObject results = new JSONObject(json);
-            size = results.length();
-            console.fine("Size of JSON Object data "+size);
-
-            Iterator it = results.keys();
-            while(it.hasNext()) {
-
-                String key = (String) it.next();
-                String value = results.getString(key);
-                if (key.compareTo(attribute) == 0) {
-                    if (value != null)
-                        componentContext.pushDataComponentToOutput(OUT_JSON,BasicDataTypesTools.stringToStrings(value));
-                    else
-                        console.info("Attribute value for "+attribute+"is null.");
-                }
-            }
-        }
-        //Handle via JSONArray
-        else if (json.charAt(0)=='[') {
-            JSONArray results = new JSONArray(json);
-            size = results.length();
-            console.fine("Size of JSON Array data "+size);
-            for (int i=0;i<size;i++){
-                JSONObject fields = results.getJSONObject(i);
-
-                Iterator it = fields.keys();
-                while(it.hasNext()) {
-                    String key = (String) it.next();
-                    String value = fields.getString(key);
-                    if (key.compareTo(attribute) == 0) {
-                        if (value != null)
-                            componentContext.pushDataComponentToOutput(OUT_JSON,BasicDataTypesTools.stringToStrings(value));
-                        else
-                            console.info("Attribute value for "+attribute+"is null.");
+                case '[':
+                    JSONArray ja = new JSONArray(json);
+                    for (int i = 0, iMax = ja.length(); i < iMax; i++) {
+                        jo = ja.getJSONObject(i);
+                        if (jo.has(attribute) && (!jo.isNull(attribute) || _ignoreNullValues))
+                            results.add(jo.getString(attribute));
                     }
-                }
+                    break;
+
+                default:
+                    throw new JSONException("Don't know how to parse: " + json);
             }
+        }
+
+        if (results.size() > 0) {
+            String[] output = new String[results.size()];
+            cc.pushDataComponentToOutput(OUT_JSON, BasicDataTypesTools.stringToStrings(results.toArray(output)));
         }
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        queue = null;
-        attribute = null;
     }
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     protected void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_JSON })))
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_ATTRIB, IN_JSON })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
         componentContext.pushDataComponentToOutput(OUT_JSON, componentContext.getDataComponentFromInput(IN_JSON));
@@ -209,7 +185,7 @@ public class SelectJSON extends AbstractExecutableComponent {
 
     @Override
     protected void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_JSON })))
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_ATTRIB, IN_JSON })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
         componentContext.pushDataComponentToOutput(OUT_JSON, componentContext.getDataComponentFromInput(IN_JSON));

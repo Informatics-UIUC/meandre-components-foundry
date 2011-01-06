@@ -59,9 +59,9 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
@@ -174,7 +174,7 @@ public class TokenFilter extends AbstractExecutableComponent {
             defaultValue = "true"
     )
     protected static final String PROP_REPLACE = Names.PROP_REPLACE;
-    
+
     @ComponentProperty(
             name = "ignore_case",
             description = "If set to true then the comparison between the blacklisted tokens and data " +
@@ -188,7 +188,7 @@ public class TokenFilter extends AbstractExecutableComponent {
 
 	/** Should the token black list be replaced */
 	protected boolean bReplace;
-	
+
 	protected boolean bIgnoreCase;
 
 	/** The temporary initial queue */
@@ -197,49 +197,67 @@ public class TokenFilter extends AbstractExecutableComponent {
 	protected final int PORT_TOKEN_COUNTS = 1;
 	protected final int PORT_TOKENIZED_SENTENCES = 2;
 
-	/** The list of available inputs */
-	protected String [] saInputName = null;
-
 	/** The set of blacklisted tokens */
 	protected Set<String> setBlacklist = null;
+
+	protected Map<String,StreamTerminator> stMap = new HashMap<String,StreamTerminator>();
 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    this.bIgnoreCase = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_CASE, true, true, ccp));
-		this.bReplace = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REPLACE, true, true, ccp));
-		this.queues[PORT_TOKENS] = new LinkedList<Object>();
-		this.queues[PORT_TOKEN_COUNTS] = new LinkedList<Object>();
-		this.queues[PORT_TOKENIZED_SENTENCES] = new LinkedList<Object>();
-		this.saInputName = ccp.getInputNames();
-		this.setBlacklist = null;
+	    bIgnoreCase = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_CASE, true, true, ccp));
+		bReplace = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REPLACE, true, true, ccp));
+		queues[PORT_TOKENS] = new LinkedList<Object>();
+		queues[PORT_TOKEN_COUNTS] = new LinkedList<Object>();
+		queues[PORT_TOKENIZED_SENTENCES] = new LinkedList<Object>();
+		setBlacklist = null;
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		if ( this.setBlacklist == null && !cc.isInputAvailable(IN_TOKEN_BLACKLIST) ) {
-			// No blacklist received yet, so queue the objects
-			queueObjects();
-		}
-		else if ( this.setBlacklist == null && cc.isInputAvailable(IN_TOKEN_BLACKLIST) ) {
-			// Process blacklist and pending
-			processBlacklistAndQueued();
-		}
-		else {
-			// Process normally with the incoming information
-			processNormally();
-		}
+	    if (cc.isInputAvailable(IN_TOKEN_BLACKLIST)) {
+	        String[] words = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKEN_BLACKLIST));
+
+	        if (setBlacklist == null)
+	            setBlacklist = new HashSet<String>(100);
+
+	        if (bReplace) setBlacklist.clear();
+
+	        for (String s : words) {
+	            if (bIgnoreCase) s = s.toLowerCase();
+	            setBlacklist.add(s.trim());
+	        }
+	    }
+
+	    if (cc.isInputAvailable(IN_TOKENS))
+	        queues[PORT_TOKENS].offer(cc.getDataComponentFromInput(IN_TOKENS));
+
+	    if (cc.isInputAvailable(IN_TOKEN_COUNTS) )
+	        queues[PORT_TOKEN_COUNTS].offer(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
+
+	    if (cc.isInputAvailable(IN_TOKENIZED_SENTENCES) )
+	        queues[PORT_TOKENIZED_SENTENCES].offer(cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+
+	    if (setBlacklist != null)
+	        processQueuedObjects();
+
+        // Check if we already got a terminator and forward it after the data has been processed
+        if (stMap.size() > 0 && this.setBlacklist != null) {
+            for (Entry<String,StreamTerminator> entry : stMap.entrySet())
+                componentContext.pushDataComponentToOutput(entry.getKey(), entry.getValue());
+            stMap.clear();
+        }
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.bReplace = false;
-        this.queues[PORT_TOKENS] = this.queues[PORT_TOKEN_COUNTS] = this.queues[PORT_TOKENIZED_SENTENCES] = null;
-        this.queues = null;
-        this.saInputName = null;
-        this.setBlacklist = null;
+        bReplace = false;
+        queues[PORT_TOKENS] = queues[PORT_TOKEN_COUNTS] = queues[PORT_TOKENIZED_SENTENCES] = null;
+        queues = null;
+        setBlacklist = null;
+        stMap.clear();
     }
 
 	//--------------------------------------------------------------------------------------------
@@ -262,61 +280,22 @@ public class TokenFilter extends AbstractExecutableComponent {
     @Override
     protected void handleStreamTerminators() throws Exception {
         if (inputPortsWithTerminators.contains(IN_TOKENIZED_SENTENCES))
-            componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES,
-                    componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+            stMap.put(OUT_TOKENIZED_SENTENCES, (StreamTerminator)componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 
         if (inputPortsWithTerminators.contains(IN_TOKEN_COUNTS))
-            componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
-                    componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
+            stMap.put(OUT_TOKEN_COUNTS, (StreamTerminator)componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
 
         if (inputPortsWithTerminators.contains(IN_TOKENS))
-            componentContext.pushDataComponentToOutput(OUT_TOKENS,
-                    componentContext.getDataComponentFromInput(IN_TOKENS));
+            stMap.put(OUT_TOKENS, (StreamTerminator)componentContext.getDataComponentFromInput(IN_TOKENS));
+
+        if (this.setBlacklist != null) {
+            for (Entry<String,StreamTerminator> entry : stMap.entrySet())
+                componentContext.pushDataComponentToOutput(entry.getKey(), entry.getValue());
+            stMap.clear();
+        }
     }
 
     //--------------------------------------------------------------------------------------------
-
-	/**
-	 * No blacklist currently available, just queue the objects in the inputs.
-	 *
-	 * @throws ComponentContextException Invalid access to the component context
-	 */
-	private void queueObjects() throws ComponentContextException {
-		if ( componentContext.isInputAvailable(IN_TOKENS) )
-			this.queues[PORT_TOKENS].offer(componentContext.getDataComponentFromInput(IN_TOKENS));
-		if ( componentContext.isInputAvailable(IN_TOKEN_COUNTS) )
-			this.queues[PORT_TOKEN_COUNTS].offer(componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
-		if ( componentContext.isInputAvailable(IN_TOKENIZED_SENTENCES) )
-			this.queues[PORT_TOKENIZED_SENTENCES].offer(componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
-	}
-
-	/**
-	 * Process the black list and catches up with the pending objects.
-	 *
-	 * @throws Exception Thrown if something goes wrong
-	 */
-	protected void processBlacklistAndQueued() throws Exception {
-		processBlacklist(componentContext.getDataComponentFromInput(IN_TOKEN_BLACKLIST));
-		processQueuedObjects();
-	}
-
-	/**
-	 * Process the blacklist.
-	 *
-	 * @param objBlackList The black list to process
-	 * @throws Exception Thrown if something goes wrong
-	 */
-	protected void processBlacklist(Object objBlackList) throws Exception {
-	    String[] words = DataTypeParser.parseAsString(objBlackList);
-		if ( this.setBlacklist==null )
-			this.setBlacklist = new HashSet<String>(100);
-		if ( this.bReplace )
-			this.setBlacklist.clear();
-		for ( String s : words ) {
-		    if (bIgnoreCase) s = s.toLowerCase();
-			this.setBlacklist.add(s.trim());
-		}
-	}
 
 	/**
 	 * Process the queued object.
@@ -324,38 +303,14 @@ public class TokenFilter extends AbstractExecutableComponent {
 	 * @throws Exception Something went wrong while executing
 	 */
 	protected void processQueuedObjects() throws Exception {
-		Iterator<Object> iterTok = this.queues[PORT_TOKENS].iterator();
-		while ( iterTok.hasNext() ) processTokens(iterTok.next());
+		Iterator<Object> iterTok = queues[PORT_TOKENS].iterator();
+		while (iterTok.hasNext()) processTokens(iterTok.next());
 
-		Iterator<Object> iterTokCnts = this.queues[PORT_TOKEN_COUNTS].iterator();
-		while ( iterTokCnts.hasNext() ) processTokenCounts(iterTokCnts.next());
+		Iterator<Object> iterTokCnts = queues[PORT_TOKEN_COUNTS].iterator();
+		while (iterTokCnts.hasNext()) processTokenCounts(iterTokCnts.next());
 
-		Iterator<Object> iterTS = this.queues[PORT_TOKENIZED_SENTENCES].iterator();
-		while ( iterTS.hasNext() ) processTokenizedSentences(iterTS.next());
-	}
-
-
-	/**
-	 * Process the inputs normally.
-	 *
-	 * @throws Exception Problem while executing
-	 *
-	 */
-	protected void processNormally() throws Exception {
-		if ( componentContext.isInputAvailable(IN_TOKEN_BLACKLIST)) {
-			processBlacklist(componentContext.getDataComponentFromInput(IN_TOKEN_BLACKLIST));
-		}
-		if ( componentContext.isInputAvailable(IN_TOKENS) ) {
-			processTokens(componentContext.getDataComponentFromInput(IN_TOKENS));
-		}
-
-		if ( componentContext.isInputAvailable(IN_TOKEN_COUNTS) ) {
-			processTokenCounts(componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
-		}
-
-		if ( componentContext.isInputAvailable(IN_TOKENIZED_SENTENCES) ) {
-			processTokenizedSentences(componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
-		}
+		Iterator<Object> iterTS = queues[PORT_TOKENIZED_SENTENCES].iterator();
+		while (iterTS.hasNext()) processTokenizedSentences(iterTS.next());
 	}
 
 	/**

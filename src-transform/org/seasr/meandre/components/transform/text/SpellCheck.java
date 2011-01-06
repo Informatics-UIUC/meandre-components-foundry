@@ -66,6 +66,7 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -164,6 +165,7 @@ public class SpellCheck extends AbstractExecutableComponent {
     protected Queue<Object> _inputQueue;
     protected SpellChecker _spellChecker;
     protected SpellDictionary _spellDictionary;
+    protected StreamTerminator _st;
 
     //--------------------------------------------------------------------------------------------
 
@@ -171,6 +173,7 @@ public class SpellCheck extends AbstractExecutableComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _doCorrection = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_DO_CORRECTION, ccp));
         _inputQueue = new LinkedList<Object>();
+        _st = null;
     }
 
     @Override
@@ -207,12 +210,19 @@ public class SpellCheck extends AbstractExecutableComponent {
                 }
             }
         }
+
+        // Check if we already got a terminator and forward it after the data has been processed
+        if (_st != null && _spellChecker != null) {
+            pushStreamTerminator(_st);
+            _st = null;
+        }
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         _inputQueue.clear();
         _spellChecker = null;
+        _st = null;
     }
 
     //--------------------------------------------------------------------------------------------
@@ -236,12 +246,21 @@ public class SpellCheck extends AbstractExecutableComponent {
             return;
         }
 
-        componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_TEXT));
-        componentContext.pushDataComponentToOutput(OUT_RULES, componentContext.getDataComponentFromInput(IN_TEXT));
-        componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, componentContext.getDataComponentFromInput(IN_TEXT));
+        _st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_TEXT);
+
+        if (_spellChecker != null) {
+            pushStreamTerminator(_st);
+            _st = null;
+        }
     }
 
     //--------------------------------------------------------------------------------------------
+
+    private void pushStreamTerminator(StreamTerminator st) throws ComponentContextException {
+        componentContext.pushDataComponentToOutput(OUT_TEXT, st);
+        componentContext.pushDataComponentToOutput(OUT_RULES, st);
+        componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, st);
+    }
 
     protected boolean isReadyToProcessInputs() {
         return _spellChecker != null && _inputQueue.size() > 0;

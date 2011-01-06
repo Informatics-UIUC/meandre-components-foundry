@@ -43,9 +43,9 @@
 package org.seasr.meandre.components.transform.text;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -102,9 +102,11 @@ public class ToLowercase extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        for (String text : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT)))
-            cc.pushDataComponentToOutput(OUT_LOWERCASE_TEXT,
-                    BasicDataTypesTools.stringToStrings(text.toLowerCase()));
+        String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+        for (int i = 0, iMax = input.length; i < iMax; i++)
+            input[i] = input[i].toLowerCase();
+
+        cc.pushDataComponentToOutput(OUT_LOWERCASE_TEXT, BasicDataTypesTools.stringToStrings(input));
     }
 
     @Override
