@@ -44,6 +44,7 @@ package org.seasr.meandre.components.vis.multimedia;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +69,8 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
  * NOTE: If this component is used in a flow for the Zotero environment do not forget to
  *       set the 'jplayer_api_base_url' property to http://www.jplayer.org/2.0.0/
  */
+
+//TODO: Need to figure out proper way to pass the media type (wav, mp3...etc) and to use input (URL? bytes? separate components?)
 
 @Component(
         creator = "Boris Capitanu",
@@ -183,15 +186,24 @@ public class JPlayer extends AbstractJQueryComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        byte[] data = DataTypeParser.parseAsByteArray(cc.getDataComponentFromInput(IN_DATA));
+        Object input = cc.getDataComponentFromInput(IN_DATA);
 
-        File tmpFile = File.createTempFile("jplayer", null, new File(cc.getPublicResourcesDirectory()));
-        FileOutputStream fos = new FileOutputStream(tmpFile);
-        fos.write(data);
-        fos.close();
-        _tmpFiles.add(tmpFile);
+        try {
+            // Try parsing as a URL first
+            URI uri = DataTypeParser.parseAsURI(input);
+            context.put("src", uri.toString());
+        }
+        catch (Exception e) {
+            byte[] data = DataTypeParser.parseAsByteArray(input);
 
-        context.put("src", "/public/resources/" + tmpFile.getName());
+            File tmpFile = File.createTempFile("jplayer_", null, new File(cc.getPublicResourcesDirectory()));
+            FileOutputStream fos = new FileOutputStream(tmpFile);
+            fos.write(data);
+            fos.close();
+            _tmpFiles.add(tmpFile);
+
+            context.put("src", "/public/resources/" + tmpFile.getName());
+        }
 
         super.executeCallBack(cc);
     }
