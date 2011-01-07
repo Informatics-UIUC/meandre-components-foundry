@@ -92,7 +92,7 @@ public class ArcDiagram extends AbstractProtovisComponent {
 	           description = "Text containing the transformed input to html via a velocity template" +
 	           "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
-	protected static final String OUT_TEXT = Names.PORT_HTML;
+	protected static final String OUT_HTML = Names.PORT_HTML;
 
 	//------------------------------ PROPERTIES --------------------------------------------------
 
@@ -143,7 +143,7 @@ public class ArcDiagram extends AbstractProtovisComponent {
         if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_JSON })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-        componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_JSON));
+        componentContext.pushDataComponentToOutput(OUT_HTML, componentContext.getDataComponentFromInput(IN_JSON));
     }
 
     @Override
@@ -151,6 +151,6 @@ public class ArcDiagram extends AbstractProtovisComponent {
         if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_JSON })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-        componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_JSON));
+        componentContext.pushDataComponentToOutput(OUT_HTML, componentContext.getDataComponentFromInput(IN_JSON));
     }
 }

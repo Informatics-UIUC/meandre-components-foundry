@@ -119,7 +119,7 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
             description = "Text containing the transformed input to html via a velocity template" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String OUT_TEXT = Names.PORT_HTML;
+    protected static final String OUT_HTML = Names.PORT_HTML;
 
 	protected VelocityContext context;
     protected String templateName;
@@ -191,7 +191,7 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
         // render the template
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
         String html = velocity.generateOutput(context, templateName);
- 		cc.pushDataComponentToOutput(OUT_TEXT, html);
+ 		cc.pushDataComponentToOutput(OUT_HTML, html);
     }
 
     @Override
