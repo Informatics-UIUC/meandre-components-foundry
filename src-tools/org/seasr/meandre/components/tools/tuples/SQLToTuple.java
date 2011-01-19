@@ -48,24 +48,28 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -82,24 +86,48 @@ import com.jolbox.bonecp.BoneCPConfig;
  * RUNTIME: depends on:
  * guava-r06.jar   (google collections)
  * slf4j-api-1.6.1.jar, slf4j-log4j12-1.6.1.jar (connection pooling logging)
- * 
+ *
+ * @author Boris Capitanu
+ *
  */
 
 @Component(
 		name = "SQL To Tuple",
 		creator = "Mike Haberman",
 		baseURL = "meandre://seasr.org/components/foundry/",
-		firingPolicy = FiringPolicy.all,
+		firingPolicy = FiringPolicy.any,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "tuple, tools, database",
 		description = "This component reads a mysql database",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", 
+		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar",
 				      "guava-r06.jar", "slf4j-api-1.6.1.jar","slf4j-log4j12-1.6.1.jar"}
 )
 public class SQLToTuple extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS -----------------------------------------------------
+
+    @ComponentInput(
+            name = "username",
+            description = "The user name to authenticate to the remote server" +
+                          "<br>TYPE: java.lang.String" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                          "<br>TYPE: byte[]" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                          "<br>TYPE: java.lang.Object"
+    )
+    protected static final String IN_USERNAME = "username";
+
+    @ComponentInput(
+            name = "password",
+            description = "The password" +
+                          "<br>TYPE: java.lang.String" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                          "<br>TYPE: byte[]" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                          "<br>TYPE: java.lang.Object"
+    )
+    protected static final String IN_PASSWORD = "password";
 
     @ComponentInput(
             name = Names.PORT_QUERY,
@@ -127,20 +155,6 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
 	@ComponentProperty(
-			name = "user",
-			description = "user",
-		    defaultValue = ""
-	)
-	protected static final String PROP_USER = "user";
-
-	@ComponentProperty(
-			name = "password",
-			description = "password",
-		    defaultValue = ""
-	)
-	protected static final String PROP_PASSWORD = "password";
-
-	@ComponentProperty(
 			name = "hostDB",
 			description = "host/database eg. localhost/testDB",
 		    defaultValue = ""
@@ -161,27 +175,26 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	)
 	protected static final String PROP_JDBC = "JDBCDriver";
 
-
-
-	//--------------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------------
 
-	BoneCP connectionPool = null;
 
+	protected BoneCP connectionPool = null;
+	protected BoneCPConfig config = null;
+	protected Queue<String> queryQueue = new LinkedList<String>();
+
+
+    //--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-    {
-		String user        = ccp.getProperty(PROP_USER).trim();
-	    String password    = ccp.getProperty(PROP_PASSWORD).trim();
-	    String protocol    = ccp.getProperty(PROP_PROTOCOL).trim();
-	    String hostDB     = ccp.getProperty(PROP_DB).trim();
-	    String JDBC_DRIVER = ccp.getProperty(PROP_JDBC).trim();
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    String protocol = getPropertyOrDieTrying(PROP_PROTOCOL, ccp);
+	    String hostDB = getPropertyOrDieTrying(PROP_DB, ccp);
+	    String JDBC_DRIVER = getPropertyOrDieTrying(PROP_JDBC, ccp);
 	    String fullURL = protocol + hostDB;
 
-	    console.info("connect using " + fullURL);
+	    console.fine("Connecting using " + fullURL);
 
-		// This will load the MySQL driver, each DB has its own driver
+		// This will load the DB driver, each DB has its own driver
 	    try {
 	        Class.forName(JDBC_DRIVER);
 	    }
@@ -189,153 +202,161 @@ public class SQLToTuple extends AbstractExecutableComponent {
 	        console.log(Level.SEVERE, "Could not load the JDBC driver: " + JDBC_DRIVER, e);
 	        throw e;
 	    }
-	    
-	    
-	    Connection connection = null;
-	    try { 
-			// setup the connection pool
-			BoneCPConfig config = new BoneCPConfig();
-			config.setJdbcUrl(fullURL); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
-			config.setUsername(user); 
-			config.setPassword(password);
-			config.setMinConnectionsPerPartition(5);
-			config.setMaxConnectionsPerPartition(10);
-			config.setPartitionCount(1);
-			
-			connectionPool = new BoneCP(config); // setup the connection pool
-			
-			// test it now, before we execute
-			connection = connectionPool.getConnection(); // fetch a connection
-			
-			if (connection != null){
-			   console.info("Connection successful!");
-			}
-			
-		} catch (SQLException e) {
-			console.warning(e.toString());
-			String msg = "Unable to get connection to database";
-			console.severe(msg);
-			throw new ComponentExecutionException(msg);
-		} finally {
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (SQLException e) {
-					console.warning(e.toString());
-				}
-			}
-		}
-	
 
-        /* OLD WAY before connection pooloing
-		// Setup the connection with the DB
-		try {
-		    connect = DriverManager.getConnection(fullURL, user, password);
-		}
-		catch (Exception e) {
-		    console.log(Level.SEVERE, "Could not connect to the DB", e);
-		    throw e;
-		}
-
-		if (connect == null) {
-			String msg = "Unable to get connection to database";
-			console.severe(msg);
-			throw new ComponentExecutionException(msg);
-		}
-		*/
-		
+        // partially setup the connection pool (still need username/pw)
+        config = new BoneCPConfig();
+        config.setJdbcUrl(fullURL); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+        config.setMinConnectionsPerPartition(5);
+        config.setMaxConnectionsPerPartition(10);
+        config.setPartitionCount(1);
 	}
 
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception
-    {
-		Connection connect = connectionPool.getConnection(); // fetch a connection
-		
-		if (connect == null){
-			console.severe("sql connection can not be established");
-			return;
-		}
+	public void executeCallBack(ComponentContext cc) throws Exception {
 
-		
-		SimpleTuplePeer outPeer;
-		SimpleTuple outTuple;
+	    if (cc.isInputAvailable(IN_QUERY))
+	        queryQueue.offer(DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_QUERY))[0]);
 
-		Statement statement = null;
-		ResultSet resultSet = null;
-		String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_QUERY));
+	    if (connectionPool == null) {
+	        if (cc.isInputAvailable(IN_USERNAME))
+	            config.setUsername(DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_USERNAME))[0]);
 
-		String SQL = input[0].trim();
+	        if (cc.isInputAvailable(IN_PASSWORD))
+	            config.setPassword(DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_PASSWORD))[0]);
 
-		// Statements allow to issue SQL queries to the database
-		statement = connect.createStatement();
-		// Result set get the result of the SQL query
-		console.info(SQL);
-		resultSet = statement.executeQuery(SQL);
-		ResultSetMetaData rsMetaData = resultSet.getMetaData();
+	        if (config.getUsername() != null && config.getPassword() != null) {
+	            connectionPool = new BoneCP(config);
 
-	    int numberOfColumns = rsMetaData.getColumnCount();
-	    String[] fieldNames = new String[numberOfColumns];
-	    for (int i = 0; i < numberOfColumns; i++) {
-		      String columnName = rsMetaData.getColumnName(i+1);
-		      fieldNames[i] = columnName;
+	            // test the connection to make sure it works before proceeding
+	            Connection conn = null;
+	            try {
+	                conn = connectionPool.getConnection();
+	            }
+	            catch (SQLException e) {
+	                console.log(Level.SEVERE, "Database connection error", e);
+	                throw e;
+	            }
+	            finally {
+	                if (conn != null)
+	                    try {
+	                        conn.close();
+	                    }
+	                catch (SQLException e) { }
+	            }
+	        }
 	    }
-	    outPeer = new SimpleTuplePeer(fieldNames);
-		outTuple = outPeer.createTuple();
-		
-		
-		List<Strings> output = new ArrayList<Strings>();
-		while (resultSet.next()) {
-			for (int i = 0; i < numberOfColumns; i++) {
-			      String columnName = rsMetaData.getColumnName(i+1);
-			      String value = resultSet.getString(columnName);
-			      outTuple.setValue(i, value);
-			}
-			output.add(outTuple.convert());
-		}
-		// Output message to the error output port
-	    if (output.size() == 0) {
-	        outputError("No database records match the search query.", Level.WARNING);
+
+	    if (connectionPool != null) {
+	        String query;
+	        while ((query = queryQueue.poll()) != null)
+	            processQuery(query);
 	    }
-	    
-
-	    
-	 // shut down the dbase stuff
-		try {
-			resultSet.close();
-			statement.close();
-		}
-		catch (SQLException e) {
-			console.warning("sql close exceptions " + e.toString());
-		} finally {
-		   try {
-			   connect.close();
-			} catch (SQLException e) {
-			   console.severe(e.toString());
-		   }
-	    }
-			
-		
-
-		Strings[] results = new Strings[output.size()];
-		output.toArray(results);
-		StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
-		cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
-
-	    //
-		// metaData for this tuple producer
-		//
-	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
-
-	    
 	}
 
     @Override
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception
-    {
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     	try {
-    	   connectionPool.shutdown(); // shutdown connection pool.
+    	    if (connectionPool != null)
+    	        connectionPool.shutdown(); // shutdown connection pool.
     	}
-    	catch (Exception e) {
-    	}
+    	catch (Exception e) { }
     }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.contains(IN_QUERY)) {
+            console.warning("Ignoring StreamInitiator(s) received on ports other than: " + IN_QUERY);
+            return;
+        }
+
+        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_QUERY);
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, si);
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, si);
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.contains(IN_QUERY)) {
+            console.warning("Ignoring StreamTerminator(s) received on ports other than: " + IN_QUERY);
+            return;
+        }
+
+        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_QUERY);
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, st);
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, st);
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    protected void processQuery(String query) throws SQLException, ComponentContextException {
+        Connection connect = connectionPool.getConnection(); // fetch a connection
+        if (connect == null){
+            console.severe("Database connection cannot be established");
+            return;
+        }
+
+        SimpleTuplePeer outPeer;
+        SimpleTuple outTuple;
+
+        Statement statement = null;
+        ResultSet resultSet = null;
+
+        // Statements allow to issue SQL queries to the database
+        statement = connect.createStatement();
+        // Result set get the result of the SQL query
+        console.fine("DB Query: " + query);
+        resultSet = statement.executeQuery(query);
+        ResultSetMetaData rsMetaData = resultSet.getMetaData();
+
+        int numberOfColumns = rsMetaData.getColumnCount();
+        String[] fieldNames = new String[numberOfColumns];
+        for (int i = 0; i < numberOfColumns; i++) {
+            String columnName = rsMetaData.getColumnName(i+1);
+            fieldNames[i] = columnName;
+        }
+        outPeer = new SimpleTuplePeer(fieldNames);
+        outTuple = outPeer.createTuple();
+
+        List<Strings> output = new ArrayList<Strings>();
+        while (resultSet.next()) {
+            for (int i = 0; i < numberOfColumns; i++) {
+                String columnName = rsMetaData.getColumnName(i+1);
+                String value = resultSet.getString(columnName);
+                outTuple.setValue(i, value);
+            }
+            output.add(outTuple.convert());
+        }
+
+        // Output message to the error output port
+        if (output.size() == 0)
+            outputError("No database records match the search query.", Level.WARNING);
+
+        // shut down the dbase stuff
+        try {
+            resultSet.close();
+            statement.close();
+        }
+        catch (SQLException e) {
+            console.warning("Database close exception: " + e.toString());
+        } finally {
+            try {
+                connect.close();
+            } catch (SQLException e) {
+                console.severe(e.toString());
+            }
+        }
+
+        Strings[] results = new Strings[output.size()];
+        output.toArray(results);
+        StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+
+        //
+        // metaData for this tuple producer
+        //
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
+    }
+
 }
