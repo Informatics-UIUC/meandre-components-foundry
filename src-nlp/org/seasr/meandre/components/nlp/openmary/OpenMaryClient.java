@@ -126,21 +126,28 @@ public class OpenMaryClient extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = "input_type",
-            description = "The input type",
+            description = "The input type. Can be one of:<br>" +
+            		"TEXT<br>SIMPLEPHONEMES<br>APML<br>SSML<br>SABLE<br>PARTSOFSPEECH<br>PHONEMES<br>" +
+            		"INTONATION<br>ALLOPHONES<br>PRAAT_TEXTGRID<br>REALISED_DURATIONS<br>REALISED_ACOUSTPARAMS<br>" +
+            		"RAWMARYXML<br>TOKENS<br>WORDS<br>ACOUSTPARAMS",
             defaultValue = "TEXT"
     )
     protected static final String PROP_INPUT_TYPE = "input_type";
 
     @ComponentProperty(
             name = "output_type",
-            description = "The output type",
+            description = "The output type. Can be one of:<br>" +
+            		"PARTSOFSPEECH<br>PHONEMES<br>INTONATION<br>ALLOPHONES<br>PRAAT_TEXTGRID<br>" +
+            		"REALISED_DURATIONS<br>REALISED_ACOUSTPARAMS<br>RAWMARYXML<br>TOKENS<br>WORDS<br>" +
+            		"ACOUSTPARAMS<br>HALFPHONE_TARGETFEATURES<br>TARGETFEATURES<br>AUDIO",
             defaultValue = "AUDIO"
     )
     protected static final String PROP_OUTPUT_TYPE = "output_type";
 
     @ComponentProperty(
             name = "audio_type",
-            description = "The audio type",
+            description = "The audio type. Can be one of:<br>" +
+            		"WAVE<br>AU<br>AIFF",
             defaultValue = "WAVE"
     )
     protected static final String PROP_AUDIO_TYPE = "audio_type";
