@@ -49,6 +49,7 @@ import java.util.logging.Level;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
@@ -89,25 +90,18 @@ public abstract class AbstractDBComponent extends AbstractExecutableComponent {
     //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
-            name = "hostDB",
-            description = "host/database eg. localhost/testDB",
-            defaultValue = ""
-    )
-    protected static final String PROP_DB = "hostDB";
-
-    @ComponentProperty(
-            name = "protocol",
-            description = "jdbc protocol for hostURL",
+            name = "db_url",
+            description = "The url of the database connection. (example: jdbc:mysql://localhost/myDB)",
             defaultValue = "jdbc:mysql://"
     )
-    protected static final String PROP_PROTOCOL = "protocol";
+    protected static final String PROP_DB_URL = "db_url";
 
     @ComponentProperty(
-            name = "JDBCDriver",
+            name = "db_driver",
             description = "jdbc driver to be loaded, jar must be in classpath",
             defaultValue = "com.mysql.jdbc.Driver"
     )
-    protected static final String PROP_JDBC = "JDBCDriver";
+    protected static final String PROP_DB_DRIVER = "db_driver";
 
     //--------------------------------------------------------------------------------------------
 
@@ -120,25 +114,25 @@ public abstract class AbstractDBComponent extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        String protocol = getPropertyOrDieTrying(PROP_PROTOCOL, ccp);
-        String hostDB = getPropertyOrDieTrying(PROP_DB, ccp);
-        String JDBC_DRIVER = getPropertyOrDieTrying(PROP_JDBC, ccp);
-        String fullURL = protocol + hostDB;
+        String dbDriver = getPropertyOrDieTrying(PROP_DB_DRIVER, ccp);
+        String dbURL = getPropertyOrDieTrying(PROP_DB_URL, ccp);
+        if (dbURL.equals("jdbc:mysql://"))
+            throw new ComponentContextException("The value of the property db_url is invalid. Forgot to set?");
 
-        console.fine("Connecting using " + fullURL);
+        console.fine(String.format("Using %s to connect to %s ", dbDriver, dbURL));
 
         // This will load the DB driver, each DB has its own driver
         try {
-            Class.forName(JDBC_DRIVER);
+            Class.forName(dbDriver);
         }
         catch (Exception e) {
-            console.log(Level.SEVERE, "Could not load the JDBC driver: " + JDBC_DRIVER, e);
+            console.log(Level.SEVERE, "Could not load the JDBC driver: " + dbDriver, e);
             throw e;
         }
 
         // partially setup the connection pool (still need username/pw)
         config = new BoneCPConfig();
-        config.setJdbcUrl(fullURL); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+        config.setJdbcUrl(dbURL); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
         config.setMinConnectionsPerPartition(5);
         config.setMaxConnectionsPerPartition(10);
         config.setPartitionCount(1);
