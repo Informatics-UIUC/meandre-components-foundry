@@ -106,8 +106,8 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
     //--------------------------------------------------------------------------------------------
 
 
-    protected Set<String> connectedInputs = null;
-    protected Set<String> connectedOutputs = null;
+    protected Set<String> inputPortNames = null;
+    protected Set<String> outputPortNames = null;
     //
     protected ComponentInputCache componentInputCache = new ComponentInputCache();
     //
@@ -172,16 +172,16 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
         if (ignoreErrors)
             console.fine("Exceptions are being ignored per user's request.");
 
-        connectedInputs = new HashSet<String>();
+        inputPortNames = new HashSet<String>();
         for (String componentInput : ccp.getInputNames())
-            connectedInputs.add(componentInput);
+            inputPortNames.add(componentInput);
 
-        connectedOutputs = new HashSet<String>();
+        outputPortNames = new HashSet<String>();
         for (String componentOutput : ccp.getOutputNames())
-            connectedOutputs.add(componentOutput);
+            outputPortNames.add(componentOutput);
 
-        connectedInputs = Collections.unmodifiableSet(connectedInputs);
-        connectedOutputs = Collections.unmodifiableSet(connectedOutputs);
+        inputPortNames = Collections.unmodifiableSet(inputPortNames);
+        outputPortNames = Collections.unmodifiableSet(outputPortNames);
 
         componentInputCache.setLogger(console);
 
@@ -227,11 +227,10 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
         try {
             boolean callExecute = true;
 
-            for (String inputPort : connectedInputs) {
-                Object data = cc.getDataComponentFromInput(inputPort);
+            for (String inputPort : inputPortNames) {
+                if (!cc.isInputAvailable(inputPort)) continue;
 
-                // data = null seems to happen for components with FiringPolicy.any
-                if (data == null) continue;
+                Object data = cc.getDataComponentFromInput(inputPort);
 
                 // show the inputs and data-types received on each input in "debug" mode
                 console.finer(String.format("Input port '%s' has data of type '%s'",
@@ -339,8 +338,8 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
     protected void handleStreamInitiators() throws Exception {
         console.entering(getClass().getName(), "handleStreamInitiators", inputPortsWithInitiators);
 
-        int nConnectedOutputs = connectedOutputs.size();
-        if (connectedInputs.size() == 1 && (nConnectedOutputs == 1 || nConnectedOutputs == 2)) {
+        int nConnectedOutputs = outputPortNames.size();
+        if (inputPortNames.size() == 1 && (nConnectedOutputs == 1 || nConnectedOutputs == 2)) {
             console.fine("Forwarding " + StreamInitiator.class.getSimpleName() + " to the next component...");
 
             String outputPortName = null;
@@ -368,8 +367,8 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
 
         console.entering(getClass().getName(), "handleStreamTerminators", inputPortsWithTerminators);
 
-        int nConnectedOutputs = connectedOutputs.size();
-        if (connectedInputs.size() == 1 && (nConnectedOutputs == 1 || nConnectedOutputs == 2)) {
+        int nConnectedOutputs = outputPortNames.size();
+        if (inputPortNames.size() == 1 && (nConnectedOutputs == 1 || nConnectedOutputs == 2)) {
             console.fine("Forwarding " + StreamTerminator.class.getSimpleName() + " to the next component...");
 
             String outputPortName = null;
@@ -397,7 +396,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
      * @return
      */
     public boolean isComponentInputConnected(String componentInputName) {
-        return connectedInputs.contains(componentInputName);
+        return inputPortNames.contains(componentInputName);
     }
 
     /**
@@ -408,7 +407,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
      * @return
      */
     public boolean isComponentOutputConnected(String componentOutputName) {
-        return connectedOutputs.contains(componentOutputName);
+        return outputPortNames.contains(componentOutputName);
     }
 
     public void outputError(String message, Level level) {
@@ -458,7 +457,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
             StringBuilder sb = new StringBuilder();
             for (String name : context.getPropertyNames())
                 sb.append(", ").append(name);
-            
+
             throw new ComponentExecutionException(String.format(
                     "Missing property '%s' - check the component RDF descriptor! " +
                     "Available properties: [%s]", propName, sb.substring(2)));
@@ -472,7 +471,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
 
         return propValue;
     }
-    
+
     /**
     * Attempts to retrieve the value of a property trims whitespace and fails if the value is empty
     *

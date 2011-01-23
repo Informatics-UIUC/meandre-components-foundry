@@ -178,7 +178,7 @@ public class DataTypeDecoder extends AbstractExecutableComponent {
         if (_outputPort == null) {
             // This means execute() was never called
             if (_si != null) {
-                for (String connectedOutput : connectedOutputs) {
+                for (String connectedOutput : outputPortNames) {
                     componentContext.pushDataComponentToOutput(connectedOutput, _si);
                     _si = null;
                     break;
@@ -188,7 +188,7 @@ public class DataTypeDecoder extends AbstractExecutableComponent {
                 return;
             }
 
-            for (String connectedOutput : connectedOutputs) {
+            for (String connectedOutput : outputPortNames) {
                 // push the terminator received to the first connected output port
                 componentContext.pushDataComponentToOutput(connectedOutput, st);
                 break;

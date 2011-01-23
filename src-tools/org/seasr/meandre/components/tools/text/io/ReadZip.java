@@ -188,7 +188,7 @@ public class ReadZip extends AbstractExecutableComponent {
     }
     
     private void pushDelimiter(StreamDelimiter sd) throws ComponentContextException {
-        for (String output : connectedOutputs) {
+        for (String output : outputPortNames) {
             if (output.equals(OUT_ERROR)) continue;
             componentContext.pushDataComponentToOutput(output, sd);
         }
