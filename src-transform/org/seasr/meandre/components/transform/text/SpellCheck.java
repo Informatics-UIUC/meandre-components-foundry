@@ -167,6 +167,11 @@ public class SpellCheck extends AbstractExecutableComponent {
     protected SpellDictionary _spellDictionary;
     protected StreamTerminator _st;
 
+    // stats
+    protected int _countTotalWords;
+    protected int _countMisspelledWords;
+    protected int _countUncorrectedWords;
+
     //--------------------------------------------------------------------------------------------
 
     @Override
@@ -178,6 +183,7 @@ public class SpellCheck extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+
         if (cc.isInputAvailable(IN_DICTIONARY)) {
             Object in_dictionary = cc.getDataComponentFromInput(IN_DICTIONARY);
             _spellDictionary = getDictionary(in_dictionary);
@@ -189,6 +195,8 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         if (isReadyToProcessInputs()) {
             for (int i = 0, iMax = _inputQueue.size(); i < iMax; i++) {
+                _countTotalWords = _countMisspelledWords = _countUncorrectedWords = 0;
+
                 Object input = _inputQueue.poll();
 
                 try {
@@ -208,6 +216,11 @@ public class SpellCheck extends AbstractExecutableComponent {
                         processText(text);
                     }
                 }
+
+                // Display stats
+                console.info(String.format("Total number of words (including duplicates): %d", _countTotalWords));
+                console.info(String.format("Number of unique misspelled words: %d", _countMisspelledWords));
+                console.info(String.format("Number of unique words with no suggested replacement: %d", _countUncorrectedWords));
             }
         }
 
@@ -292,11 +305,17 @@ public class SpellCheck extends AbstractExecutableComponent {
 
     private void processText(String[] text) throws ComponentContextException {
         SuggestionListener listener = getSuggestionListener();
+        listener.resetStats();
         _spellChecker.addSpellCheckListener(listener);
 
         for (int i = 0, iMax = text.length; i < iMax; i++) {
             StringWordTokenizer wordTokenizer = new StringWordTokenizer(text[i]);
             _spellChecker.checkSpelling(wordTokenizer);
+            StringWordTokenizer wordCounter = new StringWordTokenizer(text[i]);
+            while (wordCounter.hasMoreWords())
+                _countTotalWords++;
+            _countMisspelledWords += listener.getCountSpellingErrors();
+            _countUncorrectedWords += listener.getCountMissedCorrections();
             text[i] = wordTokenizer.getContext();
         }
 
@@ -314,6 +333,7 @@ public class SpellCheck extends AbstractExecutableComponent {
 
     private void processTokenizedSentences(Map<String, String[]> tokenizedSentences) throws ComponentContextException {
         SuggestionListener listener = getSuggestionListener();
+        listener.resetStats();
         _spellChecker.addSpellCheckListener(listener);
 
         Map<String, String[]> correctedTokenizedSentences = new HashMap<String, String[]>(tokenizedSentences.size());
@@ -323,6 +343,11 @@ public class SpellCheck extends AbstractExecutableComponent {
 
             StringWordTokenizer wordTokenizer = new StringWordTokenizer(sentence);
             _spellChecker.checkSpelling(wordTokenizer);
+            StringWordTokenizer wordCounter = new StringWordTokenizer(sentence);
+            while (wordCounter.hasMoreWords())
+                _countTotalWords++;
+            _countMisspelledWords += listener.getCountSpellingErrors();
+            _countUncorrectedWords += listener.getCountMissedCorrections();
 
             if (_doCorrection) {
                 sentence = wordTokenizer.getContext();
@@ -354,12 +379,19 @@ public class SpellCheck extends AbstractExecutableComponent {
 
     private void processTokenCounts(Map<String, Integer> tokenCounts) throws ComponentContextException {
         SuggestionListener listener = getSuggestionListener();
+        listener.resetStats();
         _spellChecker.addSpellCheckListener(listener);
 
         Map<String, Integer> correctedTokenCounts = new HashMap<String, Integer>(tokenCounts.size());
         for (Entry<String,Integer> entry : tokenCounts.entrySet()) {
             StringWordTokenizer wordTokenizer = new StringWordTokenizer(entry.getKey());
             _spellChecker.checkSpelling(wordTokenizer);
+            StringWordTokenizer wordCounter = new StringWordTokenizer(entry.getKey());
+            while (wordCounter.hasMoreWords())
+                _countTotalWords++;
+            _countMisspelledWords += listener.getCountSpellingErrors();
+            _countUncorrectedWords += listener.getCountMissedCorrections();
+
             if (_doCorrection) {
                 String token = wordTokenizer.getContext();
                 Integer oldCount = correctedTokenCounts.containsKey(token) ? correctedTokenCounts.get(token) : 0;
@@ -400,6 +432,9 @@ public class SpellCheck extends AbstractExecutableComponent {
         protected final boolean _doCorrection;
         protected final Logger _logger;
 
+        protected int _countSpellingErrors = 0;
+        protected int _countMissedCorrections = 0;
+
         public SuggestionListener(boolean doCorrection) {
             this(doCorrection, null);
         }
@@ -411,6 +446,8 @@ public class SpellCheck extends AbstractExecutableComponent {
         }
 
         public void spellingError(SpellCheckEvent event) {
+            _countSpellingErrors++;
+
             if (_logger != null) _logger.finer("Misspelling: " + event.getInvalidWord());
             List<?> suggestions = event.getSuggestions();
 
@@ -438,8 +475,10 @@ public class SpellCheck extends AbstractExecutableComponent {
                     event.replaceWord(topRankedSuggestion, true);
                 else
                     event.ignoreWord(true);
-            } else
+            } else {
                 _logger.finer("Suggestions: <none>");
+                _countMissedCorrections++;
+            }
         }
 
         protected String getReplacement(String invalidWord, List<?> suggestions) {
@@ -461,6 +500,18 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         public Map<String, Set<String>> getReplacements() {
             return _replacements;
+        }
+
+        public void resetStats() {
+            _countSpellingErrors = _countMissedCorrections = 0;
+        }
+
+        public int getCountSpellingErrors() {
+            return _countSpellingErrors;
+        }
+
+        public int getCountMissedCorrections() {
+            return _countMissedCorrections;
         }
     }
 }
