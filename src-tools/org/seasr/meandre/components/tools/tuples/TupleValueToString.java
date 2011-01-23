@@ -45,22 +45,22 @@ package org.seasr.meandre.components.tools.tuples;
 import java.util.Arrays;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -124,20 +124,28 @@ public class TupleValueToString extends AbstractExecutableComponent {
 		   name = "fieldname",
 		   defaultValue = ""
 	)
-    protected static final String DATA_PROPERTY_FIELD = "fieldname";
+    protected static final String PROP_FIELD = "fieldname";
+
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the output be wrapped as a stream?",
+            defaultValue = "false"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
    	//--------------------------------------------------------------------------------------------
 
 
-    String fieldname;
-    boolean _isStreaming = false;
+    String _fieldname;
+    boolean _wrapStream;
 
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.fieldname = ccp.getProperty(DATA_PROPERTY_FIELD).trim();
+		_fieldname = getPropertyOrDieTrying(PROP_FIELD, ccp);
+		_wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
 	}
 
 	@Override
@@ -150,15 +158,15 @@ public class TupleValueToString extends AbstractExecutableComponent {
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-		int FIELD_IDX = tuplePeer.getIndexForFieldName(fieldname);
+		int FIELD_IDX = tuplePeer.getIndexForFieldName(_fieldname);
 		if (FIELD_IDX == -1) {
 			String dump = tuplePeer.toString();
-			throw new ComponentExecutionException("tuple has no field named " + fieldname + "\n" + dump);
+			throw new ComponentExecutionException("tuple has no field named " + _fieldname + "\n" + dump);
 		}
 
-		SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] {fieldname});
+		SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] {_fieldname});
 
-		if (!_isStreaming) {
+		if (_wrapStream) {
 		    StreamDelimiter si = new StreamInitiator();
 		    cc.pushDataComponentToOutput(OUT_META_TUPLE, si);
 		    cc.pushDataComponentToOutput(OUT_TEXT, si);
@@ -178,7 +186,7 @@ public class TupleValueToString extends AbstractExecutableComponent {
 		    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
 		}
 
-		if (!_isStreaming) {
+		if (_wrapStream) {
             StreamDelimiter st = new StreamTerminator();
             cc.pushDataComponentToOutput(OUT_META_TUPLE, st);
             cc.pushDataComponentToOutput(OUT_TEXT, st);
@@ -196,7 +204,6 @@ public class TupleValueToString extends AbstractExecutableComponent {
         if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-        _isStreaming = true;
         componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
         componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_TUPLES));
     }
@@ -206,7 +213,6 @@ public class TupleValueToString extends AbstractExecutableComponent {
         if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-        _isStreaming = false;
         componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
         componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_TUPLES));
     }
