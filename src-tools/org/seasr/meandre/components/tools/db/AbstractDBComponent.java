@@ -44,6 +44,7 @@ package org.seasr.meandre.components.tools.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 
 import org.meandre.annotations.ComponentInput;
@@ -172,12 +173,35 @@ public abstract class AbstractDBComponent extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        try {
-            if (connectionPool != null) {
-                connectionPool.shutdown(); // shutdown connection pool.
-                connectionPool = null;
+        shutdownConnectionPool();
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    protected void closeConnection(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.close();
+            }
+            catch (SQLException e) {
+                console.log(Level.WARNING, "Error closing DB connection!", e);
             }
         }
-        catch (Exception e) { }
+    }
+
+    protected void closeStatement(Statement statement) {
+        if (statement != null) {
+            try {
+                statement.close();
+            }
+            catch (SQLException e) {
+                console.log(Level.WARNING, "Error closing DB statement!", e);
+            }
+        }
+    }
+
+    protected void shutdownConnectionPool() {
+        if (connectionPool != null)
+            connectionPool.shutdown();
     }
 }

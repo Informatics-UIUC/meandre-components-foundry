@@ -189,10 +189,10 @@ public class SQLToTuple extends AbstractDBComponent {
         SimpleTuplePeer outPeer;
         List<Strings> output;
 
-        Connection connect = null;
+        Connection connection = null;
         try {
-            connect = connectionPool.getConnection(); // fetch a connection
-            if (connect == null){
+            connection = connectionPool.getConnection(); // fetch a connection
+            if (connection == null){
                 console.severe("Database connection cannot be established");
                 return;
             }
@@ -202,7 +202,7 @@ public class SQLToTuple extends AbstractDBComponent {
             Statement statement = null;
             try {
                 // Statements allow to issue SQL queries to the database
-                statement = connect.createStatement();
+                statement = connection.createStatement();
                 // Result set get the result of the SQL query
                 console.fine("DB Query: " + query);
                 ResultSet resultSet = statement.executeQuery(query);
@@ -228,22 +228,11 @@ public class SQLToTuple extends AbstractDBComponent {
                 }
             }
             finally {
-                // Clean up
-                if (statement != null)
-                    try {
-                        statement.close();
-                    } catch (SQLException e) {
-                        console.log(Level.WARNING, "Error closing DB statement", e);
-                    }
+                closeStatement(statement);
             }
         }
         finally {
-            if (connect != null)
-                try {
-                    connect.close();
-                } catch (SQLException e) {
-                    console.log(Level.WARNING, "Error closing DB connection", e);
-                }
+            closeConnection(connection);
         }
 
         // Output message to the error output port
