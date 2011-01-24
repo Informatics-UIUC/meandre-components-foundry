@@ -161,11 +161,7 @@ public abstract class AbstractDBComponent extends AbstractExecutableComponent {
                     throw e;
                 }
                 finally {
-                    if (conn != null)
-                        try {
-                            conn.close();
-                        }
-                    catch (SQLException e) { }
+                    releaseConnection(conn);
                 }
             }
         }
@@ -174,6 +170,22 @@ public abstract class AbstractDBComponent extends AbstractExecutableComponent {
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         shutdownConnectionPool();
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        // Since this component is a FiringPolicy.any, it is possible that when handleStreamInitiators() is
+        // called, there could be non-StreamDelimiter data that has arrived on other ports which would be
+        // lost if we don't call 'executeCallBack' (when handleStreamInitiators() gets called, executeCallBack is NOT called)
+
+        executeCallBack(componentContext);
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        executeCallBack(componentContext);
     }
 
     //--------------------------------------------------------------------------------------------
