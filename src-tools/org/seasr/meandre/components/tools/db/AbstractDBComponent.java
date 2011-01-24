@@ -52,6 +52,7 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
@@ -142,11 +143,21 @@ public abstract class AbstractDBComponent extends AbstractExecutableComponent {
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         if (connectionPool == null) {
-            if (cc.isInputAvailable(IN_USERNAME))
-                config.setUsername(DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_USERNAME))[0]);
+            if (cc.isInputAvailable(IN_USERNAME)) {
+                Object username = cc.getDataComponentFromInput(IN_USERNAME);
+                if (!(username instanceof StreamDelimiter))
+                    config.setUsername(DataTypeParser.parseAsString(username)[0]);
+                else
+                    console.severe(String.format("StreamDelimiters should NOT be arriving on port '%s'!", IN_USERNAME));
+            }
 
-            if (cc.isInputAvailable(IN_PASSWORD))
-                config.setPassword(DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_PASSWORD))[0]);
+            if (cc.isInputAvailable(IN_PASSWORD)) {
+                Object password = cc.getDataComponentFromInput(IN_PASSWORD);
+                if (!(password instanceof StreamDelimiter))
+                    config.setPassword(DataTypeParser.parseAsString(password)[0]);
+                else
+                    console.severe(String.format("StreamDelimiters should NOT be arriving on port '%s'!", IN_PASSWORD));
+            }
 
             if (config.getUsername() != null && config.getPassword() != null) {
                 connectionPool = new BoneCP(config);
