@@ -102,7 +102,7 @@ public class TextAccumulator extends AbstractExecutableComponent {
     //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
-            description = "The separator insert between the text values",
+            description = "The separator to insert between the text values",
             name = Names.PROP_SEPARATOR,
             defaultValue = " "
     )
