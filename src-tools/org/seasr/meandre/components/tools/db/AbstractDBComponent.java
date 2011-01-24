@@ -178,21 +178,55 @@ public abstract class AbstractDBComponent extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-    protected void closeConnection(Connection connection) {
+    /**
+     * Rolls back the last DB transaction for a connection
+     *
+     * @param connection The connection
+     * @return True if success / False otherwise
+     */
+    protected boolean rollbackTransaction(Connection connection) {
+        if (connection == null) return false;
+
+        try {
+            connection.rollback();
+            return true;
+        }
+        catch (SQLException e) {
+            console.log(Level.WARNING, "Error rolling back DB transaction!", e);
+            return false;
+        }
+    }
+
+    /**
+     * Returns a connection back to the connection pool
+     *
+     * @param connection The connection
+     * @param statements  (Optional) Any ResultSet(s) that need to be closed before the connection is released
+     */
+    protected void releaseConnection(Connection connection, Statement... statements) {
+        if (statements != null)
+            for (Statement stmt : statements)
+                closeStatement(stmt);
+
         if (connection != null) {
             try {
                 connection.close();
             }
-            catch (SQLException e) {
-                console.log(Level.WARNING, "Error closing DB connection!", e);
+            catch (Exception e) {
+                console.log(Level.WARNING, "Error releasing DB connection!", e);
             }
         }
     }
 
-    protected void closeStatement(Statement statement) {
-        if (statement != null) {
+    /**
+     * Closes a Statement
+     *
+     * @param stmt The Statement
+     */
+    protected void closeStatement(Statement stmt) {
+        if (stmt != null) {
             try {
-                statement.close();
+                stmt.close();
             }
             catch (SQLException e) {
                 console.log(Level.WARNING, "Error closing DB statement!", e);

@@ -190,49 +190,38 @@ public class SQLToTuple extends AbstractDBComponent {
         List<Strings> output;
 
         Connection connection = null;
+        Statement stmt = null;
         try {
             connection = connectionPool.getConnection(); // fetch a connection
-            if (connection == null){
-                console.severe("Database connection cannot be established");
-                return;
+
+            // Statements allow to issue SQL queries to the database
+            stmt = connection.createStatement();
+            // Result set get the result of the SQL query
+            console.fine("DB Query: " + query);
+            ResultSet resultSet = stmt.executeQuery(query);
+            ResultSetMetaData rsMetaData = resultSet.getMetaData();
+
+            int numberOfColumns = rsMetaData.getColumnCount();
+            String[] fieldNames = new String[numberOfColumns];
+            for (int i = 0; i < numberOfColumns; i++) {
+                String columnName = rsMetaData.getColumnName(i+1);
+                fieldNames[i] = columnName;
             }
+            outPeer = new SimpleTuplePeer(fieldNames);
+            SimpleTuple outTuple = outPeer.createTuple();
 
-            SimpleTuple outTuple;
-
-            Statement statement = null;
-            try {
-                // Statements allow to issue SQL queries to the database
-                statement = connection.createStatement();
-                // Result set get the result of the SQL query
-                console.fine("DB Query: " + query);
-                ResultSet resultSet = statement.executeQuery(query);
-                ResultSetMetaData rsMetaData = resultSet.getMetaData();
-
-                int numberOfColumns = rsMetaData.getColumnCount();
-                String[] fieldNames = new String[numberOfColumns];
+            output = new ArrayList<Strings>();
+            while (resultSet.next()) {
                 for (int i = 0; i < numberOfColumns; i++) {
                     String columnName = rsMetaData.getColumnName(i+1);
-                    fieldNames[i] = columnName;
+                    String value = resultSet.getString(columnName);
+                    outTuple.setValue(i, value);
                 }
-                outPeer = new SimpleTuplePeer(fieldNames);
-                outTuple = outPeer.createTuple();
-
-                output = new ArrayList<Strings>();
-                while (resultSet.next()) {
-                    for (int i = 0; i < numberOfColumns; i++) {
-                        String columnName = rsMetaData.getColumnName(i+1);
-                        String value = resultSet.getString(columnName);
-                        outTuple.setValue(i, value);
-                    }
-                    output.add(outTuple.convert());
-                }
-            }
-            finally {
-                closeStatement(statement);
+                output.add(outTuple.convert());
             }
         }
         finally {
-            closeConnection(connection);
+            releaseConnection(connection, stmt);
         }
 
         // Output message to the error output port
