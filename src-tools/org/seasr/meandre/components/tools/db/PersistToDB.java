@@ -266,7 +266,9 @@ public class PersistToDB extends AbstractDBComponent {
                     "  seq_no MEDIUMINT UNSIGNED NOT NULL," +
                     "  data LONGBLOB NOT NULL," +
                     "  type VARCHAR(255) NOT NULL," +
+                    "  port_name VARCHAR(30)," +   // can be null for 1-port scenarios such as this component
                     "  serializer ENUM ('protobuf', 'java') NOT NULL," +
+                    "  PRIMARY KEY (uuid, seq_no, port_name)," +
                     "  FOREIGN KEY (uuid) REFERENCES %s (uuid)," +
                     "  INDEX (uuid)" +
                     ")%s;", _dbTable, PERSISTENCE_META_TABLE_NAME, extra));
