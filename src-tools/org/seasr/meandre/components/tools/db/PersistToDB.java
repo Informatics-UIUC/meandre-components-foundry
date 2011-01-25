@@ -129,15 +129,14 @@ public class PersistToDB extends AbstractDBComponent {
     protected BigDecimal _uuid;
     protected int _seqNo;
 
-    protected int _portCount;
+    /** The number of ports that can contain data to be persisted */
+    protected final int _portCount = 1;
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
-
-        _portCount = 1;
 
         _dbTable = getPropertyOrDieTrying(PROP_TABLE, ccp);
 
