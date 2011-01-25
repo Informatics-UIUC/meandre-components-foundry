@@ -42,10 +42,6 @@
 
 package org.seasr.meandre.components.tools.db;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -66,10 +62,11 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
-import org.seasr.meandre.support.generic.util.KeyValuePair;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.meandre.support.generic.io.Serializer;
+import org.seasr.meandre.support.generic.io.Serializer.SerializationFormat;
+import org.seasr.meandre.support.generic.util.Tuples.Tuple2;
 import org.seasr.meandre.support.generic.util.UUIDUtils;
-
-import com.google.protobuf.AbstractMessageLite;
 
 @Component(
         name = "Persist To DB",
@@ -144,8 +141,8 @@ public class PersistToDB extends AbstractDBComponent {
                 "  VALUES (?, ?, NOW(), ?, ?, ?);", PERSISTENCE_META_TABLE_NAME);
 
         _sqlInsertData = String.format(
-                "INSERT INTO %s (uuid, seq_no, data, serializer) " +
-                "  VALUES (?, ?, ?, ?);", _dbTable);
+                "INSERT INTO %s (uuid, seq_no, data, type, serializer) " +
+                "  VALUES (?, ?, ?, ?, ?);", _dbTable);
     }
 
     @Override
@@ -192,7 +189,8 @@ public class PersistToDB extends AbstractDBComponent {
                     _isStreaming = false;
                     if (_seqNo > 1) {  // Only commit if non-empty stream
                         connection.commit();
-                        cc.pushDataComponentToOutput(OUT_ID, UUIDUtils.fromBigInteger(_uuid.toBigInteger()));
+                        cc.pushDataComponentToOutput(OUT_ID,
+                                BasicDataTypesTools.stringToStrings(UUIDUtils.fromBigInteger(_uuid.toBigInteger()).toString()));
                     } else
                         // Empty stream - roll back the insertPersistenceMetaInfo call
                         rollbackTransaction(connection);
@@ -200,7 +198,7 @@ public class PersistToDB extends AbstractDBComponent {
                     continue;
                 }
 
-                KeyValuePair<byte[], String> result = serializeObject(input);
+                Tuple2<byte[], SerializationFormat> result = Serializer.serializeObject(input);
                 if (result == null) {
                     console.warning(String.format("Could not serialize object of type '%s' - ignoring it...", input.getClass().getName()));
                     continue;
@@ -211,14 +209,16 @@ public class PersistToDB extends AbstractDBComponent {
 
                 psData.setBigDecimal(1, _uuid);
                 psData.setInt(2, _seqNo++);
-                psData.setBytes(3, result.getKey());
-                psData.setString(4, result.getValue());
+                psData.setBytes(3, result.getT1());
+                psData.setString(4, input.getClass().getName());
+                psData.setString(5, result.getT2().name());
                 int rowCount = psData.executeUpdate();
                 console.finer(String.format("psData: rowCount=%d", rowCount));
 
                 if (!_isStreaming) {
                     connection.commit();
-                    cc.pushDataComponentToOutput(OUT_ID, UUIDUtils.fromBigInteger(_uuid.toBigInteger()));
+                    cc.pushDataComponentToOutput(OUT_ID,
+                            BasicDataTypesTools.stringToStrings(UUIDUtils.fromBigInteger(_uuid.toBigInteger()).toString()));
                 }
             }
 
@@ -265,6 +265,7 @@ public class PersistToDB extends AbstractDBComponent {
                     "  uuid DECIMAL(39) NOT NULL," +
                     "  seq_no MEDIUMINT UNSIGNED NOT NULL," +
                     "  data LONGBLOB NOT NULL," +
+                    "  type VARCHAR(255) NOT NULL," +
                     "  serializer ENUM ('protobuf', 'java') NOT NULL," +
                     "  FOREIGN KEY (uuid) REFERENCES %s (uuid)," +
                     "  INDEX (uuid)" +
@@ -294,28 +295,5 @@ public class PersistToDB extends AbstractDBComponent {
         psMeta.setString(5, componentContext.getFlowExecutionInstanceID());
         int rowCount = psMeta.executeUpdate();
         console.finer(String.format("psMeta: rowCount=%d", rowCount));
-    }
-
-    protected KeyValuePair<byte[], String> serializeObject(Object obj) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        String serializer = null;
-
-        if (obj instanceof AbstractMessageLite) {
-            // Google Protocol Buffers serialization
-            ((AbstractMessageLite) obj).writeTo(baos);
-            serializer = "protobuf";
-        }
-
-        else
-
-        if (obj instanceof Serializable) {
-            // Regular Java serialization
-            ObjectOutputStream out = new ObjectOutputStream(baos);
-            out.writeObject(obj);
-            out.close();
-            serializer = "java";
-        }
-
-        return baos.size() > 0 ? new KeyValuePair<byte[], String>(baos.toByteArray(), serializer) : null;
     }
 }
