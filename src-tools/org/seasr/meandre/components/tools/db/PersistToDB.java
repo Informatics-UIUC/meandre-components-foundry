@@ -47,6 +47,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.UUID;
@@ -128,21 +129,25 @@ public class PersistToDB extends AbstractDBComponent {
     protected BigDecimal _uuid;
     protected int _seqNo;
 
+    protected int _portCount;
+
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
 
+        _portCount = 1;
+
         _dbTable = getPropertyOrDieTrying(PROP_TABLE, ccp);
 
         _sqlInsertMeta = String.format(
-                "INSERT INTO %s (uuid, table_name, date, streaming, flow, flow_exec_id) " +
-                "  VALUES (?, ?, NOW(), ?, ?, ?);", PERSISTENCE_META_TABLE_NAME);
+                "INSERT INTO %s (uuid, table_name, date, streaming, port_count, flow, flow_exec_id) " +
+                "  VALUES (?, ?, NOW(), ?, ?, ?, ?);", PERSISTENCE_META_TABLE_NAME);
 
         _sqlInsertData = String.format(
-                "INSERT INTO %s (uuid, seq_no, data, type, serializer) " +
-                "  VALUES (?, ?, ?, ?, ?);", _dbTable);
+                "INSERT INTO %s (uuid, seq_no, data, type, port_name, serializer) " +
+                "  VALUES (?, ?, ?, ?, ?, ?);", _dbTable);
     }
 
     @Override
@@ -211,7 +216,8 @@ public class PersistToDB extends AbstractDBComponent {
                 psData.setInt(2, _seqNo++);
                 psData.setBytes(3, result.getT1());
                 psData.setString(4, input.getClass().getName());
-                psData.setString(5, result.getT2().name());
+                psData.setNull(5, Types.VARCHAR);
+                psData.setString(6, result.getT2().name());
                 int rowCount = psData.executeUpdate();
                 console.finer(String.format("psData: rowCount=%d", rowCount));
 
@@ -255,6 +261,7 @@ public class PersistToDB extends AbstractDBComponent {
                     "  table_name VARCHAR(15) NOT NULL," +
                     "  date DATETIME NOT NULL," +
                     "  streaming BOOLEAN NOT NULL," +
+                    "  port_count TINYINT NOT NULL," +
                     "  flow VARCHAR(255) NOT NULL," +
                     "  flow_exec_id VARCHAR(255) NOT NULL," +
                     "  PRIMARY KEY (uuid), INDEX (date), INDEX (table_name)" +
@@ -293,8 +300,9 @@ public class PersistToDB extends AbstractDBComponent {
         psMeta.setBigDecimal(1, _uuid);
         psMeta.setString(2, _dbTable);
         psMeta.setBoolean(3, _isStreaming);
-        psMeta.setString(4, componentContext.getFlowID());
-        psMeta.setString(5, componentContext.getFlowExecutionInstanceID());
+        psMeta.setInt(4, _portCount);
+        psMeta.setString(5, componentContext.getFlowID());
+        psMeta.setString(6, componentContext.getFlowExecutionInstanceID());
         int rowCount = psMeta.executeUpdate();
         console.finer(String.format("psMeta: rowCount=%d", rowCount));
     }
