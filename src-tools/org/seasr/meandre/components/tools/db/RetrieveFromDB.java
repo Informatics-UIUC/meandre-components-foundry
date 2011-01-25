@@ -123,6 +123,8 @@ public class RetrieveFromDB extends AbstractDBComponent {
     protected String _sqlQueryMeta;
     protected String _sqlQueryData;
 
+    /** The number of ports on which retrieved data can be output */
+    protected final int _portCount = 1;
 
     //--------------------------------------------------------------------------------------------
 
@@ -132,7 +134,7 @@ public class RetrieveFromDB extends AbstractDBComponent {
 
         _dbTable = getPropertyOrDieTrying(PROP_TABLE, ccp);
         _sqlQueryMeta = String.format(
-                "SELECT table_name, streaming FROM %s WHERE uuid = ?", PERSISTENCE_META_TABLE_NAME);
+                "SELECT table_name, streaming, port_count FROM %s WHERE uuid = ?", PERSISTENCE_META_TABLE_NAME);
     }
 
     @Override
@@ -162,6 +164,13 @@ public class RetrieveFromDB extends AbstractDBComponent {
                 ResultSet rs = psMeta.executeQuery();
 
                 if (rs.next()) {
+                    int portCount = rs.getInt("port_count");
+                    if (portCount != _portCount) {
+                        outputError(String.format("This component cannot be used to retrieve data for id '%s'! " +
+                        		"Reason: port number mismatch! (should be: %d, actual: %d) - " +
+                        		"Use a component with a matching number of output ports!", input, _portCount, portCount), Level.SEVERE);
+                        continue;
+                    }
                     String tableName = rs.getString("table_name");
                     boolean isStreaming = rs.getBoolean("streaming");
 
@@ -169,7 +178,7 @@ public class RetrieveFromDB extends AbstractDBComponent {
                         cc.pushDataComponentToOutput(OUT_DATA, new StreamInitiator());
 
                     String sqlQueryData = String.format(
-                            "SELECT data, type, serializer FROM %s WHERE uuid = ? ORDER BY seq_no ASC", tableName);
+                            "SELECT data, type, port_name, serializer FROM %s WHERE uuid = ? ORDER BY seq_no ASC", tableName);
                     psData = connection.prepareStatement(sqlQueryData);
                     psData.setBigDecimal(1, uuid);
                     rs = psData.executeQuery();
