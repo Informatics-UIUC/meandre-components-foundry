@@ -121,7 +121,7 @@ public class TextAccumulator extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         String separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, true, ccp);
-        _separator = String.format(separator.replaceAll("%", "%%"));
+        _separator = separator.replaceAll("\\t", "\t").replaceAll("\\n", "\n").replaceAll("\\r", "\r");
         console.fine(String.format("Separator set to '%s' (surrounding single quotes added for readability)", _separator));
 
         _gotInitiator = false;
@@ -173,5 +173,4 @@ public class TextAccumulator extends AbstractExecutableComponent {
                 BasicDataTypesTools.stringToStrings(_accumulator.substring(_separator.length())));
         _accumulator = new StringBuilder();
     }
-
 }
