@@ -47,7 +47,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.UUID;
@@ -85,11 +84,11 @@ public class PersistToDB extends AbstractDBComponent {
     //------------------------------ INPUTS -----------------------------------------------------
 
     @ComponentInput(
-            name = "data",
+            name = "data1",
             description = "The data to be persisted in the database" +
                           "<br>TYPE: java.lang.Object"
     )
-    protected static final String IN_DATA = "data";
+    protected static final String IN_DATA1 = "data1";
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -108,6 +107,13 @@ public class PersistToDB extends AbstractDBComponent {
             defaultValue = ""
     )
     protected static final String PROP_TABLE = "db_table";
+
+    @ComponentProperty(
+            name = "port1_name",
+            description = "The port name of the component's output port that's connected to this component's 'data1' port",
+            defaultValue = ""
+    )
+    protected static final String PROP_PORT1_NAME = "port1_name";
 
     //--------------------------------------------------------------------------------------------
 
@@ -132,6 +138,9 @@ public class PersistToDB extends AbstractDBComponent {
     /** The number of ports that can contain data to be persisted */
     protected final int _portCount = 1;
 
+    protected String _port1Name;
+
+
     //--------------------------------------------------------------------------------------------
 
     @Override
@@ -139,6 +148,7 @@ public class PersistToDB extends AbstractDBComponent {
         super.initializeCallBack(ccp);
 
         _dbTable = getPropertyOrDieTrying(PROP_TABLE, ccp);
+        _port1Name = getPropertyOrDieTrying(PROP_PORT1_NAME, ccp);
 
         _sqlInsertMeta = String.format(
                 "INSERT INTO %s (uuid, table_name, date, streaming, port_count, flow, flow_exec_id) " +
@@ -153,10 +163,10 @@ public class PersistToDB extends AbstractDBComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         super.executeCallBack(cc);
 
-        if (cc.isInputAvailable(IN_DATA))
+        if (cc.isInputAvailable(IN_DATA1))
             // We want to allow queueing of StreamDelimiters so
             // that we know when to process in streaming mode and when not
-            _inputQueue.offer(cc.getDataComponentFromInput(IN_DATA));
+            _inputQueue.offer(cc.getDataComponentFromInput(IN_DATA1));
 
         if (connectionPool == null || _inputQueue.isEmpty())
             // we're not ready to process yet, return
@@ -215,7 +225,7 @@ public class PersistToDB extends AbstractDBComponent {
                 psData.setInt(2, _seqNo++);
                 psData.setBytes(3, result.getT1());
                 psData.setString(4, input.getClass().getName());
-                psData.setNull(5, Types.VARCHAR);
+                psData.setString(5, _port1Name);
                 psData.setString(6, result.getT2().name());
                 int rowCount = psData.executeUpdate();
                 console.finer(String.format("psData: rowCount=%d", rowCount));
@@ -272,7 +282,7 @@ public class PersistToDB extends AbstractDBComponent {
                     "  seq_no MEDIUMINT UNSIGNED NOT NULL," +
                     "  data LONGBLOB NOT NULL," +
                     "  type VARCHAR(255) NOT NULL," +
-                    "  port_name VARCHAR(30)," +   // can be null for 1-port scenarios such as this component
+                    "  port_name VARCHAR(30) NOT NULL," +
                     "  serializer ENUM ('protobuf', 'java') NOT NULL," +
                     "  PRIMARY KEY (uuid, seq_no, port_name)," +
                     "  FOREIGN KEY (uuid) REFERENCES %s (uuid)," +
