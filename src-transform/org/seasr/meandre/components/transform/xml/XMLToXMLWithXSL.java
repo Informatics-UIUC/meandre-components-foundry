@@ -118,11 +118,11 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			name = Names.PORT_XML,
+			name = "xml_or_text",
 			description = "The transformed XML document." +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
-	private final static String OUT_XML = Names.PORT_XML;
+	private final static String OUT_RESULT = "xml_or_text";
 
 	//--------------------------------------------------------------------------------------------
 
@@ -175,7 +175,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	        String transformResult = transformXml(doc);
 	        console.finest("XSL transformation finished. Output:\n" + transformResult);
 
-	        componentContext.pushDataComponentToOutput(OUT_XML,
+	        componentContext.pushDataComponentToOutput(OUT_RESULT,
 	                BasicDataTypesTools.stringToStrings(transformResult));
 	    }
 
@@ -218,7 +218,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
             throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
 
 		// Forward the stream initiator we received downstream
-		componentContext.pushDataComponentToOutput(OUT_XML, componentContext.getDataComponentFromInput(IN_XML));
+		componentContext.pushDataComponentToOutput(OUT_RESULT, componentContext.getDataComponentFromInput(IN_XML));
 
         _gotInitiator = true;
 	}
@@ -234,7 +234,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
     		throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
     	// Forward the stream terminator we received downstream
-        componentContext.pushDataComponentToOutput(OUT_XML, componentContext.getDataComponentFromInput(IN_XML));
+        componentContext.pushDataComponentToOutput(OUT_RESULT, componentContext.getDataComponentFromInput(IN_XML));
 
     	_gotInitiator = false;
     }

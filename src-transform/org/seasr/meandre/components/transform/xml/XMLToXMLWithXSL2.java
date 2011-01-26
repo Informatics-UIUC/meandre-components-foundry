@@ -117,11 +117,11 @@ public class XMLToXMLWithXSL2 extends AbstractExecutableComponent {
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			name = Names.PORT_XML,
+			name = "xml_or_text",
 			description = "The transformed XML document." +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
-	private final static String OUT_XML = Names.PORT_XML;
+	private final static String OUT_RESULT = "xml_or_text";
 
 	//--------------------------------------------------------------------------------------------
 
@@ -137,7 +137,7 @@ public class XMLToXMLWithXSL2 extends AbstractExecutableComponent {
 
         String transformResult = transformXml(doc, xslt);
 
-        componentContext.pushDataComponentToOutput(OUT_XML,
+        componentContext.pushDataComponentToOutput(OUT_RESULT,
                 BasicDataTypesTools.stringToStrings(transformResult));
 	}
 
@@ -177,7 +177,7 @@ public class XMLToXMLWithXSL2 extends AbstractExecutableComponent {
         if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_XML, IN_XSL })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-        componentContext.pushDataComponentToOutput(OUT_XML,
+        componentContext.pushDataComponentToOutput(OUT_RESULT,
                 componentContext.getDataComponentFromInput(IN_XML));
     }
 
@@ -186,7 +186,7 @@ public class XMLToXMLWithXSL2 extends AbstractExecutableComponent {
         if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_XML, IN_XSL })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-        componentContext.pushDataComponentToOutput(OUT_XML,
+        componentContext.pushDataComponentToOutput(OUT_RESULT,
                 componentContext.getDataComponentFromInput(IN_XML));
     }
 
