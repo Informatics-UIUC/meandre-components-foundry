@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.transform.xml;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -55,11 +56,11 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -147,21 +148,26 @@ public class XMLToXMLWithXSL2 extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	protected String transformXml(Document doc, Templates xslt) throws TransformerException {
-		Source xmlSource = new DOMSource(doc);
+        String result = null;
 
-		StringWriter xmlWriter = new StringWriter();
-		StreamResult xmlResult = new StreamResult(xmlWriter);
+        Source xmlSource = new DOMSource(doc);
+        StringWriter xmlWriter = new StringWriter();
+        try {
+            StreamResult xmlResult = new StreamResult(xmlWriter);
 
-    	Transformer transformer = xslt.newTransformer();
-		transformer.transform(xmlSource, xmlResult);
+            Transformer transformer = xslt.newTransformer();
+            transformer.transform(xmlSource, xmlResult);
 
-		String result = xmlWriter.toString();
+            result = xmlWriter.toString();
+        }
+        finally {
+            try {
+                xmlWriter.close();
+            }
+            catch (IOException e) {}
+        }
 
-		try {
-		    xmlWriter.close();
-		} catch (Exception e) {}
-
-		return result;
+        return result;
 	}
 
     //--------------------------------------------------------------------------------------------

@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.transform.xml;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.LinkedList;
@@ -56,11 +57,11 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -182,19 +183,24 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	}
 
 	protected String transformXml(Document doc) throws TransformerException {
-		Source xmlSource = new DOMSource(doc);
+		String result = null;
 
+	    Source xmlSource = new DOMSource(doc);
 		StringWriter xmlWriter = new StringWriter();
-		StreamResult xmlResult = new StreamResult(xmlWriter);
-
-    	Transformer transformer = xslt.newTransformer();
-		transformer.transform(xmlSource, xmlResult);
-
-		String result = xmlWriter.toString();
-
 		try {
-		    xmlWriter.close();
-		} catch (Exception e) {}
+		    StreamResult xmlResult = new StreamResult(xmlWriter);
+
+		    Transformer transformer = xslt.newTransformer();
+		    transformer.transform(xmlSource, xmlResult);
+
+		    result = xmlWriter.toString();
+		}
+		finally {
+		    try {
+                xmlWriter.close();
+            }
+            catch (IOException e) {}
+		}
 
 		return result;
 	}
