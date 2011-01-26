@@ -120,7 +120,10 @@ public class TextAccumulator extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, true, ccp);
+        String separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, true, ccp);
+        _separator = String.format(separator.replaceAll("%", "%%"));
+        console.fine(String.format("Separator set to '%s' (surrounding single quotes added for readability)", _separator));
+
         _gotInitiator = false;
     }
 
