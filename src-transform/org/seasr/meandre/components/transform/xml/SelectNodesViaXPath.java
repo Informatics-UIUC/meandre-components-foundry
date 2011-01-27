@@ -42,6 +42,9 @@
 
 package org.seasr.meandre.components.transform.xml;
 
+import java.io.StringWriter;
+import java.util.logging.Level;
+
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -63,9 +66,11 @@ import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
 /**
@@ -120,6 +125,7 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
 
     protected XPathExpression _xpathExpression;
     protected LSSerializer _serializer;
+    protected LSOutput _output;
 
 
     //--------------------------------------------------------------------------------------------
@@ -133,6 +139,8 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
         DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
         DOMImplementationLS lsImpl =
           (DOMImplementationLS)registry.getDOMImplementation("LS");
+        _output = lsImpl.createLSOutput();
+        _output.setEncoding("UTF-8");
         _serializer = lsImpl.createLSSerializer();
     }
 
@@ -144,8 +152,14 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
         cc.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
 
         for (int i = 0, iMax = nodes.getLength(); i < iMax; i++) {
-            cc.pushDataComponentToOutput(OUT_XML,
-                    BasicDataTypesTools.stringToStrings(_serializer.writeToString(nodes.item(i))));
+            Node node = nodes.item(i);
+            StringWriter writer = new StringWriter();
+            _output.setCharacterStream(writer);
+            if (_serializer.write(node, _output))
+                cc.pushDataComponentToOutput(OUT_XML,
+                        BasicDataTypesTools.stringToStrings(writer.toString()));
+            else
+                outputError("Cannot serialize node: " + node, Level.WARNING);
         }
 
         cc.pushDataComponentToOutput(OUT_XML, new StreamTerminator());
@@ -155,5 +169,6 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         _xpathExpression = null;
         _serializer = null;
+        _output = null;
     }
 }
