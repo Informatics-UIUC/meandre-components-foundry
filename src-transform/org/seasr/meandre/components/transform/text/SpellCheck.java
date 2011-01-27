@@ -312,8 +312,10 @@ public class SpellCheck extends AbstractExecutableComponent {
             StringWordTokenizer wordTokenizer = new StringWordTokenizer(text[i]);
             _spellChecker.checkSpelling(wordTokenizer);
             StringWordTokenizer wordCounter = new StringWordTokenizer(text[i]);
-            while (wordCounter.hasMoreWords())
+            while (wordCounter.hasMoreWords()) {
                 _countTotalWords++;
+                wordCounter.nextWord();
+            }
             _countMisspelledWords += listener.getCountSpellingErrors();
             _countUncorrectedWords += listener.getCountMissedCorrections();
             text[i] = wordTokenizer.getContext();
@@ -344,8 +346,10 @@ public class SpellCheck extends AbstractExecutableComponent {
             StringWordTokenizer wordTokenizer = new StringWordTokenizer(sentence);
             _spellChecker.checkSpelling(wordTokenizer);
             StringWordTokenizer wordCounter = new StringWordTokenizer(sentence);
-            while (wordCounter.hasMoreWords())
+            while (wordCounter.hasMoreWords()) {
                 _countTotalWords++;
+                wordCounter.nextWord();
+            }
             _countMisspelledWords += listener.getCountSpellingErrors();
             _countUncorrectedWords += listener.getCountMissedCorrections();
 
@@ -387,8 +391,10 @@ public class SpellCheck extends AbstractExecutableComponent {
             StringWordTokenizer wordTokenizer = new StringWordTokenizer(entry.getKey());
             _spellChecker.checkSpelling(wordTokenizer);
             StringWordTokenizer wordCounter = new StringWordTokenizer(entry.getKey());
-            while (wordCounter.hasMoreWords())
+            while (wordCounter.hasMoreWords()) {
                 _countTotalWords++;
+                wordCounter.nextWord();
+            }
             _countMisspelledWords += listener.getCountSpellingErrors();
             _countUncorrectedWords += listener.getCountMissedCorrections();
 
