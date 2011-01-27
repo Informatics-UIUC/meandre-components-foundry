@@ -137,8 +137,7 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
         _xpathExpression = xpath.compile(xpathExpression);
 
         DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
-        DOMImplementationLS lsImpl =
-          (DOMImplementationLS)registry.getDOMImplementation("LS");
+        DOMImplementationLS lsImpl = (DOMImplementationLS)registry.getDOMImplementation("LS");
         _output = lsImpl.createLSOutput();
         _output.setEncoding("UTF-8");
         _serializer = lsImpl.createLSSerializer();
