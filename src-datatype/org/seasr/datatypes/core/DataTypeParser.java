@@ -42,6 +42,7 @@
 
 package org.seasr.datatypes.core;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -401,6 +402,34 @@ public abstract class DataTypeParser {
                 throw new UnsupportedDataTypeException("Cannot process more than one String data at a time");
 
             doc = DOMUtils.createDocument(strings[0]);
+        }
+
+        else
+
+        if (data instanceof byte[]) {
+            ByteArrayInputStream bais = null;
+            try {
+                bais = new ByteArrayInputStream((byte[])data);
+                doc = DOMUtils.createDocument(bais);
+            }
+            finally {
+                if (bais != null)
+                    bais.close();
+            }
+        }
+
+        else
+
+        if (data instanceof Bytes) {
+            ByteArrayInputStream bais = null;
+            try {
+                bais = new ByteArrayInputStream(BasicDataTypesTools.bytestoByteArray((Bytes)data));
+                doc = DOMUtils.createDocument(bais);
+            }
+            finally {
+                if (bais != null)
+                    bais.close();
+            }
         }
 
         else
