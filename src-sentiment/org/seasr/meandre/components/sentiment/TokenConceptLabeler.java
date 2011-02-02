@@ -49,6 +49,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,19 +57,19 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.apps.sentiment.PathMetric;
 import org.seasr.meandre.support.components.apps.sentiment.PathMetricFinder;
@@ -156,9 +157,9 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 	protected static final String DATA_PROPERTY_HOST = "host";
 
 	@ComponentProperty(
-	        description = "concepts",
+	        description = "The concepts. (Example: <i>love={lovable};anger={hateful,angry}</i>)",
 	        name = "concepts",
-	        defaultValue = "love={lovable};anger={hateful,angry}"
+	        defaultValue = ""
 	)
     protected static final String DATA_PROPERTY_CONCEPTS = "concepts";
 
@@ -209,33 +210,12 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 
 	PathMetricFinder finder;
 
+    private String host;
+
     //--------------------------------------------------------------------------------------------
 
-	public Map<String,String> buildCacheMap(ComponentContextProperties ccp,
-			                                String key,
-			                                StringBuilder filenameOut)
-	{
-		filenameOut.setLength(0);
-		String filename = ccp.getProperty(key);
-		if (filename == null || filename.trim().length() == 0) {
-			Map<String,String> map = new HashMap<String,String>();
-			return map;
-		}
-
-		// key exists, use the given filename
-		String defaultDir = ccp.getPublicResourcesDirectory();
-		filename   = FileResourceUtility.buildResourcePath(defaultDir, filename);
-		FileResourceUtility.createPathToResource(filename, console);
-
-		Map<String,String> map = readFromFile(filename);
-		filenameOut.append(filename);
-		return map;
-	}
-
-	private String host;
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-    {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		this.keyFieldName = ccp.getProperty(DATA_PROPERTY_FIELDNAME_KEY);
 
 		//
@@ -276,7 +256,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 		//
 		// build the map for concepts
 		//
-		String toParse = ccp.getProperty(DATA_PROPERTY_CONCEPTS);
+		String toParse = getPropertyOrDieTrying(DATA_PROPERTY_CONCEPTS, ccp);
         conceptMap = new HashMap<String,List<String>>();
         reverseMap = new HashMap<String,String>();
         allLabels = new ArrayList<String>();
@@ -396,7 +376,6 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 		// metaData for this tuple producer
 		//
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
-
 	}
 
     @Override
@@ -407,6 +386,51 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
     }
 
     //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE,
+                componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLES,
+                componentContext.getDataComponentFromInput(IN_TUPLES));
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE,
+                componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLES,
+                componentContext.getDataComponentFromInput(IN_TUPLES));
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    public Map<String,String> buildCacheMap(ComponentContextProperties ccp,
+                                            String key,
+                                            StringBuilder filenameOut)
+    {
+        filenameOut.setLength(0);
+        String filename = ccp.getProperty(key);
+        if (filename == null || filename.trim().length() == 0) {
+            Map<String,String> map = new HashMap<String,String>();
+            return map;
+        }
+
+        // key exists, use the given filename
+        String defaultDir = ccp.getPublicResourcesDirectory();
+        filename   = FileResourceUtility.buildResourcePath(defaultDir, filename);
+        FileResourceUtility.createPathToResource(filename, console);
+
+        Map<String,String> map = readFromFile(filename);
+        filenameOut.append(filename);
+        return map;
+    }
 
     // change things like hau'ted to haunted
     protected String reMap(String word)
