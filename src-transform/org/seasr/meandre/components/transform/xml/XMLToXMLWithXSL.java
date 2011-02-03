@@ -52,6 +52,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -68,7 +69,6 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.w3c.dom.Document;
 
 /**
@@ -89,13 +89,13 @@ import org.w3c.dom.Document;
 		description = "This component inputs two XML documents, one the XML data and the other the XSL. " +
 		              "It transforms the XML data based on the XSL template "+
 		              "and outputs the transformed XML.",
-		dependency = {"protobuf-java-2.2.0.jar"}
+		dependency = {"protobuf-java-2.2.0.jar", "saxon9he.jar"}
 )
 public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 	//------------------------------ INPUTS ------------------------------------------------------
 
-	@ComponentInput(
+    @ComponentInput(
 			name = Names.PORT_XML,
 			description = "The XML document" +
                 "<br>TYPE: org.w3c.dom.Document" +
@@ -126,6 +126,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
+    protected static final TransformerFactory TRANSFORMER = new net.sf.saxon.TransformerFactoryImpl();
 
 	protected Queue<Document> queue;
 	protected Templates xslt;
@@ -150,7 +151,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 		if (cc.isInputAvailable(IN_XSL)) {
 		    if (xslt == null) {
 		        String sXsl = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_XSL))[0];
-		        xslt = DOMUtils.TRANS_FACT.newTemplates(new StreamSource(new StringReader(sXsl)));
+		        xslt = TRANSFORMER.newTemplates(new StreamSource(new StringReader(sXsl)));
 		    } else
 		        console.warning("XSL transformation already set - ignoring new XSL data input");
 		}
