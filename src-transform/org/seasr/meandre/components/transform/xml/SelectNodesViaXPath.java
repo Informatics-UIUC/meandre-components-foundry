@@ -43,8 +43,12 @@
 package org.seasr.meandre.components.transform.xml;
 
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -58,6 +62,7 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
@@ -120,6 +125,15 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
     )
     protected static final String PROP_XPATH = "xpath";
 
+    @ComponentProperty(
+            name = "namespaces",
+            description = "Optional: Any namespaces that you want defined<br>" +
+            		"Format: <prefix>=<namespace>,<prefix>=<namespace>...<br>" +
+            		"Example: tei=http://www.tei-c.org/ns/1.0",
+            defaultValue = ""
+    )
+    protected static final String PROP_NS = "namespaces";
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -132,8 +146,46 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        NamespaceContext namespaceContext = null;
+
+        String nsProp = getPropertyOrDieTrying(PROP_NS, true, false, ccp);
+        if (nsProp.length() > 0) {
+            String[] namespaces = nsProp.split(",");
+            final Map<String, String> nsMap = new HashMap<String, String>();
+            for (String ns : namespaces) {
+                String[] parts = ns.split("=");
+                if (parts.length != 2)
+                    throw new ComponentContextException(String.format("Error parsing property %s: Syntax error for namespace: %s", PROP_NS, ns));
+
+                String nsKey = parts[0].trim();
+                String nsValue = parts[1].trim();
+                nsMap.put(nsKey, nsValue);
+
+                console.fine(String.format("Registered namespace: %s = %s", nsKey, nsValue));
+            }
+
+            namespaceContext = new NamespaceContext() {
+                public String getNamespaceURI(String prefix) {
+                    return nsMap.get(prefix);
+                }
+
+                // Dummy implementation - not used!
+                @SuppressWarnings("rawtypes")
+                public Iterator getPrefixes(String val) {
+                    return null;
+                }
+
+                // Dummy implementation - not used!
+                public String getPrefix(String uri) {
+                    return null;
+                }
+            };
+        }
+
         String xpathExpression = getPropertyOrDieTrying(PROP_XPATH, ccp);
         XPath xpath = XPathFactory.newInstance().newXPath();
+        if (namespaceContext != null)
+            xpath.setNamespaceContext(namespaceContext);
         _xpathExpression = xpath.compile(xpathExpression);
 
         DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
