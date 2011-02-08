@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -75,7 +76,8 @@ import org.seasr.meandre.support.components.apps.sentiment.PathMetric;
 import org.seasr.meandre.support.components.apps.sentiment.PathMetricFinder;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.components.utils.FileResourceUtility;
+import org.seasr.meandre.support.generic.io.PathUtils;
+import org.seasr.meandre.support.generic.util.Tuples.Tuple2;
 
 /**
  *
@@ -224,34 +226,23 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 		this.host   = ccp.getProperty(DATA_PROPERTY_HOST);
 		this.finder = new PathMetricFinder(host);
 
-
 		// create/build the cache file name
-		StringBuilder sb = new StringBuilder();
+		String defaultDir = ccp.getPublicResourcesDirectory();
 
-		this.wordToConceptMap = buildCacheMap(ccp, DATA_PROPERTY_CACHE, sb );
-		this.cacheFileName = sb.toString();
+		String filename = getPropertyOrDieTrying(DATA_PROPERTY_CACHE, true, false, ccp);
+		Tuple2<String, Map<String, String>> cacheMap = buildCacheMap(filename, defaultDir);
+        this.cacheFileName = cacheMap.getT1();
+        this.wordToConceptMap = cacheMap.getT2();
 
-		this.wordMap = buildCacheMap(ccp, DATA_PROPERTY_WORDMAP, sb );
-		this.wordMapFileName = sb.toString();
+		filename = getPropertyOrDieTrying(DATA_PROPERTY_WORDMAP, true, false, ccp);
+		cacheMap = buildCacheMap(filename, defaultDir);
+        this.wordMapFileName = cacheMap.getT1();
+		this.wordMap = cacheMap.getT2();
 
-		this.noConceptMap = buildCacheMap(ccp, DATA_PROPERTY_IGNORE, sb);
-		this.wordMapFileName  = sb.toString();
-
-
-		/*
-		this.cacheFileName     = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_CACHE));
-		this.wordMapFileName   = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_WORDMAP));
-		this.noConceptFileName = FileResourceUtility.buildResourcePath(defaultDir, ccp.getProperty(DATA_PROPERTY_IGNORE));
-
-
-		FileResourceUtility.createPathToResource(cacheFileName,     console);
-		FileResourceUtility.createPathToResource(wordMapFileName,   console);
-		FileResourceUtility.createPathToResource(noConceptFileName, console);
-
-		this.wordToConceptMap = readFromFile(cacheFileName);
-		this.noConceptMap     = readFromFile(noConceptFileName);
-		this.wordMap          = readFromFile(wordMapFileName);
-		*/
+        filename = getPropertyOrDieTrying(DATA_PROPERTY_IGNORE, true, false, ccp);
+        cacheMap = buildCacheMap(filename, defaultDir);
+        this.noConceptFileName  = cacheMap.getT1();
+		this.noConceptMap = cacheMap.getT2();
 
 		//
 		// build the map for concepts
@@ -411,25 +402,27 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-    public Map<String,String> buildCacheMap(ComponentContextProperties ccp,
-                                            String key,
-                                            StringBuilder filenameOut)
-    {
-        filenameOut.setLength(0);
-        String filename = ccp.getProperty(key);
-        if (filename == null || filename.trim().length() == 0) {
-            Map<String,String> map = new HashMap<String,String>();
-            return map;
+    public Tuple2<String,Map<String,String>> buildCacheMap(String filename, String defaultDir)
+        throws ComponentExecutionException {
+
+        Map<String,String> map = new HashMap<String,String>();
+
+        if (filename.length() > 0) {
+            // key exists, use the given filename
+            try {
+                URI fileUri = PathUtils.relativize(new URI(filename), defaultDir);
+                File file = new File(fileUri);
+                // ensure all required directories exist
+                file.getParentFile().mkdirs();
+                filename = file.getAbsolutePath();
+                map = readFromFile(file);
+            }
+            catch (Exception e) {
+                throw new ComponentExecutionException(e);
+            }
         }
 
-        // key exists, use the given filename
-        String defaultDir = ccp.getPublicResourcesDirectory();
-        filename   = FileResourceUtility.buildResourcePath(defaultDir, filename);
-        FileResourceUtility.createPathToResource(filename, console);
-
-        Map<String,String> map = readFromFile(filename);
-        filenameOut.append(filename);
-        return map;
+        return new Tuple2<String, Map<String,String>>(filename, map);
     }
 
     // change things like hau'ted to haunted
@@ -465,13 +458,12 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 	    } catch (IOException e) {}
 	}
 
-	private Map<String,String> readFromFile(String filename)
+	private Map<String,String> readFromFile(File file)
 	{
 		Map<String,String> map = new HashMap<String,String>();
 
 		try {
-			File file = new File(filename);
-			console.fine("reading from " + filename);
+			console.fine("reading from " + file.getAbsolutePath());
 
 			if (file.exists()) {
 
@@ -502,7 +494,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 			}
 			else {
 				// no file exists to read
-				console.fine("file is empty: " + filename);
+				console.fine("file is empty: " + file.getAbsolutePath());
 			}
 		}
 		catch (IOException e) {
