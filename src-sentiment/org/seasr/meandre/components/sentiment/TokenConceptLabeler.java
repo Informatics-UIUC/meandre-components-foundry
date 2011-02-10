@@ -56,6 +56,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -156,42 +157,42 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 			name = "host",
 			defaultValue = "http://services.seasr.org/synnet/"
 	)
-	protected static final String DATA_PROPERTY_HOST = "host";
+	protected static final String PROP_HOST = "host";
 
 	@ComponentProperty(
 	        description = "The concepts. (Example: <i>love={lovable};anger={hateful,angry}</i>)",
 	        name = "concepts",
 	        defaultValue = ""
 	)
-    protected static final String DATA_PROPERTY_CONCEPTS = "concepts";
+    protected static final String PROP_CONCEPTS = "concepts";
 
 	@ComponentProperty(
 	        description = "optional filename of cached concepts to use instead of synNet host",
 	        name = "conceptCacheFile",
 	        defaultValue = ""
 	)
-    protected static final String DATA_PROPERTY_CACHE = "conceptCacheFile";
+    protected static final String PROP_CACHE = "conceptCacheFile";
 
 	@ComponentProperty(
 	        description = "optional filename of tokens to ignore, words with no concepts",
 	        name = "ignoreTokensFile",
 	        defaultValue = ""
 	)
-    protected static final String DATA_PROPERTY_IGNORE = "ignoreTokensFile";
+    protected static final String PROP_IGNORE = "ignoreTokensFile";
 
 	@ComponentProperty(
 	        description = "optional filename of tokens to remap, use to change spellings, etc",
 	        name = "remapFile",
 	        defaultValue = ""
 	)
-    protected static final String DATA_PROPERTY_WORDMAP = "remapFile";
+    protected static final String PROP_WORDMAP = "remapFile";
 
 	@ComponentProperty(
 	        description = "field name for the key field of incoming tuples, its value will be used to label",
 	        name = "key",
 	        defaultValue = "token"
 	)
-	protected static final String DATA_PROPERTY_FIELDNAME_KEY = "key";
+	protected static final String PROP_FIELDNAME_KEY = "key";
 
     //--------------------------------------------------------------------------------------------
 
@@ -206,9 +207,12 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 	String noConceptFileName;
 	String wordMapFileName;
 
+	String propConcepts;
+
 	Map<String,String> wordToConceptMap;
 	Map<String,String> noConceptMap;
 	Map<String,String> wordMap;
+	Map<String, Tuple2<Integer, String>> wordConceptMeta;
 
 	PathMetricFinder finder;
 
@@ -218,41 +222,23 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.keyFieldName = ccp.getProperty(DATA_PROPERTY_FIELDNAME_KEY);
+		this.keyFieldName = ccp.getProperty(PROP_FIELDNAME_KEY);
 
 		//
 		// init the synNet host
 		//
-		this.host   = ccp.getProperty(DATA_PROPERTY_HOST);
+		this.host   = ccp.getProperty(PROP_HOST);
 		this.finder = new PathMetricFinder(host);
-
-		// create/build the cache file name
-		String defaultDir = ccp.getPublicResourcesDirectory();
-
-		String filename = getPropertyOrDieTrying(DATA_PROPERTY_CACHE, true, false, ccp);
-		Tuple2<String, Map<String, String>> cacheMap = buildCacheMap(filename, defaultDir);
-        this.cacheFileName = cacheMap.getT1();
-        this.wordToConceptMap = cacheMap.getT2();
-
-		filename = getPropertyOrDieTrying(DATA_PROPERTY_WORDMAP, true, false, ccp);
-		cacheMap = buildCacheMap(filename, defaultDir);
-        this.wordMapFileName = cacheMap.getT1();
-		this.wordMap = cacheMap.getT2();
-
-        filename = getPropertyOrDieTrying(DATA_PROPERTY_IGNORE, true, false, ccp);
-        cacheMap = buildCacheMap(filename, defaultDir);
-        this.noConceptFileName  = cacheMap.getT1();
-		this.noConceptMap = cacheMap.getT2();
 
 		//
 		// build the map for concepts
 		//
-		String toParse = getPropertyOrDieTrying(DATA_PROPERTY_CONCEPTS, ccp);
+		propConcepts = getPropertyOrDieTrying(PROP_CONCEPTS, ccp);
         conceptMap = new HashMap<String,List<String>>();
         reverseMap = new HashMap<String,String>();
         allLabels = new ArrayList<String>();
 
-        StringTokenizer tokens = new StringTokenizer(toParse, ";");
+        StringTokenizer tokens = new StringTokenizer(propConcepts, ";");
         while (tokens.hasMoreTokens()){
         	String kv = tokens.nextToken();
         	int idx = kv.indexOf('=');
@@ -273,15 +259,35 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
         	}
         }
 
+        // create/build the cache file name
+        String defaultDir = ccp.getPublicResourcesDirectory();
+
+        wordConceptMeta = new HashMap<String, Tuple2<Integer,String>>();
+        String filename = getPropertyOrDieTrying(PROP_CACHE, true, false, ccp);
+        @SuppressWarnings("unchecked")
+        Tuple2<String, Map<String, String>> cacheMap = buildCacheMap(filename, defaultDir, wordConceptMeta);
+        this.cacheFileName = cacheMap.getT1();
+        this.wordToConceptMap = cacheMap.getT2();
+
+        filename = getPropertyOrDieTrying(PROP_WORDMAP, true, false, ccp);
+        cacheMap = buildCacheMap(filename, defaultDir);
+        this.wordMapFileName = cacheMap.getT1();
+        this.wordMap = cacheMap.getT2();
+
+        filename = getPropertyOrDieTrying(PROP_IGNORE, true, false, ccp);
+        cacheMap = buildCacheMap(filename, defaultDir);
+        this.noConceptFileName  = cacheMap.getT1();
+        this.noConceptMap = cacheMap.getT2();
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
 		// TODO: pull from properties
 
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 		SimpleTuplePeer inPeer  = new SimpleTuplePeer(inputMeta);
-		SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[]{"concept"});
+		SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[] { "concept" });
 
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
@@ -326,8 +332,9 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 			   PathMetric metric    = finder.getBestMetric(all);
 			   if (metric != null) {
 			      concept = reverseMap.get(metric.end);
-			      console.fine(token + " ==> " + concept);
+			      console.fine(token + " ==> " + concept + " (length: " + metric.depthFound + ")");
 			      wordToConceptMap.put(token, concept);
+			      wordConceptMeta.put(token, new Tuple2<Integer, String>(metric.depthFound, metric.end));
 			      // console.fine(metric.toString());
 			      // label the tuple and save it
 
@@ -348,7 +355,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 
 			// temp. flush
 			if (valuesWritten%10 == 0) {
-				writeToFile(wordToConceptMap, cacheFileName);
+				writeToFile(wordToConceptMap, cacheFileName, wordConceptMeta);
 		    	writeToFile(noConceptMap, noConceptFileName);
 			}
 		}
@@ -369,10 +376,11 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
 	}
 
+    @SuppressWarnings("unchecked")
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception
     {
-    	writeToFile(wordToConceptMap, cacheFileName);
+    	writeToFile(wordToConceptMap, cacheFileName, wordConceptMeta);
     	writeToFile(noConceptMap,     noConceptFileName);
     }
 
@@ -402,7 +410,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-    public Tuple2<String,Map<String,String>> buildCacheMap(String filename, String defaultDir)
+    public Tuple2<String,Map<String,String>> buildCacheMap(String filename, String defaultDir, Map<String, Tuple2<Integer,String>>... meta)
         throws ComponentExecutionException {
 
         Map<String,String> map = new HashMap<String,String>();
@@ -415,7 +423,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
                 // ensure all required directories exist
                 file.getParentFile().mkdirs();
                 filename = file.getAbsolutePath();
-                map = readFromFile(file);
+                map = readFromFile(file, meta);
             }
             catch (Exception e) {
                 throw new ComponentExecutionException(e);
@@ -434,7 +442,7 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
         return word;
     }
 
-    private void writeToFile(Map<String,String>map, String filename) {
+    private void writeToFile(Map<String,String>map, String filename, Map<String, Tuple2<Integer,String>>... meta) {
 
     	if (filename == null || filename.length() == 0) {
     		return;
@@ -448,17 +456,27 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 
 		try {
 	        BufferedWriter out = new BufferedWriter(new FileWriter(filename));
+	        // write the current concept definitions as header to allow for validation of the cache file
+	        out.write(propConcepts + "\n");
 	        Iterator<String> it = map.keySet().iterator();
 	        while(it.hasNext()) {
 	        	String key = it.next();
 	        	String concept = map.get(key);
-	        	out.write(key +"," + concept + "\n");
+	        	String line = String.format("%s,%s", key, concept);
+	        	if (meta.length > 0) {
+	                Tuple2<Integer,String> m = meta[0].get(key);
+	        	    if (m != null)
+	        	        line = String.format("%s,%d,%s", line, m.getT1(), m.getT2());
+	        	}
+	        	out.write(line + "\n");
 	        }
 	        out.close();
-	    } catch (IOException e) {}
+	    } catch (IOException e) {
+	        console.log(Level.WARNING, "Error creating cache file", e);
+	    }
 	}
 
-	private Map<String,String> readFromFile(File file)
+	private Map<String,String> readFromFile(File file, Map<String,Tuple2<Integer,String>> ... meta) throws ComponentExecutionException
 	{
 		Map<String,String> map = new HashMap<String,String>();
 
@@ -477,14 +495,35 @@ public class TokenConceptLabeler extends AbstractExecutableComponent {
 			        * it returns an empty String if two newlines appear in a row.
 			        */
 
-			        while (( line = input.readLine()) != null){
+			        // Read the concept signature to make sure this cache file is valid for
+			        // the current concepts we've defined
+			        line = input.readLine();
+			        if (line != null) {
+			            if (!line.equals(propConcepts)) {
+			                console.warning(String.format("Cache file '%s' is invalid for the currently " +
+			                		"defined concepts - ignoring...", file.getName()));
+			                return map;
+			            }
+			        }
+
+			        while ((line = input.readLine()) != null){
 
 			        	// word,concept (word is the key, concept is the value)
-			        	int idx = line.indexOf(',');
-			        	String word    = line.substring(0,idx).trim();
-			        	String concept = line.substring(idx+1).trim();
+			            String[] parts = line.split(",");
+			            if (parts.length < 2)
+			                throw new ComponentExecutionException("Invalid cache file format! (" + file.getAbsolutePath() + ")");
+
+			        	String word    = parts[0].trim();
+			        	String concept = parts[1].trim();
 
 			        	map.put(word,concept);
+
+			        	if (meta.length > 0 && parts.length == 4) {
+			        	    Integer length = Integer.parseInt(parts[2].trim());
+			        	    String target = parts[3].trim();
+
+			        	    meta[0].put(word, new Tuple2<Integer, String>(length, target));
+			        	}
 			        }
 
 			      }
