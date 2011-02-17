@@ -46,6 +46,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.meandre.core.ComponentContext;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+
 public class TupleUtilities {
 
 	protected TupleUtilities()
@@ -53,7 +57,7 @@ public class TupleUtilities {
 
 	}
 
-    public static int getFieldIndexFromName(SimpleTuplePeer peer, 
+    public static int getFieldIndexFromName(SimpleTuplePeer peer,
     		                                String fieldName,
     		                                Map<String,String> map)
     {
@@ -62,7 +66,7 @@ public class TupleUtilities {
     	}
     	return peer.getIndexForFieldName(fieldName);
     }
-    
+
     /*
     // remove quotes and ()
 	static String regEx = "[\"\'()]+";
@@ -129,5 +133,32 @@ public class TupleUtilities {
         return output;
         */
 	}
+
+    public static void pushBeginMarker(ComponentContext cc, String portMeta, String portTuple) throws Exception {
+        Strings markerBegin = BasicDataTypesTools.stringToStrings("___begin___");
+        cc.pushDataComponentToOutput(portMeta, markerBegin);
+        cc.pushDataComponentToOutput(portTuple, markerBegin);
+    }
+
+    public static void pushEndMarker(ComponentContext cc, String portMeta, String portTuple) throws Exception {
+        Strings markerBegin = BasicDataTypesTools.stringToStrings("___end___");
+        cc.pushDataComponentToOutput(portMeta, markerBegin);
+        cc.pushDataComponentToOutput(portTuple, markerBegin);
+    }
+
+    public static boolean isBeginMarker(Strings tuple, Strings metaTuple) {
+        String marker1 = BasicDataTypesTools.stringsToStringArray(tuple)[0];
+        String marker2 = BasicDataTypesTools.stringsToStringArray(metaTuple)[0];
+
+        return (marker1.equals("___begin___") && marker2.equals("___begin___"));
+    }
+
+    public static boolean isEndMarker(Strings tuple, Strings metaTuple) {
+        String marker1 = BasicDataTypesTools.stringsToStringArray(tuple)[0];
+        String marker2 = BasicDataTypesTools.stringsToStringArray(metaTuple)[0];
+
+        return (marker1.equals("___end___") && marker2.equals("___end___"));
+    }
+
 
 }

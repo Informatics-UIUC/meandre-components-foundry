@@ -54,9 +54,6 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.system.components.ext.StreamDelimiter;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -64,10 +61,12 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+import org.seasr.meandre.support.components.tuples.TupleUtilities;
 
 /**
  *
- * @author Mike Haberman;
+ * @author Mike Haberman
+ * @author Boris Capitanu
  *
  */
 
@@ -79,8 +78,8 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "tools, text,",
-		description = "This component converts a tuple field/value to a single output string. " +
-		              "For each set of incoming tuples, each tuple value is pushed separately.",
+		description = "This component extracts the value of an attribute from the tuple(s) and pushes it out." +
+		              "For each set of incoming tuples, each tuple attribute value is pushed separately.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class TupleValueToString extends AbstractExecutableComponent {
@@ -89,7 +88,8 @@ public class TupleValueToString extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "The set of tuples" +
+			description = "The tuple(s)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
@@ -105,14 +105,14 @@ public class TupleValueToString extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "The field value of the tuple" +
+			description = "The attribute value" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "The meta data for tuple (the field name)" +
+			description = "The meta data for tuple (the attribute name)" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
@@ -120,77 +120,72 @@ public class TupleValueToString extends AbstractExecutableComponent {
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
 	@ComponentProperty(
-	        description = "The field whose value will be written to the output",
-		   name = "fieldname",
-		   defaultValue = ""
+	        description = "The attribute whose value will be written to the output",
+	        name = "attribute",
+	        defaultValue = ""
 	)
-    protected static final String PROP_FIELD = "fieldname";
-
-    @ComponentProperty(
-            name = Names.PROP_WRAP_STREAM,
-            description = "Should the output be wrapped as a stream?",
-            defaultValue = "false"
-    )
-    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+    protected static final String PROP_ATTRIBUTE = "attribute";
 
    	//--------------------------------------------------------------------------------------------
 
 
-    String _fieldname;
-    boolean _wrapStream;
+    protected String _attributeName;
 
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		_fieldname = getPropertyOrDieTrying(PROP_FIELD, ccp);
-		_wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
+		_attributeName = getPropertyOrDieTrying(PROP_ATTRIBUTE, ccp);
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+        Strings inMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+        SimpleTuplePeer inPeer  = new SimpleTuplePeer(inMeta);
+        SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] { _attributeName });
 
-		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
-		SimpleTuple tuple = tuplePeer.createTuple();
+        Object input = cc.getDataComponentFromInput(IN_TUPLES);
+        Strings[] tuples;
 
-		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
-		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
+        if (input instanceof StringsArray)
+            tuples = BasicDataTypesTools.stringsArrayToJavaArray((StringsArray) input);
 
-		int FIELD_IDX = tuplePeer.getIndexForFieldName(_fieldname);
-		if (FIELD_IDX == -1) {
-			String dump = tuplePeer.toString();
-			throw new ComponentExecutionException("tuple has no field named " + _fieldname + "\n" + dump);
-		}
+        else
 
-		SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] {_fieldname});
+        if (input instanceof Strings) {
+            Strings inTuple = (Strings) input;
 
-		if (_wrapStream) {
-		    StreamDelimiter si = new StreamInitiator();
-		    cc.pushDataComponentToOutput(OUT_META_TUPLE, si);
-		    cc.pushDataComponentToOutput(OUT_TEXT, si);
-		}
+            if (TupleUtilities.isBeginMarker(inTuple, inMeta) || TupleUtilities.isEndMarker(inTuple, inMeta)) {
+                cc.pushDataComponentToOutput(OUT_META_TUPLE, inMeta);
+                cc.pushDataComponentToOutput(OUT_TEXT, inTuple);
+                return;
+            }
 
-		for (int i = 0; i < in.length; i++) {
-			tuple.setValues(in[i]);
-			String value = tuple.getValue(FIELD_IDX);
-
-		    Strings outputSafe = BasicDataTypesTools.stringToStrings(value);
-		    cc.pushDataComponentToOutput(OUT_TEXT, outputSafe);
-
-		    //
-		    // Also push out the meta data here
-		    //
-
-		    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
-		}
-
-		if (_wrapStream) {
-            StreamDelimiter st = new StreamTerminator();
-            cc.pushDataComponentToOutput(OUT_META_TUPLE, st);
-            cc.pushDataComponentToOutput(OUT_TEXT, st);
+            tuples = new Strings[] { inTuple };
         }
+
+        else
+            throw new ComponentExecutionException("Don't know how to handle input of type: " + input.getClass().getName());
+
+        int FIELD_IDX = inPeer.getIndexForFieldName(_attributeName);
+        if (FIELD_IDX == -1) {
+            String dump = inPeer.toString();
+            throw new ComponentExecutionException(String.format("The tuple has no attribute named '%s'%nAttributes: %s", _attributeName, dump));
+        }
+
+        SimpleTuple tuple = inPeer.createTuple();
+        Strings.Builder valuesBuilder = Strings.newBuilder();
+
+        for (Strings t : tuples) {
+            tuple.setValues(t);
+
+            String value = tuple.getValue(FIELD_IDX);
+            valuesBuilder.addValue(value);
+        }
+
+        cc.pushDataComponentToOutput(OUT_TEXT, valuesBuilder.build());
+        cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
 	}
 
     @Override

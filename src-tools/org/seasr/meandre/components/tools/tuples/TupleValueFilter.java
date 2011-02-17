@@ -43,23 +43,23 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -87,14 +87,14 @@ public class TupleValueFilter extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples" +
+			description = "The set of tuples" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentInput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples" +
+			description = "The meta data for tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
@@ -103,14 +103,14 @@ public class TupleValueFilter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of filtered tuples" +
+			description = "The set of filtered tuples" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuples (same as input)" +
+			description = "The meta data for the tuples (same as input)" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
@@ -119,36 +119,43 @@ public class TupleValueFilter extends AbstractExecutableComponent {
 
 	@ComponentProperty(
 			name = Names.PROP_FILTER_REGEX,
-			description = "regular expression to filter tuples",
-		    defaultValue = "*"
+			description = "The regular expression to apply to the tuples",
+		    defaultValue = ""
 	)
 	protected static final String PROP_FILTER_REGEX = Names.PROP_FILTER_REGEX;
 
+    @ComponentProperty(
+            name = "filter_out",
+            description = "This setting controls how the regular expression is applied. " +
+            		"When true, the regular expression is used for specifying tuples that " +
+            		"should be discarded from the output. When false, the regular " +
+            		"expression specifies the tuples that should be included in the output (everything else will be discarded)",
+            defaultValue = "true"
+    )
+    protected static final String PROP_FILTER_OUT = "filter_out";
+
 	@ComponentProperty(
-			name = "tupleFilterField",
-			description = "to which field of the tuple to apply the filter",
+			name = "filter_attribute",
+			description = "The attribute of the tuple to apply the filter to",
 		    defaultValue = ""
 	)
-	protected static final String PROP_FILTER_FIELD = "tupleFilterField";
+	protected static final String PROP_FILTER_ATTRIBUTE = "filter_attribute";
 
 	//--------------------------------------------------------------------------------------------
 
-	Pattern pattern = null;
-	String FILTER_FIELD;
+
+	protected Pattern _regexp = null;
+	protected String _filterAttribute;
+	protected boolean _filterOut = false;
+
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		FILTER_FIELD = ccp.getProperty(PROP_FILTER_FIELD).trim();
-		if (FILTER_FIELD.length() == 0) {
-			throw new ComponentContextException("Property not set " + PROP_FILTER_FIELD);
-		}
-
-		String regex = ccp.getProperty(PROP_FILTER_REGEX).trim();
-		if (regex.length() > 0) {
-			pattern = Pattern.compile(regex);
-		}
+		_filterAttribute = getPropertyOrDieTrying(PROP_FILTER_ATTRIBUTE, ccp);
+		_regexp = Pattern.compile(getPropertyOrDieTrying(PROP_FILTER_REGEX, false, false, ccp));
+		_filterOut = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_FILTER_OUT, ccp));
 	}
 
 	@Override
@@ -160,9 +167,9 @@ public class TupleValueFilter extends AbstractExecutableComponent {
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-		int FILTER_FIELD_IDX = tuplePeer.getIndexForFieldName(FILTER_FIELD);
-		console.info("filter FIELD " + FILTER_FIELD);
-		console.info("filter field index " + FILTER_FIELD_IDX);
+		int FILTER_FIELD_IDX = tuplePeer.getIndexForFieldName(_filterAttribute);
+		console.fine("filter FIELD " + _filterAttribute);
+		console.fine("filter field index " + FILTER_FIELD_IDX);
 
 		List<Strings> output = new ArrayList<Strings>();
 
@@ -171,11 +178,9 @@ public class TupleValueFilter extends AbstractExecutableComponent {
 
             String fieldValue = tuple.getValue(FILTER_FIELD_IDX);
 
-			if (pattern == null || pattern.matcher(fieldValue).matches())
-			{
+			boolean match = _regexp.matcher(fieldValue).matches();
+            if ((_filterOut && !match) || (!_filterOut && match))
 				output.add(tuple.convert());
-			}
-
 		}
 
 		// push out the data, protocol safe
@@ -190,5 +195,25 @@ public class TupleValueFilter extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
     }
 }

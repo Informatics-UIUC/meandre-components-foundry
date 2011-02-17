@@ -43,42 +43,43 @@
 package org.seasr.meandre.components.transform.text;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.FiringPolicy;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.BasicDataTypes;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.DataTypeParser;
-import org.seasr.datatypes.core.Names;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 /**
  *
  * @author Lily Dong
+ * @author Boris Capitanu
  *
  */
 
 @Component(
-        creator = "Lily Dong",
+        creator = "Boris Capitanu",
         description = "The component breaks a document into chunks (segments) for further processing. " +
         		      "It transforms the document of tokenized sentences into " +
         		      "segments of size that approximates the number of tuples specified in the property. " +
         		      "Segments always end at sentence boundaries.",
         name = "Text Segmentation",
         tags = "text, segment",
-        firingPolicy = FiringPolicy.any,
+        firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TextSegmentation extends AbstractExecutableComponent {
+
 	//------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
@@ -102,97 +103,104 @@ public class TextSegmentation extends AbstractExecutableComponent {
 	@ComponentProperty(
 	        description = "The number of tokens for a given segment.",
             name = Names.PROP_SEGMENT_SIZE,
-            defaultValue =  "200"
+            defaultValue = "200"
 	)
 	protected static final String PROP_SEGMENT_SIZE = Names.PROP_SEGMENT_SIZE;
 
-	//--------------------------------------------------------------------------------------------
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the output be wrapped as a stream?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
-	private int segSz;
-	private int tokenCnt; //the number of tokens aggregated
-	private int sentenceCnt; //the number of sentences aggregated
-	private StringsMap smRes;
-	private org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder res;
+    //--------------------------------------------------------------------------------------------
 
-	private int segmentCnt;
+
+    protected boolean _wrapStream;
+    protected int _segmentSize;
+
+    private int _currentSegmentTupleCount = 0;
+    private int _segmentCount = 0;
+
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties cc) throws Exception {
-		segSz = Integer.parseInt(cc.getProperty(PROP_SEGMENT_SIZE));
-		if(segSz<0)
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
+	    _segmentSize = Integer.parseInt(getPropertyOrDieTrying(PROP_SEGMENT_SIZE, ccp));
+
+		if (_segmentSize < 0)
 			throw new ComponentContextException(
-					"Invalid value for property segment size. The value must be greater than 0.");
+			        String.format("Invalid value for property '%s'. The value must be greater than 0.", PROP_SEGMENT_SIZE));
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		StringsMap input =
-			(StringsMap)cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES);
-		processSegments(input);
+		StringsMap tokenizedSentences = (StringsMap) cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES);
+
+		if (_wrapStream)
+		    cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamInitiator());
+
+		StringsMap.Builder segment = StringsMap.newBuilder();
+
+		for (int i = 0, iMax = tokenizedSentences.getKeyCount(); i < iMax; i++) {
+		    String sentence = tokenizedSentences.getKey(i);
+		    Strings tokens = tokenizedSentences.getValue(i);
+		    int tokenCount = tokens.getValueCount();
+
+            if (_currentSegmentTupleCount + tokenCount <= _segmentSize) {
+		        segment.addKey(sentence);
+		        segment.addValue(tokens);
+		        _currentSegmentTupleCount += tokenCount;
+		        continue;
+		    }
+
+            // Cannot add to current segment - push out existing segment and create new one
+            if (segment.getValueCount() > 0) {
+                pushNewSegment(segment);
+                segment = StringsMap.newBuilder();
+
+                i--;   // Re-process the current tokenized sentence with the new segment
+
+                continue;
+            }
+
+            // The current sentence has tokenCount > _segmentSize, so push it out as it is in its own segment
+            segment.addKey(sentence);
+            segment.addValue(tokens);
+            _currentSegmentTupleCount += tokenCount;
+
+            pushNewSegment(segment);
+            segment = StringsMap.newBuilder();
+		}
+
+		if (segment.getValueCount() > 0)
+		    pushNewSegment(segment);
+
+		if (_wrapStream)
+		    cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamTerminator());
 	}
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
-	/**
-	 *
-	 * @param input contains sentences and tokens.
-	 */
-	private void processSegments(StringsMap input) throws Exception {
-		segmentCnt = 0;
+    protected void pushNewSegment(StringsMap.Builder segment) throws ComponentContextException {
+        _segmentCount++;
 
-		initParameters();
+        if (_currentSegmentTupleCount > _segmentSize)
+            console.warning(String.format("Segment %d with %d tokens is larger than the specified maximum of %d!",
+                    _segmentCount, _currentSegmentTupleCount, _segmentSize));
 
-		for (int i=0; i<input.getKeyCount(); i++) {
-			String[] tokens = null;
-			String sentence = null;
-    		sentence      = input.getKey(i);    //the entire sentence (the key)
-    		Strings value = input.getValue(i);  //the set of tokens for that sentence
-    		tokens = DataTypeParser.parseAsString(value);
+        console.fine(String.format("Pushing segment %s containing %d sentences and a total of %d tokens",
+                _segmentCount, segment.getKeyCount(), _currentSegmentTupleCount));
 
-    		tokenCnt+=tokens.length;
-    		sentenceCnt++;
-    		if(tokenCnt>=segSz) {
-    			++segmentCnt;
-    			outputSegments();
-    		} else {
-    			res.addKey(sentence);
-			    res.addValue(
-			    		BasicDataTypesTools.stringToStrings(tokens));
-    		}
-		}
+        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, segment.build());
 
-		if(tokenCnt!=0) {//remaining sentences exist
-			++segmentCnt;
-			outputSegments();
-		}
-
-		console.info("The number of segments for the current document is " + segmentCnt + ".");
-	}
-
-	/**
-	 * initialize parameters for each upcoming segment.
-	 */
-	private void initParameters() {
-		tokenCnt = 0;
-		sentenceCnt = 0;
-		smRes = BasicDataTypesTools.buildEmptyStringsMap();
-		res = BasicDataTypes.StringsMap.newBuilder();
-	}
-
-	/**
-	 * output segments within the current slicing window.
-	 */
-	private void outputSegments() throws Exception {
-		console.finest(sentenceCnt + " sentences and " + tokenCnt + " tokens processed.");
-		smRes = res.build();
-		componentContext.pushDataComponentToOutput(
-				OUT_TOKENIZED_SENTENCES, smRes);
-		initParameters();
-	}
+        _currentSegmentTupleCount = 0;
+    }
 }

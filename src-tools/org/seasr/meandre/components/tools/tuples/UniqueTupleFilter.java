@@ -43,6 +43,8 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -57,7 +59,6 @@ import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
@@ -68,54 +69,54 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  */
 
 @Component(
-        name = "Add Tuple Attribute",
+        name = "Unique Tuple Filter",
         creator = "Boris Capitanu",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tuple, attribute",
-        description = "This component adds an extra attribute to existing tuple(s)." ,
+        tags = "sentiment, concept",
+        description = "This component pushes unique tuples (uniqueness based on the value of an attribute) " +
+        		      "on the 'unique_tuples' port and the duplicate tuples on the 'duplicate_tuples' port" ,
         dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class AddTupleAttribute extends AbstractExecutableComponent {
+public class UniqueTupleFilter extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
             name = Names.PORT_TUPLES,
-            description = "The tuple(s)" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+            description = "The tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
     )
     protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
     @ComponentInput(
             name = Names.PORT_META_TUPLE,
-            description = "meta data for tuples" +
+            description = "The meta data for tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 
-    @ComponentInput(
-            name = "attribute",
-            description = "The attribute to be added to the tuples" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-    )
-    protected static final String IN_ATTRIBUTE = "attribute";
-
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            name = Names.PORT_TUPLES,
-            description = "The modified tuple(s)" +
-                "<br>TYPE: same as input"
+            name = "unique_tuples",
+            description = "The unique tuples" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
     )
-    protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+    protected static final String OUT_UNIQUE_TUPLES = "unique_tuples";
+
+    @ComponentOutput(
+            name = "duplicate_tuples",
+            description = "The duplicate tuples" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+    )
+    protected static final String OUT_DUPLICATE_TUPLES = "duplicate_tuples";
 
     @ComponentOutput(
             name = Names.PORT_META_TUPLE,
-            description = "The meta data for the modified tuples (same as input plus the new attribute)" +
+            description = "The meta data for tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
@@ -123,16 +124,27 @@ public class AddTupleAttribute extends AbstractExecutableComponent {
     //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
-            description = "Attribute to be added",
-            name = "attribute_name",
+            description = "The attribute used to determine the uniqueness of tuples",
+            name = "attribute",
             defaultValue = ""
     )
-    protected static final String PROP_ATTRIBUTE = "attribute_name";
+    protected static final String PROP_ATTRIBUTE = "attribute";
+
+    @ComponentProperty(
+            description = "Whether uniqueness is ascertained per stream (true) or globally, across all streams (false)",
+            name = "per_stream",
+            defaultValue = "true"
+    )
+    protected static final String PROP_PER_STREAM = "per_stream";
 
     //--------------------------------------------------------------------------------------------
 
 
     protected String _attributeName;
+    protected boolean _perStream;
+    protected boolean _isStreaming = false;
+
+    protected Set<String> _uniqueSet = new HashSet<String>();
 
 
     //--------------------------------------------------------------------------------------------
@@ -140,77 +152,81 @@ public class AddTupleAttribute extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _attributeName = getPropertyOrDieTrying(PROP_ATTRIBUTE, ccp);
+        _perStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_PER_STREAM, ccp));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        String attribute = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_ATTRIBUTE))[0];
+        if (!_isStreaming && _perStream)
+            _uniqueSet = new HashSet<String>();
 
-        Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-        SimpleTuplePeer inPeer  = new SimpleTuplePeer(inputMeta);
-        SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[] { _attributeName });
+        Strings inMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+        SimpleTuplePeer inPeer  = new SimpleTuplePeer(inMeta);
 
-        Object input = cc.getDataComponentFromInput(IN_TUPLES);
-        boolean singleTuple = true;
-        Strings[] tuples;
-
-        if (input instanceof StringsArray) {
-            tuples = BasicDataTypesTools.stringsArrayToJavaArray((StringsArray) input);
-            singleTuple = false;
+        int FIELD_IDX = inPeer.getIndexForFieldName(_attributeName);
+        if (FIELD_IDX == -1) {
+            String dump = inPeer.toString();
+            throw new ComponentExecutionException(String.format("The tuples have no attribute named '%s'%nAttributes: %s", _attributeName, dump));
         }
 
-        else
+        Strings[] inTuples = BasicDataTypesTools.stringsArrayToJavaArray((StringsArray) cc.getDataComponentFromInput(IN_TUPLES));
+        SimpleTuple tuple = inPeer.createTuple();
 
-        if (input instanceof Strings)
-            tuples = new Strings[] { (Strings) input };
+        StringsArray.Builder uniqueTuplesBuilder = StringsArray.newBuilder();
+        StringsArray.Builder duplicateTuplesBuilder = StringsArray.newBuilder();
 
-        else
-            throw new ComponentExecutionException("Don't know how to handle input of type: " + input.getClass().getName());
+        for (Strings inTuple : inTuples) {
+            tuple.setValues(inTuple);
 
-        SimpleTuple tuple    = inPeer.createTuple();
-        SimpleTuple outTuple = outPeer.createTuple();
-
-        Strings[] modifiedTuples = new Strings[tuples.length];
-        int i = 0;
-
-        for (Strings t : tuples) {
-            tuple.setValues(t);
-            outTuple.setValue(tuple);
-            outTuple.setValue(_attributeName, attribute);
-
-            modifiedTuples[i++] = outTuple.convert();
+            String key = tuple.getValue(FIELD_IDX);
+            if (!_uniqueSet.contains(key)) {
+                uniqueTuplesBuilder.addValue(inTuple);
+                _uniqueSet.add(key);
+            }
+            else
+                duplicateTuplesBuilder.addValue(inTuple);
         }
 
-        Object output = singleTuple ? modifiedTuples[0] : BasicDataTypesTools.javaArrayToStringsArray(modifiedTuples);
-        cc.pushDataComponentToOutput(OUT_TUPLES, output);
-        cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
+        console.fine(String.format("%d unique tuples, %d duplicate tuples", uniqueTuplesBuilder.getValueCount(), duplicateTuplesBuilder.getValueCount()));
+
+        cc.pushDataComponentToOutput(OUT_META_TUPLE, inMeta);
+        cc.pushDataComponentToOutput(OUT_DUPLICATE_TUPLES, duplicateTuplesBuilder.build());
+        cc.pushDataComponentToOutput(OUT_UNIQUE_TUPLES, uniqueTuplesBuilder.build());
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        _uniqueSet = null;
     }
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     protected void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES, IN_ATTRIBUTE })))
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE,
-                componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES,
-                componentContext.getDataComponentFromInput(IN_TUPLES));
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        Object si = componentContext.getDataComponentFromInput(IN_TUPLES);
+        componentContext.pushDataComponentToOutput(OUT_UNIQUE_TUPLES, si);
+        componentContext.pushDataComponentToOutput(OUT_DUPLICATE_TUPLES, si);
+
+        if (_perStream)
+            _uniqueSet = new HashSet<String>();
+
+        _isStreaming = true;
     }
 
     @Override
     protected void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES, IN_ATTRIBUTE })))
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE,
-                componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES,
-                componentContext.getDataComponentFromInput(IN_TUPLES));
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        Object st = componentContext.getDataComponentFromInput(IN_TUPLES);
+        componentContext.pushDataComponentToOutput(OUT_UNIQUE_TUPLES, st);
+        componentContext.pushDataComponentToOutput(OUT_DUPLICATE_TUPLES, st);
+
+        _isStreaming = false;
     }
 }

@@ -48,25 +48,28 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.Names;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+import org.seasr.meandre.support.components.tuples.TupleUtilities;
 
 /**
  *
  * @author Mike Haberman;
+ * @author Boris Capitanu
  *
  */
 
@@ -87,14 +90,15 @@ public class TupleLogger  extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples" +
+			description = "The tuple(s)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentInput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples" +
+			description = "The meta data for tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
@@ -103,19 +107,19 @@ public class TupleLogger  extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples (same as input)" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+			description = "The tuple(s) (same as input)" +
+			    "<br>TYPE: same as input"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuples (same as input)" +
+			description = "The meta data for the tuple(s) (same as input)" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
-    //--------------------------------------------------------------------------------------------
+    //----------------------------- PROPERTIES ---------------------------------------------------
 
 	@ComponentProperty(
 			name = "columnSet",
@@ -124,15 +128,20 @@ public class TupleLogger  extends AbstractExecutableComponent {
 	)
 	protected static final String PROP_COL = "columnSet";
 
+	//--------------------------------------------------------------------------------------------
+
+
 	List<Integer> idxList = null;
 	String[] values = null;
+
+
+	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
 		String cols = ccp.getProperty(PROP_COL);
 		if (cols != null && cols.trim().length() > 0) {
-
 			idxList = new ArrayList<Integer>();
 			StringTokenizer tokens = new StringTokenizer(cols.trim(), ",");
 			while (tokens.hasMoreTokens()) {
@@ -147,44 +156,61 @@ public class TupleLogger  extends AbstractExecutableComponent {
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
     {
-		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
-		console.info(tuplePeer.toString());
+        Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+        SimpleTuplePeer inPeer  = new SimpleTuplePeer(inputMeta);
 
-		SimpleTuple tuple = tuplePeer.createTuple();
-		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
-		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
-		for (int i = 0; i < in.length; i++) {
-			tuple.setValues(in[i]);
+        Object input = cc.getDataComponentFromInput(IN_TUPLES);
+        Strings[] tuples;
+
+        if (input instanceof StringsArray)
+            tuples = BasicDataTypesTools.stringsArrayToJavaArray((StringsArray) input);
+
+        else
+
+        if (input instanceof Strings) {
+            Strings inTuple = (Strings)input;
+
+            if (TupleUtilities.isBeginMarker(inTuple, inputMeta)) {
+                console.info("### BEGIN marker ###");
+                return;
+            }
+
+            else
+
+            if (TupleUtilities.isEndMarker(inTuple, inputMeta)) {
+                console.info("### END marker ###");
+                return;
+            }
+
+            tuples = new Strings[] { inTuple };
+        }
+        else
+            throw new ComponentExecutionException("Don't know how to handle input of type: " + input.getClass().getName());
+
+
+		console.info(inPeer.toString());
+
+		SimpleTuple tuple = inPeer.createTuple();
+
+		for (int i = 0; i < tuples.length; i++) {
+			tuple.setValues(tuples[i]);
 			if (idxList == null) {
 			   console.info(tuple.toString());
 			}
 			else {
-
 				for (int j = 0; j < idxList.size(); j++) {
 					int idx = idxList.get(j);
-					if (idx < tuplePeer.size()) {
+					if (idx < inPeer.size()) {
 					  values[j] = tuple.getValue(idx);
 					}
 					else {
-						console.info("WARNING, index beyond tuple field");
+						console.warning("index beyond tuple field");
 					}
 				}
 
 				console.info(SimpleTuplePeer.toString(values));
 			}
 		}
-
-		/*
-		Strings input = (Strings) cc.getDataComponentFromInput(IN_TUPLES);
-		String[] tuples = DataTypeParser.parseAsString(input);
-		DynamicTuple tuple = inPeer.createTuple();
-
-		for (int i = 0; i < tuples.length; i++) {
-			tuple.setValues(tuples[i]);
-			console.info(tuple.toString());
-		}
-		*/
 
 		cc.pushDataComponentToOutput(OUT_TUPLES, input);
 		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);

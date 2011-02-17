@@ -50,140 +50,84 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.components.tuples.SimpleTuple;
-import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+import org.seasr.meandre.support.components.tuples.TupleUtilities;
 
 /**
  * @author Boris Capitanu
  */
 
 @Component(
-        name = "Add Tuple Attribute",
+        name = "Tuple Splitter",
         creator = "Boris Capitanu",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tuple, attribute",
-        description = "This component adds an extra attribute to existing tuple(s)." ,
+        tags = "tuple",
+        description = "This component splits an aggregate tuple into individual tuples" ,
         dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class AddTupleAttribute extends AbstractExecutableComponent {
+public class TupleSplitter extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
             name = Names.PORT_TUPLES,
-            description = "The tuple(s)" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+            description = "The tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
     )
     protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
     @ComponentInput(
             name = Names.PORT_META_TUPLE,
-            description = "meta data for tuples" +
+            description = "The meta data for tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 
-    @ComponentInput(
-            name = "attribute",
-            description = "The attribute to be added to the tuples" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-    )
-    protected static final String IN_ATTRIBUTE = "attribute";
-
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            name = Names.PORT_TUPLES,
-            description = "The modified tuple(s)" +
-                "<br>TYPE: same as input"
+            name = Names.PORT_TUPLE,
+            description = "The individual tuples" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+    protected static final String OUT_TUPLE = Names.PORT_TUPLE;
 
     @ComponentOutput(
             name = Names.PORT_META_TUPLE,
-            description = "The meta data for the modified tuples (same as input plus the new attribute)" +
+            description = "meta data for the tuples (same as input, concept)" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
-
-    //----------------------------- PROPERTIES ---------------------------------------------------
-
-    @ComponentProperty(
-            description = "Attribute to be added",
-            name = "attribute_name",
-            defaultValue = ""
-    )
-    protected static final String PROP_ATTRIBUTE = "attribute_name";
-
-    //--------------------------------------------------------------------------------------------
-
-
-    protected String _attributeName;
-
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _attributeName = getPropertyOrDieTrying(PROP_ATTRIBUTE, ccp);
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        String attribute = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_ATTRIBUTE))[0];
-
         Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-        SimpleTuplePeer inPeer  = new SimpleTuplePeer(inputMeta);
-        SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[] { _attributeName });
+        StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+        Strings[] tuples = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-        Object input = cc.getDataComponentFromInput(IN_TUPLES);
-        boolean singleTuple = true;
-        Strings[] tuples;
+        TupleUtilities.pushBeginMarker(cc, OUT_META_TUPLE, OUT_TUPLE);
 
-        if (input instanceof StringsArray) {
-            tuples = BasicDataTypesTools.stringsArrayToJavaArray((StringsArray) input);
-            singleTuple = false;
+        for (Strings tuple : tuples) {
+            cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
+            cc.pushDataComponentToOutput(OUT_TUPLE, tuple);
         }
 
-        else
-
-        if (input instanceof Strings)
-            tuples = new Strings[] { (Strings) input };
-
-        else
-            throw new ComponentExecutionException("Don't know how to handle input of type: " + input.getClass().getName());
-
-        SimpleTuple tuple    = inPeer.createTuple();
-        SimpleTuple outTuple = outPeer.createTuple();
-
-        Strings[] modifiedTuples = new Strings[tuples.length];
-        int i = 0;
-
-        for (Strings t : tuples) {
-            tuple.setValues(t);
-            outTuple.setValue(tuple);
-            outTuple.setValue(_attributeName, attribute);
-
-            modifiedTuples[i++] = outTuple.convert();
-        }
-
-        Object output = singleTuple ? modifiedTuples[0] : BasicDataTypesTools.javaArrayToStringsArray(modifiedTuples);
-        cc.pushDataComponentToOutput(OUT_TUPLES, output);
-        cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
+        TupleUtilities.pushEndMarker(cc, OUT_META_TUPLE, OUT_TUPLE);
     }
 
     @Override
@@ -194,23 +138,19 @@ public class AddTupleAttribute extends AbstractExecutableComponent {
 
     @Override
     protected void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES, IN_ATTRIBUTE })))
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE,
-                componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES,
-                componentContext.getDataComponentFromInput(IN_TUPLES));
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLE, componentContext.getDataComponentFromInput(IN_TUPLES));
     }
 
     @Override
     protected void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES, IN_ATTRIBUTE })))
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE,
-                componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES,
-                componentContext.getDataComponentFromInput(IN_TUPLES));
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLE, componentContext.getDataComponentFromInput(IN_TUPLES));
     }
 }

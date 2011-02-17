@@ -40,7 +40,9 @@
  *
  */
 
-package org.seasr.meandre.components.tools.control;
+package org.seasr.meandre.components.tools.tuples;
+
+import java.util.Arrays;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -50,40 +52,59 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.support.components.tuples.TupleUtilities;
+
+/**
+ * @author Boris Capitanu
+ */
 
 @Component(
-        name = "Pass Through",
+        name = "Tuple Delimiter Filter",
         creator = "Boris Capitanu",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "input, counter",
-        description = "This component acts as a pass-through for purposes of counting " +
-        		"the number of data blobs passing through it.",
-        dependency = {"protobuf-java-2.2.0.jar"}
+        tags = "sentiment, concept",
+        description = "This component filters out tuple delimiters" ,
+        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class PassThrough extends AbstractExecutableComponent {
+public class TupleDelimiterFilter extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            name = Names.PORT_OBJECT,
-            description = "The object" +
-                          "<br>TYPE: java.lang.Object"
+            name = Names.PORT_TUPLE,
+            description = "The tuple" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String IN_OBJECT = Names.PORT_OBJECT;
+    protected static final String IN_TUPLE = Names.PORT_TUPLE;
+
+    @ComponentInput(
+            name = Names.PORT_META_TUPLE,
+            description = "The meta data for the tuple" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            name = Names.PORT_OBJECT,
-            description = "The same object received as input" +
-                          "<br>TYPE: java.lang.Object"
+            name = Names.PORT_TUPLE,
+            description = "The tuple" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String OUT_OBJECT = Names.PORT_OBJECT;
+    protected static final String OUT_TUPLE = Names.PORT_TUPLE;
+
+    @ComponentOutput(
+            name = Names.PORT_META_TUPLE,
+            description = "The meta data for the tuple" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
     //--------------------------------------------------------------------------------------------
 
@@ -93,11 +114,37 @@ public class PassThrough extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        cc.pushDataComponentToOutput(OUT_OBJECT, cc.getDataComponentFromInput(IN_OBJECT));
+        Strings inMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+        Strings inTuple = (Strings) cc.getDataComponentFromInput(IN_TUPLE);
+
+        if (TupleUtilities.isBeginMarker(inTuple, inMeta) || TupleUtilities.isEndMarker(inTuple, inMeta))
+            return;
+
+        cc.pushDataComponentToOutput(OUT_META_TUPLE, inMeta);
+        cc.pushDataComponentToOutput(OUT_TUPLE, inTuple);
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLE })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLE, componentContext.getDataComponentFromInput(IN_TUPLE));
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLE })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
+        componentContext.pushDataComponentToOutput(OUT_TUPLE, componentContext.getDataComponentFromInput(IN_TUPLE));
+    }
 }

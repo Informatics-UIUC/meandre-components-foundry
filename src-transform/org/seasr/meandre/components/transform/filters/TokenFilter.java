@@ -1,50 +1,48 @@
 /**
-*
-* University of Illinois/NCSA
-* Open Source License
-*
-* Copyright (c) 2008, NCSA.  All rights reserved.
-*
-* Developed by:
-* The Automated Learning Group
-* University of Illinois at Urbana-Champaign
-* http://www.seasr.org
-*
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-* "Software"), to deal with the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject
-* to the following conditions:
-*
-* Redistributions of source code must retain the above copyright
-* notice, this list of conditions and the following disclaimers.
-*
-* Redistributions in binary form must reproduce the above copyright
-* notice, this list of conditions and the following disclaimers in
-* the documentation and/or other materials provided with the distribution.
-*
-* Neither the names of The Automated Learning Group, University of
-* Illinois at Urbana-Champaign, nor the names of its contributors may
-* be used to endorse or promote products derived from this Software
-* without specific prior written permission.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
-* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
-*
-*/
+ *
+ * University of Illinois/NCSA
+ * Open Source License
+ *
+ * Copyright (c) 2008, NCSA.  All rights reserved.
+ *
+ * Developed by:
+ * The Automated Learning Group
+ * University of Illinois at Urbana-Champaign
+ * http://www.seasr.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal with the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject
+ * to the following conditions:
+ *
+ * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimers.
+ *
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimers in
+ * the documentation and/or other materials provided with the distribution.
+ *
+ * Neither the names of The Automated Learning Group, University of
+ * Illinois at Urbana-Champaign, nor the names of its contributors may
+ * be used to endorse or promote products derived from this Software
+ * without specific prior written permission.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+ *
+ */
 
 package org.seasr.meandre.components.transform.filters;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -59,19 +57,19 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.system.components.ext.StreamTerminator;
-import org.seasr.datatypes.core.BasicDataTypes;
+import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
-/** This component tokenizes the text contained in the input model using OpenNLP.
+/**
+ * This component tokenizes the text contained in the input model using OpenNLP.
  *
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
@@ -80,7 +78,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 @Component(
 		name = "Token Filter",
-		creator = "Xavier Llora",
+		creator = "Boris Capitanu",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.any,
 		mode = Mode.compute,
@@ -98,7 +96,6 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 				      "tokens to the data will ignore case by default. Set ignore_case=false to work in case sensitive mode.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-@SuppressWarnings("unchecked")
 public class TokenFilter extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
@@ -186,261 +183,174 @@ public class TokenFilter extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 
-	/** Should the token black list be replaced */
-	protected boolean bReplace;
+    protected boolean _replaceBlacklist = false;
+    protected boolean _ignoreCase = false;
 
-	protected boolean bIgnoreCase;
+    protected enum Queues {
+        TOKENS, TOKEN_COUNTS, TOKENIZED_SENTENCES
+    };
 
-	/** The temporary initial queue */
-	protected Queue<Object>[] queues  = new Queue[3];
-	protected final int PORT_TOKENS = 0;
-	protected final int PORT_TOKEN_COUNTS = 1;
-	protected final int PORT_TOKENIZED_SENTENCES = 2;
-
-	/** The set of blacklisted tokens */
-	protected Set<String> setBlacklist = null;
-
-	protected Map<String,StreamTerminator> stMap = new HashMap<String,StreamTerminator>();
+    @SuppressWarnings("unchecked")
+    protected Queue<Object>[] _inputQueues = new Queue[3];
+    protected Set<String> _blackList = null;
 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    bIgnoreCase = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_CASE, true, true, ccp));
-		bReplace = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REPLACE, true, true, ccp));
-		queues[PORT_TOKENS] = new LinkedList<Object>();
-		queues[PORT_TOKEN_COUNTS] = new LinkedList<Object>();
-		queues[PORT_TOKENIZED_SENTENCES] = new LinkedList<Object>();
-		setBlacklist = null;
+	    _replaceBlacklist = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REPLACE, ccp));
+	    _ignoreCase = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_CASE, ccp));
+
+	    for (Queues queue : Queues.values())
+	        _inputQueues[queue.ordinal()] = new LinkedList<Object>();
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+	    if (cc.isInputAvailable(IN_TOKENS))
+	        _inputQueues[Queues.TOKENS.ordinal()].offer(cc.getDataComponentFromInput(IN_TOKENS));
+
+	    if (cc.isInputAvailable(IN_TOKEN_COUNTS))
+	        _inputQueues[Queues.TOKEN_COUNTS.ordinal()].offer(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
+
+	    if (cc.isInputAvailable(IN_TOKENIZED_SENTENCES))
+	        _inputQueues[Queues.TOKENIZED_SENTENCES.ordinal()].offer(cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+
 	    if (cc.isInputAvailable(IN_TOKEN_BLACKLIST)) {
-	        String[] words = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKEN_BLACKLIST));
+	        if (_replaceBlacklist || _blackList == null)
+	            _blackList = new HashSet<String>(100);
 
-	        if (setBlacklist == null)
-	            setBlacklist = new HashSet<String>(100);
-
-	        if (bReplace) setBlacklist.clear();
-
-	        for (String s : words) {
-	            if (bIgnoreCase) s = s.toLowerCase();
-	            setBlacklist.add(s.trim());
+	        for (String word : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKEN_BLACKLIST))) {
+	            if (_ignoreCase) word = word.toLowerCase();
+	            _blackList.add(word);
 	        }
 	    }
 
-	    if (cc.isInputAvailable(IN_TOKENS))
-	        queues[PORT_TOKENS].offer(cc.getDataComponentFromInput(IN_TOKENS));
+	    if (_blackList == null) return;   // We can't process anything at this point until the blacklist "arrives"
 
-	    if (cc.isInputAvailable(IN_TOKEN_COUNTS) )
-	        queues[PORT_TOKEN_COUNTS].offer(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
+        Object input;
 
-	    if (cc.isInputAvailable(IN_TOKENIZED_SENTENCES) )
-	        queues[PORT_TOKENIZED_SENTENCES].offer(cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+        // Process queued tokens
+        while ((input = _inputQueues[Queues.TOKENS.ordinal()].poll()) != null) {
+            if (input instanceof StreamDelimiter) {
+                // Forward the delimiter
+                cc.pushDataComponentToOutput(OUT_TOKENS, input);
+                continue;
+            } else
+                processInputTokens(DataTypeParser.parseAsString(input));
+        }
 
-	    if (setBlacklist != null)
-	        processQueuedObjects();
+        // Process queued token counts
+        while ((input = _inputQueues[Queues.TOKEN_COUNTS.ordinal()].poll()) != null) {
+            if (input instanceof StreamDelimiter) {
+                // Forward the delimiter
+                cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, input);
+                continue;
+            } else
+                processInputTokenCounts(DataTypeParser.parseAsStringIntegerMap(input));
+        }
 
-        // Check if we already got a terminator and forward it after the data has been processed
-        if (stMap.size() > 0 && this.setBlacklist != null) {
-            for (Entry<String,StreamTerminator> entry : stMap.entrySet())
-                componentContext.pushDataComponentToOutput(entry.getKey(), entry.getValue());
-            stMap.clear();
+        // Process queued tokenized sentences
+        while ((input = _inputQueues[Queues.TOKENIZED_SENTENCES.ordinal()].poll()) != null) {
+            if (input instanceof StreamDelimiter) {
+                // Forward the delimiter
+                cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, input);
+                continue;
+            } else
+                processInputTokenizedSentences((StringsMap) input);
         }
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        bReplace = false;
-        queues[PORT_TOKENS] = queues[PORT_TOKEN_COUNTS] = queues[PORT_TOKENIZED_SENTENCES] = null;
-        queues = null;
-        setBlacklist = null;
-        stMap.clear();
+        _inputQueues = null;
+        _blackList = null;
     }
 
 	//--------------------------------------------------------------------------------------------
 
     @Override
     protected void handleStreamInitiators() throws Exception {
-        if (inputPortsWithInitiators.contains(IN_TOKENIZED_SENTENCES))
-            componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES,
-                    componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
-
-        if (inputPortsWithInitiators.contains(IN_TOKEN_COUNTS))
-            componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS,
-                    componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
-
-        if (inputPortsWithInitiators.contains(IN_TOKENS))
-            componentContext.pushDataComponentToOutput(OUT_TOKENS,
-                    componentContext.getDataComponentFromInput(IN_TOKENS));
+        executeCallBack(componentContext);
     }
 
     @Override
     protected void handleStreamTerminators() throws Exception {
-        if (inputPortsWithTerminators.contains(IN_TOKENIZED_SENTENCES))
-            stMap.put(OUT_TOKENIZED_SENTENCES, (StreamTerminator)componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
-
-        if (inputPortsWithTerminators.contains(IN_TOKEN_COUNTS))
-            stMap.put(OUT_TOKEN_COUNTS, (StreamTerminator)componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
-
-        if (inputPortsWithTerminators.contains(IN_TOKENS))
-            stMap.put(OUT_TOKENS, (StreamTerminator)componentContext.getDataComponentFromInput(IN_TOKENS));
-
-        if (this.setBlacklist != null) {
-            for (Entry<String,StreamTerminator> entry : stMap.entrySet())
-                componentContext.pushDataComponentToOutput(entry.getKey(), entry.getValue());
-            stMap.clear();
-        }
+        executeCallBack(componentContext);
     }
 
     //--------------------------------------------------------------------------------------------
 
-	/**
-	 * Process the queued object.
-	 *
-	 * @throws Exception Something went wrong while executing
-	 */
-	protected void processQueuedObjects() throws Exception {
-		Iterator<Object> iterTok = queues[PORT_TOKENS].iterator();
-		while (iterTok.hasNext()) processTokens(iterTok.next());
+    protected void processInputTokens(String[] tokens) throws ComponentContextException {
+        int nRemovedTokens = 0;
 
-		Iterator<Object> iterTokCnts = queues[PORT_TOKEN_COUNTS].iterator();
-		while (iterTokCnts.hasNext()) processTokenCounts(iterTokCnts.next());
-
-		Iterator<Object> iterTS = queues[PORT_TOKENIZED_SENTENCES].iterator();
-		while (iterTS.hasNext()) processTokenizedSentences(iterTS.next());
-	}
-
-	/**
-	 * Process tokenized sentences.
-	 *
-	 * @param next The object to process
-	 * @throws Exception
-	 */
-	protected void processTokenizedSentences(Object next) throws Exception {
-	    int nFilteredTokens = 0;
-	    int nKeptTokens = 0;
-
-		StringsMap im = safeStringsMapCast(next);
-		org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder res = BasicDataTypes.StringsMap.newBuilder();
-		for ( int i=0, iMax=im.getKeyCount() ; i<iMax ; i++ ) {
-			String sKey = im.getKey(i);
-			Strings sVals = im.getValue(i);
-			org.seasr.datatypes.core.BasicDataTypes.Strings.Builder resFiltered = BasicDataTypes.Strings.newBuilder();
-			for ( String s:sVals.getValueList()) {
-			    String token = (bIgnoreCase) ? s.toLowerCase().trim() : s.trim();
-				if ( !this.setBlacklist.contains(token) )
-					resFiltered.addValue(s);
-				else
-				    nFilteredTokens++;
-			}
-
-			nKeptTokens += resFiltered.getValueCount();
-
-			res.addKey(sKey);
-			res.addValue(resFiltered.build());
-		}
-
-		console.fine(String.format("sentences: Filtered: %,d  Kept: %,d  Total: %,d",
-		        nFilteredTokens, nKeptTokens, nFilteredTokens + nKeptTokens));
-
-		componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, res.build());
-	}
-
-	/**
-	 * Process token counts sentences.
-	 *
-	 * @param next The object to process
-	 * @throws Exception
-	 */
-	protected void processTokenCounts(Object next) throws Exception {
-		Map<String, Integer> im;
-		try {
-		    im = DataTypeParser.parseAsStringIntegerMap(next);
-		}
-		catch (UnsupportedDataTypeException e) {
-		    if (ignoreErrors) {
-		        console.warning("processTokenCounts: UnsupportedDataTypeException ignored - input data was not in the correct format");
-		        im = new HashMap<String, Integer>();
-		    }
-		    else
-		        throw e;
-		}
-
-		int nFilteredTokens = 0;
-
-		Map<String, Integer> res = new HashMap<String, Integer>();
-		for ( Entry<String, Integer> entry : im.entrySet()) {
-			String sKey = entry.getKey();
-			Integer iVal = entry.getValue();
-			String token = (bIgnoreCase) ? sKey.toLowerCase().trim() : sKey.trim();
-			if ( !this.setBlacklist.contains(token) )
-				res.put(sKey, iVal);
-			else
-			    nFilteredTokens++;
-		}
-
-		console.fine(String.format("counts: Filtered: %,d  Kept: %,d  Total: %,d",
-		        nFilteredTokens, res.size(), nFilteredTokens + res.size()));
-
-		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(res, false));
-	}
-
-	/**
-	 * Process tokens sentences.
-	 *
-	 * @param next The object to process
-	 * @throws Exception
-	 */
-	private void processTokens(Object next) throws Exception {
-		String[] tokens;
-		try {
-            tokens = DataTypeParser.parseAsString(next);
-        }
-        catch (UnsupportedDataTypeException e) {
-            if (ignoreErrors) {
-                console.warning("processTokens: UnsupportedDataTypeException ignored - input data was not in the correct format");
-                tokens = new String[] {};
-            }
+        Strings.Builder outTokens = Strings.newBuilder();
+        for (String token : tokens) {
+            String s = (_ignoreCase) ? token.toLowerCase() : token;
+            if (!_blackList.contains(s))
+                outTokens.addValue(token);
             else
-                throw e;
+                nRemovedTokens++;
         }
 
-        int nFilteredTokens = 0;
+        int nKeptTokens = outTokens.getValueCount();
 
-		org.seasr.datatypes.core.BasicDataTypes.Strings.Builder res = BasicDataTypes.Strings.newBuilder();
-		for ( String sTok : tokens ) {
-		    String token = (bIgnoreCase) ? sTok.toLowerCase().trim() : sTok.trim();
-			if ( !this.setBlacklist.contains(token) )
-				res.addValue(sTok);
-			else
-			    nFilteredTokens++;
-		}
+        console.fine(String.format("tokens: Removed: %,d  Kept: %,d  Total: %,d",
+                nRemovedTokens, nKeptTokens, nRemovedTokens + nKeptTokens));
 
-		console.fine(String.format("tokens: Filtered: %,d  Kept: %,d  Total: %,d",
-		        nFilteredTokens, res.getValueCount(), nFilteredTokens + res.getValueCount()));
+        componentContext.pushDataComponentToOutput(OUT_TOKENS, outTokens.build());
+    }
 
-		componentContext.pushDataComponentToOutput(OUT_TOKENS, res.build());
-	}
+    protected void processInputTokenCounts(Map<String, Integer> tokenCounts) throws ComponentContextException {
+        int nRemovedTokens = 0;
 
-	/**
-	 * Safe cast of strings map.
-	 *
-	 * @param next The object to cast into strings
-	 * @return The strings
-	 * @throws Exception
-	 */
-	private StringsMap safeStringsMapCast(Object next) throws Exception {
-		try {
-			return (StringsMap)next;
-		}
-		catch ( ClassCastException e ) {
-			console.warning("Input data is not from the basic type Strings required for blacklists");
-			if ( !ignoreErrors )
-				throw new ComponentExecutionException(e);
-			return BasicDataTypesTools.buildEmptyStringsMap();
-		}
-	}
+        IntegersMap.Builder outTokenCounts = IntegersMap.newBuilder();
+        for (Entry<String, Integer> entry : tokenCounts.entrySet()) {
+            String token = entry.getKey();
+            String s = (_ignoreCase) ? token.toLowerCase() : token;
+            if (!_blackList.contains(s)) {
+                outTokenCounts.addKey(token);
+                outTokenCounts.addValue(BasicDataTypesTools.integerToIntegers(entry.getValue()));
+            } else
+                nRemovedTokens++;
+        }
+
+        int nKeptTokens = outTokenCounts.getKeyCount();
+
+        console.fine(String.format("tokenCounts: Removed: %,d  Kept: %,d  Total: %,d",
+                nRemovedTokens, nKeptTokens, nRemovedTokens + nKeptTokens));
+
+        componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, outTokenCounts.build());
+    }
+
+    protected void processInputTokenizedSentences(StringsMap tokenizedSentences) throws ComponentContextException {
+        int nRemovedTokens = 0;
+        int nKeptTokens = 0;
+
+        StringsMap.Builder outTokenizedSentences = StringsMap.newBuilder();
+        for (int i = 0, iMax = tokenizedSentences.getKeyCount(); i < iMax; i++) {
+            String sentence = tokenizedSentences.getKey(i);
+            Strings tokens = tokenizedSentences.getValue(i);
+
+            Strings.Builder filteredTokens = Strings.newBuilder();
+            for (String token : tokens.getValueList()) {
+                String s = (_ignoreCase) ? token.toLowerCase() : token;
+                if (!_blackList.contains(s))
+                    filteredTokens.addValue(token);
+                else
+                    nRemovedTokens++;
+            }
+
+            nKeptTokens += filteredTokens.getValueCount();
+
+            outTokenizedSentences.addKey(sentence);
+            outTokenizedSentences.addValue(filteredTokens);
+        }
+
+        console.fine(String.format("sentences: Removed: %,d  Kept: %,d  Total: %,d",
+                nRemovedTokens, nKeptTokens, nRemovedTokens + nKeptTokens));
+
+        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, outTokenizedSentences.build());
+    }
 }
