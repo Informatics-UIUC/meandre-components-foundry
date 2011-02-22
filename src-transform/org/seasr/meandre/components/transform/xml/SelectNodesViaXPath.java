@@ -128,7 +128,7 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
     @ComponentProperty(
             name = "namespaces",
             description = "Optional: Any namespaces that you want defined<br>" +
-            		"Format: <prefix>=<namespace>,<prefix>=<namespace>...<br>" +
+            		"Format: &lt;prefix&gt;=&lt;namespace&gt;,&lt;prefix&gt;=&lt;namespace&gt;...<br>" +
             		"Example: tei=http://www.tei-c.org/ns/1.0",
             defaultValue = ""
     )
