@@ -125,11 +125,11 @@ public class TupleToCSV extends AbstractExecutableComponent {
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
 	@ComponentProperty(
-			name = "tokenSeparator",
-			description = "The token to use to separate the field values",
+			name = Names.PROP_SEPARATOR,
+			description = "The delimiter to use to separate the data columns",
 		    defaultValue = ","
 	)
-	protected static final String PROP_TOKEN_SEPARATOR = "tokenSeparator";
+	protected static final String PROP_SEPARATOR = Names.PROP_SEPARATOR;
 
 	@ComponentProperty(
 			name = Names.PROP_HEADER,
@@ -140,17 +140,17 @@ public class TupleToCSV extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-	String tokenSep;
 
-	/** Should the header be added */
-	boolean bHeaderAdded;
+	protected String _separator;
+	protected boolean _addHeader;
+
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    tokenSep = getPropertyOrDieTrying(PROP_TOKEN_SEPARATOR, true, true, ccp);
-	    bHeaderAdded = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, true, true, ccp));
+	    _separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
+	    _addHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, ccp));
 	}
 
 	@Override
@@ -169,11 +169,11 @@ public class TupleToCSV extends AbstractExecutableComponent {
 		//
 		// write out the field names as the first row
 		//
-		if ( bHeaderAdded ) {
+		if ( _addHeader ) {
 			for (int i = 0; i < size; i++) {
 				sb.append(tuplePeer.getFieldNameForIndex(i));
 				if (i + 1 < size) {
-					sb.append(tokenSep);
+					sb.append(_separator);
 				}
 			}
 			sb.append("\n");
@@ -187,14 +187,14 @@ public class TupleToCSV extends AbstractExecutableComponent {
 				String value = tuple.getValue(j);
 
 				// make sure the value doesn't contain the separator or else we're in trouble
-				while (value.contains(tokenSep))
-				    value = value.replace(tokenSep, "");
+				while (value.contains(_separator))
+				    value = value.replace(_separator, "");
 
 				//TODO what to do if value="" at this point?
 
                 sb.append(value);
 				if (j + 1 < size) {
-					sb.append(tokenSep);
+					sb.append(_separator);
 				}
 			}
 			sb.append("\n");
@@ -210,7 +210,7 @@ public class TupleToCSV extends AbstractExecutableComponent {
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
-    
+
     //--------------------------------------------------------------------------------------------
 
     @Override
