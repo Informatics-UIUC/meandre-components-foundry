@@ -43,25 +43,22 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
-import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -69,6 +66,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 /**
  *
  * @author Mike Haberman
+ * @author Boris Capitanu
  *
  */
 
@@ -89,7 +87,7 @@ public class CSVToTuple extends AbstractExecutableComponent {
 
     @ComponentInput(
             name = Names.PORT_TEXT,
-            description = "the text to be parsed into tuples.  Each line is a new tuple." +
+            description = "The the text to be parsed into tuples.  Each line is a new tuple." +
                 "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
                 "<br>TYPE: byte[]" +
@@ -102,14 +100,14 @@ public class CSVToTuple extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_TUPLES,
-            description = "set of tuples" +
+            description = "The set of tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
     )
     protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
     @ComponentOutput(
             name = Names.PORT_META_TUPLE,
-            description = "meta data for tuples" +
+            description = "The meta data for tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
@@ -117,83 +115,121 @@ public class CSVToTuple extends AbstractExecutableComponent {
 	//----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
-            description = "column names/labels to be used (comma separated)",
+            description = "The column names/labels to be used (comma separated). " +
+            		"The values set here override the labels read from the data header. " +
+            		"If this property is not set (empty) then the column names will be read from the data header (the first line of the data).",
             name = "labels",
             defaultValue = ""
     )
-    protected static final String DATA_PROPERTY_COLUMN_NAMES = "labels";
+    protected static final String PROP_LABELS = "labels";
 
     @ComponentProperty(
-            description = "token used to separate the values (ie column data)",
-            name = "tokenSeparator",
+            description = "The delimiter used to separate the data into columns",
+            name = Names.PROP_SEPARATOR,
             defaultValue = ","
     )
-    protected static final String DATA_PROPERTY_TOKEN_SEPARATOR = "tokenSeparator";
+    protected static final String PROP_DELIMITER = Names.PROP_SEPARATOR;
+
+    @ComponentProperty(
+            description = "Does the data contain data labels? This row of labels will be skipped if the value of the property 'labels' is not empty",
+            name = Names.PROP_HEADER,
+            defaultValue = "true"
+    )
+    protected static final String PROP_HEADER = Names.PROP_HEADER;
 
    	//--------------------------------------------------------------------------------------------
 
-    String tokenSeparator;
-    SimpleTuplePeer outPeer;
+
+    protected String _separator;
+    protected String[] _fieldNames = null;
+    protected boolean _hasHeader = false;
+
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.tokenSeparator = ccp.getProperty(DATA_PROPERTY_TOKEN_SEPARATOR).trim();
-		String colNames = ccp.getProperty(DATA_PROPERTY_COLUMN_NAMES).trim();
-		String[] vals = colNames.split(",");
+	    _separator = getPropertyOrDieTrying(PROP_DELIMITER, false, true, ccp).replaceAll("\\\\t", "\t");
+	    _hasHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, ccp));
 
-		if (colNames.length() == 0 || vals.length == 0) {
-			throw new ComponentExecutionException(DATA_PROPERTY_COLUMN_NAMES + " needs to be set");
-		}
-
-		outPeer = new SimpleTuplePeer(vals);
+	    String labels = getPropertyOrDieTrying(PROP_LABELS, true, false, ccp);
+	    if (labels.length() > 0)
+	        _fieldNames = labels.split(",");
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+	    String data = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
+	    BufferedReader reader = new BufferedReader(new StringReader(data));
+	    String line;
 
-		int numOfColumns = outPeer.size();
+        SimpleTuplePeer outPeer = null;
+        if (_fieldNames != null) {
+            outPeer = new SimpleTuplePeer(_fieldNames);
+            // skip the header if exists
+            if (_hasHeader) readNextLineSkipComments(reader);
+        } else {
+            // Read the column names from the first line of the data
+            line = readNextLineSkipComments(reader);
+            String[] fieldNames = line.split(_separator);
+            outPeer = new SimpleTuplePeer(fieldNames);
+        }
 
-		String[] text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
-		String toParse = text[0];
+	    StringsArray.Builder tuplesBuilder = StringsArray.newBuilder();
+	    while ((line = reader.readLine()) != null) {
+	        // skip commented or empty lines
+            if (line.startsWith("#") || line.trim().length() == 0)
+                continue;
 
-		List<Strings> output = new ArrayList<Strings>();
-		BufferedReader reader = new BufferedReader(new StringReader(toParse));
-		SimpleTuple tuple = outPeer.createTuple();
-		while (true) {
+	        String[] fieldValues = line.split(_separator, outPeer.size());
+	        SimpleTuple tuple = outPeer.createTuple();
+	        tuple.setValues(fieldValues);
+	        tuplesBuilder.addValue(tuple.convert());
+	    }
 
-			String line = reader.readLine();
-			if (line == null) {
-				break;
-			}
-
-			// skip commented or empty lines
-			if (line.indexOf("#") == 0 || line.length() == 0)
-				continue;
-
-            String[] parts = line.split(tokenSeparator, numOfColumns);
-            if (parts.length == numOfColumns) {
-            	tuple.setValues(parts);
-    			output.add(tuple.convert());
-            }
-            else {
-            	// else skip the line
-            	console.fine("skipping line " + line);
-            }
-		}
-
-		 Strings[] results = new Strings[output.size()];
-		 output.toArray(results);
-
-		 StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
-		 cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
-
-	     // tuple meta data
-		 cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
+	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
+	    cc.pushDataComponentToOutput(OUT_TUPLES, tuplesBuilder.build());
 	}
+
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    protected void handleStreamInitiators() throws Exception {
+        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TEXT })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        Object si = componentContext.getDataComponentFromInput(IN_TEXT);
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, si);
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, si);
+    }
+
+    @Override
+    protected void handleStreamTerminators() throws Exception {
+        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_TEXT })))
+            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+
+        Object st = componentContext.getDataComponentFromInput(IN_TEXT);
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, st);
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, st);
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    protected String readNextLineSkipComments(BufferedReader reader) throws IOException {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            // skip commented or empty lines
+            if (line.startsWith("#") || line.trim().length() == 0)
+                continue;
+
+            break;
+        }
+
+        return line;
     }
 }
