@@ -177,6 +177,8 @@ public class ConceptFinder extends AbstractExecutableComponent {
         String concepts = getPropertyOrDieTrying(PROP_CONCEPTS, ccp);
         _conceptSeedMap = parseConcepts(concepts);
 
+        console.fine(String.format("Using seeds: %s", _conceptSeedMap.keySet()));
+
         String synnetHost = getPropertyOrDieTrying(PROP_SYNNET_HOST, ccp);
         _pathMetricFinder = new PathMetricFinder(synnetHost);
     }
@@ -213,7 +215,7 @@ public class ConceptFinder extends AbstractExecutableComponent {
         String token = tuple.getValue(KEY_IDX);
         Set<String> seeds = _conceptSeedMap.keySet();
 
-        console.fine(String.format("Attempting to find concept information for '%s' using seeds: %s", token, seeds));
+        console.fine(String.format("Attempting to find concept information for '%s'", token));
         List<PathMetric> allPathMetrics = _pathMetricFinder.getAllMetric(token, new ArrayList<String>(seeds));
         if (allPathMetrics == null)
             throw new ComponentExecutionException("SynNet service down");
