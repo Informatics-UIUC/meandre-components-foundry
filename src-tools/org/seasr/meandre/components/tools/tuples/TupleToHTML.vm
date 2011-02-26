@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+#set( $title = $_userMap.get("title") )
+#if( $title )
+<title>$title</title>
+#end
+</head>
+<body>
+    <table>
+        <tr>
+            #foreach( $attr in $_tuples.keySet() )
+            <th>$attr</th>
+            #end
+        </tr>
+
+        #set( $count = $_tuplesCount - 1 )
+        #foreach( $i in [0..$count] )
+        <tr>
+            #foreach( $tuple in $_tuples.entrySet() )
+            <td>${tuple.getValue().get($i)}</td>
+            #end
+        </tr>
+        #end
+    </table>
+</body>
+</html>
