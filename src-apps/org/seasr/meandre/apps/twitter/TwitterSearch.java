@@ -111,7 +111,8 @@ public class TwitterSearch extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    protected static final String TWITTER_SEARCH_API_URL = "http://search.twitter.com/search.json?q=%s&rpp=100";
+    protected static final String TWITTER_SEARCH_API_URL = "http://search.twitter.com/search.json";
+    private String _nextPage;
 
     //--------------------------------------------------------------------------------------------
 
@@ -122,26 +123,33 @@ public class TwitterSearch extends AbstractExecutableComponent {
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         String query = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
-        URL twitterSearchUrl = new URL(String.format(TWITTER_SEARCH_API_URL, URLEncoder.encode(query, "UTF-8")));
-        String response = IOUtils.getTextFromReader(new InputStreamReader(twitterSearchUrl.openStream()));
 
         SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] { "from_user", "from_user_id_str", "profile_image_url", "created_at", "text" });
         StringsArray.Builder tweetsBuilder = StringsArray.newBuilder();
 
-        JSONObject joResponse = new JSONObject(response);
-        JSONArray jaResults = joResponse.getJSONArray("results");
+        _nextPage = String.format("?q=%s&since_id=0", URLEncoder.encode(query, "UTF-8"));
+        while (_nextPage != null) {
+            URL twitterSearchUrl = new URL(String.format("%s%s", TWITTER_SEARCH_API_URL, _nextPage));
+            console.fine("Querying: " + twitterSearchUrl);
+            String response = IOUtils.getTextFromReader(new InputStreamReader(twitterSearchUrl.openStream()));
 
-        for (int i = 0, iMax = jaResults.length(); i < iMax; i++) {
-            JSONObject joTweet = jaResults.getJSONObject(i);
+            JSONObject joResponse = new JSONObject(response);
+            _nextPage = (joResponse.has("next_page")) ? joResponse.getString("next_page") : null;
 
-            SimpleTuple outTuple = outPeer.createTuple();
-            outTuple.setValue("from_user", joTweet.getString("from_user"));
-            outTuple.setValue("from_user_id_str", joTweet.getString("from_user_id_str"));
-            outTuple.setValue("profile_image_url", joTweet.getString("profile_image_url"));
-            outTuple.setValue("created_at", joTweet.getString("created_at"));
-            outTuple.setValue("text", StringEscapeUtils.unescapeHtml(joTweet.getString("text")));
+            JSONArray jaResults = joResponse.getJSONArray("results");
 
-            tweetsBuilder.addValue(outTuple.convert());
+            for (int i = 0, iMax = jaResults.length(); i < iMax; i++) {
+                JSONObject joTweet = jaResults.getJSONObject(i);
+
+                SimpleTuple outTuple = outPeer.createTuple();
+                outTuple.setValue("from_user", joTweet.getString("from_user"));
+                outTuple.setValue("from_user_id_str", joTweet.getString("from_user_id_str"));
+                outTuple.setValue("profile_image_url", joTweet.getString("profile_image_url"));
+                outTuple.setValue("created_at", joTweet.getString("created_at"));
+                outTuple.setValue("text", StringEscapeUtils.unescapeHtml(joTweet.getString("text")));
+
+                tweetsBuilder.addValue(outTuple.convert());
+            }
         }
 
         cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
