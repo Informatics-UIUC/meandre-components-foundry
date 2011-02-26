@@ -50,8 +50,12 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -108,10 +112,26 @@ public class TupleSplitter extends AbstractExecutableComponent {
     )
     protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
+    //----------------------------- PROPERTIES ---------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the output be wrapped as a stream?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+
+    //--------------------------------------------------------------------------------------------
+
+
+    protected boolean _wrapStream;
+
+
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
     }
 
     @Override
@@ -119,6 +139,12 @@ public class TupleSplitter extends AbstractExecutableComponent {
         Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
         StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
         Strings[] tuples = BasicDataTypesTools.stringsArrayToJavaArray(input);
+
+        if (_wrapStream) {
+            StreamDelimiter sd = new StreamInitiator();
+            cc.pushDataComponentToOutput(OUT_META_TUPLE, sd);
+            cc.pushDataComponentToOutput(OUT_TUPLE, sd);
+        }
 
         TupleUtilities.pushBeginMarker(cc, OUT_META_TUPLE, OUT_TUPLE);
 
@@ -128,6 +154,12 @@ public class TupleSplitter extends AbstractExecutableComponent {
         }
 
         TupleUtilities.pushEndMarker(cc, OUT_META_TUPLE, OUT_TUPLE);
+
+        if (_wrapStream) {
+            StreamDelimiter sd = new StreamTerminator();
+            cc.pushDataComponentToOutput(OUT_META_TUPLE, sd);
+            cc.pushDataComponentToOutput(OUT_TUPLE, sd);
+        }
     }
 
     @Override

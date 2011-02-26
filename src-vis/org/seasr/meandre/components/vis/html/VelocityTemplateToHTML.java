@@ -42,22 +42,15 @@
 
 package org.seasr.meandre.components.vis.html;
 
-
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.Names;
@@ -86,8 +79,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         resources  = { "SampleTemplate.vm" },
         dependency = { "velocity-1.6.2-dep.jar", "protobuf-java-2.2.0.jar" }
 )
-public class VelocityTemplateToHTML extends AbstractExecutableComponent
-{
+public class VelocityTemplateToHTML extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -111,7 +103,6 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
 	)
 	protected static final String PROP_TEMPLATE_PROPERTIES = Names.PROP_PROPERTIES;
 
-
    //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
@@ -120,6 +111,9 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_HTML = Names.PORT_HTML;
+
+    //--------------------------------------------------------------------------------------------
+
 
 	protected VelocityContext context;
     protected String templateName;
@@ -135,9 +129,7 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
     // they add component specific data to the context
     //
     @Override
-    public void initializeCallBack(ComponentContextProperties ccp)
-    throws Exception
-    {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     	templateName = ccp.getProperty(PROP_TEMPLATE);
 
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
@@ -149,9 +141,9 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
          *  references (ex. $date) in the template
          */
 
-        context.put("dir",  System.getProperty("user.dir"));
-        context.put("date", new Date());
-        context.put("ccp",  ccp);
+        context.put("_dir",  System.getProperty("user.dir"));
+        context.put("_date", new Date());
+        context.put("_ccp",  ccp);
 
         String toParse = ccp.getProperty(PROP_TEMPLATE_PROPERTIES);
         HashMap<String,String> map = new HashMap<String,String>();
@@ -165,7 +157,7 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
                 map.put(key.trim(), value.trim());
             }
         }
-        context.put("userMap", map);
+        context.put("_userMap", map);
 
         // push property values to the context
         for (String name: templateVariables) {
@@ -175,18 +167,16 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
     }
 
     @Override
-    public void executeCallBack(ComponentContext cc)
-    throws Exception
-    {
+    public void executeCallBack(ComponentContext cc) throws Exception {
     	//
     	// subclasses should call super.executeCallback()
     	// AFTER they process and put any necessary data in the context
     	//
 
     	String sInstanceId = cc.getExecutionInstanceID();
-        context.put("sInstanceId", sInstanceId);
-        context.put("cc", cc);
-        context.put("converter", this);
+        context.put("_sInstanceId", sInstanceId);
+        context.put("_cc", cc);
+        context.put("_converter", this);
 
         // render the template
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
@@ -195,65 +185,7 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent
     }
 
     @Override
-    public void disposeCallBack(ComponentContextProperties ccp)
-    throws Exception
-    {
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        context = null;
     }
-
-
-
-    // TODO:
-    // String finalDir = publicResourceDir + File.separator + "subDir" + File.separator + getClass().getName();
-    // InstallStatus status = JARInstaller.installFromStream(new FileInputStream(jsFile), finalDir, false);
-    //
-
-    @SuppressWarnings("unchecked")
-	public static String writeResourceFromJarToFilesystem(Class caller,                 // this.getClass()
-    		                                              String publicResourceDir,     // ccp.getPublicResourcesDirectory();
-    		                                              String subDir,                // flash, swf, js, etc
-    		                                              String filename)              // the resource in the jar
-    {
-	    publicResourceDir = publicResourceDir + File.separator + subDir;
-
-	    File swfDir = new File(publicResourceDir);
-	    if (! swfDir.exists()) {
-
-	        if (! swfDir.mkdir() ) {
-	            String msg = "Unable to create " + publicResourceDir;
-	            throw new RuntimeException(msg);
-	        }
-
-	    }
-
-	    // unjar the resource and write it to resource directory
-	    String dest = publicResourceDir + File.separator + filename;
-
-	    InputStream  in = null;
-	    OutputStream out = null;
-
-	    try {
-	        in = caller.getResourceAsStream(filename);
-	        out = new FileOutputStream(dest);
-
-	        byte[] buf = new byte[4096];
-	        int len;
-	        while ((len = in.read(buf)) != -1){
-	            out.write(buf, 0, len);
-	        }
-
-	    }
-	    catch (IOException e){
-	        throw new RuntimeException(e);
-	    }
-	    finally {
-
-	        try {
-	            in.close();
-	            out.close();
-	        }
-	        catch (Exception ignore){}
-	    }
-
-	    return subDir + File.separator + filename;
-	}
 }

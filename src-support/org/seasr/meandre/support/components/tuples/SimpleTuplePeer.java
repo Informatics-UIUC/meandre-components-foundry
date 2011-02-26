@@ -54,27 +54,25 @@ package org.seasr.meandre.support.components.tuples;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
 
-public class SimpleTuplePeer 
+public class SimpleTuplePeer
 {
 	String[] fieldNames;
 	Map<String,Integer> fieldMap;
-	
-	public SimpleTuplePeer(String[] fieldNames) 
+
+	public SimpleTuplePeer(String[] fieldNames)
 	{
 		this.init(fieldNames);
 	}
-	
-	public SimpleTuplePeer(Strings fieldNames) 
-	{		
+
+	public SimpleTuplePeer(Strings fieldNames)
+	{
 		String[] fn = BasicDataTypesTools.stringsToStringArray (fieldNames);
 		this.init(fn);
 	}
-	
+
 	public SimpleTuplePeer(SimpleTuplePeer subset, String[] additionalFields)
 	{
 		int size = subset.fieldNames.length + additionalFields.length;
@@ -86,27 +84,31 @@ public class SimpleTuplePeer
 		for (int i = 0; i < additionalFields.length; i++) {
 			fields[idx++] = additionalFields[i];
 		}
-		
+
 		this.init(fields);
 	}
-	
-	
-	
-	public Strings convert() 
+
+
+
+	public Strings convert()
 	{
 		return BasicDataTypesTools.stringToStrings(fieldNames);
 	}
-	
+
 	public int size()
 	{
 		return fieldNames.length;
 	}
-	
+
+	public String[] getFieldNames() {
+	    return fieldNames;
+	}
+
 	public String getFieldNameForIndex(int i)
 	{
 		return fieldNames[i];
 	}
-	
+
 	public int getIndexForFieldName(String fn)
 	{
 		try {
@@ -116,34 +118,35 @@ public class SimpleTuplePeer
 			return -1;
 		}
 	}
-	
-	public String toString() {
+
+	@Override
+    public String toString() {
 		return toString(fieldNames);
 	}
-	
-	
+
+
 	// factory for tuples
 	public SimpleTuple createTuple()
 	{
 		SimpleTuple tuple = new SimpleTuple(this);
 		return tuple;
 	}
-	
-	
-	private void init(String[] fieldNames) 
+
+
+	private void init(String[] fieldNames)
 	{
 		if (fieldNames == null || fieldNames.length == 0) {
 			throw new RuntimeException("invalid peer, no fieldnames");
 		}
-		
+
 		this.fieldNames = fieldNames;
 		fieldMap = new HashMap<String,Integer>();
 		for (int i = 0; i < fieldNames.length; i++) {
 			fieldMap.put(fieldNames[i], i);
 		}
 	}
-	
-	
+
+
 
 	public static final String TOKEN_DELIM = "<##>";
 	public static String toString(String[] values) {

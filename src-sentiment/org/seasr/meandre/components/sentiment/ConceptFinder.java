@@ -218,7 +218,7 @@ public class ConceptFinder extends AbstractExecutableComponent {
         console.fine(String.format("Attempting to find concept information for '%s'", token));
         List<PathMetric> allPathMetrics = _pathMetricFinder.getAllMetric(token, new ArrayList<String>(seeds));
         if (allPathMetrics == null)
-            throw new ComponentExecutionException("SynNet service down");
+            throw new ComponentExecutionException(String.format("SynNet service down (token='%s' seeds='%s')", token, seeds));
 
         PathMetric pathMetric = _pathMetricFinder.getBestMetric(allPathMetrics);
         if (pathMetric == null) {

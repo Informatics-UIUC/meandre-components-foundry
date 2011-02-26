@@ -52,6 +52,9 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -118,8 +121,17 @@ public class SearchText extends AbstractExecutableComponent {
 	        defaultValue = ".+\\.pdf")
 	protected static final String PROP_EXPRESSION = Names.PROP_EXPRESSION;
 
-	// --------------------------------------------------------------------------------------------
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the output be wrapped as a stream?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
+    //--------------------------------------------------------------------------------------------
+
+
+    protected boolean _wrapStream;
 
 	/** The regular expression */
 	protected Pattern _regexp;
@@ -130,11 +142,18 @@ public class SearchText extends AbstractExecutableComponent {
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		_regexp = Pattern.compile(getPropertyOrDieTrying(PROP_EXPRESSION, false, true, ccp));
+        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
+
+		if (_wrapStream) {
+		    StreamDelimiter sd = new StreamInitiator();
+		    cc.pushDataComponentToOutput(OUT_TEXT, sd);
+		    cc.pushDataComponentToOutput(OUT_MATCHED_TEXT, sd);
+		}
 
 		for (String text : input) {
     		console.finest(String.format("Input text: %s", text));
@@ -158,6 +177,12 @@ public class SearchText extends AbstractExecutableComponent {
 
     		if (!found)
     		    componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
+		}
+
+		if (_wrapStream) {
+		    StreamDelimiter sd = new StreamTerminator();
+		    cc.pushDataComponentToOutput(OUT_TEXT, sd);
+		    cc.pushDataComponentToOutput(OUT_MATCHED_TEXT, sd);
 		}
 	}
 

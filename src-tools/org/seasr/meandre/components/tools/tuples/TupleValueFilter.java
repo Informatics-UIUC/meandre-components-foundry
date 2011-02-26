@@ -42,9 +42,7 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.meandre.annotations.Component;
@@ -56,6 +54,7 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -63,10 +62,12 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+import org.seasr.meandre.support.components.tuples.TupleUtilities;
 
 /**
  *
  * @author Mike Haberman
+ * @author Boris Capitanu
  *
  */
 
@@ -87,7 +88,8 @@ public class TupleValueFilter extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "The set of tuples" +
+			description = "The (set of) tuple(s)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
@@ -103,8 +105,8 @@ public class TupleValueFilter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "The set of filtered tuples" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+			description = "The (set of) filtered tuple(s)" +
+			    "<br>TYPE: same as input"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
@@ -139,13 +141,13 @@ public class TupleValueFilter extends AbstractExecutableComponent {
 			description = "The attribute of the tuple to apply the filter to",
 		    defaultValue = ""
 	)
-	protected static final String PROP_FILTER_ATTRIBUTE = "filter_attribute";
+	protected static final String PROP_ATTRIBUTE = "filter_attribute";
 
 	//--------------------------------------------------------------------------------------------
 
 
 	protected Pattern _regexp = null;
-	protected String _filterAttribute;
+	protected String _attribute;
 	protected boolean _filterOut = false;
 
 
@@ -153,44 +155,69 @@ public class TupleValueFilter extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		_filterAttribute = getPropertyOrDieTrying(PROP_FILTER_ATTRIBUTE, ccp);
+		_attribute = getPropertyOrDieTrying(PROP_ATTRIBUTE, ccp);
 		_regexp = Pattern.compile(getPropertyOrDieTrying(PROP_FILTER_REGEX, false, false, ccp));
 		_filterOut = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_FILTER_OUT, ccp));
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
-		SimpleTuple tuple = tuplePeer.createTuple();
+	    Strings inMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+	    SimpleTuplePeer inPeer = new SimpleTuplePeer(inMeta);
 
-		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
-		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
+	    Object input = cc.getDataComponentFromInput(IN_TUPLES);
+	    Strings[] tuples;
 
-		int FILTER_FIELD_IDX = tuplePeer.getIndexForFieldName(_filterAttribute);
-		console.fine("filter FIELD " + _filterAttribute);
-		console.fine("filter field index " + FILTER_FIELD_IDX);
+	    if (input instanceof StringsArray)
+	        tuples = BasicDataTypesTools.stringsArrayToJavaArray((StringsArray) input);
 
-		List<Strings> output = new ArrayList<Strings>();
+	    else
 
-		for (int i = 0; i < in.length; i++) {
-			tuple.setValues(in[i]);
+        if (input instanceof Strings) {
+            Strings inTuple = (Strings) input;
 
-            String fieldValue = tuple.getValue(FILTER_FIELD_IDX);
+            if (TupleUtilities.isBeginMarker(inTuple, inMeta) || TupleUtilities.isEndMarker(inTuple, inMeta)) {
+                cc.pushDataComponentToOutput(OUT_META_TUPLE, inMeta);
+                cc.pushDataComponentToOutput(OUT_TUPLES, inTuple);
+                return;
+            }
+
+            tuples = new Strings[] { inTuple };
+        }
+
+        else
+            throw new ComponentExecutionException("Don't know how to handle input of type: " + input.getClass().getName());
+
+		int FIELD_IDX = inPeer.getIndexForFieldName(_attribute);
+		if (FIELD_IDX == -1)
+            throw new ComponentExecutionException(String.format("The tuple has no attribute named '%s'", _attribute));
+
+		StringsArray.Builder tuplesBuilder = StringsArray.newBuilder();
+
+		for (int i = 0, iMax = tuples.length; i < iMax; i++) {
+	        SimpleTuple tuple = inPeer.createTuple();
+			tuple.setValues(tuples[i]);
+
+            String fieldValue = tuple.getValue(FIELD_IDX);
 
 			boolean match = _regexp.matcher(fieldValue).matches();
             if ((_filterOut && !match) || (!_filterOut && match))
-				output.add(tuple.convert());
+				tuplesBuilder.addValue(tuple.convert());
 		}
 
-		// push out the data, protocol safe
-		Strings[] results = new Strings[output.size()];
-		output.toArray(results);
-		StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
-		cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+		// Return if nothing to output
+		if (tuplesBuilder.getValueCount() == 0) {
+		    console.fine("Nothing to output - no tuples pass the filter rule");
+		    return;
+		}
 
-		// push out the meta data
-		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
+		if (input instanceof Strings)
+		    cc.pushDataComponentToOutput(OUT_TUPLES, tuplesBuilder.getValue(0));
+
+		if (input instanceof StringsArray)
+		    cc.pushDataComponentToOutput(OUT_TUPLES, tuplesBuilder.build());
+
+		cc.pushDataComponentToOutput(OUT_META_TUPLE, inMeta);
 	}
 
     @Override
