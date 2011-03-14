@@ -140,6 +140,8 @@ public class TextSegmentation extends AbstractExecutableComponent {
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		StringsMap tokenizedSentences = (StringsMap) cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES);
 
+		_segmentCount = 0;
+		
 		if (_wrapStream)
 		    cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamInitiator());
 
@@ -179,6 +181,8 @@ public class TextSegmentation extends AbstractExecutableComponent {
 		if (segment.getValueCount() > 0)
 		    pushNewSegment(segment);
 
+		console.info("The number of segments for the current document is " + _segmentCount + ".");
+		
 		if (_wrapStream)
 		    cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamTerminator());
 	}
