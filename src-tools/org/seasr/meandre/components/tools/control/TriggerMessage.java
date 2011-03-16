@@ -135,7 +135,7 @@ public class TriggerMessage extends AbstractExecutableComponent {
 
         if (cc.isInputAvailable(IN_OBJECT)) {
             if (object != null)
-                console.fine("Object already set - overwriting it. This behavior is susceptible to race conditions!");
+                console.warning("Object already set - overwriting it. This behavior is susceptible to race conditions!");
             object = cc.getDataComponentFromInput(IN_OBJECT);
         }
 

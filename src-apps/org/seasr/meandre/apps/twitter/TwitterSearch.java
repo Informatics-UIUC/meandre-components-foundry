@@ -114,6 +114,7 @@ public class TwitterSearch extends AbstractExecutableComponent {
     protected static final String TWITTER_SEARCH_API_URL = "http://search.twitter.com/search.json";
     private String _nextPage;
 
+
     //--------------------------------------------------------------------------------------------
 
     @Override
