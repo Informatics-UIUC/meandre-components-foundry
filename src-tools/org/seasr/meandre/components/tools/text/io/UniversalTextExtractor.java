@@ -211,7 +211,7 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_LOCATION);
         componentContext.pushDataComponentToOutput(OUT_TEXT, si);
         componentContext.pushDataComponentToOutput(OUT_LOCATION,
@@ -219,7 +219,7 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_LOCATION);
         componentContext.pushDataComponentToOutput(OUT_TEXT, st);
         componentContext.pushDataComponentToOutput(OUT_LOCATION,

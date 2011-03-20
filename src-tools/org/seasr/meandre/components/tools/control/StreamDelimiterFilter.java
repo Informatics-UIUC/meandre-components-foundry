@@ -103,13 +103,13 @@ public class StreamDelimiterFilter extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         console.fine("Ignoring " + StreamInitiator.class.getSimpleName() +
                 " received on ports " + inputPortsWithInitiators);
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         console.fine("Ignoring " + StreamTerminator.class.getSimpleName() +
                 " received on ports " + inputPortsWithTerminators);
     }

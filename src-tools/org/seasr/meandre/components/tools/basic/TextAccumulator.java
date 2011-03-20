@@ -145,7 +145,7 @@ public class TextAccumulator extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         if (_gotInitiator)
             console.severe("Duplicate StreamInitiator received!");
 
@@ -153,7 +153,7 @@ public class TextAccumulator extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         if (!_gotInitiator)
             console.severe("Got StreamTerminator without StreamInitiator!");
 

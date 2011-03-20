@@ -171,12 +171,12 @@ public class DictionaryMerger extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-	protected void handleStreamInitiators() throws Exception {
+	public void handleStreamInitiators() throws Exception {
         _gotInitiator = true;
 	}
 
 	@Override
-	protected void handleStreamTerminators() throws Exception {
+	public void handleStreamTerminators() throws Exception {
 		--nr;
 		if(nr==0) {
 			outputDictionary();

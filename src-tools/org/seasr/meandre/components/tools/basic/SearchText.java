@@ -194,14 +194,14 @@ public class SearchText extends AbstractExecutableComponent {
 	// --------------------------------------------------------------------------------------------
 
 	@Override
-	protected void handleStreamInitiators() throws Exception {
+	public void handleStreamInitiators() throws Exception {
 		Object input = componentContext.getDataComponentFromInput(IN_TEXT);
         componentContext.pushDataComponentToOutput(OUT_TEXT, input);
 		componentContext.pushDataComponentToOutput(OUT_MATCHED_TEXT, input);
 	}
 
 	@Override
-	protected void handleStreamTerminators() throws Exception {
+	public void handleStreamTerminators() throws Exception {
 	    Object input = componentContext.getDataComponentFromInput(IN_TEXT);
         componentContext.pushDataComponentToOutput(OUT_TEXT, input);
 	    componentContext.pushDataComponentToOutput(OUT_MATCHED_TEXT, input);

@@ -186,7 +186,7 @@ public abstract class AbstractDBComponent extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         // Since this component is a FiringPolicy.any, it is possible that when handleStreamInitiators() is
         // called, there could be non-StreamDelimiter data that has arrived on other ports which would be
         // lost if we don't call 'executeCallBack' (when handleStreamInitiators() gets called, executeCallBack is NOT called)
@@ -195,7 +195,7 @@ public abstract class AbstractDBComponent extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         executeCallBack(componentContext);
     }
 

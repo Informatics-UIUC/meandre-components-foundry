@@ -261,7 +261,7 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         if (inputPortsWithInitiators.contains(IN_XML)) {
             componentContext.pushDataComponentToOutput(OUT_LATITUDE, new StreamInitiator());
             componentContext.pushDataComponentToOutput(OUT_LONGITUDE, new StreamInitiator());
@@ -273,7 +273,7 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         if (inputPortsWithTerminators.contains(IN_XML)){
             componentContext.pushDataComponentToOutput(OUT_LATITUDE, new StreamTerminator());
             componentContext.pushDataComponentToOutput(OUT_LONGITUDE, new StreamTerminator());

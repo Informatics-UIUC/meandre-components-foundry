@@ -80,7 +80,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
             description = "This port is used to output any unhandled errors encountered during the execution of this component",
             name = Names.PORT_ERROR
     )
-    protected static final String OUT_ERROR = Names.PORT_ERROR;
+    public static final String OUT_ERROR = Names.PORT_ERROR;
 
 
     //------------------------------ PROPERTIES --------------------------------------------------
@@ -92,7 +92,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
             defaultValue = "info",
             name = Names.PROP_DEBUG_LEVEL
     )
-    protected static final String PROP_DEBUG_LEVEL = Names.PROP_DEBUG_LEVEL;
+    public static final String PROP_DEBUG_LEVEL = Names.PROP_DEBUG_LEVEL;
 
     @ComponentProperty(
             description = "Set to 'true' to ignore all unhandled exceptions and prevent the flow from being terminated. " +
@@ -101,25 +101,25 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
             defaultValue = "false",
             name = Names.PROP_ERROR_HANDLING
     )
-    protected static final String PROP_IGNORE_ERRORS = Names.PROP_ERROR_HANDLING;
+    public static final String PROP_IGNORE_ERRORS = Names.PROP_ERROR_HANDLING;
 
     //--------------------------------------------------------------------------------------------
 
 
-    protected Set<String> inputPortNames = null;
-    protected Set<String> outputPortNames = null;
+    public Set<String> inputPortNames = null;
+    public Set<String> outputPortNames = null;
     //
-    protected ComponentInputCache componentInputCache = new ComponentInputCache();
+    public ComponentInputCache componentInputCache = new ComponentInputCache();
     //
-    protected PackedDataComponents packedDataComponentsInput = null;
-    protected PackedDataComponents packedDataComponentsOutput = null;
+    public PackedDataComponents packedDataComponentsInput = null;
+    public PackedDataComponents packedDataComponentsOutput = null;
 
-    protected Set<String> inputPortsWithInitiators = null;
-    protected Set<String> inputPortsWithTerminators = null;
+    public Set<String> inputPortsWithInitiators = null;
+    public Set<String> inputPortsWithTerminators = null;
 
-    protected ComponentContext componentContext = null;
-    protected Logger console = null;
-    protected boolean ignoreErrors = false;
+    public ComponentContext componentContext = null;
+    public Logger console = null;
+    public boolean ignoreErrors = false;
 
 
     //--------------------------------------------------------------------------------------------
@@ -335,7 +335,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
      *
      * @throws Exception Thrown in the event of an error
      */
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         console.entering(getClass().getName(), "handleStreamInitiators", inputPortsWithInitiators);
 
         int nConnectedOutputs = outputPortNames.size();
@@ -363,7 +363,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
      *
      * @throws Exception Thrown in the event of an error
      */
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
 
         console.entering(getClass().getName(), "handleStreamTerminators", inputPortsWithTerminators);
 

@@ -271,12 +271,12 @@ public class TokenFilter extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         executeCallBack(componentContext);
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         executeCallBack(componentContext);
     }
 

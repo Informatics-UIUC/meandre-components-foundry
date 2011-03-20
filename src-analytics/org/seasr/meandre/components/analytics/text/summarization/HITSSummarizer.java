@@ -186,7 +186,7 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-	protected void handleStreamInitiators() throws Exception {
+	public void handleStreamInitiators() throws Exception {
 	    componentContext.pushDataComponentToOutput(OUT_SENTENCES,
 	            componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 	    componentContext.pushDataComponentToOutput(OUT_TOKENS,
@@ -194,7 +194,7 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 	}
 
 	@Override
-	protected void handleStreamTerminators() throws Exception {
+	public void handleStreamTerminators() throws Exception {
 	    componentContext.pushDataComponentToOutput(OUT_SENTENCES,
 	            componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
 	    componentContext.pushDataComponentToOutput(OUT_TOKENS,

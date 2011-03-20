@@ -160,7 +160,7 @@ public class SQLToTuple extends AbstractDBComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         if (!inputPortsWithInitiators.contains(IN_QUERY)) {
             console.warning("Ignoring StreamInitiator(s) received on ports other than: " + IN_QUERY);
             return;
@@ -172,7 +172,7 @@ public class SQLToTuple extends AbstractDBComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         if (!inputPortsWithTerminators.contains(IN_QUERY)) {
             console.warning("Ignoring StreamTerminator(s) received on ports other than: " + IN_QUERY);
             return;

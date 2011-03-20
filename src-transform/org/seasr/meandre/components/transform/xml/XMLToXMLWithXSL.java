@@ -209,7 +209,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 	@Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
 	    if (!inputPortsWithInitiators.contains(IN_XML))
 	        return;
 
@@ -225,7 +225,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	}
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         if (!inputPortsWithTerminators.contains(IN_XML))
             return;
 

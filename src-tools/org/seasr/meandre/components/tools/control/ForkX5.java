@@ -350,7 +350,7 @@ public class ForkX5 extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_OBJECT);
         componentContext.pushDataComponentToOutput(OUT_OBJECT, si);
         componentContext.pushDataComponentToOutput(OUT_OBJECT_2,
@@ -364,7 +364,7 @@ public class ForkX5 extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_OBJECT);
         componentContext.pushDataComponentToOutput(OUT_OBJECT, st);
         componentContext.pushDataComponentToOutput(OUT_OBJECT_2,

@@ -167,12 +167,12 @@ public class ReadContentWithCookie extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         pushDelimiters((StreamInitiator)componentContext.getDataComponentFromInput(IN_LOCATION));
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         pushDelimiters((StreamTerminator)componentContext.getDataComponentFromInput(IN_LOCATION));
     }
 

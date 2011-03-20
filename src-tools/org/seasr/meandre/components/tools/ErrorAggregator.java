@@ -166,13 +166,13 @@ public class ErrorAggregator extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         if (inputPortsWithInitiators.contains(IN_ERROR))
             console.warning("StreamInitiator received on port '" + IN_ERROR + "'. This should NOT happen!");
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         if (inputPortsWithTerminators.contains(IN_ERROR))
             console.warning("StreamTerminator received on port '" + IN_ERROR + "'. This should NOT happen!");
 

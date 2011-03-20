@@ -162,13 +162,13 @@ public class SummarizerViewer extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_TOKENS);
         componentContext.pushDataComponentToOutput(OUT_HTML, si);
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_TOKENS);
         componentContext.pushDataComponentToOutput(OUT_HTML, st);
     }

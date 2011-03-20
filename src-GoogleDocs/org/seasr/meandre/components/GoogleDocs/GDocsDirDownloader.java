@@ -177,11 +177,11 @@ public class GDocsDirDownloader extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 	@Override
-	protected void handleStreamInitiators() throws Exception {
+	public void handleStreamInitiators() throws Exception {
 	}
 
 	@Override
-	protected void handleStreamTerminators() throws Exception {
+	public void handleStreamTerminators() throws Exception {
 	}
 	//--------------------------------------------------------------------------------------------
 

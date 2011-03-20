@@ -176,7 +176,7 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         if (inputPortsWithInitiators.contains(IN_LATITUDE)) {
             componentContext.pushDataComponentToOutput(OUT_HTML, new StreamInitiator());
          }
@@ -185,7 +185,7 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         if (inputPortsWithTerminators.contains(IN_LATITUDE)){
             componentContext.pushDataComponentToOutput(OUT_HTML, new StreamTerminator());
         }

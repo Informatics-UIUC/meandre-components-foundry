@@ -172,13 +172,13 @@ public class WriteModel extends AbstractExecutableComponent {
     //-----------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         pushDelimiters(componentContext.getDataComponentFromInput(IN_LOCATION),
                 componentContext.getDataComponentFromInput(IN_DOCUMENT));
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         pushDelimiters(componentContext.getDataComponentFromInput(IN_LOCATION),
                 componentContext.getDataComponentFromInput(IN_DOCUMENT));
     }

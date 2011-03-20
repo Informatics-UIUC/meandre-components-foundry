@@ -161,7 +161,7 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	//-----------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         console.entering(getClass().getName(), "handleStreamInitiators");
 
         if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TOKEN_COUNTS })))
@@ -184,7 +184,7 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         console.entering(getClass().getName(), "handleStreamTerminators");
 
         if (_accumulator == null) {

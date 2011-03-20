@@ -181,12 +181,12 @@ public class ReadXML extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         pushDelimiters((StreamDelimiter)componentContext.getDataComponentFromInput(IN_LOCATION));
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         pushDelimiters((StreamDelimiter)componentContext.getDataComponentFromInput(IN_LOCATION));
     }
 

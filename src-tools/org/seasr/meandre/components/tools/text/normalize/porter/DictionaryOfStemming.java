@@ -180,7 +180,7 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 	@Override
-	protected void handleStreamInitiators() throws Exception {
+	public void handleStreamInitiators() throws Exception {
 		if (_gotInitiator)
 		    throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
 
@@ -188,7 +188,7 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
 	}
 
 	@Override
-	protected void handleStreamTerminators() throws Exception {
+	public void handleStreamTerminators() throws Exception {
 		if (!_gotInitiator)
 	            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 

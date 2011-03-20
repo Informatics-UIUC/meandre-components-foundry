@@ -145,13 +145,13 @@ public class TextToXML extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         componentContext.pushDataComponentToOutput(OUT_DOCUMENT,
                 componentContext.getDataComponentFromInput(IN_TEXT));
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         componentContext.pushDataComponentToOutput(OUT_DOCUMENT,
                 componentContext.getDataComponentFromInput(IN_TEXT));
     }

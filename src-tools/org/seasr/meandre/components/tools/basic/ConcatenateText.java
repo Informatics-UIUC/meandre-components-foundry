@@ -153,7 +153,7 @@ public class ConcatenateText extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         if (inputPortsWithInitiators.contains(IN_TEXT1) &&
             inputPortsWithInitiators.contains(IN_TEXT2))
             componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator());
@@ -162,7 +162,7 @@ public class ConcatenateText extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         if (inputPortsWithTerminators.contains(IN_TEXT1) &&
             inputPortsWithTerminators.contains(IN_TEXT2))
             componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator());

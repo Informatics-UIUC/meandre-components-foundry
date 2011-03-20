@@ -162,7 +162,7 @@ public class ReadZip extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_LOCATION })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 
@@ -170,7 +170,7 @@ public class ReadZip extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_LOCATION })))
             console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
 

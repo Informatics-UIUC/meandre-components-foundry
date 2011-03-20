@@ -148,7 +148,7 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         // Try to revalance a stream
         if ( this.modelAcc != null ) {
             String sMessage = "Unbalanced wrapped stream. Got a new initiator without a terminator.";
@@ -164,7 +164,7 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         if ( this.modelAcc==null ) {
             String sMessage = "Unbalanced wrapped stream. Got a new terminator without an initiator. Dropping it to try to rebalance.";
             console.warning(sMessage);

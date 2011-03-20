@@ -146,13 +146,13 @@ public class TwitterCirclePackingGraph extends AbstractProtovisComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_JSON);
         componentContext.pushDataComponentToOutput(OUT_TEXT, si);
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_JSON);
         componentContext.pushDataComponentToOutput(OUT_TEXT, st);
     }

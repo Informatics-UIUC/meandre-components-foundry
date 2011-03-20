@@ -166,7 +166,7 @@ public class TriggerMessage extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected void handleStreamInitiators() throws Exception {
+    public void handleStreamInitiators() throws Exception {
         // Only forward delimiters received through the 'trigger' port
         if (!inputPortsWithInitiators.contains(IN_TRIGGER))
             return;
@@ -177,7 +177,7 @@ public class TriggerMessage extends AbstractExecutableComponent {
     }
 
     @Override
-    protected void handleStreamTerminators() throws Exception {
+    public void handleStreamTerminators() throws Exception {
         // Only forward delimiters received through the 'trigger' port
     	if (!inputPortsWithTerminators.contains(IN_TRIGGER))
             return;

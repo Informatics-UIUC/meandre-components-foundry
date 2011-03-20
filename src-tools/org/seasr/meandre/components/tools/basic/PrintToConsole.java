@@ -185,14 +185,14 @@ public class PrintToConsole extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-	protected void handleStreamInitiators() throws Exception {
+	public void handleStreamInitiators() throws Exception {
 	    super.handleStreamInitiators();
 	    if (bWrapped)
 	        printStreamDelimiter(componentContext.getDataComponentFromInput(IN_OBJECT));
 	}
 
 	@Override
-	protected void handleStreamTerminators() throws Exception {
+	public void handleStreamTerminators() throws Exception {
 	    super.handleStreamTerminators();
 	    if (bWrapped)
 	       printStreamDelimiter(componentContext.getDataComponentFromInput(IN_OBJECT));
