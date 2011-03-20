@@ -1,5 +1,7 @@
 package org.seasr.meandre.components.abstracts.python;
 
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
@@ -8,9 +10,41 @@ import org.meandre.core.ExecutableComponent;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
+import org.seasr.datatypes.core.Names;
 
 
 public abstract class AbstractPythonExecutableComponent implements ExecutableComponent {
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            description = "This port is used to output any unhandled errors encountered during the execution of this component",
+            name = Names.PORT_ERROR
+    )
+    public static final String OUT_ERROR = Names.PORT_ERROR;
+
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            description = "Controls the verbosity of debug messages printed by the component during execution.<br/>" +
+                          "Possible values are: off, severe, warning, info, config, fine, finer, finest, all<br>" +
+                          "Append ',mirror' to any of the values above to mirror that output to the server logs.",
+            defaultValue = "info",
+            name = Names.PROP_DEBUG_LEVEL
+    )
+    public static final String PROP_DEBUG_LEVEL = Names.PROP_DEBUG_LEVEL;
+
+    @ComponentProperty(
+            description = "Set to 'true' to ignore all unhandled exceptions and prevent the flow from being terminated. " +
+                          "Setting this property to 'false' will result in the flow being terminated in the event " +
+                          "an unhandled exception is thrown during the execution of this component",
+            defaultValue = "false",
+            name = Names.PROP_ERROR_HANDLING
+    )
+    public static final String PROP_IGNORE_ERRORS = Names.PROP_ERROR_HANDLING;
+
+    //--------------------------------------------------------------------------------------------
+
 
     private PythonInterpreter _pythonInterpreter;
 
