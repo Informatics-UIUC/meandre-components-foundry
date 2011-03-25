@@ -47,15 +47,13 @@ import java.util.Vector;
 
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
+import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
-import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
@@ -129,6 +127,7 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
 
     private VelocityContext _context;
 
+
     //--------------------------------------------------------------------------------------------
 
     @Override
@@ -173,23 +172,5 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (inputPortsWithInitiators.contains(IN_LATITUDE)) {
-            componentContext.pushDataComponentToOutput(OUT_HTML, new StreamInitiator());
-         }
-        else
-            throw new Exception("Unbalanced or unexpected StreamInitiator received");
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (inputPortsWithTerminators.contains(IN_LATITUDE)){
-            componentContext.pushDataComponentToOutput(OUT_HTML, new StreamTerminator());
-        }
-        else
-            throw new Exception("Unbalanced or unexpected StreamTerminator received");
     }
 }

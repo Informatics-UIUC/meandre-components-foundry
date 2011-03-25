@@ -120,6 +120,39 @@ import edu.stanford.nlp.trees.TreePrint;
 )
 public class StanfordStatisticalParser extends AbstractExecutableComponent {
 
+    //------------------------------ INPUTS ------------------------------------------------------
+
+    @ComponentInput(
+            name = Names.PORT_TEXT,
+            description = "The text to be parsed"
+    )
+    protected static final String IN_TEXT = Names.PORT_TEXT;
+
+    //------------------------------ OUTPUTS ------------------------------------------------------
+
+    @ComponentOutput(
+            name = Names.PORT_TEXT,
+            description = "The processed text (this will be replaced with tuples soon"
+    )
+    protected static final String OUT_TEXT = Names.PORT_TEXT;
+
+
+    /*
+    @ComponentOutput(
+            name = Names.PORT_TUPLES,
+            description = "set of tuples: (pos,sentenceId,offset,token)" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+    )
+    protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+    */
+
+    @ComponentOutput(
+            name = Names.PORT_META_TUPLE,
+            description = "meta data for tuples: (text)" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
+
     //------------------------------ PROPERTIES --------------------------------------------------
 
     // Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
@@ -142,46 +175,6 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
-   //------------------------------ INPUTS ------------------------------------------------------
-
-	@ComponentInput(
-			name = Names.PORT_TEXT,
-			description = "The text to be parsed"
-	)
-	protected static final String IN_TEXT = Names.PORT_TEXT;
-
-
-
-   //--------------------------------------------------------------------------------------------
-
-
-    //------------------------------ OUTPUTS ------------------------------------------------------
-
-	@ComponentOutput(
-			name = Names.PORT_TEXT,
-			description = "The processed text (this will be replaced with tuples soon"
-	)
-	protected static final String OUT_TEXT = Names.PORT_TEXT;
-
-	 //--------------------------------------------------------------------------------------------
-
-
-/*
-	@ComponentOutput(
-			name = Names.PORT_TUPLES,
-			description = "set of tuples: (pos,sentenceId,offset,token)" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
-	)
-	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
-*/
-
-	@ComponentOutput(
-			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples: (text)" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
-
 
 	SimpleTuplePeer tuplePeer;
 
@@ -195,24 +188,12 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 	int globalOffset = 0;
 	int startIdx     = 0;
 
-	@SuppressWarnings("unchecked")
-	static LexicalizedParser buildParser(ComponentContextProperties ccp, Logger logger, Class myClass)
-	   throws Exception
-	{
-        String parserFile = getPropertyOrDieTrying(PROP_PARSER, true, true, ccp);
-
-		String modelsDir = getPropertyOrDieTrying(PROP_MODELS_DIR, true, false, ccp);
-		if (modelsDir.length() == 0)
-		    modelsDir = ccp.getRunDirectory()+File.separator+"stanfordNLP";
-
-		OpenNLPBaseUtilities.installJARModelContainingResource(modelsDir, parserFile, logger, myClass);
-		logger.fine("Installed models into: " + modelsDir);
-
-		return new LexicalizedParser(modelsDir + File.separator + parserFile.trim());
-	}
 
 	TreePrint  treePrint;
     LexicalizedParser parser = null;
+
+
+    //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception
@@ -230,51 +211,6 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
 
     	this.tuplePeer = new SimpleTuplePeer(fields);
 	}
-
-	/* untested
-	public static String prepForSplitting(String text)
-    {
-    	StringBuilder sb = new StringBuilder();
-    	for (int i = 0; i < text.length(); i++) {
-    		char c = text.charAt(i);
-    		int type = Character.getType(c);
-    		if (Character.isWhitespace(c)     ||
-    			Character.isLetterOrDigit(c)  ||
-    			(type != Character.END_PUNCTUATION)) {
-    			sb.append(c);
-    		}
-    		else {
-    			// assume it's not part of a word/token
-    			sb.append(" ").append(c).append(" ");
-    		}
-    	}
-    	String out = sb.toString().replaceAll("\\s+", " ");
-    	return out;
-    }
-    */
-
-	public List<String[]> singleSentenceParse(Tree parse)
-	{
-		StringWriter sw = new StringWriter();
-		treePrint.printTree(parse, new PrintWriter(sw));
-		String sws = sw.toString();
-
-		List<String[]> output = new ArrayList<String[]>();
-		String[] list = sws.split("\n");
-		for (int x = 0; x < list.length; x++) {
-			String a = list[x].trim();
-
-			// e.g. nsubj(attributable-12  features-bob-6)
-			a = a.replaceFirst("\\(", " ");      // rid the ()
-			a = a.replaceFirst("\\)$", " ");
-			a = a.replace(",",  " ");            // rid the ,
-			a = a.replaceAll("-(\\d+)", " $1 "); // rid the -[0-9]+
-			String[] cols = a.split("\\s+");     // pos word offset word
-			output.add(cols);
-		}
-		return output;
-	}
-
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
@@ -396,9 +332,67 @@ public class StanfordStatisticalParser extends AbstractExecutableComponent {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
 
+    //--------------------------------------------------------------------------------------------
 
+    /* untested
+    public static String prepForSplitting(String text)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            int type = Character.getType(c);
+            if (Character.isWhitespace(c)     ||
+                Character.isLetterOrDigit(c)  ||
+                (type != Character.END_PUNCTUATION)) {
+                sb.append(c);
+            }
+            else {
+                // assume it's not part of a word/token
+                sb.append(" ").append(c).append(" ");
+            }
+        }
+        String out = sb.toString().replaceAll("\\s+", " ");
+        return out;
+    }
+    */
 
-	@SuppressWarnings("unchecked")
+    public List<String[]> singleSentenceParse(Tree parse)
+    {
+        StringWriter sw = new StringWriter();
+        treePrint.printTree(parse, new PrintWriter(sw));
+        String sws = sw.toString();
+
+        List<String[]> output = new ArrayList<String[]>();
+        String[] list = sws.split("\n");
+        for (int x = 0; x < list.length; x++) {
+            String a = list[x].trim();
+
+            // e.g. nsubj(attributable-12  features-bob-6)
+            a = a.replaceFirst("\\(", " ");      // rid the ()
+            a = a.replaceFirst("\\)$", " ");
+            a = a.replace(",",  " ");            // rid the ,
+            a = a.replaceAll("-(\\d+)", " $1 "); // rid the -[0-9]+
+            String[] cols = a.split("\\s+");     // pos word offset word
+            output.add(cols);
+        }
+        return output;
+    }
+
+    LexicalizedParser buildParser(ComponentContextProperties ccp, Logger logger, Class<?> myClass)
+       throws Exception
+    {
+        String parserFile = getPropertyOrDieTrying(PROP_PARSER, true, true, ccp);
+
+        String modelsDir = getPropertyOrDieTrying(PROP_MODELS_DIR, true, false, ccp);
+        if (modelsDir.length() == 0)
+            modelsDir = ccp.getRunDirectory()+File.separator+"stanfordNLP";
+
+        OpenNLPBaseUtilities.installJARModelContainingResource(modelsDir, parserFile, logger, myClass);
+        logger.fine("Installed models into: " + modelsDir);
+
+        return new LexicalizedParser(modelsDir + File.separator + parserFile.trim());
+    }
+
 	public static Sentence<? extends HasWord> fixSentence(Sentence<? extends HasWord> sentence)
 	{
 		//

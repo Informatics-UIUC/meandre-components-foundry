@@ -95,7 +95,6 @@ public class StackedAreaViewer extends GenericTemplate {
 	)
 	protected static final String INPUT_URL = "dataUrl";
 
-
     //------------------------------ PROPERTIES --------------------------------------------------
 
 	//
@@ -152,8 +151,8 @@ public class StackedAreaViewer extends GenericTemplate {
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
 
-	    ComponentUtils.writePublicResource(getClass(), 
-	            "org/seasr/meandre/components/vis/flash/StackedAreaViewer.swf", 
+	    ComponentUtils.writePublicResource(getClass(),
+	            "org/seasr/meandre/components/vis/flash/StackedAreaViewer.swf",
 	            "flash" + File.separator + "StackedAreaViewer.swf", ccp, false);
 
 	    context.put("swf",           "flash/StackedAreaViewer.swf");

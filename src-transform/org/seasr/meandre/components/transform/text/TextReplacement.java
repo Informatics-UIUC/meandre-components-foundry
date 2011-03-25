@@ -42,7 +42,6 @@
 
 package org.seasr.meandre.components.transform.text;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -85,7 +84,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TextReplacement extends AbstractExecutableComponent{
+public class TextReplacement extends AbstractExecutableComponent {
 
 	//------------------------------ INPUTS ------------------------------------------------------
 
@@ -135,11 +134,11 @@ public class TextReplacement extends AbstractExecutableComponent{
     Map<String,String> dictionary;
     Map<String,String> phraseReplaceDictionary;
 
+
     //--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-    {
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		String ic = ccp.getProperty(PROP_IGNORE_CASE).trim();
 		ignoreCase = Boolean.valueOf(ic);
 		console.info(PROP_IGNORE_CASE + " " + ignoreCase);
@@ -147,9 +146,7 @@ public class TextReplacement extends AbstractExecutableComponent{
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-
 		if (dictionary == null) {
-
 			Strings input = (Strings) cc.getDataComponentFromInput(IN_MAP_DATA);
 			String[] val = BasicDataTypesTools.stringsToStringArray (input);
 
@@ -241,26 +238,6 @@ public class TextReplacement extends AbstractExecutableComponent{
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-	}
-
-    //--------------------------------------------------------------------------------------------
-
-	@Override
-	public void handleStreamInitiators() throws Exception {
-	    if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TEXT, IN_MAP_DATA })))
-	        console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-	    componentContext.pushDataComponentToOutput(OUT_TEXT,
-	            componentContext.getDataComponentFromInput(IN_TEXT));
-	}
-
-	@Override
-	public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_TEXT, IN_MAP_DATA })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-	    componentContext.pushDataComponentToOutput(OUT_TEXT,
-                componentContext.getDataComponentFromInput(IN_TEXT));
 	}
 
     //--------------------------------------------------------------------------------------------

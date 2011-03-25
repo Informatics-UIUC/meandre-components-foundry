@@ -47,10 +47,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -59,7 +59,7 @@ import org.seasr.datatypes.core.BasicDataTypes;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * @author Lily Dong
@@ -78,7 +78,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		rights = Licenses.UofINCSA,
 		baseURL="meandre://seasr.org/components/foundry/"
 )
-public class DictionaryOfStemming extends AbstractExecutableComponent {
+public class DictionaryOfStemming extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -117,17 +117,19 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
 
 
 	/** Store mapping between token and word */
-	Map<String, String> map;
+	private Map<String, String> _tokenMap;
 
-	private boolean _gotInitiator;
+	private boolean _isStreaming;
 
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		map = new HashMap<String, String>();
-		_gotInitiator = false;
+	    super.initializeCallBack(ccp);
+
+		_tokenMap = new HashMap<String, String>();
+		_isStreaming = false;
 	}
 
 	@Override
@@ -149,63 +151,72 @@ public class DictionaryOfStemming extends AbstractExecutableComponent {
         for (int i=0; i<originalWords.length; i++ ) {
         	String key = stemmedWords[i];
         	String str = originalWords[i];
-        	if (map.containsKey(key)) { //take the shorter one
-        		String value = map.get(key);
+        	if (_tokenMap.containsKey(key)) { //take the shorter one
+        		String value = _tokenMap.get(key);
         		value = (value.length()>str.length())? str: value;
-        		map.put(key, value);
+        		_tokenMap.put(key, value);
         	} else
-        		map.put(key, str);
+        		_tokenMap.put(key, str);
         }
 
-        if (!_gotInitiator) {
+        if (!_isStreaming) {
         	org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
-            Set<String> set = map.keySet();
+            Set<String> set = _tokenMap.keySet();
             for (String s : set ) {
             	org.seasr.datatypes.core.BasicDataTypes.Strings.Builder sres = BasicDataTypes.Strings.newBuilder();
-            	sres.addValue(map.get(s));
+            	sres.addValue(_tokenMap.get(s));
             	mres.addKey(s);
     			mres.addValue(sres.build());
             }
 
             componentContext.pushDataComponentToOutput(OUT_DICTIONARY, mres.build());
 
-            map.clear();
+            _tokenMap.clear();
         }
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        if (_tokenMap != null) {
+            _tokenMap.clear();
+            _tokenMap = null;
+        }
     }
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
+    public boolean isAccumulator() {
+        return true;
+    }
+
 	@Override
-	public void handleStreamInitiators() throws Exception {
-		if (_gotInitiator)
+	public void startStream() throws Exception {
+		if (_isStreaming)
 		    throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
 
-		_gotInitiator = true;
+		_isStreaming = true;
 	}
 
 	@Override
-	public void handleStreamTerminators() throws Exception {
-		if (!_gotInitiator)
+	public void endStream() throws Exception {
+		if (!_isStreaming)
 	            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
 		org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
-        Set<String> set = map.keySet();
+        Set<String> set = _tokenMap.keySet();
         for (String s : set ) {
         	org.seasr.datatypes.core.BasicDataTypes.Strings.Builder sres = BasicDataTypes.Strings.newBuilder();
-        	sres.addValue(map.get(s));
+        	sres.addValue(_tokenMap.get(s));
         	mres.addKey(s);
 			mres.addValue(sres.build());
         }
 
-        componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamInitiator());
+        componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamInitiator(streamId));
         componentContext.pushDataComponentToOutput(OUT_DICTIONARY, mres.build());
-        componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamTerminator());
+        componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamTerminator(streamId));
 
-        map.clear();
-        _gotInitiator = false;
+        _tokenMap.clear();
+        _isStreaming = false;
 	}
 }

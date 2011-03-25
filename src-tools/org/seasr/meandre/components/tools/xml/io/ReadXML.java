@@ -48,20 +48,18 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.generic.io.StreamUtils;
 import org.w3c.dom.Document;
 
@@ -177,35 +175,4 @@ public class ReadXML extends AbstractExecutableComponent {
         this.factory = null;
         this.parser = null;
     }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        pushDelimiters((StreamDelimiter)componentContext.getDataComponentFromInput(IN_LOCATION));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        pushDelimiters((StreamDelimiter)componentContext.getDataComponentFromInput(IN_LOCATION));
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-	/**
-	 * Push the delimiters
-	 *
-	 * @param sdLoc The delimiter object
-	 * @throws Exception
-	 */
-	private void pushDelimiters(StreamDelimiter sdLoc) throws Exception {
-	    componentContext.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
-
-		try {
-		    componentContext.pushDataComponentToOutput(OUT_XML, ComponentUtils.cloneStreamDelimiter(sdLoc));
-		} catch (Exception e) {
-			console.warning("Failed to create a new delimiter - reusing existing one");
-			componentContext.pushDataComponentToOutput(OUT_XML, sdLoc);
-		}
-	}
 }

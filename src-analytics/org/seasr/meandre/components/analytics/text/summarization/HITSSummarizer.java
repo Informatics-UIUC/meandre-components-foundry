@@ -49,19 +49,19 @@ import java.util.Map;
 import java.util.Set;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypes;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 import cern.colt.matrix.DoubleMatrix1D;
@@ -161,9 +161,9 @@ public class HITSSummarizer extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.iNTopSentences = Integer.parseInt(ccp.getProperty(PROP_N_TOP_SENTENCES));
-		this.iNTopTokens = Integer.parseInt(ccp.getProperty(PROP_N_TOP_TOKENS));
-		this.iIterations = Integer.parseInt(ccp.getProperty(PROP_ITERATIONS));
+		this.iNTopSentences = Integer.parseInt(getPropertyOrDieTrying(PROP_N_TOP_SENTENCES, ccp));
+		this.iNTopTokens = Integer.parseInt(getPropertyOrDieTrying(PROP_N_TOP_TOKENS, ccp));
+		this.iIterations = Integer.parseInt(getPropertyOrDieTrying(PROP_ITERATIONS, ccp));
 		this.alg = new Algebra();
 	}
 
@@ -182,24 +182,6 @@ public class HITSSummarizer extends AbstractExecutableComponent {
         this.iNTopSentences = this.iNTopTokens = this.iIterations = -1;
         this.alg = null;
     }
-
-	//--------------------------------------------------------------------------------------------
-
-	@Override
-	public void handleStreamInitiators() throws Exception {
-	    componentContext.pushDataComponentToOutput(OUT_SENTENCES,
-	            componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
-	    componentContext.pushDataComponentToOutput(OUT_TOKENS,
-	            componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
-	}
-
-	@Override
-	public void handleStreamTerminators() throws Exception {
-	    componentContext.pushDataComponentToOutput(OUT_SENTENCES,
-	            componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
-	    componentContext.pushDataComponentToOutput(OUT_TOKENS,
-	            componentContext.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
-	}
 
     //--------------------------------------------------------------------------------------------
 

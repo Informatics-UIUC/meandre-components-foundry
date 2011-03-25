@@ -43,18 +43,16 @@
 
 package org.seasr.meandre.components.vis.protovis;
 
-import java.util.Arrays;
-
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 
 /**
@@ -135,22 +133,4 @@ public class ArcDiagram extends AbstractProtovisComponent {
 
 		super.executeCallBack(cc);
 	}
-
-	//--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_JSON })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_HTML, componentContext.getDataComponentFromInput(IN_JSON));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_JSON })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_HTML, componentContext.getDataComponentFromInput(IN_JSON));
-    }
 }

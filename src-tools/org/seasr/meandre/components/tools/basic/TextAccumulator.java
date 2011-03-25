@@ -57,7 +57,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * @author Boris Capitanu
@@ -75,7 +75,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         		"as a single concatenated value.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TextAccumulator extends AbstractExecutableComponent {
+public class TextAccumulator extends AbstractStreamingExecutableComponent {
 
     // ------------------------------ INPUTS ------------------------------------------------------
 
@@ -113,18 +113,20 @@ public class TextAccumulator extends AbstractExecutableComponent {
 
     protected String _separator;
     protected StringBuilder _accumulator = new StringBuilder();
-    protected boolean _gotInitiator;
+    protected boolean _isStreaming;
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.initializeCallBack(ccp);
+
         String separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, true, ccp);
         _separator = separator.replaceAll("\\\\t", "\t").replaceAll("\\\\n", "\n").replaceAll("\\\\r", "\r");
         console.fine(String.format("Separator set to '%s' (surrounding single quotes added for readability)", _separator));
 
-        _gotInitiator = false;
+        _isStreaming = false;
     }
 
     @Override
@@ -133,7 +135,7 @@ public class TextAccumulator extends AbstractExecutableComponent {
         for (String text : DataTypeParser.parseAsString(input))
             _accumulator.append(_separator).append(text);
 
-        if (!_gotInitiator)
+        if (!_isStreaming)
             pushConcatenatedTextAndReset();
     }
 
@@ -145,25 +147,30 @@ public class TextAccumulator extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    public void handleStreamInitiators() throws Exception {
-        if (_gotInitiator)
-            console.severe("Duplicate StreamInitiator received!");
-
-        _gotInitiator = true;
+    public boolean isAccumulator() {
+        return true;
     }
 
     @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!_gotInitiator)
-            console.severe("Got StreamTerminator without StreamInitiator!");
+    public void startStream() throws Exception {
+        if (_isStreaming)
+            console.severe("Stream error - start stream marker already received!");
+
+        _isStreaming = true;
+    }
+
+    @Override
+    public void endStream() throws Exception {
+        if (!_isStreaming)
+            console.severe("Stream error - received end stream marker without start stream!");
 
         if (_accumulator.length() > 0) {
-            componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator());
+            componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator(streamId));
             pushConcatenatedTextAndReset();
-            componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator());
+            componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator(streamId));
         }
 
-        _gotInitiator = false;
+        _isStreaming = false;
     }
 
     //--------------------------------------------------------------------------------------------

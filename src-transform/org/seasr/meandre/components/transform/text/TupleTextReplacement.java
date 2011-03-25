@@ -43,25 +43,23 @@
 package org.seasr.meandre.components.transform.text;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.FiringPolicy;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.DataTypeParser;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -81,10 +79,9 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TupleTextReplacement extends AbstractExecutableComponent{
+public class TupleTextReplacement extends AbstractExecutableComponent {
 
 	//------------------------------ INPUTS ------------------------------------------------------
-
 
     @ComponentInput(
             description = "mapData format: newText = {old1, old2, old3}; newText2 = {old4,old5}; newText3=old6; = deleteText" +
@@ -131,8 +128,8 @@ public class TupleTextReplacement extends AbstractExecutableComponent{
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
-
     //------------------------------ PROPERTIES --------------------------------------------------
+
     @ComponentProperty(
 			name = "ignoreCase",
 			description = "ignore letter case of the matched text",
@@ -140,45 +137,40 @@ public class TupleTextReplacement extends AbstractExecutableComponent{
 		)
 	protected static final String PROP_IGNORE_CASE = "ignoreCase";
 
+    @ComponentProperty(
+            name = "columnSet",
+            description = "optional, specifiy a subset of fields to print (e.g 1,3,5) ",
+            defaultValue = "3"
+    )
+    protected static final String PROP_COL = "columnSet";
+
     //--------------------------------------------------------------------------------------------
 
 
     boolean ignoreCase = true;
     Map<String,String> dictionary;
     Map<String,String> phraseReplaceDictionary;
-    //--------------------------------------------------------------------------------------------
 
-	@ComponentProperty(
-			name = "columnSet",
-			description = "optional, specifiy a subset of fields to print (e.g 1,3,5) ",
-		    defaultValue = "3"
-	)
-	protected static final String PROP_COL = "columnSet";
-
-	List<Integer> idxList = null;
+   	List<Integer> idxList = null;
 	String[] values = null;
+
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception
-    {
-		String ic = ccp.getProperty(PROP_IGNORE_CASE).trim();
-		ignoreCase = Boolean.valueOf(ic);
-		console.info(PROP_IGNORE_CASE + " " + ignoreCase);
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+		ignoreCase = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_CASE, ccp));
+		console.fine(PROP_IGNORE_CASE + "=" + ignoreCase);
 
-		String cols = ccp.getProperty(PROP_COL);
-		if (cols != null && cols.trim().length() > 0) {
-
-			idxList = new ArrayList<Integer>();
-			StringTokenizer tokens = new StringTokenizer(cols.trim(), ",");
-			while (tokens.hasMoreTokens()) {
-				int i = Integer.parseInt(tokens.nextToken());
-				idxList.add(new Integer(i));
-			}
-
-			values = new String[idxList.size()];
+		String cols = getPropertyOrDieTrying(PROP_COL, ccp);
+		idxList = new ArrayList<Integer>();
+		StringTokenizer tokens = new StringTokenizer(cols, ",");
+		while (tokens.hasMoreTokens()) {
+		    int i = Integer.parseInt(tokens.nextToken());
+		    idxList.add(new Integer(i));
 		}
+
+		values = new String[idxList.size()];
 	}
 
 	@Override
@@ -316,26 +308,23 @@ public class TupleTextReplacement extends AbstractExecutableComponent{
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	    if (dictionary != null) {
+    	    dictionary.clear();
+    	    dictionary = null;
+	    }
+
+	    if (phraseReplaceDictionary != null) {
+	        phraseReplaceDictionary.clear();
+	        phraseReplaceDictionary = null;
+	    }
+
+	    if (idxList != null) {
+	        idxList.clear();
+	        idxList = null;
+	    }
+
+	    values = null;
 	}
-	 //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
-    }
 
     //--------------------------------------------------------------------------------------------
 

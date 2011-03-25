@@ -69,7 +69,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -94,7 +94,7 @@ import org.w3c.dom.ls.LSSerializer;
         		      "from an XML document and outputs them one by one.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class SelectNodesViaXPath extends AbstractExecutableComponent {
+public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS -----------------------------------------------------
 
@@ -146,6 +146,8 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.initializeCallBack(ccp);
+
         NamespaceContext namespaceContext = null;
 
         String nsProp = getPropertyOrDieTrying(PROP_NS, true, false, ccp);
@@ -200,7 +202,7 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
         Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
         NodeList nodes = (NodeList) _xpathExpression.evaluate(doc, XPathConstants.NODESET);
 
-        cc.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
+        cc.pushDataComponentToOutput(OUT_XML, new StreamInitiator(streamId));
 
         for (int i = 0, iMax = nodes.getLength(); i < iMax; i++) {
             Node node = nodes.item(i);
@@ -213,7 +215,7 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
                 outputError("Cannot serialize node: " + node, Level.WARNING);
         }
 
-        cc.pushDataComponentToOutput(OUT_XML, new StreamTerminator());
+        cc.pushDataComponentToOutput(OUT_XML, new StreamTerminator(streamId));
     }
 
     @Override
@@ -221,5 +223,12 @@ public class SelectNodesViaXPath extends AbstractExecutableComponent {
         _xpathExpression = null;
         _serializer = null;
         _output = null;
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return false;
     }
 }

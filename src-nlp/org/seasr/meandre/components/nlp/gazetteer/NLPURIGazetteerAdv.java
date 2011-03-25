@@ -45,7 +45,6 @@ package org.seasr.meandre.components.nlp.gazetteer;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.meandre.annotations.Component;
@@ -147,10 +146,10 @@ public class NLPURIGazetteerAdv extends AbstractExecutableComponent {
 	protected String taggerFile;
 	protected String sMessage;
 
-
-	//--------------------------------------------------------------------------------------------
     int count = 0;
     int id=0;
+
+    //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception
@@ -158,7 +157,6 @@ public class NLPURIGazetteerAdv extends AbstractExecutableComponent {
     	 sMessage = ccp.getProperty(PROP_MESSAGE);
 		gazHelper = new AdvGazetteerWrapper();//not required
 	}
-
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception
@@ -193,35 +191,7 @@ public class NLPURIGazetteerAdv extends AbstractExecutableComponent {
     }
 
     @Override
-
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-
     	sMessage = null;
     }
-    //--------------------------------------------------------------------------------------------
-
-	@Override
-	public void handleStreamInitiators() throws Exception {
-	    if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_SENTENCES, IN_LOCATION })))
-	        console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-	    componentContext.pushDataComponentToOutput(OUT_TUPLES,
-	            componentContext.getDataComponentFromInput(IN_SENTENCES));
-	    componentContext.pushDataComponentToOutput(OUT_META_TUPLE,
-	            componentContext.getDataComponentFromInput(IN_LOCATION));
-	}
-
-	@Override
-	public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_SENTENCES, IN_LOCATION })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-	    componentContext.pushDataComponentToOutput(OUT_TUPLES,
-                componentContext.getDataComponentFromInput(IN_SENTENCES));
-	    componentContext.pushDataComponentToOutput(OUT_META_TUPLE,
-                componentContext.getDataComponentFromInput(IN_LOCATION));
-	}
-	//--------------------------------------------------------------------------------------------
-
-
 }

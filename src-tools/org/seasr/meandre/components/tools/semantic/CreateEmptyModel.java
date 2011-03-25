@@ -43,17 +43,17 @@
 package org.seasr.meandre.components.tools.semantic;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
@@ -78,7 +78,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 				      "and if it needs to be wrapped with terminators ",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class CreateEmptyModel extends AbstractExecutableComponent {
+public class CreateEmptyModel extends AbstractStreamingExecutableComponent {
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -93,14 +93,14 @@ public class CreateEmptyModel extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = Names.PROP_TIMES,
-            description = "The number of times to push the message. ",
+            description = "The number of times to push the message.",
             defaultValue = "1"
     )
     protected static final String PROP_TIMES = Names.PROP_TIMES;
 
     @ComponentProperty(
             name = Names.PROP_WRAP_STREAM,
-            description = "Should the pushed message be wrapped as a stream. ",
+            description = "Should the output be wrapped as a stream?",
             defaultValue = "false"
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
@@ -119,21 +119,21 @@ public class CreateEmptyModel extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 		lTimes = Long.parseLong(ccp.getProperty(PROP_TIMES));
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		if ( bWrapped )
-			pushInitiator();
+        if (bWrapped) cc.pushDataComponentToOutput(OUT_DOCUMENT, new StreamInitiator(streamId));
 
-		for ( long l=0 ; l<lTimes ; l++ )
-			cc.pushDataComponentToOutput(OUT_DOCUMENT, ModelFactory.createDefaultModel());
+        for (long l = 0; l < lTimes; l++)
+            cc.pushDataComponentToOutput(OUT_DOCUMENT, ModelFactory.createDefaultModel());
 
-		if ( bWrapped )
-			pushTerminator();
-	}
+        if (bWrapped) cc.pushDataComponentToOutput(OUT_DOCUMENT, new StreamTerminator(streamId));
+    }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
@@ -143,29 +143,8 @@ public class CreateEmptyModel extends AbstractExecutableComponent {
 
 	//-----------------------------------------------------------------------------------
 
-	/**
-	 * Pushes an initiator.
-	 *
-	 * @throws Exception Something went wrong when pushing
-	 */
-	private void pushInitiator() throws Exception {
-        console.fine("Pushing " + StreamInitiator.class.getSimpleName());
-
-		StreamInitiator si = new StreamInitiator();
-		si.put(PROP_TIMES, lTimes);
-		componentContext.pushDataComponentToOutput(OUT_DOCUMENT,si);
-	}
-
-	/**
-	 * Pushes a terminator.
-	 *
-	 * @throws Exception Something went wrong when pushing
-	 */
-	private void pushTerminator() throws Exception {
-        console.fine("Pushing " + StreamTerminator.class.getSimpleName());
-
-		StreamTerminator st = new StreamTerminator();
-		st.put(PROP_TIMES, lTimes);
-		componentContext.pushDataComponentToOutput(OUT_DOCUMENT,st);
-	}
+    @Override
+    public boolean isAccumulator() {
+        return false;
+    }
 }

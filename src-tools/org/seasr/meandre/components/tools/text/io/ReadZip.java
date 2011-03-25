@@ -44,7 +44,6 @@ package org.seasr.meandre.components.tools.text.io;
 
 import java.io.BufferedInputStream;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
 
@@ -56,14 +55,12 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.seasr.meandre.support.generic.io.StreamUtils;
 
 /**
@@ -84,7 +81,7 @@ import org.seasr.meandre.support.generic.io.StreamUtils;
 		description = "This component reads a zip file and passes each file as output.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class ReadZip extends AbstractExecutableComponent {
+public class ReadZip extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -106,25 +103,28 @@ public class ReadZip extends AbstractExecutableComponent {
                 "<br>TYPE: java.net.URL"
 	)
 	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
-	
+
     //------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
             name = Names.PROP_WRAP_STREAM,
-            description = "Wrap output in a stream?",
+            description = "Wrap output as a stream?",
             defaultValue = "true"
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
-
 	//--------------------------------------------------------------------------------------------
 
+
     private boolean wrapStream;
-    
+
+
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 	    wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
 	}
 
@@ -132,13 +132,12 @@ public class ReadZip extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
 	    URL location = StreamUtils.getURLforResource(
 	            DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION)));
-	    
+
 		console.fine("Reading ZIP file from: " + location);
 		JarInputStream zipStream = new JarInputStream(new BufferedInputStream(location.openStream()));
-		
+
 		try {
-		    if (wrapStream)
-		        pushStreamInitiator();
+		    if (wrapStream) cc.pushDataComponentToOutput(OUT_LOCATION, new StreamInitiator(streamId));
 
 		    ZipEntry entry;
 		    while ((entry = zipStream.getNextEntry()) != null) {
@@ -146,9 +145,8 @@ public class ReadZip extends AbstractExecutableComponent {
 		        console.finer("Pushing " + entryUrl);
 		        cc.pushDataComponentToOutput(OUT_LOCATION, entryUrl);
 		    }
-		    
-		    if (wrapStream)
-		        pushStreamTerminator();
+
+		    if (wrapStream) cc.pushDataComponentToOutput(OUT_LOCATION, new StreamTerminator(streamId));
 		}
 		finally {
 		    zipStream.close();
@@ -162,35 +160,7 @@ public class ReadZip extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_LOCATION })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        pushDelimiter((StreamDelimiter) componentContext.getDataComponentFromInput(IN_LOCATION));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_LOCATION })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        pushDelimiter((StreamDelimiter) componentContext.getDataComponentFromInput(IN_LOCATION));
-    }
-    
-    //--------------------------------------------------------------------------------------------
-
-    private void pushStreamInitiator() throws ComponentContextException {
-        pushDelimiter(new StreamInitiator());
-    }
-    
-    private void pushStreamTerminator() throws ComponentContextException {
-        pushDelimiter(new StreamTerminator());
-    }
-    
-    private void pushDelimiter(StreamDelimiter sd) throws ComponentContextException {
-        for (String output : outputPortNames) {
-            if (output.equals(OUT_ERROR)) continue;
-            componentContext.pushDataComponentToOutput(output, sd);
-        }
+    public boolean isAccumulator() {
+        return false;
     }
 }

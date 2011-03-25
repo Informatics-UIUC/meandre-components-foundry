@@ -42,8 +42,6 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
-import java.util.Arrays;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -56,8 +54,7 @@ import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.components.tuples.TupleUtilities;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * @author Boris Capitanu
@@ -74,7 +71,7 @@ import org.seasr.meandre.support.components.tuples.TupleUtilities;
         description = "This component aggregates a set of tuples" ,
         dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class TupleAggregator extends AbstractExecutableComponent {
+public class TupleAggregator extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -119,6 +116,7 @@ public class TupleAggregator extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.initializeCallBack(ccp);
     }
 
     @Override
@@ -126,25 +124,8 @@ public class TupleAggregator extends AbstractExecutableComponent {
         Strings tuple = (Strings) cc.getDataComponentFromInput(IN_TUPLE);
         Strings metaTuple = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 
-        if (TupleUtilities.isBeginMarker(tuple, metaTuple)) {
-            console.fine("Begin marker received");
-            _tuples = BasicDataTypes.StringsArray.newBuilder();
-            return;
-        }
-
         if (_tuples == null)
-            throw new ComponentExecutionException("Begin marker not received!");
-
-        if (TupleUtilities.isEndMarker(tuple, metaTuple)) {
-            console.fine("End marker received");
-            if (_metaTuple != null) {
-                cc.pushDataComponentToOutput(OUT_META_TUPLE, _metaTuple);
-                cc.pushDataComponentToOutput(OUT_TUPLES, _tuples.build());
-            } else
-                console.fine("Nothing to push, no tuples received");
-            _tuples = null;
-            return;
-        }
+            throw new ComponentExecutionException("Start stream marker not received!");
 
         _metaTuple = metaTuple;
         _tuples.addValue(tuple);
@@ -157,20 +138,24 @@ public class TupleAggregator extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLE })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLE));
+    public boolean isAccumulator() {
+        return true;
     }
 
     @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLE })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+    public void startStream() throws Exception {
+        _tuples = BasicDataTypes.StringsArray.newBuilder();
+    }
 
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLE));
+    @Override
+    public void endStream() throws Exception {
+        // TODO: should the output be wrapped in a stream?
+        if (_metaTuple != null) {
+            componentContext.pushDataComponentToOutput(OUT_META_TUPLE, _metaTuple);
+            componentContext.pushDataComponentToOutput(OUT_TUPLES, _tuples.build());
+        } else
+            console.warning("Nothing to push - the stream did not contain any tuples");
+
+        _tuples = null;
     }
 }

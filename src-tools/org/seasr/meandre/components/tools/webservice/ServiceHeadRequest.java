@@ -52,10 +52,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.WebUIException;
@@ -152,7 +152,6 @@ public class ServiceHeadRequest extends AbstractExecutableComponent
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public void handle(HttpServletRequest request, HttpServletResponse response) throws WebUIException {
 	    console.info(String.format("Received %s request from %s (%s:%d) %s",
 	            request.getMethod(), request.getRemoteHost(), request.getRemoteAddr(), request.getRemotePort(),
@@ -161,7 +160,7 @@ public class ServiceHeadRequest extends AbstractExecutableComponent
 	    console.fine(String.format("Query string: %s", request.getQueryString()));
 
 		Map<String, String[]> paramMap = new HashMap<String, String[]>();
-		Enumeration paramNames = request.getParameterNames();
+		Enumeration<?> paramNames = request.getParameterNames();
 		while (paramNames.hasMoreElements()) {
 			String paramName = paramNames.nextElement().toString();
 			String[] paramValues = request.getParameterValues(paramName);

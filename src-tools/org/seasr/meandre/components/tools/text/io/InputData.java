@@ -141,6 +141,12 @@ public class InputData extends AbstractGWTWebUIComponent {
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
+    @ComponentProperty(
+            name = "stream_id",
+            description = "The stream id",
+            defaultValue = ""
+    )
+    protected static final String PROP_STREAM_ID = "stream_id";
 
     //--------------------------------------------------------------------------------------------
 
@@ -150,6 +156,7 @@ public class InputData extends AbstractGWTWebUIComponent {
     private String _html;
     private boolean _done;
     private boolean _wrapAsStream;
+    private Integer streamId;
 
 
     //--------------------------------------------------------------------------------------------
@@ -162,6 +169,7 @@ public class InputData extends AbstractGWTWebUIComponent {
         int propMaxUrlCount = Integer.parseInt(getPropertyOrDieTrying(PROP_MAX_URL_COUNT, true, true, ccp));
         int propMaxFileCount = Integer.parseInt(getPropertyOrDieTrying(PROP_MAX_FILE_COUNT, true, true, ccp));
         int propMaxTextLength = Integer.parseInt(getPropertyOrDieTrying(PROP_MAX_TEXT_LENGTH, true, true, ccp));
+        streamId = Integer.parseInt(getPropertyOrDieTrying(PROP_STREAM_ID, ccp));
 
         _context.put("maxUrlCount", propMaxUrlCount);
         _context.put("maxFileCount", propMaxFileCount);
@@ -225,8 +233,8 @@ public class InputData extends AbstractGWTWebUIComponent {
         console.fine("Action: " + action);
 
         if (action != null) {
-            StreamInitiator si = new StreamInitiator();
-            StreamTerminator st = new StreamTerminator();
+            StreamInitiator si = new StreamInitiator(streamId);
+            StreamTerminator st = new StreamTerminator(streamId);
 
             if (action.equals("urls")) {
                 SortedMap<String, URL> urls = new TreeMap<String, URL>();

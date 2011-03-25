@@ -47,8 +47,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -61,6 +59,8 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
@@ -118,13 +118,13 @@ public class RetrieveFromDB extends AbstractDBComponent {
     public static final String PERSISTENCE_META_TABLE_NAME = "persistence_meta";
 
     protected String _dbTable;
-    protected Queue<UUID> _inputQueue = new LinkedList<UUID>();
 
     protected String _sqlQueryMeta;
     protected String _sqlQueryData;
 
     /** The number of ports on which retrieved data can be output */
     protected final int _portCount = 1;
+
 
     //--------------------------------------------------------------------------------------------
 
@@ -141,12 +141,9 @@ public class RetrieveFromDB extends AbstractDBComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         super.executeCallBack(cc);
 
-        if (cc.isInputAvailable(IN_ID)) {
-            for (String input : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_ID)))
-                _inputQueue.offer(UUID.fromString(input));
-        }
+        componentInputCache.storeIfAvailable(cc, IN_ID);
 
-        if (connectionPool == null || _inputQueue.isEmpty())
+        if (connectionPool == null || !componentInputCache.hasData(IN_ID))
             // we're not ready to process yet, return
             return;
 
@@ -157,60 +154,72 @@ public class RetrieveFromDB extends AbstractDBComponent {
             connection = connectionPool.getConnection();
             psMeta = connection.prepareStatement(_sqlQueryMeta);
 
-            UUID input;
-            while ((input = _inputQueue.poll()) != null) {
-                BigDecimal uuid = new BigDecimal(UUIDUtils.toBigInteger(input));
-                psMeta.setBigDecimal(1, uuid);
-                ResultSet rs = psMeta.executeQuery();
+            Object input;
+            while ((input = componentInputCache.retrieveNext(IN_ID)) != null) {
+                if (input instanceof StreamDelimiter) {
+                    StreamDelimiter sd = (StreamDelimiter) input;
+                    if (sd.getStreamId() == streamId)
+                        throw new ComponentExecutionException(String.format("Stream id conflict! Incoming stream has the same id (%d) " +
+                                "as the one set for this component (%s)!", streamId, getClass().getSimpleName()));
 
-                if (rs.next()) {
-                    int portCount = rs.getInt("port_count");
-                    if (portCount != _portCount) {
-                        outputError(String.format("This component cannot be used to retrieve data for id '%s'! " +
-                        		"Reason: port number mismatch! (should be: %d, actual: %d) - " +
-                        		"Use a component with a matching number of output ports!", input, _portCount, portCount), Level.SEVERE);
-                        continue;
-                    }
-                    String tableName = rs.getString("table_name");
-                    boolean isStreaming = rs.getBoolean("streaming");
+                    cc.pushDataComponentToOutput(OUT_DATA, sd);
+                    continue;
+                }
 
-                    if (isStreaming)
-                        cc.pushDataComponentToOutput(OUT_DATA, new StreamInitiator());
+                for (String sUUID : DataTypeParser.parseAsString(input)) {
+                    BigDecimal uuid = new BigDecimal(UUIDUtils.toBigInteger(UUID.fromString(sUUID)));
+                    psMeta.setBigDecimal(1, uuid);
+                    ResultSet rs = psMeta.executeQuery();
 
-                    String sqlQueryData = String.format(
-                            "SELECT data, type, port_name, serializer FROM %s WHERE uuid = ? ORDER BY seq_no ASC", tableName);
-                    psData = connection.prepareStatement(sqlQueryData);
-                    psData.setBigDecimal(1, uuid);
-                    rs = psData.executeQuery();
+                    if (rs.next()) {
+                        int portCount = rs.getInt("port_count");
+                        if (portCount != _portCount) {
+                            outputError(String.format("This component cannot be used to retrieve data for id '%s'! " +
+                            		"Reason: port number mismatch! (should be: %d, actual: %d) - " +
+                            		"Use a component with a matching number of output ports!", input, _portCount, portCount), Level.SEVERE);
+                            continue;
+                        }
+                        String tableName = rs.getString("table_name");
+                        boolean isStreaming = rs.getBoolean("streaming");
 
-                    while (rs.next()) {
-                        InputStream dataStream = null;
-                        try {
-                            dataStream = rs.getBinaryStream("data");
-                            String type = rs.getString("type");
-                            String serializer = rs.getString("serializer");
+                        if (isStreaming)
+                            cc.pushDataComponentToOutput(OUT_DATA, new StreamInitiator(streamId));
 
-                            console.finer(String.format("from db: type='%s', serializer='%s'", type, serializer));
+                        String sqlQueryData = String.format(
+                                "SELECT data, type, port_name, serializer FROM %s WHERE uuid = ? ORDER BY seq_no ASC", tableName);
+                        psData = connection.prepareStatement(sqlQueryData);
+                        psData.setBigDecimal(1, uuid);
+                        rs = psData.executeQuery();
 
-                            Class<?> clazz = Class.forName(type);
-                            SerializationFormat format = SerializationFormat.valueOf(serializer);
-                            if (format == null)
-                                outputError(String.format("Unsupported serializer format '%s' for id '%s'!", serializer, input), Level.WARNING);
-                            else {
-                                Object obj = Serializer.deserializeObject(dataStream, clazz, format);
-                                cc.pushDataComponentToOutput(OUT_DATA, obj);
+                        while (rs.next()) {
+                            InputStream dataStream = null;
+                            try {
+                                dataStream = rs.getBinaryStream("data");
+                                String type = rs.getString("type");
+                                String serializer = rs.getString("serializer");
+
+                                console.finer(String.format("from db: type='%s', serializer='%s'", type, serializer));
+
+                                Class<?> clazz = Class.forName(type);
+                                SerializationFormat format = SerializationFormat.valueOf(serializer);
+                                if (format == null)
+                                    outputError(String.format("Unsupported serializer format '%s' for id '%s'!", serializer, input), Level.WARNING);
+                                else {
+                                    Object obj = Serializer.deserializeObject(dataStream, clazz, format);
+                                    cc.pushDataComponentToOutput(OUT_DATA, obj);
+                                }
+                            }
+                            finally {
+                                if (dataStream != null)
+                                    dataStream.close();
                             }
                         }
-                        finally {
-                            if (dataStream != null)
-                                dataStream.close();
-                        }
-                    }
 
-                    if (isStreaming)
-                        cc.pushDataComponentToOutput(OUT_DATA, new StreamTerminator());
-                } else
-                    outputError(String.format("Could not locate data for id '%s'!", input), Level.WARNING);
+                        if (isStreaming)
+                            cc.pushDataComponentToOutput(OUT_DATA, new StreamTerminator(streamId));
+                    } else
+                        outputError(String.format("Could not locate data for id '%s'!", input), Level.WARNING);
+                }
             }
         }
         finally {
@@ -221,5 +230,26 @@ public class RetrieveFromDB extends AbstractDBComponent {
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         super.disposeCallBack(ccp);
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return false;
+    }
+
+    @Override
+    public void handleStreamInitiators() throws Exception {
+        // Since this component is a FiringPolicy.any, it is possible that when handleStreamInitiators() is
+        // called, there could be non-StreamDelimiter data that has arrived on other ports which would be
+        // lost if we don't call 'executeCallBack' (when handleStreamInitiators() gets called, executeCallBack is NOT called)
+
+        executeCallBack(componentContext);
+    }
+
+    @Override
+    public void handleStreamTerminators() throws Exception {
+        executeCallBack(componentContext);
     }
 }

@@ -140,6 +140,30 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 )
 public class StanfordPosTagger extends AbstractExecutableComponent {
 
+    //------------------------------ INPUTS ------------------------------------------------------
+
+	@ComponentInput(
+			name = Names.PORT_TEXT,
+			description = "The text to be split into sentences"
+	)
+	protected static final String IN_TEXT = Names.PORT_TEXT;
+
+    //------------------------------ OUTPUTS ------------------------------------------------------
+
+	@ComponentOutput(
+			name = Names.PORT_TUPLES,
+			description = "set of tuples: (pos,sentenceId,offset,token)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+	)
+	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+
+	@ComponentOutput(
+			name = Names.PORT_META_TUPLE,
+			description = "meta data for tuples: (pos,sentenceId,offset,token)" +
+			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+	)
+	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
+
     //------------------------------ PROPERTIES --------------------------------------------------
 
     // Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
@@ -162,7 +186,6 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 		)
 	protected static final String PROP_MODELS_DIR = "modelsDir";
 
-
 	@ComponentProperty(
 			name = Names.PROP_FILTER_REGEX,
 			description = "optional regular expression to inline filter POS (e.g. JJ|RB)",
@@ -170,54 +193,8 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 		)
 	protected static final String PROP_POS_FILTER_REGEX = Names.PROP_FILTER_REGEX;
 
-
 	//--------------------------------------------------------------------------------------------
 
-   //------------------------------ INPUTS ------------------------------------------------------
-
-	@ComponentInput(
-			name = Names.PORT_TEXT,
-			description = "The text to be split into sentences"
-	)
-	protected static final String IN_TEXT = Names.PORT_TEXT;
-
-
-	//--------------------------------------------------------------------------------------------
-
-
-    //------------------------------ OUTPUTS ------------------------------------------------------
-
-
-	@ComponentOutput(
-			name = Names.PORT_TUPLES,
-			description = "set of tuples: (pos,sentenceId,offset,token)" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
-	)
-	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
-
-	@ComponentOutput(
-			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples: (pos,sentenceId,offset,token)" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
-
-
-	@SuppressWarnings("unchecked")
-	static MaxentTagger buildTagger(ComponentContextProperties ccp, Logger console, Class myClass)
-	   throws Exception
-	{
-        String taggerFile = getPropertyOrDieTrying(PROP_TAGGER, true, true, ccp);
-
-		String modelsDir = getPropertyOrDieTrying(PROP_MODELS_DIR, true, false, ccp);
-		if (modelsDir.length() == 0)
-		    modelsDir = ccp.getRunDirectory()+File.separator+"stanfordNLP";
-
-		OpenNLPBaseUtilities.installJARModelContainingResource(modelsDir, taggerFile, console, myClass);
-		console.fine("Installed models into: " + modelsDir);
-
-		return new MaxentTagger(modelsDir + File.separator + taggerFile.trim());
-	}
 
 	SimpleTuplePeer tuplePeer;
 
@@ -235,10 +212,13 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 	Pattern pattern = null;
 
     MaxentTagger tagger = null;
+
+
+    //--------------------------------------------------------------------------------------------
+
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
-
 		tagger = buildTagger(ccp, console, getClass());
 
 		sentenceId   = 0;
@@ -257,10 +237,7 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
     	else {
     		console.info("No REG EX being used");
     	}
-
 	}
-
-
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception
@@ -307,13 +284,10 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 				   {
 		    		   output.add(tuple.convert());
 		    	   }
-
-
 		      }
 		      sentenceId++;
 		      //console.info(tSentence.toString(false));
 		}
-
 
 		// push the whole collection, protocol safe
 	    Strings[] results = new Strings[output.size()];
@@ -327,13 +301,27 @@ public class StanfordPosTagger extends AbstractExecutableComponent {
 		//
 	    Strings metaData = tuplePeer.convert();
 	    cc.pushDataComponentToOutput(OUT_META_TUPLE, metaData);
-
-
-
     }
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
+
+	//--------------------------------------------------------------------------------------------
+
+    MaxentTagger buildTagger(ComponentContextProperties ccp, Logger console, Class<?> myClass)
+       throws Exception
+    {
+        String taggerFile = getPropertyOrDieTrying(PROP_TAGGER, true, true, ccp);
+
+        String modelsDir = getPropertyOrDieTrying(PROP_MODELS_DIR, true, false, ccp);
+        if (modelsDir.length() == 0)
+            modelsDir = ccp.getRunDirectory()+File.separator+"stanfordNLP";
+
+        OpenNLPBaseUtilities.installJARModelContainingResource(modelsDir, taggerFile, console, myClass);
+        console.fine("Installed models into: " + modelsDir);
+
+        return new MaxentTagger(modelsDir + File.separator + taggerFile.trim());
+    }
 }
 

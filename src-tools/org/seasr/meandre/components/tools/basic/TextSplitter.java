@@ -56,7 +56,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * @author Boris Capitanu
@@ -74,7 +74,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         		"and creates a stream containing each individual element separately" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TextSplitter extends AbstractExecutableComponent {
+public class TextSplitter extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -113,6 +113,8 @@ public class TextSplitter extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.initializeCallBack(ccp);
+
         _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
     }
 
@@ -121,17 +123,23 @@ public class TextSplitter extends AbstractExecutableComponent {
         Strings input = (Strings) cc.getDataComponentFromInput(IN_TEXT);
 
         if (_wrapStream)
-            cc.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator());
+            cc.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator(streamId));
 
         for (String s : BasicDataTypesTools.stringsToStringArray(input))
             cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(s));
 
         if (_wrapStream)
-            cc.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator());
+            cc.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator(streamId));
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return false;
+    }
 }

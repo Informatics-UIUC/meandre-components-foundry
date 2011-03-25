@@ -174,15 +174,4 @@ public class GDocsDirDownloader extends AbstractExecutableComponent {
     	ListFileName = null;
     	TargetDir = null;
     }
-    //--------------------------------------------------------------------------------------------
-
-	@Override
-	public void handleStreamInitiators() throws Exception {
-	}
-
-	@Override
-	public void handleStreamTerminators() throws Exception {
-	}
-	//--------------------------------------------------------------------------------------------
-
 }

@@ -44,11 +44,11 @@ package org.seasr.meandre.components.transform.xml;
 
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -97,16 +97,18 @@ public class XMLTagFilter extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+
     private static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/transform/xml/XMLTagFilter.vm";
     private static final VelocityTemplateService velocity = VelocityTemplateService.getInstance();
 
     private String tag;
 
+
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    tag = ccp.getProperty(PROP_TAG);
+	    tag = getPropertyOrDieTrying(PROP_TAG, ccp);
 	}
 
 	@Override

@@ -42,7 +42,6 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -203,13 +202,7 @@ public class UniqueTupleFilter extends AbstractExecutableComponent {
 
     @Override
     public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        Object si = componentContext.getDataComponentFromInput(IN_TUPLES);
-        componentContext.pushDataComponentToOutput(OUT_UNIQUE_TUPLES, si);
-        componentContext.pushDataComponentToOutput(OUT_DUPLICATE_TUPLES, si);
+        super.handleStreamInitiators();
 
         if (_perStream)
             _uniqueSet = new HashSet<String>();
@@ -219,13 +212,7 @@ public class UniqueTupleFilter extends AbstractExecutableComponent {
 
     @Override
     public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        Object st = componentContext.getDataComponentFromInput(IN_TUPLES);
-        componentContext.pushDataComponentToOutput(OUT_UNIQUE_TUPLES, st);
-        componentContext.pushDataComponentToOutput(OUT_DUPLICATE_TUPLES, st);
+        super.handleStreamTerminators();
 
         _isStreaming = false;
     }

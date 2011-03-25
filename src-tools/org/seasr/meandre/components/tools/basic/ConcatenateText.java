@@ -43,16 +43,14 @@
 package org.seasr.meandre.components.tools.basic;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -130,7 +128,7 @@ public class ConcatenateText extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        separator = ccp.getProperty(PROP_SEPARATOR);
+        separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, false, ccp);
     }
 
     @Override
@@ -148,25 +146,5 @@ public class ConcatenateText extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (inputPortsWithInitiators.contains(IN_TEXT1) &&
-            inputPortsWithInitiators.contains(IN_TEXT2))
-            componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator());
-        else
-            throw new Exception("Unbalanced or unexpected StreamInitiator received");
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (inputPortsWithTerminators.contains(IN_TEXT1) &&
-            inputPortsWithTerminators.contains(IN_TEXT2))
-            componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator());
-        else
-            throw new Exception("Unbalanced or unexpected StreamTerminator received");
     }
 }

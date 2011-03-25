@@ -118,5 +118,4 @@ public class InputCounter extends AbstractExecutableComponent {
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
-
 }

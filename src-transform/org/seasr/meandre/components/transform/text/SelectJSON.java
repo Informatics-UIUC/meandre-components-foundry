@@ -43,7 +43,6 @@
 package org.seasr.meandre.components.transform.text;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -171,23 +170,5 @@ public class SelectJSON extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_ATTRIB, IN_JSON })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_JSON, componentContext.getDataComponentFromInput(IN_JSON));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_ATTRIB, IN_JSON })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_JSON, componentContext.getDataComponentFromInput(IN_JSON));
     }
 }

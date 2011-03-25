@@ -63,14 +63,10 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamDelimiter;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.generic.io.IOUtils;
 import org.seasr.meandre.support.generic.io.StreamUtils;
 
@@ -252,35 +248,5 @@ public class ReadText extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        pushDelimiters((StreamInitiator)componentContext.getDataComponentFromInput(IN_LOCATION));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        pushDelimiters((StreamTerminator)componentContext.getDataComponentFromInput(IN_LOCATION));
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    /**
-     * Push the delimiters
-     *
-     * @param sdLoc The delimiter object
-     * @throws Exception
-     */
-    private void pushDelimiters(StreamDelimiter sdLoc) throws Exception {
-        componentContext.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
-        try {
-            componentContext.pushDataComponentToOutput(OUT_TEXT, ComponentUtils.cloneStreamDelimiter(sdLoc));
-        } catch (Exception e) {
-            console.warning("Failed to create a new delimiter - reusing current one");
-            componentContext.pushDataComponentToOutput(OUT_TEXT, sdLoc);
-        }
     }
 }

@@ -44,14 +44,13 @@ package org.seasr.meandre.components.transform.xml;
 
 import java.io.StringWriter;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -59,9 +58,8 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.seasr.meandre.support.generic.io.DOMUtils;
-import org.seasr.meandre.support.generic.text.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -85,7 +83,7 @@ import org.w3c.dom.NodeList;
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
 
-public class XMLAggregator extends AbstractExecutableComponent {
+public class XMLAggregator extends AbstractStreamingExecutableComponent {
 	//------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
@@ -111,15 +109,17 @@ public class XMLAggregator extends AbstractExecutableComponent {
 	private Document doc_out;
 	private String docTitle;
 	private Element rootElement;
-	private boolean _gotInitiator;
+	private boolean _isStreaming;
 	private Hashtable<String, Element> table;
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 		doc_out = null;
-		_gotInitiator = false;
+		_isStreaming = false;
 	}
 
 	@Override
@@ -193,7 +193,7 @@ public class XMLAggregator extends AbstractExecutableComponent {
 			locationElement.appendChild(sentenceElement);
 		}
 
-		if(!_gotInitiator) {
+		if (!_isStreaming) {
 			StringWriter writer = new StringWriter();
 			DOMUtils.writeXML(doc_out, writer, null);
 			cc.pushDataComponentToOutput(OUT_XML,
@@ -205,36 +205,43 @@ public class XMLAggregator extends AbstractExecutableComponent {
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	    doc_out = null;
+	    rootElement = null;
+	    if (table != null)
+	        table.clear();
+	    table = null;
 	}
 
 	 //--------------------------------------------------------------------------------------------
 
 	@Override
-	public void handleStreamInitiators() throws Exception {
-        if (_gotInitiator)
-            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
-
-        doc_out = null;
-        _gotInitiator = true;
+	public boolean isAccumulator() {
+	    return true;
 	}
 
 	@Override
-    public void handleStreamTerminators() throws Exception {
-        if (!_gotInitiator)
-            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
+	public void startStream() throws Exception {
+        if (_isStreaming)
+            throw new Exception("Stream error - start stream marker already received!");
 
+        doc_out = null;
+        _isStreaming = true;
+	}
+
+	@Override
+    public void endStream() throws Exception {
+        if (!_isStreaming)
+            throw new Exception("Stream error - received end stream marker without start stream!");
 
         StringWriter writer = new StringWriter();
 		DOMUtils.writeXML(doc_out, writer, null);
-        componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
+        componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator(streamId));
         componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(writer.toString()));
-        componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator());
+        componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator(streamId));
 
         if(table!=null)
         	table.clear();
 
-        _gotInitiator = false;
+        _isStreaming = false;
     }
-
-
 }

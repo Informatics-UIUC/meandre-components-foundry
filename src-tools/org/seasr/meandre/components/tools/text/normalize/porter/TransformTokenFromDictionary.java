@@ -42,21 +42,20 @@
 
 package org.seasr.meandre.components.tools.text.normalize.porter;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypes;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 /**
@@ -137,22 +136,4 @@ public class TransformTokenFromDictionary extends AbstractExecutableComponent {
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 	}
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TOKEN_COUNTS, IN_DICTIONARY })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_TOKEN_COUNTS, IN_DICTIONARY })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS));
-    }
 }

@@ -48,21 +48,21 @@ import java.util.Vector;
 import javax.xml.transform.OutputKeys;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.DataTypeParser;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.DataTypeParser;
+import org.seasr.datatypes.core.Names;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.seasr.meandre.components.nlp.opennlp.OpenNLPNamedEntity;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.generic.io.DOMUtils;
@@ -88,7 +88,7 @@ import org.w3c.dom.NodeList;
         baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TupleToXML extends AbstractExecutableComponent {
+public class TupleToXML extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -149,13 +149,14 @@ public class TupleToXML extends AbstractExecutableComponent {
 			defaultValue = "ISO-8859-1"
 	    )
 	protected static final String PROP_ENCODING = Names.PROP_ENCODING;
+
     //--------------------------------------------------------------------------------------------
 
 
 	private String _entities;
 	private Properties _xmlProperties;
 	private Vector<org.w3c.dom.Document> _simileDocs = new Vector<org.w3c.dom.Document>();
-	private boolean _gotInitiator;
+	private boolean _isStreaming;
 
 	private static String encoding;
 
@@ -164,6 +165,8 @@ public class TupleToXML extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 		encoding = ccp.getProperty(PROP_ENCODING);
 
         _entities = ccp.getProperty(PROP_ENTITIES);
@@ -173,7 +176,7 @@ public class TupleToXML extends AbstractExecutableComponent {
         _xmlProperties.put(OutputKeys.INDENT, "yes");
         _xmlProperties.put(OutputKeys.ENCODING, encoding);
 
-        _gotInitiator = false;
+        _isStreaming = false;
 	}
 
 	@Override
@@ -228,7 +231,7 @@ public class TupleToXML extends AbstractExecutableComponent {
 
 		_simileDocs.add(doc_out);
 
-		if (!_gotInitiator) {
+		if (!_isStreaming) {
 		    String xmlString = DOMUtils.getString(_simileDocs.get(0), _xmlProperties);
 		    xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
 
@@ -239,25 +242,32 @@ public class TupleToXML extends AbstractExecutableComponent {
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	    _simileDocs.clear();
+	    _simileDocs = null;
     }
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
-	public void handleStreamInitiators() throws Exception {
-        if (_gotInitiator)
-            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
-
-        _simileDocs = new Vector<org.w3c.dom.Document>();
-        _gotInitiator = true;
+	public boolean isAccumulator() {
+	    return true;
 	}
 
 	@Override
-    public void handleStreamTerminators() throws Exception {
-        if (!_gotInitiator)
-            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
+	public void startStream() throws Exception {
+        if (_isStreaming)
+            throw new Exception("Stream error - start stream marker already received!");
 
-        componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator());
+        _simileDocs = new Vector<org.w3c.dom.Document>();
+        _isStreaming = true;
+	}
+
+	@Override
+    public void endStream() throws Exception {
+        if (!_isStreaming)
+            throw new Exception("Stream error - received end stream marker without start stream!");
+
+        componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator(streamId));
 
         Document xmlDoc = mergeXmlDocuments();
         if (xmlDoc != null) {
@@ -266,9 +276,9 @@ public class TupleToXML extends AbstractExecutableComponent {
             componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(xmlString));
         }
 
-        componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator());
+        componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator(streamId));
 
-        _gotInitiator = false;
+        _isStreaming = false;
         _simileDocs.clear();
 	}
 

@@ -45,8 +45,6 @@ package org.seasr.meandre.components.transform.xml;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
@@ -65,6 +63,7 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -126,28 +125,21 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
+
     protected static final TransformerFactory TRANSFORMER = new net.sf.saxon.TransformerFactoryImpl();
 
-	protected Queue<Document> queue;
 	protected Templates xslt;
-	private boolean _gotInitiator;
 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		queue = new LinkedList<Document>();
 		xslt = null;
-
-		_gotInitiator = false;
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		if (cc.isInputAvailable(IN_XML))
-		    queue.offer(DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML)));
-
 		if (cc.isInputAvailable(IN_XSL)) {
 		    if (xslt == null) {
 		        String sXsl = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_XSL))[0];
@@ -156,31 +148,43 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 		        console.warning("XSL transformation already set - ignoring new XSL data input");
 		}
 
-		if (xslt != null && queue.size() > 0)
-		    // Process in non-streaming mode
-		    processQueued();
+		componentInputCache.storeIfAvailable(cc, IN_XML);
+
+		if (xslt == null || !componentInputCache.hasData(IN_XML))
+		    // Nothing to do yet
+		    return;
+
+		processQueued();
 	}
 
 	@Override
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		queue = null;
 		xslt = null;
 	}
 
 	//--------------------------------------------------------------------------------------------
 
 	protected void processQueued() throws Exception {
-	    console.fine(String.format("Processing %d queued XML documents...", queue.size()));
+	    console.fine(String.format("Processing %d queued inputs...", componentInputCache.getDataCount(IN_XML)));
 
-	    for (Document doc : queue) {
+	    Object input;
+	    while ((input = componentInputCache.retrieveNext(IN_XML)) != null) {
+	        if (input instanceof StreamDelimiter) {
+	            StreamDelimiter sd = (StreamDelimiter) input;
+	            console.fine(String.format("Forwarding the %s (id: %d) on all output ports...",
+	                    sd.getClass().getSimpleName(), sd.getStreamId()));
+	            componentContext.pushDataComponentToOutput(OUT_RESULT, sd);
+
+	            continue;
+	        }
+
+	        Document doc = DataTypeParser.parseAsDomDocument(input);
 	        String transformResult = transformXml(doc);
 	        console.finest("XSL transformation finished. Output:\n" + transformResult);
 
 	        componentContext.pushDataComponentToOutput(OUT_RESULT,
 	                BasicDataTypesTools.stringToStrings(transformResult));
 	    }
-
-	    queue.clear();
 	}
 
 	protected String transformXml(Document doc) throws TransformerException {
@@ -210,33 +214,11 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 
 	@Override
     public void handleStreamInitiators() throws Exception {
-	    if (!inputPortsWithInitiators.contains(IN_XML))
-	        return;
-
-	    console.finest("Received stream initiator");
-
-		if (_gotInitiator)
-            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
-
-		// Forward the stream initiator we received downstream
-		componentContext.pushDataComponentToOutput(OUT_RESULT, componentContext.getDataComponentFromInput(IN_XML));
-
-        _gotInitiator = true;
+	    executeCallBack(componentContext);
 	}
 
     @Override
     public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.contains(IN_XML))
-            return;
-
-        console.finest("Received stream terminator");
-
-    	if (!_gotInitiator)
-    		throw new Exception("Received StreamTerminator without receiving StreamInitiator");
-
-    	// Forward the stream terminator we received downstream
-        componentContext.pushDataComponentToOutput(OUT_RESULT, componentContext.getDataComponentFromInput(IN_XML));
-
-    	_gotInitiator = false;
+        executeCallBack(componentContext);
     }
 }

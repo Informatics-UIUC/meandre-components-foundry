@@ -45,18 +45,14 @@ package org.seasr.meandre.components.tools.semantic.io;
 import java.net.URI;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamDelimiter;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -152,38 +148,4 @@ public class ReadModel extends AbstractExecutableComponent {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.sBaseURI = null;
     }
-
-    //-----------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        pushDelimiters((StreamInitiator)componentContext.getDataComponentFromInput(IN_LOCATION));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        pushDelimiters((StreamTerminator)componentContext.getDataComponentFromInput(IN_LOCATION));
-    }
-
-    //-----------------------------------------------------------------------------------
-
-	/**
-	 * Push the delimiters
-	 *
-	 * @param cc The component context
-	 * @param sdLoc The delimiter object
-	 * @throws ComponentContextException
-	 */
-	private void pushDelimiters(StreamDelimiter sdLoc) throws Exception {
-		componentContext.pushDataComponentToOutput(OUT_LOCATION, sdLoc);
-		try {
-			StreamDelimiter sd = sdLoc.getClass().newInstance();
-			for ( String sKey:sd.keySet() )
-				sd.put(sKey, sdLoc.get(sKey));
-			componentContext.pushDataComponentToOutput(OUT_DOCUMENT, sd);
-		} catch (Exception e) {
-			console.warning("Failed to create a new delimiter - reusing existing one");
-			componentContext.pushDataComponentToOutput(OUT_DOCUMENT, sdLoc);
-		}
-	}
 }

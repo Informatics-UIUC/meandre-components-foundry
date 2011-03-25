@@ -48,10 +48,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -118,6 +118,7 @@ public class TopNFilter extends AbstractExecutableComponent {
     private int _upperLimit;
     private boolean _bottomN;
 
+
     //--------------------------------------------------------------------------------------------
 
     @Override
@@ -157,11 +158,10 @@ public class TopNFilter extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-    @SuppressWarnings("unchecked")
     class byValueComparator implements Comparator<String> {
-        Map base_map;
+        Map<?,?> base_map;
 
-        public byValueComparator(Map base_map) {
+        public byValueComparator(Map<?,?> base_map) {
             this.base_map = base_map;
         }
 

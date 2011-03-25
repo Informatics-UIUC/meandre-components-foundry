@@ -46,11 +46,11 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -58,7 +58,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * This class accumulates tokenized sentences
@@ -82,7 +82,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
                       "component is based on Wrapped models reducer.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TokenizedSentencesReducer extends AbstractExecutableComponent {
+public class TokenizedSentencesReducer extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -110,7 +110,7 @@ public class TokenizedSentencesReducer extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    private boolean _gotInitiator;
+    private boolean _isStreaming;
     private Map<String, String[]> _tokenizedSentences;
 
 
@@ -118,7 +118,9 @@ public class TokenizedSentencesReducer extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _gotInitiator = false;
+        super.initializeCallBack(ccp);
+
+        _isStreaming = false;
         _tokenizedSentences = new Hashtable<String, String[]>();
     }
 
@@ -126,7 +128,7 @@ public class TokenizedSentencesReducer extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object input = cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES);
 
-        if (!_gotInitiator) {
+        if (!_isStreaming) {
             cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, input);
             return;
         }
@@ -143,27 +145,29 @@ public class TokenizedSentencesReducer extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    public void handleStreamInitiators() throws Exception {
-        if (_gotInitiator)
-            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
+    public boolean isAccumulator() {
+        return true;
+    }
 
-        _gotInitiator = true;
+    @Override
+    public void startStream() throws Exception {
+        if (_isStreaming)
+            throw new Exception("Stream error - start stream marker already received!");
+
+        _isStreaming = true;
         _tokenizedSentences.clear();
     }
 
     @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!_gotInitiator)
-            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
+    public void endStream() throws Exception {
+        if (!_isStreaming)
+            throw new Exception("Stream error - received end stream marker without start stream!");
 
-        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamInitiator());
+        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamInitiator(streamId));
         componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, BasicDataTypesTools.mapToStringMap(_tokenizedSentences));
-        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamTerminator());
+        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamTerminator(streamId));
 
-        _gotInitiator = false;
+        _isStreaming = false;
         _tokenizedSentences.clear();
     }
-
-    //--------------------------------------------------------------------------------------------
-
 }

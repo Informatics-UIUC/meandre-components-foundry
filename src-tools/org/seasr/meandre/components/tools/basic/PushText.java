@@ -43,18 +43,18 @@
 package org.seasr.meandre.components.tools.basic;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * Pushes a property value to the output
@@ -76,7 +76,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 				      "and if it needs to be wrapped with delimiters.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class PushText extends AbstractExecutableComponent {
+public class PushText extends AbstractStreamingExecutableComponent {
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -105,7 +105,7 @@ public class PushText extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = Names.PROP_WRAP_STREAM,
-            description = "Should the pushed message be wrapped as a stream. ",
+            description = "Should the output be wrapped as a stream?",
             defaultValue = "false"
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
@@ -127,6 +127,8 @@ public class PushText extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 		sMessage = ccp.getProperty(PROP_MESSAGE);
 		lTimes = Long.parseLong(ccp.getProperty(PROP_TIMES));
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
@@ -134,14 +136,14 @@ public class PushText extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		if ( bWrapped )
-			pushInitiator();
+	    if (bWrapped)
+		    cc.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator(streamId));
 
-		for ( long l=0 ; l<lTimes ; l++ )
-			cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sMessage));
+	    for (long l = 0; l < lTimes; l++)
+		    cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sMessage));
 
-		if ( bWrapped )
-			pushTerminator();
+	    if (bWrapped)
+	        cc.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator(streamId));
 	}
 
     @Override
@@ -151,31 +153,10 @@ public class PushText extends AbstractExecutableComponent {
         bWrapped = false;
     }
 
-	//-----------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
-	/**
-	 * Pushes an initiator.
-	 *
-	 * @throws Exception Something went wrong when pushing
-	 */
-	private void pushInitiator() throws Exception {
-        console.fine("Pushing " + StreamInitiator.class.getSimpleName());
-
-		StreamInitiator si = new StreamInitiator();
-		si.put(PROP_TIMES, lTimes);
-		componentContext.pushDataComponentToOutput(OUT_TEXT,si);
-	}
-
-	/**
-	 * Pushes a terminator.
-	 *
-	 * @throws Exception Something went wrong when pushing
-	 */
-	private void pushTerminator() throws Exception {
-        console.fine("Pushing " + StreamTerminator.class.getSimpleName());
-
-		StreamTerminator st = new StreamTerminator();
-		st.put(PROP_TIMES, lTimes);
-		componentContext.pushDataComponentToOutput(OUT_TEXT,st);
-	}
+    @Override
+    public boolean isAccumulator() {
+        return false;
+    }
 }

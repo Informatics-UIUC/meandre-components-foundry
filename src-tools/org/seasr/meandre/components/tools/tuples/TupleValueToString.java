@@ -42,8 +42,6 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
-import java.util.Arrays;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -61,7 +59,6 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.components.tuples.TupleUtilities;
 
 /**
  *
@@ -78,8 +75,7 @@ import org.seasr.meandre.support.components.tuples.TupleUtilities;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "tools, text,",
-		description = "This component extracts the value of an attribute from the tuple(s) and pushes it out." +
-		              "For each set of incoming tuples, each tuple attribute value is pushed separately.",
+		description = "This component extracts the value(s) of an attribute from the tuple(s) and pushes it out.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class TupleValueToString extends AbstractExecutableComponent {
@@ -155,13 +151,6 @@ public class TupleValueToString extends AbstractExecutableComponent {
 
         if (input instanceof Strings) {
             Strings inTuple = (Strings) input;
-
-            if (TupleUtilities.isBeginMarker(inTuple, inMeta) || TupleUtilities.isEndMarker(inTuple, inMeta)) {
-                cc.pushDataComponentToOutput(OUT_META_TUPLE, inMeta);
-                cc.pushDataComponentToOutput(OUT_TEXT, inTuple);
-                return;
-            }
-
             tuples = new Strings[] { inTuple };
         }
 
@@ -190,25 +179,5 @@ public class TupleValueToString extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_TUPLES));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_TUPLES));
     }
 }

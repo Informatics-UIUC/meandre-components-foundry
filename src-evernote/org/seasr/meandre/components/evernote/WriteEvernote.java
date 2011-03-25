@@ -120,7 +120,7 @@ public class WriteEvernote extends AbstractExecutableComponent {
             description = "This property sets the consumer secret.",
             defaultValue = "d38423353add320b"
     )
-    protected static final String PROP_CONSUMER_SECERT = Names.PROP_CONSUMER_SECRET;
+    protected static final String PROP_CONSUMER_SECRET = Names.PROP_CONSUMER_SECRET;
 
     @ComponentProperty(
             name = Names.PROP_TITLE,
@@ -144,13 +144,13 @@ public class WriteEvernote extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        username = ccp.getProperty(PROP_USERNAME);
-        password = ccp.getProperty(PROP_PASSWORD);
+        username = getPropertyOrDieTrying(PROP_USERNAME, ccp);
+        password = getPropertyOrDieTrying(PROP_PASSWORD, false, true, ccp);
 
-        consumerKey = ccp.getProperty(PROP_CONSUMER_KEY);
-        consumerSecret = ccp.getProperty(PROP_CONSUMER_SECERT);
+        consumerKey = getPropertyOrDieTrying(PROP_CONSUMER_KEY, ccp);
+        consumerSecret = getPropertyOrDieTrying(PROP_CONSUMER_SECRET, ccp);
 
-        title = ccp.getProperty(PROP_TITLE);
+        title = getPropertyOrDieTrying(PROP_TITLE, true, false, ccp);
     }
 
     @Override

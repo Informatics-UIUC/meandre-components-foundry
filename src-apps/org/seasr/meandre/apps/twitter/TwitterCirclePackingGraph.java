@@ -43,17 +43,15 @@
 package org.seasr.meandre.apps.twitter;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 import org.seasr.meandre.components.vis.protovis.AbstractProtovisComponent;
 
@@ -141,19 +139,5 @@ public class TwitterCirclePackingGraph extends AbstractProtovisComponent {
 		// and write the output
     	//
     	super.executeCallBack(cc);
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_JSON);
-        componentContext.pushDataComponentToOutput(OUT_TEXT, si);
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_JSON);
-        componentContext.pushDataComponentToOutput(OUT_TEXT, st);
     }
 }

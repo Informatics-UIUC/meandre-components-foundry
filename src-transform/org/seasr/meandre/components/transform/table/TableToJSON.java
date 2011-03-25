@@ -45,10 +45,10 @@ package org.seasr.meandre.components.transform.table;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -65,7 +65,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         description = "Converts table to JSON format.",
         name = "Table To JSON",
         tags = "table, JSON, convert",
-        firingPolicy = FiringPolicy.any,
+        firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}

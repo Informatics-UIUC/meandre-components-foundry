@@ -114,7 +114,6 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 	)
     protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
-
     //--------------------------------------------------------------------------------------------
 
     @Override

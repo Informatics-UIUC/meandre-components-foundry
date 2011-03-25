@@ -47,10 +47,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -61,10 +61,11 @@ import org.seasr.datatypes.datamining.table.Column;
 import org.seasr.datatypes.datamining.table.ColumnTypes;
 import org.seasr.datatypes.datamining.table.MutableTable;
 import org.seasr.datatypes.datamining.table.TableFactory;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * @author Lily Dong
+ * @author Boris Capitanu
  */
 
 @Component(
@@ -77,7 +78,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TokenCountToTable extends AbstractExecutableComponent {
+public class TokenCountToTable extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -108,7 +109,7 @@ public class TokenCountToTable extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    private boolean _gotInitiator;
+    private boolean _isStreaming;
     private TableFactory _fact;
     private MutableTable _table;
     private Map<String, Integer> _tokenColumnMap;
@@ -118,7 +119,9 @@ public class TokenCountToTable extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _gotInitiator = false;
+        super.initializeCallBack(ccp);
+
+        _isStreaming = false;
         _fact = null;
         _table = null;
         _tokenColumnMap = new HashMap<String, Integer>();
@@ -126,80 +129,113 @@ public class TokenCountToTable extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-
-        if (cc.isInputAvailable(IN_TOKEN_COUNTS))
-            componentInputCache.putCacheComponentInput(cc, IN_TOKEN_COUNTS);
-
         if (cc.isInputAvailable(IN_TABLE_FACTORY)) {
-            _fact = (TableFactory)cc.getDataComponentFromInput(IN_TABLE_FACTORY);
-            _table = (MutableTable)_fact.createTable();
+            _fact = (TableFactory) cc.getDataComponentFromInput(IN_TABLE_FACTORY);
+            _table = (MutableTable) _fact.createTable();
         }
 
-        if (_table != null) {
-            Object tokenCounts;
+        componentInputCache.storeIfAvailable(cc, IN_TOKEN_COUNTS);
 
-            while ((tokenCounts = componentInputCache.getCacheComponentInput(IN_TOKEN_COUNTS)) != null) {
-                Map<String, Integer> tokenCountsMap = DataTypeParser.parseAsStringIntegerMap(tokenCounts);
-                if (tokenCountsMap.size() == 0) continue;
+        if (_table == null || !componentInputCache.hasData(IN_TOKEN_COUNTS))
+            // Nothing to do yet
+            return;
 
-                int row = _table.getNumRows();
-                _table.addRows(1);
-
-                for (Entry<String, Integer> entry : tokenCountsMap.entrySet()) {
-                    String token = entry.getKey();
-                    int count = entry.getValue();
-
-                    int col;
-
-                    if (!_tokenColumnMap.containsKey(token)) {
-                        col = _table.getNumColumns();
-                        Column column = _fact.createColumn(ColumnTypes.INTEGER);
-                        column.setLabel(token);
-                        _table.addColumn(column);
-                        _tokenColumnMap.put(token, col);
-                    } else
-                        col = _tokenColumnMap.get(token);
-
-                    _table.setInt(count, row, col);
+        Object input;
+        while ((input = componentInputCache.retrieveNext(IN_TOKEN_COUNTS)) != null) {
+            if (input instanceof StreamInitiator) {
+                StreamInitiator si = (StreamInitiator) input;
+                if (si.getStreamId() != streamId) {
+                    // Forward the stream delimiter along
+                    cc.pushDataComponentToOutput(OUT_TABLE, si);
+                    continue;
                 }
 
-                if (!_gotInitiator) {
-                    cc.pushDataComponentToOutput(OUT_TABLE, _table);
-                    _tokenColumnMap.clear();
+                if (_isStreaming)
+                    throw new Exception("Stream error - start stream marker already received!");
+
+                _tokenColumnMap.clear();
+                _isStreaming = true;
+
+                continue;
+            }
+
+            if (input instanceof StreamTerminator) {
+                StreamTerminator st = (StreamTerminator) input;
+                if (st.getStreamId() != streamId) {
+                    // Forward the stream delimiter along
+                    cc.pushDataComponentToOutput(OUT_TABLE, st);
+                    continue;
                 }
+
+                if (!_isStreaming)
+                    throw new Exception("Stream error - received end stream marker without start stream!");
+
+                console.fine(String.format("The resulting table has %,d row(s) and %,d column(s)", _table.getNumRows(), _table.getNumColumns()));
+
+                cc.pushDataComponentToOutput(OUT_TABLE, new StreamInitiator(streamId));
+                cc.pushDataComponentToOutput(OUT_TABLE, _table);
+                cc.pushDataComponentToOutput(OUT_TABLE, new StreamTerminator(streamId));
+
+                _tokenColumnMap.clear();
+                _isStreaming = false;
+
+                continue;
+            }
+
+            Map<String, Integer> tokenCountsMap = DataTypeParser.parseAsStringIntegerMap(input);
+            if (tokenCountsMap.size() == 0) continue;
+
+            int row = _table.getNumRows();
+            _table.addRows(1);
+
+            for (Entry<String, Integer> entry : tokenCountsMap.entrySet()) {
+                String token = entry.getKey();
+                int count = entry.getValue();
+
+                int col;
+
+                if (!_tokenColumnMap.containsKey(token)) {
+                    col = _table.getNumColumns();
+                    Column column = _fact.createColumn(ColumnTypes.INTEGER);
+                    column.setLabel(token);
+                    _table.addColumn(column);
+                    _tokenColumnMap.put(token, col);
+                } else
+                    col = _tokenColumnMap.get(token);
+
+                _table.setInt(count, row, col);
+            }
+
+            if (!_isStreaming) {
+                cc.pushDataComponentToOutput(OUT_TABLE, _table);
+                _tokenColumnMap.clear();
             }
         }
+
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        _tokenColumnMap.clear();
+        _tokenColumnMap = null;
+        _fact = null;
+        _table = null;
     }
 
     //--------------------------------------------------------------------------------------------
 
     @Override
+    public boolean isAccumulator() {
+        return true;
+    }
+
+    @Override
     public void handleStreamInitiators() throws Exception {
-
-        if (_gotInitiator)
-            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
-
-        _tokenColumnMap.clear();
-        _gotInitiator = true;
+        executeCallBack(componentContext);
     }
 
     @Override
     public void handleStreamTerminators() throws Exception {
-
-        if (!_gotInitiator)
-            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
-
-        console.fine(String.format("The resulting table has %,d row(s) and %,d column(s)", _table.getNumRows(), _table.getNumColumns()));
-
-        componentContext.pushDataComponentToOutput(OUT_TABLE, new StreamInitiator());
-        componentContext.pushDataComponentToOutput(OUT_TABLE, _table);
-        componentContext.pushDataComponentToOutput(OUT_TABLE, new StreamTerminator());
-
-        _tokenColumnMap.clear();
-        _gotInitiator = false;
+        executeCallBack(componentContext);
     }
 }

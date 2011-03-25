@@ -56,7 +56,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  *
@@ -78,7 +78,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TextSegmentation extends AbstractExecutableComponent {
+public class TextSegmentation extends AbstractStreamingExecutableComponent {
 
 	//------------------------------ INPUTS ------------------------------------------------------
 
@@ -128,6 +128,8 @@ public class TextSegmentation extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 	    _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
 	    _segmentSize = Integer.parseInt(getPropertyOrDieTrying(PROP_SEGMENT_SIZE, ccp));
 
@@ -141,9 +143,9 @@ public class TextSegmentation extends AbstractExecutableComponent {
 		StringsMap tokenizedSentences = (StringsMap) cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES);
 
 		_segmentCount = 0;
-		
+
 		if (_wrapStream)
-		    cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamInitiator());
+		    cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamInitiator(streamId));
 
 		StringsMap.Builder segment = StringsMap.newBuilder();
 
@@ -182,14 +184,21 @@ public class TextSegmentation extends AbstractExecutableComponent {
 		    pushNewSegment(segment);
 
 		console.info("The number of segments for the current document is " + _segmentCount + ".");
-		
+
 		if (_wrapStream)
-		    cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamTerminator());
+		    cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamTerminator(streamId));
 	}
 
 	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
+
+    //--------------------------------------------------------------------------------------------
+
+	@Override
+	public boolean isAccumulator() {
+	    return false;
+	}
 
     //--------------------------------------------------------------------------------------------
 

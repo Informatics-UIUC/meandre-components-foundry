@@ -51,7 +51,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 
 import org.meandre.annotations.Component;
@@ -223,30 +222,6 @@ public class WriteText extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_LOCATION, IN_TEXT })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_LOCATION,
-                componentContext.getDataComponentFromInput(IN_LOCATION));
-        componentContext.pushDataComponentToOutput(OUT_TEXT,
-                componentContext.getDataComponentFromInput(IN_TEXT));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_LOCATION, IN_TEXT })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_LOCATION,
-                componentContext.getDataComponentFromInput(IN_LOCATION));
-        componentContext.pushDataComponentToOutput(OUT_TEXT,
-                componentContext.getDataComponentFromInput(IN_TEXT));
     }
 
     //--------------------------------------------------------------------------------------------

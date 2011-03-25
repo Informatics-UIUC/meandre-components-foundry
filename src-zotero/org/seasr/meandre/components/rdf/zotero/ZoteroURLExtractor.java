@@ -47,20 +47,19 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.abstracts.util.ComponentUtils;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.seasr.meandre.support.generic.io.ModelUtils;
 import org.seasr.meandre.support.generic.zotero.ZoteroUtils;
 
@@ -87,7 +86,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 		baseURL = "meandre://seasr.org/components/foundry/",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class ZoteroURLExtractor extends AbstractExecutableComponent {
+public class ZoteroURLExtractor extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -119,7 +118,7 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = Names.PROP_WRAP_STREAM,
-            description = "Should the pushed message be wrapped as a stream.",
+            description = "Should the output be wrapped as a stream?",
             defaultValue = "true"
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
@@ -135,6 +134,8 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 	    bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
@@ -143,8 +144,7 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 		Map<String, String[]> map = DataTypeParser.parseAsStringStringArrayMap(cc.getDataComponentFromInput(IN_REQUEST));
         String[] zoteroRdfs = map.get("zoterordf");
 
-        if (bWrapped)
-            pushInitiator();
+        if (bWrapped) pushInitiator();
 
 		if (zoteroRdfs != null) {
 		    itemCount = 0;
@@ -184,12 +184,18 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
 		} else
 		    outputError("Cannot find Zotero request information in the input data", Level.WARNING);
 
-		if (bWrapped)
-		    pushTerminator();
+		if (bWrapped) pushTerminator();
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return false;
     }
 
     //--------------------------------------------------------------------------------------------
@@ -200,9 +206,9 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
      * @throws Exception Something went wrong when pushing
      */
     private void pushInitiator() throws Exception {
-        StreamInitiator si = new StreamInitiator();
+        StreamInitiator si = new StreamInitiator(streamId);
         componentContext.pushDataComponentToOutput(OUT_ITEM_LOCATION, si);
-        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE, ComponentUtils.cloneStreamDelimiter(si));
+        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE, si);
     }
 
     /**
@@ -211,8 +217,8 @@ public class ZoteroURLExtractor extends AbstractExecutableComponent {
      * @throws Exception Something went wrong when pushing
      */
     private void pushTerminator() throws Exception {
-        StreamTerminator st = new StreamTerminator();
+        StreamTerminator st = new StreamTerminator(streamId);
         componentContext.pushDataComponentToOutput(OUT_ITEM_LOCATION, st);
-        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE, ComponentUtils.cloneStreamDelimiter(st));
+        componentContext.pushDataComponentToOutput(OUT_ITEM_TITLE, st);
     }
 }

@@ -42,18 +42,17 @@
 
 package org.seasr.meandre.components.analytics.text.statistics;
 
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
@@ -62,7 +61,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * This class reads all the token counts inputed and accumulates the counts
@@ -87,7 +86,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 				      "component is based on Wrapped models reducer.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TokenCounterReducer extends AbstractExecutableComponent {
+public class TokenCounterReducer extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -136,7 +135,9 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _shouldOrderTokens = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, true, true, ccp));
+	    super.initializeCallBack(ccp);
+
+	    _shouldOrderTokens = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, ccp));
 
 	    initializeReduction();
 	}
@@ -161,14 +162,14 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	//-----------------------------------------------------------------------------------
 
     @Override
-    public void handleStreamInitiators() throws Exception {
-        console.entering(getClass().getName(), "handleStreamInitiators");
+    public boolean isAccumulator() {
+        return true;
+    }
 
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TOKEN_COUNTS })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
+    @Override
+    public void startStream() throws Exception {
         if (_accumulator != null) {
-            String sMessage = "Unbalanced wrapped stream. Got a new initiator without a terminator.";
+            String sMessage = "Stream error - accumulator not empty. Missing end stream marker?";
             console.warning(sMessage);
             if (ignoreErrors)
                 pushReduction();
@@ -179,16 +180,12 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
         initializeReduction();
 
         _accumulator = new Hashtable<String, Integer>();
-
-        console.exiting(getClass().getName(), "handleStreamInitiators");
     }
 
     @Override
-    public void handleStreamTerminators() throws Exception {
-        console.entering(getClass().getName(), "handleStreamTerminators");
-
+    public void endStream() throws Exception {
         if (_accumulator == null) {
-            String sMessage = "Unbalanced wrapped stream. Got a new terminator without an initiator. Dropping it to try to rebalance.";
+            String sMessage = "Stream error - got end stream marker without start stream!";
             console.warning(sMessage);
             if (!ignoreErrors)
                 throw new ComponentExecutionException(sMessage);
@@ -196,8 +193,6 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 
         pushReduction();
         initializeReduction();
-
-        console.exiting(getClass().getName(), "handleStreamTerminators");
     }
 
     //-----------------------------------------------------------------------------------
@@ -218,10 +213,8 @@ public class TokenCounterReducer extends AbstractExecutableComponent {
 	 */
 	protected void pushReduction() throws Exception {
 		// Create the delimiters
-		StreamInitiator si = new StreamInitiator();
-		StreamTerminator st = new StreamTerminator();
-		si.put("count", _modelCounter); si.put("accumulated", 1);
-		st.put("count", _modelCounter); st.put("accumulated", 1);
+		StreamInitiator si = new StreamInitiator(streamId);
+		StreamTerminator st = new StreamTerminator(streamId);
 
 		// Push
 		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, si);

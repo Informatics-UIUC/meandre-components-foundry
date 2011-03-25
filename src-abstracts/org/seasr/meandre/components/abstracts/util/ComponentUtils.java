@@ -70,18 +70,18 @@ public class ComponentUtils {
      * @return The clone
      * @throws Exception Thrown if the given delimiter cannot be cloned
      */
-    public static StreamDelimiter cloneStreamDelimiter(final StreamDelimiter orig) throws Exception {
-        try {
-            StreamDelimiter clone = orig.getClass().newInstance();
-            for (String sKey : clone.keySet())
-                clone.put(sKey, orig.get(sKey));
-
-            return clone;
-        }
-        catch (Exception e) {
-            throw new Exception("The StreamDelimiter supplied cannot be cloned");
-        }
-    }
+//    public static StreamDelimiter cloneStreamDelimiter(final StreamDelimiter orig) throws Exception {
+//        try {
+//            StreamDelimiter clone = orig.getClass().newInstance();
+//            for (String sKey : clone.keySet())
+//                clone.put(sKey, orig.get(sKey));
+//
+//            return clone;
+//        }
+//        catch (Exception e) {
+//            throw new Exception("The StreamDelimiter supplied cannot be cloned");
+//        }
+//    }
 
     /**
      * Writes a class resource accessible via the specified class to a location in the published_resources folder

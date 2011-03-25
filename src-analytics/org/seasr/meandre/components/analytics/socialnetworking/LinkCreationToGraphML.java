@@ -49,9 +49,9 @@ import java.util.Set;
 import javax.xml.transform.OutputKeys;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
@@ -132,12 +132,12 @@ public class LinkCreationToGraphML extends AbstractLinkCreationComponent {
         xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
 
         if (_isStreaming)
-            componentContext.pushDataComponentToOutput(OUT_GRAPHML, new StreamInitiator());
+            componentContext.pushDataComponentToOutput(OUT_GRAPHML, new StreamInitiator(streamId));
 
         componentContext.pushDataComponentToOutput(OUT_GRAPHML, BasicDataTypesTools.stringToStrings(xmlString));
 
         if (_isStreaming)
-            componentContext.pushDataComponentToOutput(OUT_GRAPHML, new StreamTerminator());
+            componentContext.pushDataComponentToOutput(OUT_GRAPHML, new StreamTerminator(streamId));
     }
 
     //--------------------------------------------------------------------------------------------

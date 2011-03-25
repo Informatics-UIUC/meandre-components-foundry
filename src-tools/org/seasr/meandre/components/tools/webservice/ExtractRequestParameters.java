@@ -45,10 +45,10 @@ package org.seasr.meandre.components.tools.webservice;
 import java.util.Map;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -56,7 +56,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /** Extracts a field from a given request map provided by a service head
  *
@@ -74,7 +74,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class ExtractRequestParameters extends AbstractExecutableComponent {
+public class ExtractRequestParameters extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -112,22 +112,26 @@ public class ExtractRequestParameters extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = Names.PROP_WRAP_STREAM,
-            description = "Should the pushed message be wrapped as a stream. ",
+            description = "Should the output be wrapped as a stream?",
             defaultValue = "false"
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
     //--------------------------------------------------------------------------------------------
 
+
     private boolean _wrapStream;
     private String _field;
+
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, true, true, ccp));
-        _field = getPropertyOrDieTrying(PROP_FIELD, true, true, ccp);
+        super.initializeCallBack(ccp);
+
+        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
+        _field = getPropertyOrDieTrying(PROP_FIELD, ccp);
     }
 
     @Override
@@ -136,7 +140,7 @@ public class ExtractRequestParameters extends AbstractExecutableComponent {
         Map<String, String[]> map = DataTypeParser.parseAsStringStringArrayMap(input);
 
         if (_wrapStream)
-            cc.pushDataComponentToOutput(OUT_RAW_DATA, new StreamInitiator());
+            cc.pushDataComponentToOutput(OUT_RAW_DATA, new StreamInitiator(streamId));
 
         console.fine("Keys available: " + map.keySet().toString());
 
@@ -149,7 +153,7 @@ public class ExtractRequestParameters extends AbstractExecutableComponent {
     	cc.pushDataComponentToOutput(OUT_REQUEST, input);
 
     	if (_wrapStream)
-    	    cc.pushDataComponentToOutput(OUT_RAW_DATA, new StreamTerminator());
+    	    cc.pushDataComponentToOutput(OUT_RAW_DATA, new StreamTerminator(streamId));
     }
 
     @Override
@@ -157,4 +161,9 @@ public class ExtractRequestParameters extends AbstractExecutableComponent {
     }
 
     //--------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return false;
+    }
 }

@@ -54,7 +54,7 @@ import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.DataTypeParser;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 import com.jolbox.bonecp.BoneCP;
 import com.jolbox.bonecp.BoneCPConfig;
@@ -63,7 +63,7 @@ import com.jolbox.bonecp.BoneCPConfig;
  * @author Boris Capitanu
  */
 
-public abstract class AbstractDBComponent extends AbstractExecutableComponent {
+public abstract class AbstractDBComponent extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS -----------------------------------------------------
 
@@ -116,6 +116,8 @@ public abstract class AbstractDBComponent extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.initializeCallBack(ccp);
+
         String dbDriver = getPropertyOrDieTrying(PROP_DB_DRIVER, ccp);
         String dbURL = getPropertyOrDieTrying(PROP_DB_URL, ccp);
         if (dbURL.equals("jdbc:mysql://"))
@@ -181,22 +183,9 @@ public abstract class AbstractDBComponent extends AbstractExecutableComponent {
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         shutdownConnectionPool();
-    }
 
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        // Since this component is a FiringPolicy.any, it is possible that when handleStreamInitiators() is
-        // called, there could be non-StreamDelimiter data that has arrived on other ports which would be
-        // lost if we don't call 'executeCallBack' (when handleStreamInitiators() gets called, executeCallBack is NOT called)
-
-        executeCallBack(componentContext);
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        executeCallBack(componentContext);
+        connectionPool = null;
+        config = null;
     }
 
     //--------------------------------------------------------------------------------------------

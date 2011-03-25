@@ -109,8 +109,10 @@ public class TokenCountFilter extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+
     protected Interpreter interpreter = new Interpreter();
     protected String condition;
+
 
     //--------------------------------------------------------------------------------------------
 

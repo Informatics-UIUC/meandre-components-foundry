@@ -43,7 +43,6 @@
 package org.seasr.meandre.components.analytics.socialnetworking;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -59,12 +58,12 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.KeyValuePair;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.seasr.meandre.components.nlp.opennlp.OpenNLPNamedEntity;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -77,7 +76,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  *
  */
 
-public abstract class AbstractLinkCreationComponent extends AbstractExecutableComponent {
+public abstract class AbstractLinkCreationComponent extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -127,6 +126,7 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
 
     //--------------------------------------------------------------------------------------------
 
+
     protected static final Pattern REGEXP_NONWHITESPACE = Pattern.compile("([^\\s]+)");
     protected static final Pattern REGEXP_PERSON = Pattern.compile("(?:(\\p{Alpha}+)\\s*)");
 
@@ -143,13 +143,15 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _offset = Integer.parseInt(getPropertyOrDieTrying(PROP_OFFSET, true, true, ccp));
+        super.initializeCallBack(ccp);
+
+        _offset = Integer.parseInt(getPropertyOrDieTrying(PROP_OFFSET, ccp));
         if (_offset < 0) throw new ComponentContextException(String.format("Property '%s' must be greater than or equal to zero", PROP_OFFSET));
 
-        String entityTypes = getPropertyOrDieTrying(PROP_ENTITIES, true, true, ccp);
+        String entityTypes = getPropertyOrDieTrying(PROP_ENTITIES, ccp);
 
-        _normalizeEntities = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_NORMALIZE_ENTITIES, true, true, ccp));
-        _removeUncorrelatedEntities = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REMOVE_EMPTY, true, true, ccp));
+        _normalizeEntities = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_NORMALIZE_ENTITIES, ccp));
+        _removeUncorrelatedEntities = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REMOVE_EMPTY, ccp));
 
         _entityTypes = new HashSet<String>();
         for (String entity : entityTypes.split(","))
@@ -287,20 +289,19 @@ public abstract class AbstractLinkCreationComponent extends AbstractExecutableCo
     //--------------------------------------------------------------------------------------------
 
     @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+    public boolean isAccumulator() {
+        return true;
+    }
 
+    @Override
+    public void startStream() throws Exception {
         _isStreaming = true;
 
         reset();
     }
 
     @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
+    public void endStream() throws Exception {
         generateAndPushOutputInternal();
     }
 

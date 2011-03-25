@@ -48,14 +48,12 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
@@ -258,30 +256,6 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
         mapData.location_vector = location;
 
         return mapData;
-    }
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (inputPortsWithInitiators.contains(IN_XML)) {
-            componentContext.pushDataComponentToOutput(OUT_LATITUDE, new StreamInitiator());
-            componentContext.pushDataComponentToOutput(OUT_LONGITUDE, new StreamInitiator());
-            componentContext.pushDataComponentToOutput(OUT_LOCATION, new StreamInitiator());
-            componentContext.pushDataComponentToOutput(OUT_CONTEXT, new StreamInitiator());
-        }
-        else
-            throw new Exception("Unbalanced or unexpected StreamInitiator received");
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (inputPortsWithTerminators.contains(IN_XML)){
-            componentContext.pushDataComponentToOutput(OUT_LATITUDE, new StreamTerminator());
-            componentContext.pushDataComponentToOutput(OUT_LONGITUDE, new StreamTerminator());
-            componentContext.pushDataComponentToOutput(OUT_LOCATION, new StreamTerminator());
-            componentContext.pushDataComponentToOutput(OUT_CONTEXT, new StreamTerminator());
-        }
-        else
-            throw new Exception("Unbalanced or unexpected StreamTerminator received");
     }
 }
 

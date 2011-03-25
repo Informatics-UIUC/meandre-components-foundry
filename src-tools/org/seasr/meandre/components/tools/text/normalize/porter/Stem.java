@@ -43,22 +43,19 @@
 package org.seasr.meandre.components.tools.text.normalize.porter;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes;
-import org.seasr.datatypes.core.DataTypeParser;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.DataTypeParser;
+import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.components.text.normalize.porter.PorterStemmer;
 
 
@@ -215,25 +212,5 @@ public class Stem extends AbstractExecutableComponent {
 		}
 
 		componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, res.build());
-	}
-
-	@Override
-	public void handleStreamInitiators() throws Exception {
-		StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(
-				IN_OBJECT );
-
-        componentContext.pushDataComponentToOutput(OUT_TOKENS, si);
-        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES,
-                ComponentUtils.cloneStreamDelimiter(si));
-	}
-
-	@Override
-	public void handleStreamTerminators() throws Exception {
-		StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(
-				IN_OBJECT);
-
-	    componentContext.pushDataComponentToOutput(OUT_TOKENS, st);
-        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES,
-                ComponentUtils.cloneStreamDelimiter(st));
 	}
 }

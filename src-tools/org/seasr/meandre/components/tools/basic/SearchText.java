@@ -58,7 +58,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * Searches text using regular expressions
@@ -82,7 +82,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		baseURL = "meandre://seasr.org/components/foundry/",
 		dependency = { "protobuf-java-2.2.0.jar" }
 )
-public class SearchText extends AbstractExecutableComponent {
+public class SearchText extends AbstractStreamingExecutableComponent {
 
 	// ------------------------------ INPUTS ------------------------------------------------------
 
@@ -141,6 +141,8 @@ public class SearchText extends AbstractExecutableComponent {
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 		_regexp = Pattern.compile(getPropertyOrDieTrying(PROP_EXPRESSION, false, true, ccp));
         _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
 	}
@@ -150,7 +152,7 @@ public class SearchText extends AbstractExecutableComponent {
 		String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 
 		if (_wrapStream) {
-		    StreamDelimiter sd = new StreamInitiator();
+		    StreamDelimiter sd = new StreamInitiator(streamId);
 		    cc.pushDataComponentToOutput(OUT_TEXT, sd);
 		    cc.pushDataComponentToOutput(OUT_MATCHED_TEXT, sd);
 		}
@@ -180,7 +182,7 @@ public class SearchText extends AbstractExecutableComponent {
 		}
 
 		if (_wrapStream) {
-		    StreamDelimiter sd = new StreamTerminator();
+		    StreamDelimiter sd = new StreamTerminator(streamId);
 		    cc.pushDataComponentToOutput(OUT_TEXT, sd);
 		    cc.pushDataComponentToOutput(OUT_MATCHED_TEXT, sd);
 		}
@@ -194,16 +196,7 @@ public class SearchText extends AbstractExecutableComponent {
 	// --------------------------------------------------------------------------------------------
 
 	@Override
-	public void handleStreamInitiators() throws Exception {
-		Object input = componentContext.getDataComponentFromInput(IN_TEXT);
-        componentContext.pushDataComponentToOutput(OUT_TEXT, input);
-		componentContext.pushDataComponentToOutput(OUT_MATCHED_TEXT, input);
-	}
-
-	@Override
-	public void handleStreamTerminators() throws Exception {
-	    Object input = componentContext.getDataComponentFromInput(IN_TEXT);
-        componentContext.pushDataComponentToOutput(OUT_TEXT, input);
-	    componentContext.pushDataComponentToOutput(OUT_MATCHED_TEXT, input);
+	public boolean isAccumulator() {
+	    return false;
 	}
 }

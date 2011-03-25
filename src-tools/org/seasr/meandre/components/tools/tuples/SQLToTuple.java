@@ -48,9 +48,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
@@ -62,8 +60,8 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
+import org.meandre.core.ComponentExecutionException;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -128,8 +126,6 @@ public class SQLToTuple extends AbstractDBComponent {
 	//--------------------------------------------------------------------------------------------
 
 
-	protected Queue<String> queryQueue = new LinkedList<String>();
-
 
     //--------------------------------------------------------------------------------------------
 
@@ -142,14 +138,28 @@ public class SQLToTuple extends AbstractDBComponent {
 	public void executeCallBack(ComponentContext cc) throws Exception {
 	    super.executeCallBack(cc);
 
-	    if (cc.isInputAvailable(IN_QUERY))
-	        queryQueue.offer(DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_QUERY))[0]);
+	    componentInputCache.storeIfAvailable(cc, IN_QUERY);
 
-	    if (connectionPool != null) {
-	        String query;
-	        while ((query = queryQueue.poll()) != null)
-	            processQuery(query);
-	    }
+	    if (connectionPool == null || !componentInputCache.hasData(IN_QUERY))
+	        // Not ready to process
+	        return;
+
+        Object input;
+        while ((input = componentInputCache.retrieveNext(IN_QUERY)) != null) {
+            if (input instanceof StreamDelimiter) {
+                StreamDelimiter sd = (StreamDelimiter) input;
+                if (sd.getStreamId() == streamId)
+                    throw new ComponentExecutionException(String.format("Stream id conflict! Incoming stream has the same id (%d) " +
+                            "as the one set for this component (%s)!", streamId, getClass().getSimpleName()));
+
+                cc.pushDataComponentToOutput(OUT_META_TUPLE, sd);
+                cc.pushDataComponentToOutput(OUT_TUPLES, sd);
+                continue;
+            }
+
+            String query = DataTypeParser.parseAsString(input)[0];
+            processQuery(query);
+        }
 	}
 
     @Override
@@ -160,27 +170,22 @@ public class SQLToTuple extends AbstractDBComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.contains(IN_QUERY)) {
-            console.warning("Ignoring StreamInitiator(s) received on ports other than: " + IN_QUERY);
-            return;
-        }
+    public boolean isAccumulator() {
+        return false;
+    }
 
-        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_QUERY);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, si);
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, si);
+    @Override
+    public void handleStreamInitiators() throws Exception {
+        // Since this component is a FiringPolicy.any, it is possible that when handleStreamInitiators() is
+        // called, there could be non-StreamDelimiter data that has arrived on other ports which would be
+        // lost if we don't call 'executeCallBack' (when handleStreamInitiators() gets called, executeCallBack is NOT called)
+
+        executeCallBack(componentContext);
     }
 
     @Override
     public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.contains(IN_QUERY)) {
-            console.warning("Ignoring StreamTerminator(s) received on ports other than: " + IN_QUERY);
-            return;
-        }
-
-        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_QUERY);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, st);
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, st);
+        executeCallBack(componentContext);
     }
 
     //--------------------------------------------------------------------------------------------
@@ -238,5 +243,4 @@ public class SQLToTuple extends AbstractDBComponent {
         //
         componentContext.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
     }
-
 }

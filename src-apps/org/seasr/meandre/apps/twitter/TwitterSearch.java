@@ -45,7 +45,6 @@ package org.seasr.meandre.apps.twitter;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Arrays;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.json.JSONArray;
@@ -159,27 +158,5 @@ public class TwitterSearch extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TEXT })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        Object si = componentContext.getDataComponentFromInput(IN_TEXT);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, si);
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, si);
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_TEXT })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        Object st = componentContext.getDataComponentFromInput(IN_TEXT);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, st);
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, st);
     }
 }

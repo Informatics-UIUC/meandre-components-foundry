@@ -44,7 +44,6 @@ package org.seasr.meandre.components.tools.tuples;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,19 +51,19 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -145,19 +144,6 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent {
 		columnMap.put("titleNoFormatting", "title");
 	}
 
-	protected String buildURL(String query) {
-		StringBuilder location = new StringBuilder();
-	    location.append("http://ajax.googleapis.com/ajax/services/search/web?v=1.0");
-	    location.append("&start=").append(start); // TODO, add a paging property ?
-	    location.append("&rsz=large");            // small == 4 results, large == 8 results
-	    location.append("&q=").append(query);
-
-	    String url = location.toString();
-	    start += 8; // 8 is what large
-
-	    return url;
-	}
-
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
 		String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_QUERY));
@@ -200,7 +186,11 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        tuplePeer = null;
+        columnMap = null;
     }
+
+    //--------------------------------------------------------------------------------------------
 
     public List<SimpleTuple> jsonToTuples(String jsonData,
     		                              SimpleTuplePeer peer,
@@ -236,23 +226,18 @@ public class GoogleSearchToTuple extends AbstractExecutableComponent {
     	return out;
     }
 
-    //--------------------------------------------------------------------------------------------
 
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_QUERY })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
+    protected String buildURL(String query) {
+        StringBuilder location = new StringBuilder();
+        location.append("http://ajax.googleapis.com/ajax/services/search/web?v=1.0");
+        location.append("&start=").append(start); // TODO, add a paging property ?
+        location.append("&rsz=large");            // small == 4 results, large == 8 results
+        location.append("&q=").append(query);
 
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_QUERY));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_QUERY));
+        String url = location.toString();
+        start += 8; // 8 is what large
+
+        return url;
     }
 
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_QUERY })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_QUERY));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_QUERY));
-    }
 }

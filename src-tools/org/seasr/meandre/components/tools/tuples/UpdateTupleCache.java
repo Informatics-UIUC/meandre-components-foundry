@@ -45,7 +45,6 @@ package org.seasr.meandre.components.tools.tuples;
 import java.io.BufferedWriter;
 import java.io.Writer;
 import java.net.URI;
-import java.util.Arrays;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -62,7 +61,6 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.components.tuples.TupleUtilities;
 import org.seasr.meandre.support.generic.io.IOUtils;
 import org.seasr.meandre.support.generic.io.PathUtils;
 
@@ -164,13 +162,6 @@ public class UpdateTupleCache extends AbstractExecutableComponent {
         Strings inTuple = (Strings) cc.getDataComponentFromInput(IN_TUPLE);
         Strings inMetaTuple = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 
-        if (TupleUtilities.isBeginMarker(inTuple, inMetaTuple) || TupleUtilities.isEndMarker(inTuple, inMetaTuple)) {
-            console.finer("Got tuple marker - forwarding it...");
-            cc.pushDataComponentToOutput(OUT_META_TUPLE, inMetaTuple);
-            cc.pushDataComponentToOutput(OUT_TUPLE, inTuple);
-            return;
-        }
-
         SimpleTuplePeer inPeer = new SimpleTuplePeer(inMetaTuple);
         SimpleTuple tuple = inPeer.createTuple();
 
@@ -208,25 +199,5 @@ public class UpdateTupleCache extends AbstractExecutableComponent {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         _writer.close();
         _writer = null;
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLE })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLE, componentContext.getDataComponentFromInput(IN_TUPLE));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLE })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLE, componentContext.getDataComponentFromInput(IN_TUPLE));
     }
 }

@@ -46,12 +46,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -59,7 +59,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * Given a directory, this component pushes all the file names available in the
@@ -81,7 +81,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 				      "match a certain regular expression given in the properties.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class ListDirectoryFiles extends AbstractExecutableComponent {
+public class ListDirectoryFiles extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -109,22 +109,22 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = Names.PROP_EXPRESSION,
-            description = "The regular expression to use as a filter. ",
+            description = "The regular expression to use as a filter.",
             defaultValue = ".*"
     )
     protected static final String PROP_EXPRESSION = Names.PROP_EXPRESSION;
 
     @ComponentProperty(
             name = Names.PROP_RECURSIVE,
-            description = "Should the directory be processed recursively? ",
+            description = "Should the directory be processed recursively?",
             defaultValue = "true"
     )
     protected static final String PROP_RECURSIVE = Names.PROP_RECURSIVE;
 
     @ComponentProperty(
             name = Names.PROP_WRAP_STREAM,
-            description = "Should the pushed message be wrapped as a stream. ",
-            defaultValue = "false"
+            description = "Should the output be wrapped as a stream?",
+            defaultValue = "true"
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
@@ -137,17 +137,18 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
 	/** Should recurse? */
 	private boolean bRecursive;
 
-	/** Should be wrapped */
-	private boolean bWrapped;
+	private boolean bWrapStream;
 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		sExpression = ccp.getProperty(PROP_EXPRESSION);
-		bRecursive = Boolean.parseBoolean(ccp.getProperty(PROP_RECURSIVE));
-		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
+	    super.initializeCallBack(ccp);
+
+		sExpression = getPropertyOrDieTrying(PROP_EXPRESSION, false, true, ccp);
+		bRecursive = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_RECURSIVE, ccp));
+		bWrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
 	}
 
 	@Override
@@ -156,51 +157,36 @@ public class ListDirectoryFiles extends AbstractExecutableComponent {
 		    File dir = (sLoc.trim().toLowerCase().startsWith("file:/")) ?
 		        new File(DataTypeParser.parseAsURI(sLoc)) : new File(sLoc);
 
-    		if ( bWrapped )
-    			pushInitiator(dir.toURI().toString());
+		    console.fine("Processing " + dir);
+
+		    if (bWrapStream) {
+		        console.fine("Starting stream: " + streamId);
+		        cc.pushDataComponentToOutput(OUT_LOCATION, new StreamInitiator(streamId));
+		    }
 
     		pushLocations(dir);
 
-    		if ( bWrapped )
-    			pushTerminator(dir.toURI().toString());
+    		if (bWrapStream) {
+    		    console.fine("Ending stream: " + streamId);
+    		    cc.pushDataComponentToOutput(OUT_LOCATION, new StreamTerminator(streamId));
+    		}
 		}
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         sExpression = null;
-        bWrapped = bRecursive = false;
+        bRecursive = false;
     }
 
 	//-----------------------------------------------------------------------------------
 
-	/**
-	 * Pushes an initiator.
-	 *
-	 * @param sLoc The location being processed
-	 * @throws Exception Something went wrong when pushing
-	 */
-	private void pushInitiator(String sLoc) throws Exception {
-	    console.fine("Pushing " + StreamInitiator.class.getSimpleName());
+    @Override
+    public boolean isAccumulator() {
+        return false;
+    }
 
-		StreamInitiator si = new StreamInitiator();
-		si.put(IN_LOCATION, sLoc);
-		componentContext.pushDataComponentToOutput(OUT_LOCATION,si);
-	}
-
-	/**
-	 * Pushes a terminator.
-	 *
-	 * @param sLoc The location being processed
-	 * @throws Exception Something went wrong when pushing
-	 */
-	private void pushTerminator(String sLoc) throws Exception {
-	    console.fine("Pushing " + StreamTerminator.class.getSimpleName());
-
-		StreamTerminator st = new StreamTerminator();
-		st.put(IN_LOCATION, sLoc);
-		componentContext.pushDataComponentToOutput(OUT_LOCATION,st);
-	}
+    //-----------------------------------------------------------------------------------
 
 	private void pushLocation(File file) throws Exception {
 	    String sLoc = file.toURI().toString();

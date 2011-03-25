@@ -48,11 +48,9 @@ import java.io.StringReader;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,7 +64,7 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamTerminator;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -161,24 +159,22 @@ public class SpellCheck extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+
     protected boolean _doCorrection;
-    protected Queue<Object> _inputQueue;
     protected SpellChecker _spellChecker;
     protected SpellDictionary _spellDictionary;
-    protected StreamTerminator _st;
 
     // stats
     protected int _countTotalWords;
     protected int _countMisspelledWords;
     protected int _countUncorrectedWords;
 
+
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _doCorrection = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_DO_CORRECTION, ccp));
-        _inputQueue = new LinkedList<Object>();
-        _st = null;
     }
 
     @Override
@@ -186,18 +182,28 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         if (cc.isInputAvailable(IN_DICTIONARY)) {
             Object in_dictionary = cc.getDataComponentFromInput(IN_DICTIONARY);
-            _spellDictionary = getDictionary(in_dictionary);
-            _spellChecker = new SpellChecker(_spellDictionary);
+            if (in_dictionary instanceof StreamDelimiter) {
+                // Forward any stream delimiter received
+                pushStreamDelimiter(in_dictionary);
+            } else {
+                _spellDictionary = getDictionary(in_dictionary);
+                _spellChecker = new SpellChecker(_spellDictionary);
+            }
         }
 
-        if (cc.isInputAvailable(IN_TEXT))
-            _inputQueue.offer(cc.getDataComponentFromInput(IN_TEXT));
+        componentInputCache.storeIfAvailable(cc, IN_TEXT);
 
         if (isReadyToProcessInputs()) {
-            for (int i = 0, iMax = _inputQueue.size(); i < iMax; i++) {
+            for (int i = 0, iMax = componentInputCache.getDataCount(IN_TEXT); i < iMax; i++) {
                 _countTotalWords = _countMisspelledWords = _countUncorrectedWords = 0;
 
-                Object input = _inputQueue.poll();
+                Object input = componentInputCache.retrieveNext(IN_TEXT);
+
+                if (input instanceof StreamDelimiter) {
+                    // Forward any stream delimiter received
+                    pushStreamDelimiter(input);
+                    continue;
+                }
 
                 try {
                     // try parsing as token counts
@@ -223,60 +229,35 @@ public class SpellCheck extends AbstractExecutableComponent {
                 console.info(String.format("Number of unique words with no suggested replacement: %d", _countUncorrectedWords));
             }
         }
-
-        // Check if we already got a terminator and forward it after the data has been processed
-        if (_st != null && _spellChecker != null) {
-            pushStreamTerminator(_st);
-            _st = null;
-        }
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        _inputQueue.clear();
         _spellChecker = null;
-        _st = null;
     }
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.contains(IN_TEXT )) {
-            console.severe("Unexpected StreamInitiator received");
-            return;
-        }
-
-        componentContext.pushDataComponentToOutput(OUT_TEXT, componentContext.getDataComponentFromInput(IN_TEXT));
-        componentContext.pushDataComponentToOutput(OUT_RULES, componentContext.getDataComponentFromInput(IN_TEXT));
-        componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, componentContext.getDataComponentFromInput(IN_TEXT));
+        executeCallBack(componentContext);
     }
 
     @Override
     public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.contains(IN_TEXT)) {
-            console.severe("Unexpected StreamTerminator received");
-            return;
-        }
-
-        _st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_TEXT);
-
-        if (_spellChecker != null) {
-            pushStreamTerminator(_st);
-            _st = null;
-        }
+        executeCallBack(componentContext);
     }
 
     //--------------------------------------------------------------------------------------------
 
-    private void pushStreamTerminator(StreamTerminator st) throws ComponentContextException {
-        componentContext.pushDataComponentToOutput(OUT_TEXT, st);
-        componentContext.pushDataComponentToOutput(OUT_RULES, st);
-        componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, st);
+    protected void pushStreamDelimiter(Object input) throws ComponentContextException {
+        componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, input);
+        componentContext.pushDataComponentToOutput(OUT_RULES, input);
+        componentContext.pushDataComponentToOutput(OUT_TEXT, input);
     }
 
-    protected boolean isReadyToProcessInputs() {
-        return _spellChecker != null && _inputQueue.size() > 0;
+    protected boolean isReadyToProcessInputs() throws ComponentContextException {
+        return _spellChecker != null && componentInputCache.hasData(IN_TEXT);
     }
 
     protected SpellDictionary getDictionary(Object in_dictionary) throws UnsupportedDataTypeException, IOException {

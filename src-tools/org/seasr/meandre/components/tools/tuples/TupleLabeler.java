@@ -48,19 +48,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -154,21 +154,21 @@ public class TupleLabeler extends AbstractExecutableComponent {
             name = "hashKey",
             defaultValue = "token"
     )
-    protected static final String DATA_PROPERTY_FIELDNAME_HASH_KEY = "hashKey";
+    protected static final String PROP_FIELDNAME_HASH_KEY = "hashKey";
 
     @ComponentProperty(
             description = "field name for the value field of hash map tuples",
             name = "hashValue",
             defaultValue = "concept"
     )
-    protected static final String DATA_PROPERTY_FIELDNAME_HASH_VALUE = "hashValue";
+    protected static final String PROP_FIELDNAME_HASH_VALUE = "hashValue";
 
     @ComponentProperty(
             description = "field name for the key field of incoming tuples",
             name = "key",
             defaultValue = "token"
     )
-    protected static final String DATA_PROPERTY_FIELDNAME_KEY = "key";
+    protected static final String PROP_FIELDNAME_KEY = "key";
 
     //--------------------------------------------------------------------------------------------
 
@@ -185,15 +185,14 @@ public class TupleLabeler extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-
-		String k = ccp.getProperty(DATA_PROPERTY_FIELDNAME_HASH_KEY);
-		String v = ccp.getProperty(DATA_PROPERTY_FIELDNAME_HASH_VALUE);
+		String k = ccp.getProperty(PROP_FIELDNAME_HASH_KEY);
+		String v = ccp.getProperty(PROP_FIELDNAME_HASH_VALUE);
 
 		if (k == null || k.trim().length() == 0) {
-			throw new ComponentExecutionException("invalid property value " + DATA_PROPERTY_FIELDNAME_HASH_KEY);
+			throw new ComponentExecutionException("invalid property value " + PROP_FIELDNAME_HASH_KEY);
 		}
 		if (v == null || v.trim().length() == 0) {
-			throw new ComponentExecutionException("invalid property value " + DATA_PROPERTY_FIELDNAME_HASH_VALUE);
+			throw new ComponentExecutionException("invalid property value " + PROP_FIELDNAME_HASH_VALUE);
 		}
 
 		this.hashKeyFieldName   = k;

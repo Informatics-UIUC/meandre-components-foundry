@@ -48,12 +48,12 @@ import java.util.logging.Level;
 import javax.xml.transform.OutputKeys;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -143,10 +143,10 @@ public class XMLToText extends AbstractExecutableComponent {
 	    	if (xml == null) {
 	    		console.info("NO PROPERTY "+ IN_XML);
 	    	}
-	    	
+
 	    	console.fine("before " + xml);
             Document doc = DataTypeParser.parseAsDomDocument(xml);
-            
+
             sXml = DOMUtils.getString(doc, outputProps);
             console.fine("got XML:\n" + sXml);
         }
@@ -164,19 +164,5 @@ public class XMLToText extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        componentContext.pushDataComponentToOutput(OUT_TEXT,
-                componentContext.getDataComponentFromInput(IN_XML));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        componentContext.pushDataComponentToOutput(OUT_TEXT,
-                componentContext.getDataComponentFromInput(IN_XML));
     }
 }

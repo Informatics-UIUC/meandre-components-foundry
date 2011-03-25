@@ -66,15 +66,12 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.components.opennlp.StaticTextSpanFinder;
 import org.seasr.meandre.support.components.opennlp.StaticURLFinder;
 import org.seasr.meandre.support.components.opennlp.TextSpan;
@@ -181,49 +178,15 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     TokenNameFinder[] finders = null;
     StaticTextSpanFinder[] simpleFinders = null;
 
+
 	//--------------------------------------------------------------------------------------------
-
-
-    public static StaticTextSpanFinder[] buildExtendedFinders(String types, String locationMapData) 
-    {
-    	StaticTextSpanFinder[] finders;
-    	
-    	List<StaticTextSpanFinder> list = new ArrayList<StaticTextSpanFinder>();
-
-    	if (types != null && types.trim().length() > 1) {
-			String[] toParse = types.split(",");
-			for (int i = 0; i < toParse.length; i++) {
-				String value = toParse[i].toLowerCase().trim();
-
-				if (value.equals("url")){
-					list.add(new StaticURLFinder("URL"));
-				}
-				/*
-				else if (value.equals("location")){
-					if (locationMapData == null) {
-						throw new RuntimeException("missing LocationMapData");
-					}
-					Map<String,String> map = StaticLocationFinder.parseLocationData(locationMapData);
-					finders[i] = new StaticLocationFinder("location",  map);
-				}
-				*/
-			}
-			
-			finders = list.toArray(new StaticTextSpanFinder[0]);
-		}
-		else {
-			finders = new StaticTextSpanFinder[0];
-		}
-    	return finders;
-    }
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-
 		super.initializeCallBack(ccp);
 
 		// parse up the Named Entity types
-		String types = ccp.getProperty(PROP_NE_TYPES).trim();
+		String types = getPropertyOrDieTrying(PROP_NE_TYPES, ccp);
 		StringTokenizer tokens = new StringTokenizer(types,",");
 		int count = tokens.countTokens();
 		finderTypes = new String[count];
@@ -236,7 +199,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 			finders = build(sOpenNLPDir, finderTypes);
 
 			// now do the extended (home brewed) entities
-			types         = ccp.getProperty(PROP_EX_NE_TYPES);
+			types         = getPropertyOrDieTrying(PROP_EX_NE_TYPES, true, false, ccp);
 			simpleFinders = OpenNLPNamedEntity.buildExtendedFinders(types,null);
 
 			console.fine("extended finders " + simpleFinders.length);
@@ -261,10 +224,8 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 		TEXT_IDX        = tuplePeer.getIndexForFieldName(TEXT_FIELD);
 	}
 
-	@SuppressWarnings("unchecked")
     @Override
-    public void executeCallBack(ComponentContext cc) throws Exception
-    {
+    public void executeCallBack(ComponentContext cc) throws Exception {
     	List<Strings> output = new ArrayList<Strings>();
 
     	// input was encoded via :
@@ -339,24 +300,19 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
     		}
 
-
-
     		//
     		// at this point, sort all the tuples based
     		// on their beginIndex
     		// then add them to the output
-    		Collections.sort(list, new Comparator() {
+    		Collections.sort(list, new Comparator<SimpleTuple>() {
 
-    			       public int compare(Object a, Object b) {
-    			    	   SimpleTuple at = (SimpleTuple)a;
-    			    	   SimpleTuple bt = (SimpleTuple)b;
-    			    	   int v = Integer.parseInt(at.getValue(TEXT_START_IDX));
-    			    	   int u = Integer.parseInt(bt.getValue(TEXT_START_IDX));
-    			    	   return v-u;
-    			       }
+    		    public int compare(SimpleTuple at, SimpleTuple bt) {
+    		        int v = Integer.parseInt(at.getValue(TEXT_START_IDX));
+    		        int u = Integer.parseInt(bt.getValue(TEXT_START_IDX));
+    		        return v-u;
+    		    }
 
-    				}
-             );
+    		});
 
     		// add the sorted tuples to the output buffer
     		for (SimpleTuple t:list) {
@@ -364,10 +320,7 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
     		}
 
     		globalOffset += sentence.length();
-
-
     	}
-
 
     	// push the whole collection, protocol safe
         Strings[] results = new Strings[output.size()];
@@ -389,21 +342,38 @@ public class OpenNLPNamedEntity extends OpenNLPBaseUtilities {
 
     //--------------------------------------------------------------------------------------------
 
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_TOKENS);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, si);
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, ComponentUtils.cloneStreamDelimiter(si));
-    }
+    public static StaticTextSpanFinder[] buildExtendedFinders(String types, String locationMapData)
+    {
+        StaticTextSpanFinder[] finders;
 
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_TOKENS);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, st);
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, ComponentUtils.cloneStreamDelimiter(st));
-    }
+        List<StaticTextSpanFinder> list = new ArrayList<StaticTextSpanFinder>();
 
-    //--------------------------------------------------------------------------------------------
+        if (types != null && types.trim().length() > 1) {
+            String[] toParse = types.split(",");
+            for (int i = 0; i < toParse.length; i++) {
+                String value = toParse[i].toLowerCase().trim();
+
+                if (value.equals("url")){
+                    list.add(new StaticURLFinder("URL"));
+                }
+                /*
+                else if (value.equals("location")){
+                    if (locationMapData == null) {
+                        throw new RuntimeException("missing LocationMapData");
+                    }
+                    Map<String,String> map = StaticLocationFinder.parseLocationData(locationMapData);
+                    finders[i] = new StaticLocationFinder("location",  map);
+                }
+                */
+            }
+
+            finders = list.toArray(new StaticTextSpanFinder[0]);
+        }
+        else {
+            finders = new StaticTextSpanFinder[0];
+        }
+        return finders;
+    }
 
     public NameFinderME[] build(String sOpenNLPDir, String[] finderTypes) throws IOException {
 

@@ -43,10 +43,8 @@
 package org.seasr.meandre.components.transform.filters;
 
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.Set;
 
 import org.meandre.annotations.Component;
@@ -186,12 +184,6 @@ public class TokenFilter extends AbstractExecutableComponent {
     protected boolean _replaceBlacklist = false;
     protected boolean _ignoreCase = false;
 
-    protected enum Queues {
-        TOKENS, TOKEN_COUNTS, TOKENIZED_SENTENCES
-    };
-
-    @SuppressWarnings("unchecked")
-    protected Queue<Object>[] _inputQueues = new Queue[3];
     protected Set<String> _blackList = null;
 
 
@@ -201,21 +193,12 @@ public class TokenFilter extends AbstractExecutableComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    _replaceBlacklist = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REPLACE, ccp));
 	    _ignoreCase = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_CASE, ccp));
-
-	    for (Queues queue : Queues.values())
-	        _inputQueues[queue.ordinal()] = new LinkedList<Object>();
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-	    if (cc.isInputAvailable(IN_TOKENS))
-	        _inputQueues[Queues.TOKENS.ordinal()].offer(cc.getDataComponentFromInput(IN_TOKENS));
-
-	    if (cc.isInputAvailable(IN_TOKEN_COUNTS))
-	        _inputQueues[Queues.TOKEN_COUNTS.ordinal()].offer(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
-
-	    if (cc.isInputAvailable(IN_TOKENIZED_SENTENCES))
-	        _inputQueues[Queues.TOKENIZED_SENTENCES.ordinal()].offer(cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES));
+	    for (String portName : new String[] { IN_TOKENS, IN_TOKEN_COUNTS, IN_TOKENIZED_SENTENCES })
+	        componentInputCache.storeIfAvailable(cc, portName);
 
 	    if (cc.isInputAvailable(IN_TOKEN_BLACKLIST)) {
 	        if (_replaceBlacklist || _blackList == null)
@@ -227,12 +210,13 @@ public class TokenFilter extends AbstractExecutableComponent {
 	        }
 	    }
 
-	    if (_blackList == null) return;   // We can't process anything at this point until the blacklist "arrives"
-
-        Object input;
+	    if (_blackList == null)
+	        // We can't process anything at this point until the blacklist "arrives"
+	        return;
 
         // Process queued tokens
-        while ((input = _inputQueues[Queues.TOKENS.ordinal()].poll()) != null) {
+        Object input;
+        while ((input = componentInputCache.retrieveNext(IN_TOKENS)) != null) {
             if (input instanceof StreamDelimiter) {
                 // Forward the delimiter
                 cc.pushDataComponentToOutput(OUT_TOKENS, input);
@@ -242,7 +226,7 @@ public class TokenFilter extends AbstractExecutableComponent {
         }
 
         // Process queued token counts
-        while ((input = _inputQueues[Queues.TOKEN_COUNTS.ordinal()].poll()) != null) {
+        while ((input = componentInputCache.retrieveNext(IN_TOKEN_COUNTS)) != null) {
             if (input instanceof StreamDelimiter) {
                 // Forward the delimiter
                 cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, input);
@@ -252,7 +236,7 @@ public class TokenFilter extends AbstractExecutableComponent {
         }
 
         // Process queued tokenized sentences
-        while ((input = _inputQueues[Queues.TOKENIZED_SENTENCES.ordinal()].poll()) != null) {
+        while ((input = componentInputCache.retrieveNext(IN_TOKENIZED_SENTENCES)) != null) {
             if (input instanceof StreamDelimiter) {
                 // Forward the delimiter
                 cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, input);
@@ -264,7 +248,6 @@ public class TokenFilter extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        _inputQueues = null;
         _blackList = null;
     }
 

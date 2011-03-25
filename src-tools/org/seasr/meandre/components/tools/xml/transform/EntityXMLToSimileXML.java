@@ -48,18 +48,15 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -340,23 +337,5 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_XML);
-        componentContext.pushDataComponentToOutput(OUT_XML, si);
-        componentContext.pushDataComponentToOutput(OUT_MIN_YEAR, ComponentUtils.cloneStreamDelimiter(si));
-        componentContext.pushDataComponentToOutput(OUT_MAX_YEAR, ComponentUtils.cloneStreamDelimiter(si));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_XML);
-        componentContext.pushDataComponentToOutput(OUT_XML, st);
-        componentContext.pushDataComponentToOutput(OUT_MIN_YEAR, ComponentUtils.cloneStreamDelimiter(st));
-        componentContext.pushDataComponentToOutput(OUT_MAX_YEAR, ComponentUtils.cloneStreamDelimiter(st));
     }
 }

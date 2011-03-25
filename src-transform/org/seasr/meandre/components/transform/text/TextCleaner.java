@@ -102,7 +102,7 @@ public class TextCleaner extends AbstractExecutableComponent {
 	@ComponentProperty(
 	        description = "The regular expression to find the matched substring. " +
             	          "For example, if specifying the regular expression as 'push' and " +
-            	          "the replacement as 'pushing', then the sequence of " + 
+            	          "the replacement as 'pushing', then the sequence of " +
             	          "characters 'push' contained in any word is substituted with 'pushing'. " +
             	          "Additionally, capturing groups can be used and referenced in the replacement string as " +
             	          "$1 for the first capturing group, $2 for second, and so on.",
@@ -166,7 +166,9 @@ public class TextCleaner extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
+
 	private final Map<Pattern,String> replacements = new LinkedHashMap<Pattern,String>();
+
 
 	//--------------------------------------------------------------------------------------------
 
@@ -175,19 +177,19 @@ public class TextCleaner extends AbstractExecutableComponent {
 	    String find = getPropertyOrDieTrying(PROP_FIND, false, false, ccp);
 	    if (find.length() > 0)
 	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE, false, false, ccp));
-	    
+
 	    find = getPropertyOrDieTrying(PROP_FIND_2, false, false, ccp);
 	    if (find.length() > 0)
 	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_2, false, false, ccp));
-	    
+
 	    find = getPropertyOrDieTrying(PROP_FIND_3, false, false, ccp);
 	    if (find.length() > 0)
 	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_3, false, false, ccp));
-	    
+
 	    find = getPropertyOrDieTrying(PROP_FIND_4, false, false, ccp);
 	    if (find.length() > 0)
 	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_4, false, false, ccp));
-	
+
 	    if (replacements.size() == 0)
 	        console.warning("No find/replace regular expressions have been set. No action will be taken on the input text.");
 	}
@@ -196,26 +198,26 @@ public class TextCleaner extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
 		String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 		String[] output = new String[input.length];
-		
+
 		for (int i = 0, iMax = input.length; i < iMax; i++) {
 		    String text = input[i];
-		    
+
 		    for (Entry<Pattern,String> entry : replacements.entrySet()) {
 		        Pattern regexp = entry.getKey();
 		        String replacement = entry.getValue();
-		        
+
 		        Matcher matcher = regexp.matcher(text);
-		        
+
 		        while (matcher.find())
     		        for (int n = 1, nMax = matcher.groupCount(); n <= nMax; n++)
     		            if (matcher.group(n) != null)
     		                console.fine(String.format("Group %2$d ($%2$d) match: '%s'", matcher.group(n), n));
 
                 matcher.reset();
-                
+
 		        text = matcher.replaceAll(replacement);
 		    }
-		    
+
 		    output[i] = text;
 		}
 

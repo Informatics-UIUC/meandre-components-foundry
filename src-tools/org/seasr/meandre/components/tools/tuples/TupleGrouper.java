@@ -43,7 +43,6 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,28 +124,28 @@ public class TupleGrouper extends AbstractExecutableComponent {
             name = "key",
             defaultValue = "concept"
     )
-    protected static final String DATA_PROPERTY_KEY_FIELD = "key";
+    protected static final String PROP_KEY_FIELD = "key";
 
     @ComponentProperty(
             description = "field name for the value to use for windowing, must be numeric",
             name = "windowField",
             defaultValue = "tokenStart"
     )
-    protected static final String DATA_PROPERTY_WINDOW_FIELD = "windowField";
+    protected static final String PROP_WINDOW_FIELD = "windowField";
 
     @ComponentProperty(
             description = "window size, -1 means use dynamic value based on maxWindows",
             name = "windowSize",
             defaultValue = "-1"
     )
-    protected static final String DATA_PROPERTY_WINDOW_SIZE = "windowSize";
+    protected static final String PROP_WINDOW_SIZE = "windowSize";
 
     @ComponentProperty(
             description = "max. number of windows, -1 means use dyanamic value based on windowSize",
             name = "maxWindows",
             defaultValue = "-1"
     )
-    protected static final String DATA_PROPERTY_MAX_WINDOWS = "maxWindows";
+    protected static final String PROP_MAX_WINDOWS = "maxWindows";
 
 	//--------------------------------------------------------------------------------------------
 
@@ -176,12 +175,11 @@ public class TupleGrouper extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+		this.keyField    = ccp.getProperty(PROP_KEY_FIELD);
+		this.windowField = ccp.getProperty(PROP_WINDOW_FIELD);
 
-		this.keyField    = ccp.getProperty(DATA_PROPERTY_KEY_FIELD);
-		this.windowField = ccp.getProperty(DATA_PROPERTY_WINDOW_FIELD);
-
-		int ws = Integer.parseInt(ccp.getProperty(DATA_PROPERTY_WINDOW_SIZE));
-		int mw = Integer.parseInt(ccp.getProperty(DATA_PROPERTY_MAX_WINDOWS));
+		int ws = Integer.parseInt(ccp.getProperty(PROP_WINDOW_SIZE));
+		int mw = Integer.parseInt(ccp.getProperty(PROP_MAX_WINDOWS));
 
 		if (ws <= 0) {
 			ws = -1;
@@ -344,34 +342,8 @@ public class TupleGrouper extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE,
-                componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES,
-                componentContext.getDataComponentFromInput(IN_TUPLES));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE,
-                componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES,
-                componentContext.getDataComponentFromInput(IN_TUPLES));
     }
 }
-
 /*
 Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 String[] meta = DataTypeParser.parseAsString(inputMeta);

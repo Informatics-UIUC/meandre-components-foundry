@@ -43,7 +43,6 @@
 package org.seasr.meandre.components.vis.protovis;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -53,14 +52,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 
 
@@ -170,24 +169,6 @@ public class ParallelCoordinates extends AbstractProtovisComponent {
 
     //--------------------------------------------------------------------------------------------
 
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_JSON })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_HTML, componentContext.getDataComponentFromInput(IN_JSON));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_JSON })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_HTML, componentContext.getDataComponentFromInput(IN_JSON));
-    }
-
-    //--------------------------------------------------------------------------------------------
-
  	/*
 	  "cylinders":    {unit: ""},
 	  "displacement": {unit: " cubic inch"},
@@ -198,9 +179,8 @@ public class ParallelCoordinates extends AbstractProtovisComponent {
 	  "year":         {unit: ""}
 */
 
-	@SuppressWarnings("unchecked")
 	public Map<String,String>  parseForFields(String jsonData) throws JSONException {
-		HashMap map = new HashMap<String,String>();
+		HashMap<String,String> map = new HashMap<String,String>();
 		HashMap<String, List<String>> categories = new HashMap<String,List<String>>();
 
 		// JSONObject json   = new JSONObject(jsonData);
@@ -211,7 +191,7 @@ public class ParallelCoordinates extends AbstractProtovisComponent {
 
 			JSONObject fields = results.getJSONObject(i);
 
-			Iterator it = fields.keys();
+			Iterator<?> it = fields.keys();
 		    while(it.hasNext()) {
 
 		    	String key = (String) it.next();
@@ -228,7 +208,7 @@ public class ParallelCoordinates extends AbstractProtovisComponent {
 		    			//
 		    			// category data
 		    			//
-		    			List list = categories.get(key);
+                        List list = categories.get(key);
 		    			if (list == null) {
 		    				list = new ArrayList<String>();
 		    				categories.put(key, list);

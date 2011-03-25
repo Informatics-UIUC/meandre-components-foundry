@@ -45,7 +45,6 @@ package org.seasr.meandre.components.tools.tuples;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Arrays;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -194,28 +193,6 @@ public class CSVToTuple extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_TEXT })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        Object si = componentContext.getDataComponentFromInput(IN_TEXT);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, si);
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, si);
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_TEXT })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        Object st = componentContext.getDataComponentFromInput(IN_TEXT);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, st);
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, st);
     }
 
     //--------------------------------------------------------------------------------------------

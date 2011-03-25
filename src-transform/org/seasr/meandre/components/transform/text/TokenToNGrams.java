@@ -46,19 +46,19 @@ package org.seasr.meandre.components.transform.text;
 import java.util.Vector;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.FiringPolicy;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 
@@ -71,12 +71,11 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         description = "Transforms token counts to ngram objects.",
         name = "Token To NGrams",
         tags = "token, NGrams",
-        firingPolicy = FiringPolicy.any,
+        firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-
 public class TokenToNGrams extends AbstractExecutableComponent {
 
 	//------------------------------ INPUTS ------------------------------------------------------

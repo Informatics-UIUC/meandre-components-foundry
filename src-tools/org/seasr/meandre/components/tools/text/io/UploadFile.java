@@ -84,6 +84,7 @@ import com.oreilly.servlet.multipart.Part;
 )
 
 public class UploadFile extends GenericTemplate {
+
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
@@ -117,6 +118,13 @@ public class UploadFile extends GenericTemplate {
     protected static final String PROP_TEMPLATE = GenericTemplate.PROP_TEMPLATE;
 
     @ComponentProperty(
+            name = Names.PROP_MAX_SIZE,
+            description = "Maximum file size accepted (in MB) default: 10MB",
+            defaultValue = "10"
+    )
+    protected static final String PROP_MAX_SIZE = Names.PROP_MAX_SIZE;
+
+    @ComponentProperty(
             name = Names.PROP_WRAP_STREAM,
             description = "Wrap output as stream?",
             defaultValue = "false"
@@ -124,16 +132,19 @@ public class UploadFile extends GenericTemplate {
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
     @ComponentProperty(
-            name = Names.PROP_MAX_SIZE,
-            description = "Maximum file size accepted (in MB) default: 10MB",
-            defaultValue = "10"
+            name = "stream_id",
+            description = "The stream id",
+            defaultValue = ""
     )
-    protected static final String PROP_MAX_SIZE = Names.PROP_MAX_SIZE;
+    protected static final String PROP_STREAM_ID = "stream_id";
 
 	//--------------------------------------------------------------------------------------------
 
+
     private int maxFileSize;
     private boolean wrapStream;
+    private Integer streamId;
+
 
     //--------------------------------------------------------------------------------------------
 
@@ -141,14 +152,15 @@ public class UploadFile extends GenericTemplate {
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
 
-	    wrapStream = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
-	    maxFileSize = Integer.parseInt(ccp.getProperty(PROP_MAX_SIZE));
+	    streamId = Integer.parseInt(getPropertyOrDieTrying(PROP_STREAM_ID, ccp));
+	    wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
+	    maxFileSize = Integer.parseInt(getPropertyOrDieTrying(PROP_MAX_SIZE, ccp));
 	    maxFileSize *= 1024 * 1024;
-	    
-        String sFluidDir = ccp.getPublicResourcesDirectory() + File.separator + "infusion";	    
-	    InstallStatus status = ComponentUtils.installJARContainingResource(getClass(), 
+
+        String sFluidDir = ccp.getPublicResourcesDirectory() + File.separator + "infusion";
+	    InstallStatus status = ComponentUtils.installJARContainingResource(getClass(),
 	            "infusion-1.2/components/uploader/js/Uploader.js", sFluidDir, false);
-	    
+
         if (status == InstallStatus.SKIPPED)
             console.fine("Installation skipped - Fluid components already installed");
 
@@ -296,9 +308,10 @@ public class UploadFile extends GenericTemplate {
     private void pushInitiator() throws Exception {
         console.fine("Pushing " + StreamInitiator.class.getSimpleName());
 
-        componentContext.pushDataComponentToOutput(OUT_FILE_PATH, new StreamInitiator());
-        componentContext.pushDataComponentToOutput(OUT_MIME_TYPE, new StreamInitiator());
-        componentContext.pushDataComponentToOutput(OUT_RAW_DATA, new StreamInitiator());
+        StreamInitiator si = new StreamInitiator(streamId);
+        componentContext.pushDataComponentToOutput(OUT_FILE_PATH, si);
+        componentContext.pushDataComponentToOutput(OUT_MIME_TYPE, si);
+        componentContext.pushDataComponentToOutput(OUT_RAW_DATA, si);
     }
 
     /**
@@ -309,8 +322,9 @@ public class UploadFile extends GenericTemplate {
     private void pushTerminator() throws Exception {
         console.fine("Pushing " + StreamTerminator.class.getSimpleName());
 
-        componentContext.pushDataComponentToOutput(OUT_FILE_PATH, new StreamTerminator());
-        componentContext.pushDataComponentToOutput(OUT_MIME_TYPE, new StreamTerminator());
-        componentContext.pushDataComponentToOutput(OUT_RAW_DATA, new StreamTerminator());
+        StreamTerminator st = new StreamTerminator(streamId);
+        componentContext.pushDataComponentToOutput(OUT_FILE_PATH, st);
+        componentContext.pushDataComponentToOutput(OUT_MIME_TYPE, st);
+        componentContext.pushDataComponentToOutput(OUT_RAW_DATA, st);
     }
 }

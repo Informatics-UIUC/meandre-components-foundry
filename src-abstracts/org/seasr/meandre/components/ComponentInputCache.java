@@ -42,6 +42,8 @@
 
 package org.seasr.meandre.components;
 
+import java.util.Set;
+
 import org.seasr.meandre.components.abstracts.util.AbstractComponentInputCache;
 
 /**
@@ -50,6 +52,9 @@ import org.seasr.meandre.components.abstracts.util.AbstractComponentInputCache;
  *
  */
 public class ComponentInputCache extends AbstractComponentInputCache {
-	public ComponentInputCache() {
-	}
+
+    public ComponentInputCache(Set<String> portNames) {
+        super(portNames);
+    }
+
 }

@@ -1,17 +1,58 @@
+/**
+ *
+ * University of Illinois/NCSA
+ * Open Source License
+ *
+ * Copyright (c) 2008, NCSA.  All rights reserved.
+ *
+ * Developed by:
+ * The Automated Learning Group
+ * University of Illinois at Urbana-Champaign
+ * http://www.seasr.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal with the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject
+ * to the following conditions:
+ *
+ * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimers.
+ *
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimers in
+ * the documentation and/or other materials provided with the distribution.
+ *
+ * Neither the names of The Automated Learning Group, University of
+ * Illinois at Urbana-Champaign, nor the names of its contributors may
+ * be used to endorse or promote products derived from this Software
+ * without specific prior written permission.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+ *
+ */
+
 package org.seasr.meandre.components.analytics.statistics.r;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.Rserve.RConnection;
-import org.rosuda.REngine.Rserve.RserveException;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 @Component(
@@ -25,8 +66,9 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         description = "This component establishes the connection to the R Server for using the R statistics package.",
         dependency = {"REngine.jar", "RserveEngine.jar", "protobuf-java-2.2.0.jar"}
 )
-
 public class RServeConnection extends AbstractExecutableComponent {
+
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
             name = "RServeConnection",
@@ -34,25 +76,21 @@ public class RServeConnection extends AbstractExecutableComponent {
     )
     protected static final String OUT_OBJECT = "RServeConnection";
 
+    //--------------------------------------------------------------------------------------------
+
 	@Override
-	public void disposeCallBack(ComponentContextProperties cc)
-			throws Exception {
-		// TODO Auto-generated method stub
+	public void initializeCallBack(ComponentContextProperties cc) throws Exception {
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception, REXPMismatchException, REngineException {
-		// TODO Auto-generated method stub
 		RConnection conn = new RConnection();
 		REXP x = conn.eval("R.version.string");
 		console.info(x.asString());
 		cc.pushDataComponentToOutput(OUT_OBJECT, conn);
 	}
 
-	@Override
-	public void initializeCallBack(ComponentContextProperties cc)
-			throws Exception {
-		// TODO Auto-generated method stub
-
-	}
+    @Override
+    public void disposeCallBack(ComponentContextProperties cc) throws Exception {
+    }
 }

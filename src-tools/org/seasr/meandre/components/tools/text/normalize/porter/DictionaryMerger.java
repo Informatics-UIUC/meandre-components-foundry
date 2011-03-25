@@ -46,17 +46,19 @@ import java.util.Hashtable;
 import java.util.Set;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.FiringPolicy;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.FiringPolicy;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.datatypes.core.Names;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * @author Lily Dong
@@ -71,8 +73,8 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		rights = Licenses.UofINCSA,
 		baseURL = "meandre://seasr.org/components/foundry/"
 )
+public class DictionaryMerger extends AbstractStreamingExecutableComponent {
 
-public class DictionaryMerger extends AbstractExecutableComponent {
 	//------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
@@ -92,6 +94,7 @@ public class DictionaryMerger extends AbstractExecutableComponent {
 	protected static final String OUT_DICTIONARY = Names.PORT_DICTIONARY;
 
 	//------------------------------ PROPERTIES --------------------------------------------------
+
     @ComponentProperty(
 	        description = "The number of incoming streams.",
             name = Names.PROP_N_STREAMS,
@@ -101,16 +104,20 @@ public class DictionaryMerger extends AbstractExecutableComponent {
 
 	//--------------------------------------------------------------------------------------------
 
+
 	private Hashtable<String, String> dictionary; //the merged dictionary
-	private boolean _gotInitiator;
+	private boolean _isStreaming;
 	private int nr; //the number of streams
+
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 		dictionary = new Hashtable<String, String>();
-		_gotInitiator = false;
+		_isStreaming = false;
 		nr = Integer.parseInt(ccp.getProperty(PROP_N_STREAMS));
 	}
 
@@ -119,7 +126,7 @@ public class DictionaryMerger extends AbstractExecutableComponent {
 		StringsMap sMap = (StringsMap)cc.getDataComponentFromInput(IN_DICTIONARY);
 		mergeDictionary(sMap);
 
-		if(!_gotInitiator && dictionary!=null)
+		if(!_isStreaming && dictionary!=null)
 			outputDictionary();
 	}
 
@@ -130,6 +137,8 @@ public class DictionaryMerger extends AbstractExecutableComponent {
 	        dictionary = null;
 	    }
 	}
+
+	//--------------------------------------------------------------------------------------------
 
 	/**
 	 * @param sMap<String, Strings>
@@ -171,15 +180,21 @@ public class DictionaryMerger extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-	public void handleStreamInitiators() throws Exception {
-        _gotInitiator = true;
+	public boolean isAccumulator() {
+	    return true;
 	}
 
 	@Override
-	public void handleStreamTerminators() throws Exception {
-		--nr;
-		if(nr==0) {
+	public void startStream() throws Exception {
+        _isStreaming = true;
+	}
+
+	@Override
+	public void endStream() throws Exception {
+		if(--nr == 0) {
+		    componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamInitiator(streamId));
 			outputDictionary();
+			componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamTerminator(streamId));
 			dictionary.clear();
 			dictionary = null;
 		}

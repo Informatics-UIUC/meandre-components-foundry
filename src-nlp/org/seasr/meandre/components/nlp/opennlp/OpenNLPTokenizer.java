@@ -110,6 +110,7 @@ public class OpenNLPTokenizer extends OpenNLPBaseUtilities {
 	/** The OpenNLP tokenizer to use */
 	private Tokenizer tokenizer;
 
+
     //--------------------------------------------------------------------------------------------
 
 	@Override

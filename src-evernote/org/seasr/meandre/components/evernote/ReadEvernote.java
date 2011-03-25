@@ -51,9 +51,11 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 import com.evernote.edam.notestore.NoteFilter;
 import com.evernote.edam.notestore.NoteList;
@@ -81,7 +83,7 @@ import com.evernote.edam.userstore.UserStore;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class ReadEvernote extends AbstractExecutableComponent {
+public class ReadEvernote extends AbstractStreamingExecutableComponent {
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -127,7 +129,14 @@ public class ReadEvernote extends AbstractExecutableComponent {
             description = "This property sets the consumer secret.",
             name = Names.PROP_CONSUMER_SECRET
     )
-    protected static final String PROP_CONSUMER_SECERT = Names.PROP_CONSUMER_SECRET;
+    protected static final String PROP_CONSUMER_SECRET = Names.PROP_CONSUMER_SECRET;
+
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Wrap output as a stream?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
     //--------------------------------------------------------------------------------------------
 
@@ -137,16 +146,22 @@ public class ReadEvernote extends AbstractExecutableComponent {
 
     private String username, password;
     private String consumerKey, consumerSecret;
+    private boolean wrapStream;
+
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        username = ccp.getProperty(PROP_USERNAME);
-        password = ccp.getProperty(PROP_PASSWORD);
+        super.initializeCallBack(ccp);
 
-        consumerKey = ccp.getProperty(PROP_CONSUMER_KEY);
-        consumerSecret = ccp.getProperty(PROP_CONSUMER_SECERT);
+        username = getPropertyOrDieTrying(PROP_USERNAME, ccp);
+        password = getPropertyOrDieTrying(PROP_PASSWORD, false, true, ccp);
+
+        consumerKey = getPropertyOrDieTrying(PROP_CONSUMER_KEY, ccp);
+        consumerSecret = getPropertyOrDieTrying(PROP_CONSUMER_SECRET, ccp);
+
+        wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
     }
 
     @Override
@@ -175,6 +190,12 @@ public class ReadEvernote extends AbstractExecutableComponent {
 
     	List<Notebook> notebooks = noteStore.listNotebooks(authToken);
 
+    	if (wrapStream) {
+    	    StreamInitiator si = new StreamInitiator(streamId);
+    	    cc.pushDataComponentToOutput(OUT_TITLE, si);
+    	    cc.pushDataComponentToOutput(OUT_XML, si);
+    	}
+
     	for (Notebook notebook : notebooks) {
     	    console.info("Notebook: " + notebook.getName());
     	    NoteFilter filter = new NoteFilter();
@@ -187,10 +208,23 @@ public class ReadEvernote extends AbstractExecutableComponent {
     	        cc.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(noteStore.getNoteContent(authToken, note.getGuid())));
     	    }
     	}
+
+        if (wrapStream) {
+            StreamTerminator st = new StreamTerminator(streamId);
+            cc.pushDataComponentToOutput(OUT_TITLE, st);
+            cc.pushDataComponentToOutput(OUT_XML, st);
+        }
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return false;
     }
 }
 

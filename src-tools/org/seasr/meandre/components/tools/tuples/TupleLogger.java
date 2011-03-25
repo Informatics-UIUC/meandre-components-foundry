@@ -43,7 +43,6 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -64,7 +63,6 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.components.tuples.TupleUtilities;
 
 /**
  *
@@ -84,7 +82,7 @@ import org.seasr.meandre.support.components.tuples.TupleUtilities;
 		description = "This component prints the incoming set of tuples to the console (level info) " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class TupleLogger  extends AbstractExecutableComponent {
+public class TupleLogger extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -169,19 +167,6 @@ public class TupleLogger  extends AbstractExecutableComponent {
 
         if (input instanceof Strings) {
             Strings inTuple = (Strings)input;
-
-            if (TupleUtilities.isBeginMarker(inTuple, inputMeta)) {
-                console.info("### BEGIN marker ###");
-                return;
-            }
-
-            else
-
-            if (TupleUtilities.isEndMarker(inTuple, inputMeta)) {
-                console.info("### END marker ###");
-                return;
-            }
-
             tuples = new Strings[] { inTuple };
         }
         else
@@ -218,26 +203,21 @@ public class TupleLogger  extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        idxList = null;
+        values = null;
     }
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
+        console.info("### BEGIN marker ###");
+        super.handleStreamInitiators();
     }
 
     @Override
     public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLES, componentContext.getDataComponentFromInput(IN_TUPLES));
+        console.info("### END marker ###");
+        super.handleStreamTerminators();
     }
-
 }

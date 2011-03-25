@@ -45,21 +45,21 @@ package org.seasr.meandre.components.tools.basic;
 import java.io.PrintStream;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.DataTypeParser;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Integers;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.DataTypeParser;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 /**
@@ -110,7 +110,7 @@ public class PrintToConsole extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = Names.PROP_WRAP_STREAM,
-            description = "Should the printed object be wrapped as a stream? ",
+            description = "Should the stream markers be printed to the console along with the object? ",
             defaultValue = "false"
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
@@ -187,6 +187,7 @@ public class PrintToConsole extends AbstractExecutableComponent {
 	@Override
 	public void handleStreamInitiators() throws Exception {
 	    super.handleStreamInitiators();
+
 	    if (bWrapped)
 	        printStreamDelimiter(componentContext.getDataComponentFromInput(IN_OBJECT));
 	}
@@ -194,6 +195,7 @@ public class PrintToConsole extends AbstractExecutableComponent {
 	@Override
 	public void handleStreamTerminators() throws Exception {
 	    super.handleStreamTerminators();
+
 	    if (bWrapped)
 	       printStreamDelimiter(componentContext.getDataComponentFromInput(IN_OBJECT));
 	}

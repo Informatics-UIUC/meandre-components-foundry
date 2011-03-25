@@ -49,9 +49,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -148,9 +146,6 @@ public class TupleToSQL extends AbstractDBComponent {
     protected static final int MAX_INSERTS_PER_BATCH = 100;
     protected static final Calendar CALENDAR = Calendar.getInstance();
 
-    protected Queue<Object> _metaTupleQueue = new LinkedList<Object>();
-    protected Queue<Object> _tupleQueue = new LinkedList<Object>();
-
     protected String _columnDefs;
     protected String _tableOptions;
 
@@ -177,13 +172,10 @@ public class TupleToSQL extends AbstractDBComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         super.executeCallBack(cc);
 
-        if (cc.isInputAvailable(IN_META_TUPLE))
-            _metaTupleQueue.offer(cc.getDataComponentFromInput(IN_META_TUPLE));
+        componentInputCache.storeIfAvailable(cc, IN_META_TUPLE);
+        componentInputCache.storeIfAvailable(cc, IN_TUPLES);
 
-        if (cc.isInputAvailable(IN_TUPLES))
-            _tupleQueue.offer(cc.getDataComponentFromInput(IN_TUPLES));
-
-        if (connectionPool == null || _metaTupleQueue.isEmpty() || _tupleQueue.isEmpty())
+        if (connectionPool == null || !componentInputCache.hasData(IN_META_TUPLE) || !componentInputCache.hasData(IN_TUPLES))
             // we're not ready to process yet, return
             return;
 
@@ -193,14 +185,25 @@ public class TupleToSQL extends AbstractDBComponent {
             PreparedStatement ps = null;
 
             do {
-                Object inMeta = _metaTupleQueue.poll();
-                Object inTuple = _tupleQueue.poll();
+                Object inMeta = componentInputCache.retrieveNext(IN_META_TUPLE);
+                Object inTuple = componentInputCache.retrieveNext(IN_TUPLES);
 
                 if (inMeta instanceof StreamInitiator || inTuple instanceof StreamInitiator) {
                     if (inMeta instanceof StreamInitiator && inTuple instanceof StreamInitiator) {
+                        StreamInitiator siMeta = (StreamInitiator) inMeta;
+                        StreamInitiator siTuple = (StreamInitiator) inTuple;
+                        if (siMeta.getStreamId() != siTuple.getStreamId())
+                            throw new ComponentExecutionException("Streaming error - received different stream ids on different ports!");
+
+                        if (siMeta.getStreamId() != streamId) {
+                            // Forward the stream delimiter along
+                            cc.pushDataComponentToOutput(OUT_TABLE_NAME, siMeta);
+                            continue;
+                        }
+
                         console.finer("Received StreamInitiator");
                         if (_isStreaming)
-                            console.severe("Already received a StreamInitiator! Stream-within-stream is not yet supported!");
+                            console.severe("Stream error - start stream marker already received!");
 
                         _currentTableName = createNewTable(connection);
                         _isStreaming = true;
@@ -212,13 +215,24 @@ public class TupleToSQL extends AbstractDBComponent {
 
                 if (inMeta instanceof StreamTerminator || inTuple instanceof StreamTerminator) {
                     if (inMeta instanceof StreamTerminator && inTuple instanceof StreamTerminator) {
+                        StreamTerminator stMeta = (StreamTerminator) inMeta;
+                        StreamTerminator stTuple = (StreamTerminator) inTuple;
+                        if (stMeta.getStreamId() != stTuple.getStreamId())
+                            throw new ComponentExecutionException("Streaming error - received different stream ids on different ports!");
+
+                        if (stMeta.getStreamId() != streamId) {
+                            // Forward the stream delimiter along
+                            cc.pushDataComponentToOutput(OUT_TABLE_NAME, stMeta);
+                            continue;
+                        }
+
                         console.finer("Received StreamTerminator");
                         if (!_isStreaming)
-                            console.severe("Received a StreamTerminator without a StreamInitiator!");
+                            console.severe("Stream error - end stream marker received without a start stream marker!");
 
-                        cc.pushDataComponentToOutput(OUT_TABLE_NAME, new StreamInitiator());
+                        cc.pushDataComponentToOutput(OUT_TABLE_NAME, new StreamInitiator(streamId));
                         cc.pushDataComponentToOutput(OUT_TABLE_NAME, _currentTableName);
-                        cc.pushDataComponentToOutput(OUT_TABLE_NAME, new StreamTerminator());
+                        cc.pushDataComponentToOutput(OUT_TABLE_NAME, new StreamTerminator(streamId));
 
                         _isStreaming = false;
 
@@ -267,7 +281,7 @@ public class TupleToSQL extends AbstractDBComponent {
                 if (!_isStreaming)
                     cc.pushDataComponentToOutput(OUT_TABLE_NAME, _currentTableName);
 
-            } while (!_metaTupleQueue.isEmpty() && !_tupleQueue.isEmpty());
+            } while (componentInputCache.hasData(IN_META_TUPLE) && componentInputCache.hasData(IN_TUPLES));
         }
         finally {
             releaseConnection(connection);
@@ -296,6 +310,13 @@ public class TupleToSQL extends AbstractDBComponent {
         }
 
         super.disposeCallBack(ccp);
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return true;
     }
 
     //--------------------------------------------------------------------------------------------

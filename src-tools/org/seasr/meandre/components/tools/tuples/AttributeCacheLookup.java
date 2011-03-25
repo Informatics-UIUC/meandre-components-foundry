@@ -45,7 +45,6 @@ package org.seasr.meandre.components.tools.tuples;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,7 +66,6 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.components.tuples.TupleUtilities;
 import org.seasr.meandre.support.generic.io.IOUtils;
 import org.seasr.meandre.support.generic.io.PathUtils;
 
@@ -200,15 +198,6 @@ public class AttributeCacheLookup extends AbstractExecutableComponent {
         Strings inTuple = (Strings) cc.getDataComponentFromInput(IN_TUPLE);
         Strings inMetaTuple = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
 
-        if (TupleUtilities.isBeginMarker(inTuple, inMetaTuple) || TupleUtilities.isEndMarker(inTuple, inMetaTuple)) {
-            console.finer("Got tuple marker - forwarding it...");
-            cc.pushDataComponentToOutput(OUT_META_TUPLE, inMetaTuple);
-            cc.pushDataComponentToOutput(OUT_TUPLE_NOT_CACHED_META, inMetaTuple);
-            cc.pushDataComponentToOutput(OUT_TUPLE, inTuple);
-            cc.pushDataComponentToOutput(OUT_TUPLE_NOT_CACHED, inTuple);
-            return;
-        }
-
         SimpleTuplePeer inPeer  = new SimpleTuplePeer(inMetaTuple);
         SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[] { _attributeName });
 
@@ -301,35 +290,5 @@ public class AttributeCacheLookup extends AbstractExecutableComponent {
         }
 
         return Collections.synchronizedMap(cacheMap);
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLE })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        Object siMeta = componentContext.getDataComponentFromInput(IN_META_TUPLE);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, siMeta);
-        componentContext.pushDataComponentToOutput(OUT_TUPLE_NOT_CACHED_META, siMeta);
-
-        Object siTuple = componentContext.getDataComponentFromInput(IN_TUPLE);
-        componentContext.pushDataComponentToOutput(OUT_TUPLE, siTuple);
-        componentContext.pushDataComponentToOutput(OUT_TUPLE_NOT_CACHED, siTuple);
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLE })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        Object stMeta = componentContext.getDataComponentFromInput(IN_META_TUPLE);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, stMeta);
-        componentContext.pushDataComponentToOutput(OUT_TUPLE_NOT_CACHED_META, stMeta);
-
-        Object stTuple = componentContext.getDataComponentFromInput(IN_TUPLE);
-        componentContext.pushDataComponentToOutput(OUT_TUPLE, stTuple);
-        componentContext.pushDataComponentToOutput(OUT_TUPLE_NOT_CACHED, stTuple);
     }
 }

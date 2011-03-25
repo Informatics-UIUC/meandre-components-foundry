@@ -45,7 +45,6 @@ package org.seasr.meandre.components.transform.xml;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Arrays;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
@@ -175,25 +174,4 @@ public class XMLToXMLWithXSL2 extends AbstractExecutableComponent {
 
         return result;
 	}
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_XML, IN_XSL })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_RESULT,
-                componentContext.getDataComponentFromInput(IN_XML));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_XML, IN_XSL })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_RESULT,
-                componentContext.getDataComponentFromInput(IN_XML));
-    }
-
 }

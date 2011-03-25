@@ -43,7 +43,6 @@
 package org.seasr.meandre.components.sentiment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +66,6 @@ import org.seasr.meandre.support.components.apps.sentiment.PathMetric;
 import org.seasr.meandre.support.components.apps.sentiment.PathMetricFinder;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.seasr.meandre.support.components.tuples.TupleUtilities;
 
 /**
  * @author Boris Capitanu
@@ -190,15 +188,6 @@ public class ConceptFinder extends AbstractExecutableComponent {
 
         console.finest(String.format("input: meta='%s' tuple='%s'", inMetaTuple.toString(), inTuple.toString()));
 
-        if (TupleUtilities.isBeginMarker(inTuple, inMetaTuple) || TupleUtilities.isEndMarker(inTuple, inMetaTuple)) {
-            console.finer("Got tuple marker - forwarding it");
-            cc.pushDataComponentToOutput(OUT_META_TUPLE, inMetaTuple);
-            cc.pushDataComponentToOutput(OUT_NO_CONCEPT_META, inMetaTuple);
-            cc.pushDataComponentToOutput(OUT_TUPLE, inTuple);
-            cc.pushDataComponentToOutput(OUT_NO_CONCEPT, inTuple);
-            return;
-        }
-
         SimpleTuplePeer inPeer  = new SimpleTuplePeer(inMetaTuple);
         SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[] { CONCEPT, SEED, PATH_LENGTH });
 
@@ -267,35 +256,5 @@ public class ConceptFinder extends AbstractExecutableComponent {
         }
 
         return conceptSeedMap;
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLE })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        Object siMeta = componentContext.getDataComponentFromInput(IN_META_TUPLE);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, siMeta);
-        componentContext.pushDataComponentToOutput(OUT_NO_CONCEPT_META, siMeta);
-
-        Object siTuple = componentContext.getDataComponentFromInput(IN_TUPLE);
-        componentContext.pushDataComponentToOutput(OUT_TUPLE, siTuple);
-        componentContext.pushDataComponentToOutput(OUT_NO_CONCEPT, siTuple);
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLE })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        Object stMeta = componentContext.getDataComponentFromInput(IN_META_TUPLE);
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, stMeta);
-        componentContext.pushDataComponentToOutput(OUT_NO_CONCEPT_META, stMeta);
-
-        Object stTuple = componentContext.getDataComponentFromInput(IN_TUPLE);
-        componentContext.pushDataComponentToOutput(OUT_TUPLE, stTuple);
-        componentContext.pushDataComponentToOutput(OUT_NO_CONCEPT, stTuple);
     }
 }

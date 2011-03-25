@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.abstracts;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -90,18 +91,18 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
                           "Possible values are: off, severe, warning, info, config, fine, finer, finest, all<br>" +
                           "Append ',mirror' to any of the values above to mirror that output to the server logs.",
             defaultValue = "info",
-            name = Names.PROP_DEBUG_LEVEL
+            name = "_debug_level"
     )
-    public static final String PROP_DEBUG_LEVEL = Names.PROP_DEBUG_LEVEL;
+    public static final String PROP_DEBUG_LEVEL = "_debug_level";
 
     @ComponentProperty(
             description = "Set to 'true' to ignore all unhandled exceptions and prevent the flow from being terminated. " +
                           "Setting this property to 'false' will result in the flow being terminated in the event " +
                           "an unhandled exception is thrown during the execution of this component",
             defaultValue = "false",
-            name = Names.PROP_ERROR_HANDLING
+            name = "_ignore_errors"
     )
-    public static final String PROP_IGNORE_ERRORS = Names.PROP_ERROR_HANDLING;
+    public static final String PROP_IGNORE_ERRORS = "_ignore_errors";
 
     //--------------------------------------------------------------------------------------------
 
@@ -109,7 +110,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
     public Set<String> inputPortNames = null;
     public Set<String> outputPortNames = null;
     //
-    public ComponentInputCache componentInputCache = new ComponentInputCache();
+    public ComponentInputCache componentInputCache;
     //
     public PackedDataComponents packedDataComponentsInput = null;
     public PackedDataComponents packedDataComponentsOutput = null;
@@ -131,6 +132,8 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
      */
     public void initialize(ComponentContextProperties ccp)
             throws ComponentExecutionException, ComponentContextException {
+
+        componentInputCache = new ComponentInputCache(new HashSet<String>(Arrays.asList(ccp.getInputNames())));
 
         Formatter formatter = new ComponentLogFormatter(ccp.getExecutionInstanceID(), ccp.getFlowExecutionInstanceID(), ccp.getFlowID());
         Handler consoleHandler = new WebConsoleHandler(ccp.getOutputConsole(), formatter);
@@ -299,6 +302,8 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
             console.entering(getClass().getName(), "disposeCallBack", ccp);
             disposeCallBack(ccp);
             console.exiting(getClass().getName(), "disposeCallBack");
+
+            componentInputCache.dispose();
         }
         catch (ComponentContextException e) {
             console.throwing(getClass().getName(), "disposeCallBack", e);
@@ -330,7 +335,9 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
     //--------------------------------------------------------------------------------------------
 
     /**
-     * Forwards or ignores the delimiter depending on the number of inputs/outputs the component has;
+     * Forwards the stream initiator on all output ports (except the error port);
+     * Make sure you override this method for components with FiringPolicy = any and simply invoke 'executeCallBack(componentContext);' and
+     * deal with the stream delimiters there; this is the most reliable way to work with streams in such components;
      * Override if needing to handle the delimiters differently.
      *
      * @throws Exception Thrown in the event of an error
@@ -338,50 +345,49 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
     public void handleStreamInitiators() throws Exception {
         console.entering(getClass().getName(), "handleStreamInitiators", inputPortsWithInitiators);
 
-        int nConnectedOutputs = outputPortNames.size();
-        if (inputPortNames.size() == 1 && (nConnectedOutputs == 1 || nConnectedOutputs == 2)) {
-            console.fine("Forwarding " + StreamInitiator.class.getSimpleName() + " to the next component...");
+        // Sanity check - make sure stream initiators arrived on all input ports at the same time
+        if (!inputPortsWithInitiators.containsAll(inputPortNames))
+            throw new ComponentExecutionException("Stream delimiters must arrive on all input ports at the same time for components with FiringPolicy = all; " +
+            		"For FiringPolicy = any components you *must* override handleStreamInitiators() and handleStreamTerminators() to call 'executeCallBack(componentContext);' " +
+            		"and then deal with stream delimiters in 'executeCallBack'. This is the most reliable way to work with streams.");
 
-            String outputPortName = null;
-            for (String portName : componentContext.getOutputNames())
-                if (!portName.equals(OUT_ERROR)) {
-                    outputPortName = portName;
-                    break;
-                }
+        StreamInitiator si = (StreamInitiator) componentContext.getDataComponentFromInput(componentContext.getInputNames()[0]);
+        console.fine(String.format("Forwarding the %s (id: %d) on all output ports...", StreamInitiator.class.getSimpleName(), si.getStreamId()));
 
-            componentContext.pushDataComponentToOutput(outputPortName,
-                    componentContext.getDataComponentFromInput(componentContext.getInputNames()[0]));
-        } else
-            console.fine("Ignoring " + StreamInitiator.class.getSimpleName() + " received on ports " + inputPortsWithInitiators);
+        for (String portName : componentContext.getOutputNames()) {
+            if (portName.equals(OUT_ERROR)) continue;
+
+            componentContext.pushDataComponentToOutput(portName, si);
+        }
 
         console.exiting(getClass().getName(), "handleStreamInitiators");
     }
 
     /**
-     * Forwards or ignores the delimiter depending on the number of inputs/outputs the component has;
+     * Forwards the stream terminator on all output ports (except the error port);
+     * Make sure you override this method for components with FiringPolicy = any and simply invoke 'executeCallBack(componentContext);' and
+     * deal with the stream delimiters there; this is the most reliable way to work with streams in such components;
      * Override if needing to handle the delimiters differently.
      *
      * @throws Exception Thrown in the event of an error
      */
     public void handleStreamTerminators() throws Exception {
-
         console.entering(getClass().getName(), "handleStreamTerminators", inputPortsWithTerminators);
 
-        int nConnectedOutputs = outputPortNames.size();
-        if (inputPortNames.size() == 1 && (nConnectedOutputs == 1 || nConnectedOutputs == 2)) {
-            console.fine("Forwarding " + StreamTerminator.class.getSimpleName() + " to the next component...");
+        // Sanity check - make sure stream terminators arrived on all input ports at the same time
+        if (!inputPortsWithTerminators.containsAll(inputPortNames))
+            throw new ComponentExecutionException("Stream delimiters must arrive on all input ports at the same time for components with FiringPolicy = all; " +
+                    "For FiringPolicy = any components you *must* override handleStreamInitiators() and handleStreamTerminators() to call 'executeCallBack(componentContext);' " +
+                    "and then deal with stream delimiters in 'executeCallBack'. This is the most reliable way to work with streams.");
 
-            String outputPortName = null;
-            for (String portName : componentContext.getOutputNames())
-                if (!portName.equals(OUT_ERROR)) {
-                    outputPortName = portName;
-                    break;
-                }
+        StreamTerminator st = (StreamTerminator) componentContext.getDataComponentFromInput(componentContext.getInputNames()[0]);
+        console.fine(String.format("Forwarding the %s (id: %d) on all output ports...", StreamTerminator.class.getSimpleName(), st.getStreamId()));
 
-            componentContext.pushDataComponentToOutput(outputPortName,
-                    componentContext.getDataComponentFromInput(componentContext.getInputNames()[0]));
-        } else
-            console.fine("Ignoring " + StreamTerminator.class.getSimpleName() + " received on ports " + inputPortsWithTerminators);
+        for (String portName : componentContext.getOutputNames()) {
+            if (portName.equals(OUT_ERROR)) continue;
+
+            componentContext.pushDataComponentToOutput(portName, st);
+        }
 
         console.exiting(getClass().getName(), "handleStreamTerminators");
     }
@@ -449,7 +455,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
      * @return The property value
      * @throws ComponentExecutionException Thrown if the property does not exist, or if failIfEmptyValue=true and the value of the property is empty
      */
-    public static String getPropertyOrDieTrying(String propName, boolean ignoreWhitespace, boolean failIfEmptyValue, ComponentContextProperties context)
+    public String getPropertyOrDieTrying(String propName, boolean ignoreWhitespace, boolean failIfEmptyValue, ComponentContextProperties context)
         throws ComponentExecutionException {
 
         String propValue = context.getProperty(propName);
@@ -459,15 +465,16 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
                 sb.append(", ").append(name);
 
             throw new ComponentExecutionException(String.format(
-                    "Missing property '%s' - check the component RDF descriptor! " +
-                    "Available properties: [%s]", propName, sb.substring(2)));
+                    "Missing property '%s' for component class '%s' - check the component RDF descriptor! " +
+                    "Available properties: [%s]", propName, getClass().getSimpleName(), sb.substring(2)));
         }
 
         if (ignoreWhitespace)
             propValue = propValue.trim();
 
         if (failIfEmptyValue && propValue.length() == 0)
-            throw new ComponentExecutionException(String.format("The value for the property '%s' has not been set! Cannot continue!", propName));
+            throw new ComponentExecutionException(String.format("The value of the property '%s' for component " +
+            		"class '%s' has not been set! Cannot continue!", propName, getClass().getSimpleName()));
 
         return propValue;
     }
@@ -480,8 +487,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
     * @return The property value
     * @throws ComponentExecutionException Thrown if the property does not exist, or if value of the property is empty
     */
-    public static String getPropertyOrDieTrying(String propName, ComponentContextProperties context)
-    throws ComponentExecutionException {
-    	return getPropertyOrDieTrying(propName, true,true, context);
+    public String getPropertyOrDieTrying(String propName, ComponentContextProperties context) throws ComponentExecutionException {
+    	return getPropertyOrDieTrying(propName, true, true, context);
     }
 }

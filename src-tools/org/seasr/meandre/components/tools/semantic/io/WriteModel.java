@@ -45,21 +45,18 @@ package org.seasr.meandre.components.tools.semantic.io;
 import java.net.URI;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.generic.io.StreamUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -168,69 +165,4 @@ public class WriteModel extends AbstractExecutableComponent {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         this.sRDFDialect = null;
     }
-
-    //-----------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        pushDelimiters(componentContext.getDataComponentFromInput(IN_LOCATION),
-                componentContext.getDataComponentFromInput(IN_DOCUMENT));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        pushDelimiters(componentContext.getDataComponentFromInput(IN_LOCATION),
-                componentContext.getDataComponentFromInput(IN_DOCUMENT));
-    }
-
-    //-----------------------------------------------------------------------------------
-
-	/**
-	 * Pushes the obtained delimiters
-	 *
-	 * @param objLoc The location delimiter
-	 * @param objDoc The document delimiter
-	 * @throws Exception Push failed
-	 */
-	private void pushDelimiters(Object objLoc, Object objDoc) throws Exception {
-		if ( objLoc instanceof StreamDelimiter &&  objDoc instanceof StreamDelimiter)  {
-			componentContext.pushDataComponentToOutput(OUTPUT_LOCATION, objLoc);
-			componentContext.pushDataComponentToOutput(OUT_DOCUMENT, objDoc);
-		}
-		else
-			pushMissalignedDelimiters(objLoc, objDoc);
-	}
-
-	/**
-	 * Push the delimiters to the outputs as needed.
-	 *
-	 * @param objLoc The location delimiter
-	 * @param objDoc The document delimiter
-	 * @throws Exception Push failed
-	 */
-	private void pushMissalignedDelimiters(Object objLoc, Object objDoc) throws ComponentExecutionException {
-		console.warning("Missaligned delimiters received - reusing delimiters to balance the streams");
-
-		if ( objLoc instanceof StreamDelimiter ) {
-		    try {
-                StreamDelimiter clone = ComponentUtils.cloneStreamDelimiter((StreamDelimiter) objLoc);
-                componentContext.pushDataComponentToOutput(OUTPUT_LOCATION, objLoc);
-                componentContext.pushDataComponentToOutput(OUT_DOCUMENT, clone);
-            }
-            catch (Exception e) {
-                throw new ComponentExecutionException(e);
-            }
-
-		}
-		else {
-		    try {
-                StreamDelimiter clone = ComponentUtils.cloneStreamDelimiter((StreamDelimiter) objDoc);
-                componentContext.pushDataComponentToOutput(OUTPUT_LOCATION, clone);
-                componentContext.pushDataComponentToOutput(OUT_DOCUMENT, objDoc);
-            }
-            catch (Exception e) {
-                throw new ComponentExecutionException(e);
-            }
-		}
-	}
 }

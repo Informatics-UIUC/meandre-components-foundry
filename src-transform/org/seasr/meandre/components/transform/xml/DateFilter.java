@@ -42,16 +42,14 @@
 
 package org.seasr.meandre.components.transform.xml;
 
-import java.util.Arrays;
-
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
@@ -204,27 +202,4 @@ public class DateFilter extends AbstractExecutableComponent {
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_MIN_YEAR, IN_MAX_YEAR })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_MIN_YEAR, componentContext.getDataComponentFromInput(IN_MIN_YEAR));
-        componentContext.pushDataComponentToOutput(OUT_MAX_YEAR, componentContext.getDataComponentFromInput(IN_MAX_YEAR));
-        componentContext.pushDataComponentToOutput(OUT_XSL, componentContext.getDataComponentFromInput(IN_MIN_YEAR));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_MIN_YEAR, IN_MAX_YEAR })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_MIN_YEAR, componentContext.getDataComponentFromInput(IN_MIN_YEAR));
-        componentContext.pushDataComponentToOutput(OUT_MAX_YEAR, componentContext.getDataComponentFromInput(IN_MAX_YEAR));
-        componentContext.pushDataComponentToOutput(OUT_XSL, componentContext.getDataComponentFromInput(IN_MIN_YEAR));
-    }
-
 }

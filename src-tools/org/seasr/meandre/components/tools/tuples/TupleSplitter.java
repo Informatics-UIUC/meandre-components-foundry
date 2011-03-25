@@ -42,8 +42,6 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
-import java.util.Arrays;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -60,8 +58,7 @@ import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.components.tuples.TupleUtilities;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * @author Boris Capitanu
@@ -78,7 +75,7 @@ import org.seasr.meandre.support.components.tuples.TupleUtilities;
         description = "This component splits an aggregate tuple into individual tuples" ,
         dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
-public class TupleSplitter extends AbstractExecutableComponent {
+public class TupleSplitter extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -131,6 +128,8 @@ public class TupleSplitter extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.initializeCallBack(ccp);
+
         _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
     }
 
@@ -141,22 +140,18 @@ public class TupleSplitter extends AbstractExecutableComponent {
         Strings[] tuples = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
         if (_wrapStream) {
-            StreamDelimiter sd = new StreamInitiator();
+            StreamDelimiter sd = new StreamInitiator(streamId);
             cc.pushDataComponentToOutput(OUT_META_TUPLE, sd);
             cc.pushDataComponentToOutput(OUT_TUPLE, sd);
         }
-
-        TupleUtilities.pushBeginMarker(cc, OUT_META_TUPLE, OUT_TUPLE);
 
         for (Strings tuple : tuples) {
             cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
             cc.pushDataComponentToOutput(OUT_TUPLE, tuple);
         }
 
-        TupleUtilities.pushEndMarker(cc, OUT_META_TUPLE, OUT_TUPLE);
-
         if (_wrapStream) {
-            StreamDelimiter sd = new StreamTerminator();
+            StreamDelimiter sd = new StreamTerminator(streamId);
             cc.pushDataComponentToOutput(OUT_META_TUPLE, sd);
             cc.pushDataComponentToOutput(OUT_TUPLE, sd);
         }
@@ -169,20 +164,7 @@ public class TupleSplitter extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    public void handleStreamInitiators() throws Exception {
-        if (!inputPortsWithInitiators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLE, componentContext.getDataComponentFromInput(IN_TUPLES));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!inputPortsWithTerminators.containsAll(Arrays.asList(new String[] { IN_META_TUPLE, IN_TUPLES })))
-            console.severe("Unbalanced stream delimiter received - the delimiters should arrive on all ports at the same time when FiringPolicy = ALL");
-
-        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, componentContext.getDataComponentFromInput(IN_META_TUPLE));
-        componentContext.pushDataComponentToOutput(OUT_TUPLE, componentContext.getDataComponentFromInput(IN_TUPLES));
+    public boolean isAccumulator() {
+        return false;
     }
 }

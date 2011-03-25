@@ -43,11 +43,11 @@
 package org.seasr.meandre.components.tools.semantic;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
@@ -55,7 +55,7 @@ import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -81,7 +81,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 				      "If no wrapped model is provided it will act as a simple pass through. ",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class WrappedModelsReducer extends AbstractExecutableComponent {
+public class WrappedModelsReducer extends AbstractStreamingExecutableComponent {
 
 	//------------------------------ INPUTS ------------------------------------------------------
 
@@ -125,6 +125,8 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 		this.modelAcc = null;
 		this.iCnt = 0;
 	}
@@ -148,35 +150,31 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    public void handleStreamInitiators() throws Exception {
-        // Try to revalance a stream
-        if ( this.modelAcc != null ) {
-            String sMessage = "Unbalanced wrapped stream. Got a new initiator without a terminator.";
-            console.warning(sMessage);
-            if ( this.ignoreErrors )
-                pushReduction();
-            else
-                throw new ComponentExecutionException(sMessage);
-        }
+    public void startStream() throws Exception {
+        if (this.modelAcc != null)
+            console.warning("Possible stream error - accumulator not empty at start of stream! Missing end-of-stream marker?");
 
         // Initialize the accumulation model
         initializeReduction();
     }
 
     @Override
-    public void handleStreamTerminators() throws Exception {
-        if ( this.modelAcc==null ) {
-            String sMessage = "Unbalanced wrapped stream. Got a new terminator without an initiator. Dropping it to try to rebalance.";
-            console.warning(sMessage);
-            if ( !this.ignoreErrors )
-                throw new ComponentExecutionException(sMessage);
-        }
+    public void endStream() throws Exception {
+        if (this.modelAcc == null)
+            throw new ComponentExecutionException("Stream error - accumulator is empty! Missing start-of-stream marker?");
 
         pushReduction();
         initializeReduction();
     }
 
 	//-----------------------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return true;
+    }
+
+    //-----------------------------------------------------------------------------------
 
 	/**
 	 * Initializes the basic information about the reduction
@@ -193,16 +191,9 @@ public class WrappedModelsReducer extends AbstractExecutableComponent {
 	 * @throws Exception Failed to push the accumulated model
 	 */
 	protected void pushReduction() throws Exception {
-		// Create the delimiters
-		StreamInitiator si = new StreamInitiator();
-		StreamTerminator st = new StreamTerminator();
-		si.put("count", this.iCnt); si.put("accumulated", 1);
-		st.put("count", this.iCnt); st.put("accumulated", 1);
-
-		// Push
-		componentContext.pushDataComponentToOutput(OUT_DOCUMENT, si);
+		componentContext.pushDataComponentToOutput(OUT_DOCUMENT, new StreamInitiator(streamId));
 		componentContext.pushDataComponentToOutput(OUT_DOCUMENT, this.modelAcc);
-		componentContext.pushDataComponentToOutput(OUT_DOCUMENT, st);
+		componentContext.pushDataComponentToOutput(OUT_DOCUMENT, new StreamTerminator(streamId));
 
 	}
 

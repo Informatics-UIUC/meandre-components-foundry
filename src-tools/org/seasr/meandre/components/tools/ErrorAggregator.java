@@ -43,19 +43,22 @@
 package org.seasr.meandre.components.tools;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
+import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.meandre.core.system.components.ext.StreamInitiator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * @author Boris Capitanu
@@ -71,7 +74,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         description = "This component aggregates all errors for a stream",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class ErrorAggregator extends AbstractExecutableComponent {
+public class ErrorAggregator extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -131,6 +134,8 @@ public class ErrorAggregator extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.initializeCallBack(ccp);
+
         _htmlOutput = Boolean.parseBoolean(ccp.getProperty(PROP_OUTPUT_HTML));
         _streaming = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 
@@ -140,7 +145,11 @@ public class ErrorAggregator extends AbstractExecutableComponent {
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         if (cc.isInputAvailable(IN_ERROR)) {
-            String errorMsg = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_ERROR))[0];
+            Object input = cc.getDataComponentFromInput(IN_ERROR);
+            if (input instanceof StreamDelimiter)
+                throw new ComponentExecutionException(String.format("Stream delimiters should not arrive on port '%s'!", IN_ERROR));
+
+            String errorMsg = DataTypeParser.parseAsString(input)[0];
             console.fine("Got error message: '" + errorMsg + "'");
             _errorAccumulator.append(errorMsg);
 
@@ -153,8 +162,38 @@ public class ErrorAggregator extends AbstractExecutableComponent {
         }
 
         if (cc.isInputAvailable(IN_OBJECT)) {
-            _payload = cc.getDataComponentFromInput(IN_OBJECT);
+            Object input = cc.getDataComponentFromInput(IN_OBJECT);
+            if (input instanceof StreamDelimiter) {
+                StreamDelimiter sd = (StreamDelimiter) input;
+                if (sd.getStreamId() != streamId) {
+                    cc.pushDataComponentToOutput(OUT_ERROR, sd);
+                    cc.pushDataComponentToOutput(OUT_OBJECT, sd);
+                    return;
+                }
 
+                if (input instanceof StreamInitiator) return;
+
+                // Got terminator for this stream
+
+                if (_errorAccumulator.length() == 0) {
+                    if (_payload != null) {
+                        console.fine("Got input with no errors - forwarding it...");
+                        cc.pushDataComponentToOutput(OUT_OBJECT, _payload);
+                    }
+                    else {
+                        console.warning(String.format("There was no data received on port '%s'! Nothing to forward.", IN_OBJECT));
+                        componentContext.pushDataComponentToOutput(OUT_ERROR,
+                                BasicDataTypesTools.stringToStrings("There was an error detected while processing your request. " +
+                                        "We are sorry for the inconvenience. [ERROR: " + getClass().getSimpleName() + ": No data to forward]"));
+                    }
+                } else
+                    pushAccumulatedErrors();
+
+                resetState();
+                return;
+            }
+
+            _payload = input;
             if (!_streaming) cc.pushDataComponentToOutput(OUT_OBJECT, _payload);
         }
     }
@@ -166,33 +205,18 @@ public class ErrorAggregator extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
+    public boolean isAccumulator() {
+        return true;
+    }
+
+    @Override
     public void handleStreamInitiators() throws Exception {
-        if (inputPortsWithInitiators.contains(IN_ERROR))
-            console.warning("StreamInitiator received on port '" + IN_ERROR + "'. This should NOT happen!");
+        executeCallBack(componentContext);
     }
 
     @Override
     public void handleStreamTerminators() throws Exception {
-        if (inputPortsWithTerminators.contains(IN_ERROR))
-            console.warning("StreamTerminator received on port '" + IN_ERROR + "'. This should NOT happen!");
-
-        if (inputPortsWithTerminators.contains(IN_OBJECT)) {
-            if (_errorAccumulator.length() == 0) {
-                if (_payload != null) {
-                    console.fine("Got input with no errors - forwarding it...");
-                    componentContext.pushDataComponentToOutput(OUT_OBJECT, _payload);
-                }
-                else {
-                    console.warning("There was no data received on port '" + IN_OBJECT + "'! Nothing to forward.");
-                    componentContext.pushDataComponentToOutput(OUT_ERROR,
-                            BasicDataTypesTools.stringToStrings("There was an error detected while processing your request. " +
-                            		"We are sorry for the inconvenience. [ERROR: " + getClass().getSimpleName() + ": No data to forward]"));
-                }
-            } else
-                pushAccumulatedErrors();
-
-            resetState();
-        }
+        executeCallBack(componentContext);
     }
 
     //--------------------------------------------------------------------------------------------
@@ -206,5 +230,6 @@ public class ErrorAggregator extends AbstractExecutableComponent {
         console.fine("Sending accumulated errors...");
         componentContext.pushDataComponentToOutput(OUT_ERROR,
                 BasicDataTypesTools.stringToStrings(_errorAccumulator.toString()));
+        _errorAccumulator = new StringBuilder();
     }
 }

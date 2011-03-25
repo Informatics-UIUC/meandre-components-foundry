@@ -47,8 +47,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.UUID;
 
 import org.meandre.annotations.Component;
@@ -122,7 +120,6 @@ public class PersistToDB extends AbstractDBComponent {
     public static final String PERSISTENCE_META_TABLE_NAME = "persistence_meta";
 
     protected String _dbTable;
-    protected Queue<Object> _inputQueue = new LinkedList<Object>();
 
     protected boolean _ensuredPersistenceTablesExist = false;
     protected boolean _ensuredPersistenceTableExists = false;
@@ -163,12 +160,11 @@ public class PersistToDB extends AbstractDBComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         super.executeCallBack(cc);
 
-        if (cc.isInputAvailable(IN_DATA1))
-            // We want to allow queueing of StreamDelimiters so
-            // that we know when to process in streaming mode and when not
-            _inputQueue.offer(cc.getDataComponentFromInput(IN_DATA1));
+        // We want to allow queueing of StreamDelimiters so
+        // that we know when to process in streaming mode and when not
+        componentInputCache.storeIfAvailable(cc, IN_DATA1);
 
-        if (connectionPool == null || _inputQueue.isEmpty())
+        if (connectionPool == null || !componentInputCache.hasData(IN_DATA1))
             // we're not ready to process yet, return
             return;
 
@@ -186,11 +182,18 @@ public class PersistToDB extends AbstractDBComponent {
             psData = connection.prepareStatement(_sqlInsertData);
 
             Object input;
-            while ((input = _inputQueue.poll()) != null) {
+            while ((input = componentInputCache.retrieveNext(IN_DATA1)) != null) {
                 if (input instanceof StreamInitiator) {
+                    StreamInitiator si = (StreamInitiator) input;
+                    if (si.getStreamId() != streamId) {
+                        // Forward the stream delimiter along
+                        cc.pushDataComponentToOutput(OUT_ID, si);
+                        continue;
+                    }
+
                     console.finer("Received StreamInitiator");
                     if (_isStreaming)
-                        console.severe("Already received a StreamInitiator! Stream-within-stream is not yet supported!");
+                        console.severe("Stream error - start stream marker already received!");
 
                     _isStreaming = true;
                     insertPersistenceMetaInfo(psMeta);
@@ -199,6 +202,13 @@ public class PersistToDB extends AbstractDBComponent {
                 }
 
                 if (input instanceof StreamTerminator) {
+                    StreamTerminator st = (StreamTerminator) input;
+                    if (st.getStreamId() != streamId) {
+                        // Forward the stream delimiter along
+                        cc.pushDataComponentToOutput(OUT_ID, st);
+                        continue;
+                    }
+
                     console.finer("Received StreamTerminator");
                     _isStreaming = false;
                     if (_seqNo > 1) {  // Only commit if non-empty stream
@@ -250,6 +260,27 @@ public class PersistToDB extends AbstractDBComponent {
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         super.disposeCallBack(ccp);
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return true;
+    }
+
+    @Override
+    public void handleStreamInitiators() throws Exception {
+        // Since this component is a FiringPolicy.any, it is possible that when handleStreamInitiators() is
+        // called, there could be non-StreamDelimiter data that has arrived on other ports which would be
+        // lost if we don't call 'executeCallBack' (when handleStreamInitiators() gets called, executeCallBack is NOT called)
+
+        executeCallBack(componentContext);
+    }
+
+    @Override
+    public void handleStreamTerminators() throws Exception {
+        executeCallBack(componentContext);
     }
 
     //--------------------------------------------------------------------------------------------

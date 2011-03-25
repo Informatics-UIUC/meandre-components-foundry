@@ -49,16 +49,16 @@ import java.net.URI;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.seasr.meandre.support.generic.io.IOUtils;
 
 /**
@@ -75,8 +75,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-
-public class CustomVAMQuery extends AbstractExecutableComponent {
+public class CustomVAMQuery extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------
 
@@ -107,6 +106,7 @@ public class CustomVAMQuery extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.initializeCallBack(ccp);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class CustomVAMQuery extends AbstractExecutableComponent {
         String json = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_JSON))[0];
         String location = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION))[0];
 
-        StreamInitiator si = new StreamInitiator();
+        StreamInitiator si = new StreamInitiator(streamId);
         componentContext.pushDataComponentToOutput(OUT_JSON, si);
 
         int size;
@@ -150,11 +150,18 @@ public class CustomVAMQuery extends AbstractExecutableComponent {
             componentContext.pushDataComponentToOutput(OUT_JSON, recs);
        }
 
-       StreamTerminator st = new StreamTerminator();
+       StreamTerminator st = new StreamTerminator(streamId);
        componentContext.pushDataComponentToOutput(OUT_JSON, st);
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return false;
     }
 }

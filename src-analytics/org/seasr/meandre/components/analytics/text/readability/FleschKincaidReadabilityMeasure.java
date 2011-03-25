@@ -47,12 +47,12 @@ import java.util.Vector;
 
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -60,7 +60,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 import org.seasr.meandre.support.generic.text.analytics.ReadabilityMeasure;
 
@@ -87,7 +87,7 @@ import org.seasr.meandre.support.generic.text.analytics.ReadabilityMeasure;
 		dependency = {"protobuf-java-2.2.0.jar"},
 		resources = {"FleschKincaidReadabilityMeasure.vm"}
 )
-public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent {
+public class FleschKincaidReadabilityMeasure extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -145,7 +145,7 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
     private VelocityContext _context;
     private String _template;
     private Vector<FleschDocument> _fleschDocs = new Vector<FleschDocument>();
-    private boolean _gotInitiator;
+    private boolean _isStreaming;
 
     public class FleschDocument {
         private final String _title;
@@ -176,8 +176,10 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 	    _template = ccp.getProperty(PROP_TEMPLATE);
-	    _gotInitiator = false;
+	    _isStreaming = false;
 
 	    _context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
@@ -197,7 +199,7 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
 		ReadabilityMeasure measure = ReadabilityMeasure.computeFleschReadabilityMeasure(content);
 		_fleschDocs.add(new FleschDocument(title, location, measure));
 
-		if (!_gotInitiator) {
+		if (!_isStreaming) {
 		    cc.pushDataComponentToOutput(OUT_HTML_REPORT,
 		            BasicDataTypesTools.stringToStrings(generateReport()));
 		    _fleschDocs.clear();
@@ -211,39 +213,30 @@ public class FleschKincaidReadabilityMeasure extends AbstractExecutableComponent
     //--------------------------------------------------------------------------------------------
 
     @Override
-    public void handleStreamInitiators() throws Exception {
-        if (_gotInitiator)
-            throw new UnsupportedOperationException("Cannot process multiple streams at the same time!");
-
-        if (inputPortsWithInitiators.contains(IN_ITEM_TITLE) &&
-            inputPortsWithInitiators.contains(IN_ITEM_URL) &&
-            inputPortsWithInitiators.contains(IN_CONTENT)) {
-
-            _fleschDocs = new Vector<FleschDocument>();
-            _gotInitiator = true;
-        }
-        else
-            throw new Exception("Unbalanced or unexpected StreamInitiator received");
+    public boolean isAccumulator() {
+        return true;
     }
 
     @Override
-    public void handleStreamTerminators() throws Exception {
-        if (!_gotInitiator)
-            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
+    public void startStream() throws Exception {
+        if (_isStreaming)
+            throw new Exception("Stream error - start stream marker already received!");
 
-        if (inputPortsWithTerminators.contains(IN_ITEM_TITLE) &&
-            inputPortsWithTerminators.contains(IN_ITEM_URL) &&
-            inputPortsWithTerminators.contains(IN_CONTENT)) {
+        _fleschDocs = new Vector<FleschDocument>();
+        _isStreaming = true;
+    }
 
-                componentContext.pushDataComponentToOutput(OUT_HTML_REPORT, new StreamInitiator());
-                componentContext.pushDataComponentToOutput(OUT_HTML_REPORT,
-                        BasicDataTypesTools.stringToStrings(generateReport()));
-                componentContext.pushDataComponentToOutput(OUT_HTML_REPORT, new StreamTerminator());
-                _gotInitiator = false;
-                _fleschDocs.clear();
-            }
-            else
-                throw new Exception("Unbalanced or unexpected StreamTerminator received");
+    @Override
+    public void endStream() throws Exception {
+        if (!_isStreaming)
+            throw new Exception("Stream error - end stream received without start stream!");
+
+        componentContext.pushDataComponentToOutput(OUT_HTML_REPORT, new StreamInitiator(streamId));
+        componentContext.pushDataComponentToOutput(OUT_HTML_REPORT,
+                BasicDataTypesTools.stringToStrings(generateReport()));
+        componentContext.pushDataComponentToOutput(OUT_HTML_REPORT, new StreamTerminator(streamId));
+        _isStreaming = false;
+        _fleschDocs.clear();
     }
 
     //--------------------------------------------------------------------------------------------

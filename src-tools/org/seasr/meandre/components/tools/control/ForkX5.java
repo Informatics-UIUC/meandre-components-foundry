@@ -42,24 +42,21 @@
 
 package org.seasr.meandre.components.tools.control;
 
-import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 
 /**
  * <p>Title: Fork Times Five</p>
@@ -163,12 +160,14 @@ public class ForkX5 extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         fn = ccp.getProperty(PROP_REPLICATION_MODE);
         if (fn == null || fn.length() == 0)
             throw new ComponentExecutionException("No replication mode given.");
     }
 
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         int repMode = Integer.parseInt(fn);
         Object dat = cc.getDataComponentFromInput(IN_OBJECT);
@@ -255,6 +254,7 @@ public class ForkX5 extends AbstractExecutableComponent {
         }
     }
 
+    @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
@@ -347,33 +347,5 @@ public class ForkX5 extends AbstractExecutableComponent {
                                        "instance of the input object.");
         }
         return obj;
-    }
-
-    @Override
-    public void handleStreamInitiators() throws Exception {
-        StreamInitiator si = (StreamInitiator)componentContext.getDataComponentFromInput(IN_OBJECT);
-        componentContext.pushDataComponentToOutput(OUT_OBJECT, si);
-        componentContext.pushDataComponentToOutput(OUT_OBJECT_2,
-                ComponentUtils.cloneStreamDelimiter(si));
-        componentContext.pushDataComponentToOutput(OUT_OBJECT_3,
-                ComponentUtils.cloneStreamDelimiter(si));
-        componentContext.pushDataComponentToOutput(OUT_OBJECT_4,
-                ComponentUtils.cloneStreamDelimiter(si));
-        componentContext.pushDataComponentToOutput(OUT_OBJECT_5,
-                ComponentUtils.cloneStreamDelimiter(si));
-    }
-
-    @Override
-    public void handleStreamTerminators() throws Exception {
-        StreamTerminator st = (StreamTerminator)componentContext.getDataComponentFromInput(IN_OBJECT);
-        componentContext.pushDataComponentToOutput(OUT_OBJECT, st);
-        componentContext.pushDataComponentToOutput(OUT_OBJECT_2,
-                ComponentUtils.cloneStreamDelimiter(st));
-        componentContext.pushDataComponentToOutput(OUT_OBJECT_3,
-                ComponentUtils.cloneStreamDelimiter(st));
-        componentContext.pushDataComponentToOutput(OUT_OBJECT_4,
-                ComponentUtils.cloneStreamDelimiter(st));
-        componentContext.pushDataComponentToOutput(OUT_OBJECT_5,
-                ComponentUtils.cloneStreamDelimiter(st));
     }
 }

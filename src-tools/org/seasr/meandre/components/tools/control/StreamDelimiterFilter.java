@@ -42,16 +42,19 @@
 
 package org.seasr.meandre.components.tools.control;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * @author Boris Capitanu
@@ -60,13 +63,13 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 @Component(
         creator = "Boris Capitanu",
-        description = "This component filters out all stream delimiters",
+        description = "This component filters out some or all stream delimiters",
         name = "Stream Delimiter Filter",
         tags = "filter, delimiter",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/"
 )
-public class StreamDelimiterFilter extends AbstractExecutableComponent {
+public class StreamDelimiterFilter extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -86,8 +89,18 @@ public class StreamDelimiterFilter extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+
+    private final Set<Integer> streamIds = new HashSet<Integer>();
+
+
+    //--------------------------------------------------------------------------------------------
+
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        for (String id : getPropertyOrDieTrying(PROP_STREAM_ID, true, false, ccp).split(",")) {
+            if (id.trim().length() == 0) continue;
+            streamIds.add(Integer.parseInt(id.trim()));
+        }
     }
 
     @Override
@@ -103,14 +116,31 @@ public class StreamDelimiterFilter extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
     @Override
+    public boolean isAccumulator() {
+        return false;
+    }
+
+    @Override
     public void handleStreamInitiators() throws Exception {
-        console.fine("Ignoring " + StreamInitiator.class.getSimpleName() +
-                " received on ports " + inputPortsWithInitiators);
+        StreamInitiator si = (StreamInitiator) componentContext.getDataComponentFromInput(IN_OBJECT);
+        if (streamIds.size() == 0 || streamIds.contains(si.getStreamId()))
+            console.fine(String.format("Ignoring %s received on ports %s",
+                    StreamInitiator.class.getSimpleName(), inputPortsWithInitiators));
+        else {
+            console.fine(String.format("Forwarding the %s (id: %d) on all output ports...", StreamInitiator.class.getSimpleName(), si.getStreamId()));
+            componentContext.pushDataComponentToOutput(OUT_OBJECT, si);
+        }
     }
 
     @Override
     public void handleStreamTerminators() throws Exception {
-        console.fine("Ignoring " + StreamTerminator.class.getSimpleName() +
-                " received on ports " + inputPortsWithTerminators);
+        StreamTerminator st = (StreamTerminator) componentContext.getDataComponentFromInput(IN_OBJECT);
+        if (streamIds.size() == 0 || streamIds.contains(st.getStreamId()))
+            console.fine(String.format("Ignoring %s received on ports %s",
+                    StreamTerminator.class.getSimpleName(), inputPortsWithTerminators));
+        else {
+            console.fine(String.format("Forwarding the %s (id: %d) on all output ports...", StreamTerminator.class.getSimpleName(), st.getStreamId()));
+            componentContext.pushDataComponentToOutput(OUT_OBJECT, st);
+        }
     }
 }

@@ -42,9 +42,6 @@
 
 package org.seasr.meandre.components.tools.control;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -52,7 +49,6 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.Names;
@@ -116,50 +112,51 @@ public class TriggerMessage extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-	protected Queue<Object> triggerQueue;
 	protected Object object;
-	private StreamDelimiter delayedTerminator;
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		triggerQueue = new LinkedList<Object>();
 		object = null;
-		delayedTerminator = null;
 	}
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-
         if (cc.isInputAvailable(IN_OBJECT)) {
-            if (object != null)
-                console.warning("Object already set - overwriting it. This behavior is susceptible to race conditions!");
-            object = cc.getDataComponentFromInput(IN_OBJECT);
+            Object input = cc.getDataComponentFromInput(IN_OBJECT);
+            if (input instanceof StreamDelimiter)
+                console.warning(String.format("Stream delimiters should not arrive on port '%s'", IN_OBJECT));
+            else {
+                if (object != null)
+                    console.warning("Object already set - overwriting it. This behavior is susceptible to race conditions!");
+                object = input;
+            }
         }
 
-		if (cc.isInputAvailable(IN_TRIGGER))
-		    triggerQueue.offer(cc.getDataComponentFromInput(IN_TRIGGER));
+        componentInputCache.storeIfAvailable(cc, IN_TRIGGER);
 
-		if (object != null && triggerQueue.size() > 0) {
-			for (Object trigger : triggerQueue) {
+		if (object == null || !componentInputCache.hasData(IN_TRIGGER))
+		    // Not ready to process yet
+		    return;
+
+	    Object trigger;
+	    while ((trigger = componentInputCache.retrieveNext(IN_TRIGGER)) != null) {
+	        if (trigger instanceof StreamDelimiter) {
+	            console.fine(String.format("Forwarding the %s (id: %d) on all output ports...",
+	                    trigger.getClass().getSimpleName(), ((StreamDelimiter) trigger).getStreamId()));
+                componentContext.pushDataComponentToOutput(OUT_OBJECT, trigger);
+                componentContext.pushDataComponentToOutput(OUT_TRIGGER, trigger);
+            } else {
 				cc.pushDataComponentToOutput(OUT_OBJECT, object);
 				cc.pushDataComponentToOutput(OUT_TRIGGER, trigger);
-			}
-
-			triggerQueue.clear();
-
-			if (delayedTerminator != null) {
-			    pushDelimiter(delayedTerminator);
-			    delayedTerminator = null;
-			}
-		}
+	        }
+	    }
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		triggerQueue = null;
 		object = null;
     }
 
@@ -167,33 +164,11 @@ public class TriggerMessage extends AbstractExecutableComponent {
 
     @Override
     public void handleStreamInitiators() throws Exception {
-        // Only forward delimiters received through the 'trigger' port
-        if (!inputPortsWithInitiators.contains(IN_TRIGGER))
-            return;
-
-		// Forward the stream delimiter we received downstream
-        StreamDelimiter sd = (StreamDelimiter)componentContext.getDataComponentFromInput(IN_TRIGGER);
-        pushDelimiter(sd);
+        executeCallBack(componentContext);
     }
 
     @Override
     public void handleStreamTerminators() throws Exception {
-        // Only forward delimiters received through the 'trigger' port
-    	if (!inputPortsWithTerminators.contains(IN_TRIGGER))
-            return;
-
-        // Forward the stream delimiter we received downstream
-        StreamDelimiter sd = (StreamDelimiter)componentContext.getDataComponentFromInput(IN_TRIGGER);
-        if (triggerQueue.size() == 0)
-            pushDelimiter(sd);
-        else
-            delayedTerminator = sd;
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    private void pushDelimiter(StreamDelimiter sd) throws ComponentContextException {
-        componentContext.pushDataComponentToOutput(OUT_OBJECT, sd);
-        componentContext.pushDataComponentToOutput(OUT_TRIGGER, sd);
+        executeCallBack(componentContext);
     }
 }

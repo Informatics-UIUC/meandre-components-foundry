@@ -55,6 +55,8 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.support.generic.util.KeyValuePair;
@@ -90,7 +92,7 @@ public class SpellCheckWithCounts extends SpellCheck {
             description = "The token counts used for figuring out the most probable replacement for " +
                           "a misspelled word"
     )
-    protected static final String IN_TOKEN_COUTNS = Names.PORT_TOKEN_COUNTS;
+    protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
     @ComponentInput(
             name = "transformations",
@@ -100,19 +102,35 @@ public class SpellCheckWithCounts extends SpellCheck {
 
     //--------------------------------------------------------------------------------------------
 
+
     protected Map<String, Integer> _tokenCounts;
     protected Map<String, String> _transformations;
+
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        if (cc.isInputAvailable(IN_TOKEN_COUTNS))
-            _tokenCounts = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUTNS));
+        if (cc.isInputAvailable(IN_TOKEN_COUNTS)) {
+            Object input = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
+
+            if (input instanceof StreamDelimiter) {
+                // Forward any stream delimiter received
+                pushStreamDelimiter(input);
+            } else
+                _tokenCounts = DataTypeParser.parseAsStringIntegerMap(input);
+        }
 
         if (cc.isInputAvailable(IN_TRANSFORMATIONS)) {
-            String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TRANSFORMATIONS));
-            _transformations = TextReplacement.buildDictionary(inputs[0], console);
+            Object input = cc.getDataComponentFromInput(IN_TRANSFORMATIONS);
+
+            if (input instanceof StreamDelimiter) {
+                // Forward any stream delimiter received
+                pushStreamDelimiter(input);
+            } else {
+                String[] inputs = DataTypeParser.parseAsString(input);
+                _transformations = TextReplacement.buildDictionary(inputs[0], console);
+            }
         }
 
         super.executeCallBack(cc);
@@ -121,7 +139,7 @@ public class SpellCheckWithCounts extends SpellCheck {
     //--------------------------------------------------------------------------------------------
 
     @Override
-    protected boolean isReadyToProcessInputs() {
+    protected boolean isReadyToProcessInputs() throws ComponentContextException {
         return _tokenCounts != null && _transformations != null && super.isReadyToProcessInputs();
     }
 
