@@ -92,11 +92,23 @@ public abstract class AbstractComponentInputCache {
 	    return hasData(portName) ? _inputCacheMap.get(portName).poll() : null;
 	}
 
+	synchronized public Object peek(String portName) throws ComponentContextException {
+	    return hasData(portName) ? _inputCacheMap.get(portName).peek() : null;
+	}
+
 	synchronized public boolean hasData(String portName) throws ComponentContextException {
 	    if (!_inputCacheMap.containsKey(portName))
 	        throw new ComponentContextException("Unknown port name specified: " + portName);
 
 	    return !_inputCacheMap.get(portName).isEmpty();
+	}
+
+	synchronized public boolean hasDataAll(String[] portNames) throws ComponentContextException {
+	    boolean hasData = true;
+	    for (String portName : portNames)
+	        hasData &= hasData(portName);
+
+	    return hasData;
 	}
 
 	synchronized public Integer getDataCount(String portName) throws ComponentContextException {
