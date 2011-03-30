@@ -258,8 +258,10 @@ public class TupleToSQL extends AbstractDBComponent {
                     for (Strings t : tuples) {
                         tuple.setValues(t);
 
-                        for (int i = 0, iMax = _currentTableColumns.size(); i < iMax; i++)
-                            ps.setObject(i + 1, tuple.getValue(_currentTableColumns.get(i)));
+                        for (int i = 0, iMax = _currentTableColumns.size(); i < iMax; i++) {
+                            String tupleValue = tuple.getValue(_currentTableColumns.get(i));
+                            ps.setObject(i + 1, tupleValue.isEmpty() ? null : tupleValue);
+                        }
 
                         ps.addBatch();
 
@@ -317,6 +319,16 @@ public class TupleToSQL extends AbstractDBComponent {
     @Override
     public boolean isAccumulator() {
         return true;
+    }
+
+    @Override
+    public void handleStreamInitiators() throws Exception {
+        executeCallBack(componentContext);
+    }
+
+    @Override
+    public void handleStreamTerminators() throws Exception {
+        executeCallBack(componentContext);
     }
 
     //--------------------------------------------------------------------------------------------

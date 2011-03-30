@@ -110,11 +110,11 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            name = Names.PORT_XML,
+            name = "xml_or_text",
             description = "The XML result" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String OUT_XML = Names.PORT_XML;
+    protected static final String OUT_XML = "xml_or_text";
 
     //----------------------------- PROPERTIES ---------------------------------------------------
 
@@ -206,13 +206,23 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
 
         for (int i = 0, iMax = nodes.getLength(); i < iMax; i++) {
             Node node = nodes.item(i);
-            StringWriter writer = new StringWriter();
-            _output.setCharacterStream(writer);
-            if (_serializer.write(node, _output))
-                cc.pushDataComponentToOutput(OUT_XML,
-                        BasicDataTypesTools.stringToStrings(writer.toString()));
-            else
-                outputError("Cannot serialize node: " + node, Level.WARNING);
+            switch (node.getNodeType()) {
+                case Node.ATTRIBUTE_NODE:
+                case Node.TEXT_NODE:
+                    cc.pushDataComponentToOutput(OUT_XML,
+                            BasicDataTypesTools.stringToStrings(node.getNodeValue()));
+                    break;
+
+                default:
+                    StringWriter writer = new StringWriter();
+                    _output.setCharacterStream(writer);
+                    if (_serializer.write(node, _output))
+                        cc.pushDataComponentToOutput(OUT_XML,
+                                BasicDataTypesTools.stringToStrings(writer.toString()));
+                    else
+                        outputError("Cannot serialize node: " + node, Level.WARNING);
+                    break;
+            }
         }
 
         cc.pushDataComponentToOutput(OUT_XML, new StreamTerminator(streamId));
