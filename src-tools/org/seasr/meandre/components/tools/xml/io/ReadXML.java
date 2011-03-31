@@ -42,6 +42,8 @@
 
 package org.seasr.meandre.components.tools.xml.io;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -53,15 +55,18 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.io.StreamUtils;
 import org.w3c.dom.Document;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -120,51 +125,50 @@ public class ReadXML extends AbstractExecutableComponent {
 
 	// Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
 
+	@ComponentProperty(
+            name = "validate_dtd",
+            description = "Should validation be performed on DTDs?",
+            defaultValue = "false"
+    )
+    protected static final String PROP_VALIDATE_DTD = "validate_dtd";
+
 	//--------------------------------------------------------------------------------------------
 
 
 	/** The document builder factory */
-	private DocumentBuilderFactory factory;
+	private DocumentBuilderFactory _factory;
 
 	/** The document builder instance */
-	private DocumentBuilder parser;
+	private DocumentBuilder _parser;
 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		try {
-			this.factory = DocumentBuilderFactory.newInstance();
-			this.factory.setNamespaceAware(true);
-			this.parser = factory.newDocumentBuilder();
-		}
-		catch (Throwable t) {
-			String sMessage = "Could not initialize the XML parser";
-            console.warning(sMessage);
-			throw new ComponentExecutionException(sMessage + " " + t.toString());
-		}
+	    boolean validateDTDs = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_VALIDATE_DTD, ccp));
+
+	    _factory = DocumentBuilderFactory.newInstance();
+	    _factory.setNamespaceAware(true);
+        _factory.setValidating(validateDTDs);
+
+	    _parser = _factory.newDocumentBuilder();
+
+	    if (!validateDTDs) {
+    	    _parser.setEntityResolver(new EntityResolver() {
+                public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                    return new InputSource(new StringReader(""));
+                }
+            });
+	    }
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-
 		URI location = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
 		console.fine("Parsing location: " + location);
 
-		Document doc;
-
-		try {
-			doc = parser.parse(StreamUtils.getInputStreamForResource(location));
-		}
-		catch (Throwable t) {
-			console.warning("Could not read XML from location " + location.toString());
-
-			if ( !ignoreErrors )
-				throw new ComponentExecutionException(t);
-			else
-				doc = parser.newDocument();
-		}
+		Document doc = _parser.parse(StreamUtils.getInputStreamForResource(location));
 
 		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(location.toString()));
 		cc.pushDataComponentToOutput(OUT_XML, doc);
@@ -172,7 +176,7 @@ public class ReadXML extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.factory = null;
-        this.parser = null;
+        this._factory = null;
+        this._parser = null;
     }
 }

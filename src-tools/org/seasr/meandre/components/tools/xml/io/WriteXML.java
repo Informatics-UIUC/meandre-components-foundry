@@ -60,7 +60,6 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -143,28 +142,18 @@ public class WriteXML extends AbstractExecutableComponent {
 
 
 	/** The transformer for the document */
-	private Transformer transformer;
-
-	/** The string encoding to use */
-	private String sEncoding;
+	private Transformer _transformer;
 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.sEncoding = ccp.getProperty(PROP_ENCODING);
+		String encoding = getPropertyOrDieTrying(PROP_ENCODING, ccp);
 
-		try {
-			transformer = TransformerFactory.newInstance().newTransformer();
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty(OutputKeys.ENCODING, sEncoding);
-		}
-		catch (Throwable t) {
-			String sMessage = "Could not initialize the XML transformer";
-			console.warning(sMessage);
-			throw new ComponentExecutionException(sMessage + " " + t.toString());
-		}
+		_transformer = TransformerFactory.newInstance().newTransformer();
+		_transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		_transformer.setOutputProperty(OutputKeys.ENCODING, encoding);
 	}
 
 	@Override
@@ -175,7 +164,7 @@ public class WriteXML extends AbstractExecutableComponent {
 		Writer wrtr = IOUtils.getWriterForResource(sLocation);
 		StreamResult result = new StreamResult(wrtr);
 		DOMSource source = new DOMSource(doc);
-		transformer.transform(source, result);
+		_transformer.transform(source, result);
 		wrtr.close();
 
 		cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(sLocation.toString()));
@@ -184,6 +173,6 @@ public class WriteXML extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.transformer = null;
+        _transformer = null;
     }
 }
