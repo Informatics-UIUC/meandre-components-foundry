@@ -226,7 +226,7 @@ public class SpellCheck extends AbstractExecutableComponent {
                 // Display stats
                 console.info(String.format("Total number of words (including duplicates): %d", _countTotalWords));
                 console.info(String.format("Number of unique misspelled words: %d", _countMisspelledWords));
-                console.info(String.format("Number of unique words with no suggested replacement: %d", _countUncorrectedWords));
+                console.info(String.format("Number of unique misspelled words with no suggested replacement: %d", _countUncorrectedWords));
             }
         }
     }
