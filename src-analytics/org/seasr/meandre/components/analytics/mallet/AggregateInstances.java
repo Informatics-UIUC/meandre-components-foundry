@@ -40,7 +40,7 @@
  *
  */
 
-package org.seasr.meandre.components.tools.control;
+package org.seasr.meandre.components.analytics.mallet;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -50,58 +50,52 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
+import cc.mallet.types.Instance;
+import cc.mallet.types.InstanceList;
+
 @Component(
-        name = "Input Counter",
+        name = "Aggregate Mallet Instances",
         creator = "Boris Capitanu",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "input, counter",
-        description = "This component counts the number of data pieces passing through it. " +
-        		"The input data pieces are forwarded to the output port unmodified. " +
-        		"Optionally, by specifying a streamId corresponding to a particular stream, " +
-        		"the component will count every data point associated with the stream, " +
-        		"and start its count over for every new stream.",
+        tags = "mallet, instance, aggregator",
+        description = "This component accumulates the instances belonging to the " +
+        		"specified stream and produces a list of machine learning instances, " +
+        		"typically used for training or testing of a machine learning algorithm." ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class InputCounter extends AbstractStreamingExecutableComponent {
+public class AggregateInstances extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            name = Names.PORT_OBJECT,
-            description = "The object" +
-                          "<br>TYPE: java.lang.Object"
+            name = "mallet_instance",
+            description = "The Mallet instance" +
+                "<br>TYPE: cc.mallet.types.Instance"
     )
-    protected static final String IN_OBJECT = Names.PORT_OBJECT;
+    protected static final String IN_INSTANCE = "mallet_instance";
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            name = Names.PORT_OBJECT,
-            description = "The same object received as input" +
-                          "<br>TYPE: java.lang.Object"
+            name = "mallet_instance_list",
+            description = "The list of accumulated machine learning instances, " +
+                "typically used for training or testing of a machine learning algorithm" +
+                "<br>TYPE: cc.mallet.types.InstanceList"
     )
-    protected static final String OUT_OBJECT = Names.PORT_OBJECT;
-
-    @ComponentOutput(
-            name = "count",
-            description = "The count" +
-                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-    )
-    protected static final String OUT_COUNT = "count";
+    protected static final String OUT_INSTANCE_LIST = "mallet_instance_list";
 
     //--------------------------------------------------------------------------------------------
 
 
-    protected int _counter = 0;
+    protected InstanceList _instanceList;
 
 
     //--------------------------------------------------------------------------------------------
@@ -113,13 +107,11 @@ public class InputCounter extends AbstractStreamingExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        _counter++;
+        if (_instanceList == null)
+            throw new ComponentExecutionException("No stream was detected. This component only works in streaming mode.");
 
-        Strings.Builder count = Strings.newBuilder();
-        count.addValue(Integer.toString(_counter));
-
-        cc.pushDataComponentToOutput(OUT_COUNT, count.build());
-        cc.pushDataComponentToOutput(OUT_OBJECT, cc.getDataComponentFromInput(IN_OBJECT));
+        Instance instance = (Instance) cc.getDataComponentFromInput(IN_INSTANCE);
+        _instanceList.add(instance);
     }
 
     @Override
@@ -135,19 +127,15 @@ public class InputCounter extends AbstractStreamingExecutableComponent {
 
     @Override
     public void startStream() throws Exception {
-        _counter = 0;
-
-        StreamInitiator si = new StreamInitiator(streamId);
-        componentContext.pushDataComponentToOutput(OUT_COUNT, si);
-        componentContext.pushDataComponentToOutput(OUT_OBJECT, si);
+        _instanceList = new InstanceList(null, null);
     }
 
     @Override
     public void endStream() throws Exception {
-        _counter = 0;
+        componentContext.pushDataComponentToOutput(OUT_INSTANCE_LIST, new StreamInitiator(streamId));
+        componentContext.pushDataComponentToOutput(OUT_INSTANCE_LIST, _instanceList);
+        componentContext.pushDataComponentToOutput(OUT_INSTANCE_LIST, new StreamTerminator(streamId));
 
-        StreamTerminator st = new StreamTerminator(streamId);
-        componentContext.pushDataComponentToOutput(OUT_COUNT, st);
-        componentContext.pushDataComponentToOutput(OUT_OBJECT, st);
+        _instanceList = null;
     }
 }
