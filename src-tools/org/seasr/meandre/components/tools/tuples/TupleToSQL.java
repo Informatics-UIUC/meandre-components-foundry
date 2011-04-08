@@ -260,7 +260,7 @@ public class TupleToSQL extends AbstractDBComponent {
 
                         for (int i = 0, iMax = _currentTableColumns.size(); i < iMax; i++) {
                             String tupleValue = tuple.getValue(_currentTableColumns.get(i));
-                            ps.setObject(i + 1, tupleValue.isEmpty() ? null : tupleValue);
+                            ps.setObject(i + 1, tupleValue.length() > 0 ? tupleValue : null);
                         }
 
                         ps.addBatch();

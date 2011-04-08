@@ -144,7 +144,7 @@ public class TupleToFeatureSequence extends AbstractStreamingExecutableComponent
         Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
         int capacity = in.length;
-        if (!_featureCountsAttr.isEmpty()) {
+        if (_featureCountsAttr.length() > 0) {
             capacity = 0;
             for (int i = 0; i < in.length; i++) {
                 tuple.setValues(in[i]);
@@ -158,7 +158,7 @@ public class TupleToFeatureSequence extends AbstractStreamingExecutableComponent
             tuple.setValues(in[i]);
 
             String feature = tuple.getValue(_featureAttr);
-            if (_featureCountsAttr.isEmpty())
+            if (_featureCountsAttr.length() == 0)
                 featureSequence.add(feature);
             else
                 for (int n = 0, nMax = Integer.parseInt(tuple.getValue(_featureCountsAttr)); n < nMax; n++)
