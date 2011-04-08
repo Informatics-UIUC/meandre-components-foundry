@@ -54,8 +54,6 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
@@ -267,16 +265,12 @@ public class TupleToXML extends AbstractStreamingExecutableComponent {
         if (!_isStreaming)
             throw new Exception("Stream error - received end stream marker without start stream!");
 
-        componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator(streamId));
-
         Document xmlDoc = mergeXmlDocuments();
         if (xmlDoc != null) {
             String xmlString = DOMUtils.getString(xmlDoc, _xmlProperties);
             xmlString = XMLUtils.stripNonValidXMLCharacters(xmlString);
             componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(xmlString));
         }
-
-        componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator(streamId));
 
         _isStreaming = false;
         _simileDocs.clear();

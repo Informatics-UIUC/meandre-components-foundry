@@ -347,7 +347,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
 
         // Sanity check - make sure stream initiators arrived on all input ports at the same time
         if (!inputPortsWithInitiators.containsAll(inputPortNames))
-            throw new ComponentExecutionException("Stream delimiters must arrive on all input ports at the same time for components with FiringPolicy = all; " +
+            throw new ComponentExecutionException(getClass().getName() + ": Stream delimiters must arrive on all input ports at the same time for components with FiringPolicy = all; " +
             		"For FiringPolicy = any components you *must* override handleStreamInitiators() and handleStreamTerminators() to call 'executeCallBack(componentContext);' " +
             		"and then deal with stream delimiters in 'executeCallBack'. This is the most reliable way to work with streams.");
 

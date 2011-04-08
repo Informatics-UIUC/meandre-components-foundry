@@ -51,8 +51,6 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 import cc.mallet.types.Instance;
@@ -132,9 +130,7 @@ public class AggregateInstances extends AbstractStreamingExecutableComponent {
 
     @Override
     public void endStream() throws Exception {
-        componentContext.pushDataComponentToOutput(OUT_INSTANCE_LIST, new StreamInitiator(streamId));
         componentContext.pushDataComponentToOutput(OUT_INSTANCE_LIST, _instanceList);
-        componentContext.pushDataComponentToOutput(OUT_INSTANCE_LIST, new StreamTerminator(streamId));
 
         _instanceList = null;
     }

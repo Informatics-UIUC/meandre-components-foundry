@@ -52,8 +52,6 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -164,11 +162,8 @@ public class TextAccumulator extends AbstractStreamingExecutableComponent {
         if (!_isStreaming)
             console.severe("Stream error - received end stream marker without start stream!");
 
-        if (_accumulator.length() > 0) {
-            componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator(streamId));
+        if (_accumulator.length() > 0)
             pushConcatenatedTextAndReset();
-            componentContext.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator(streamId));
-        }
 
         _isStreaming = false;
     }

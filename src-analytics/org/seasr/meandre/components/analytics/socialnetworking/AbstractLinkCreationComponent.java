@@ -303,6 +303,8 @@ public abstract class AbstractLinkCreationComponent extends AbstractStreamingExe
     @Override
     public void endStream() throws Exception {
         generateAndPushOutputInternal();
+
+        _isStreaming = false;
     }
 
     private void generateAndPushOutputInternal() throws Exception {
@@ -327,8 +329,6 @@ public abstract class AbstractLinkCreationComponent extends AbstractStreamingExe
         console.exiting(getClass().getSimpleName(), "generateAndPushOutput");
 
         reset();
-
-        _isStreaming = false;
     }
 
     private void reset() {

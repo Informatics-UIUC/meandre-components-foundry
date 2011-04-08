@@ -51,8 +51,6 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
@@ -191,10 +189,7 @@ public class WrappedModelsReducer extends AbstractStreamingExecutableComponent {
 	 * @throws Exception Failed to push the accumulated model
 	 */
 	protected void pushReduction() throws Exception {
-		componentContext.pushDataComponentToOutput(OUT_DOCUMENT, new StreamInitiator(streamId));
 		componentContext.pushDataComponentToOutput(OUT_DOCUMENT, this.modelAcc);
-		componentContext.pushDataComponentToOutput(OUT_DOCUMENT, new StreamTerminator(streamId));
-
 	}
 
 	/**

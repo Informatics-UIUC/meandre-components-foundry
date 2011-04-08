@@ -53,8 +53,6 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -235,9 +233,7 @@ public class XMLAggregator extends AbstractStreamingExecutableComponent {
 
         StringWriter writer = new StringWriter();
 		DOMUtils.writeXML(doc_out, writer, null);
-        componentContext.pushDataComponentToOutput(OUT_XML, new StreamInitiator(streamId));
         componentContext.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(writer.toString()));
-        componentContext.pushDataComponentToOutput(OUT_XML, new StreamTerminator(streamId));
 
         if(table!=null)
         	table.clear();

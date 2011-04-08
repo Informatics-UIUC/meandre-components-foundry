@@ -53,8 +53,6 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -163,9 +161,7 @@ public class TokenizedSentencesReducer extends AbstractStreamingExecutableCompon
         if (!_isStreaming)
             throw new Exception("Stream error - received end stream marker without start stream!");
 
-        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamInitiator(streamId));
         componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, BasicDataTypesTools.mapToStringMap(_tokenizedSentences));
-        componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamTerminator(streamId));
 
         _isStreaming = false;
         _tokenizedSentences.clear();

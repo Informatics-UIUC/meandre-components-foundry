@@ -102,18 +102,18 @@ public abstract class AbstractStreamingExecutableComponent extends AbstractExecu
         StreamInitiator si = (StreamInitiator) componentContext.getDataComponentFromInput(componentContext.getInputNames()[0]);
         if (si.getStreamId() != streamId) {
             console.fine(String.format("Forwarding the %s (id: %d) on all output ports...", StreamInitiator.class.getSimpleName(), si.getStreamId()));
-
-            for (String portName : componentContext.getOutputNames()) {
-                if (portName.equals(OUT_ERROR)) continue;
-
-                componentContext.pushDataComponentToOutput(portName, si);
-            }
         } else
             if (isAccumulator())
                 startStream();
             else
                 throw new ComponentExecutionException(String.format("Stream id conflict! Incoming stream has the same id (%d) " +
                 		"as the one set for this component (%s)!", streamId, getClass().getSimpleName()));
+
+        for (String portName : componentContext.getOutputNames()) {
+            if (portName.equals(OUT_ERROR)) continue;
+
+            componentContext.pushDataComponentToOutput(portName, si);
+        }
 
        console.exiting(getClass().getName(), "handleStreamInitiators");
     }
@@ -135,18 +135,18 @@ public abstract class AbstractStreamingExecutableComponent extends AbstractExecu
         StreamTerminator st = (StreamTerminator) componentContext.getDataComponentFromInput(componentContext.getInputNames()[0]);
         if (st.getStreamId() != streamId) {
             console.fine(String.format("Forwarding the %s (id: %d) on all output ports...", StreamTerminator.class.getSimpleName(), st.getStreamId()));
-
-            for (String portName : componentContext.getOutputNames()) {
-                if (portName.equals(OUT_ERROR)) continue;
-
-                componentContext.pushDataComponentToOutput(portName, st);
-            }
         } else
             if (isAccumulator())
                 endStream();
             else
                 throw new ComponentExecutionException(String.format("Stream id conflict! Incoming stream has the same id (%d) " +
                         "as the one set for this component (%s)!", streamId, getClass().getSimpleName()));
+
+        for (String portName : componentContext.getOutputNames()) {
+            if (portName.equals(OUT_ERROR)) continue;
+
+            componentContext.pushDataComponentToOutput(portName, st);
+        }
 
         console.exiting(getClass().getName(), "handleStreamTerminators");
     }

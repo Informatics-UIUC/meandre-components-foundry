@@ -53,8 +53,6 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.datatypes.core.Names;
@@ -192,9 +190,7 @@ public class DictionaryMerger extends AbstractStreamingExecutableComponent {
 	@Override
 	public void endStream() throws Exception {
 		if(--nr == 0) {
-		    componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamInitiator(streamId));
 			outputDictionary();
-			componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamTerminator(streamId));
 			dictionary.clear();
 			dictionary = null;
 		}

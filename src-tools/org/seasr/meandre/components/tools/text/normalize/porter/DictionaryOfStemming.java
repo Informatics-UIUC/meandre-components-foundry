@@ -53,8 +53,6 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -212,9 +210,7 @@ public class DictionaryOfStemming extends AbstractStreamingExecutableComponent {
 			mres.addValue(sres.build());
         }
 
-        componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamInitiator(streamId));
         componentContext.pushDataComponentToOutput(OUT_DICTIONARY, mres.build());
-        componentContext.pushDataComponentToOutput(OUT_DICTIONARY, new StreamTerminator(streamId));
 
         _tokenMap.clear();
         _isStreaming = false;

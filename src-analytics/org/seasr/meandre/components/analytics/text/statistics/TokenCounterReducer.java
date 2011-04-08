@@ -56,8 +56,6 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -212,15 +210,9 @@ public class TokenCounterReducer extends AbstractStreamingExecutableComponent {
 	 * @throws Exception Failed to push the accumulated model
 	 */
 	protected void pushReduction() throws Exception {
-		// Create the delimiters
-		StreamInitiator si = new StreamInitiator(streamId);
-		StreamTerminator st = new StreamTerminator(streamId);
-
 		// Push
-		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, si);
 		if (_accumulator != null && _accumulator.size() > 0)
 		    componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(_accumulator, _shouldOrderTokens));
-		componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, st);
 	}
 
 	/**

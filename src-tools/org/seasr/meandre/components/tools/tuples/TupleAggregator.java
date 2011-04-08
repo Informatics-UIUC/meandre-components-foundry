@@ -149,7 +149,6 @@ public class TupleAggregator extends AbstractStreamingExecutableComponent {
 
     @Override
     public void endStream() throws Exception {
-        // TODO: should the output be wrapped in a stream?
         if (_metaTuple != null) {
             componentContext.pushDataComponentToOutput(OUT_META_TUPLE, _metaTuple);
             componentContext.pushDataComponentToOutput(OUT_TUPLES, _tuples.build());

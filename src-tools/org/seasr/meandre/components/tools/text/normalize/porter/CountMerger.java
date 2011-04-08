@@ -52,8 +52,6 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
@@ -178,9 +176,7 @@ public class CountMerger extends AbstractStreamingExecutableComponent {
 	@Override
 	public void endStream() throws Exception {
 		if(--nr == 0) {
-		    componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, new StreamInitiator(streamId));
 			outputCount();
-			componentContext.pushDataComponentToOutput(OUT_TOKEN_COUNTS, new StreamTerminator(streamId));
 			pool.clear();
 			pool = null;
 		}

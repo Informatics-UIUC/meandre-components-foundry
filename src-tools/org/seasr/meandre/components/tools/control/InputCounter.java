@@ -50,8 +50,6 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
@@ -63,12 +61,12 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "input, counter",
-        description = "This component counts the number of data pieces passing through it. " +
-        		"The input data pieces are forwarded to the output port unmodified. " +
-        		"Optionally, by specifying a streamId corresponding to a particular stream, " +
-        		"the component will count every data point associated with the stream, " +
-        		"and start its count over for every new stream.",
+        tags = "input, counter, stream",
+        description = "This component counts the number of data objects passing " +
+        		"through it and outputs the current count. If the component is set " +
+        		"to act on a particular stream (by setting 'streamId' appropriately) " +
+        		"then at the end of the stream the component will output a total " +
+        		"count of all elements in that stream.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class InputCounter extends AbstractStreamingExecutableComponent {
@@ -92,16 +90,24 @@ public class InputCounter extends AbstractStreamingExecutableComponent {
     protected static final String OUT_OBJECT = Names.PORT_OBJECT;
 
     @ComponentOutput(
-            name = "count",
-            description = "The count" +
+            name = "total_count",
+            description = "The total count (pushed once per stream)" +
                           "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String OUT_COUNT = "count";
+    protected static final String OUT_TOTAL_COUNT = "total_count";
+
+    @ComponentOutput(
+            name = "current_count",
+            description = "The current count (pushed for each stream item)" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_COUNT = "current_count";
 
     //--------------------------------------------------------------------------------------------
 
 
-    protected int _counter = 0;
+    private int _count;
+    protected boolean _isStreaming = false;
 
 
     //--------------------------------------------------------------------------------------------
@@ -113,12 +119,9 @@ public class InputCounter extends AbstractStreamingExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        _counter++;
+        _count++;
 
-        Strings.Builder count = Strings.newBuilder();
-        count.addValue(Integer.toString(_counter));
-
-        cc.pushDataComponentToOutput(OUT_COUNT, count.build());
+        cc.pushDataComponentToOutput(OUT_COUNT, intToStrings(_count));
         cc.pushDataComponentToOutput(OUT_OBJECT, cc.getDataComponentFromInput(IN_OBJECT));
     }
 
@@ -135,19 +138,22 @@ public class InputCounter extends AbstractStreamingExecutableComponent {
 
     @Override
     public void startStream() throws Exception {
-        _counter = 0;
-
-        StreamInitiator si = new StreamInitiator(streamId);
-        componentContext.pushDataComponentToOutput(OUT_COUNT, si);
-        componentContext.pushDataComponentToOutput(OUT_OBJECT, si);
+        _count = 0;
     }
 
     @Override
     public void endStream() throws Exception {
-        _counter = 0;
+        componentContext.pushDataComponentToOutput(OUT_TOTAL_COUNT, intToStrings(_count));
 
-        StreamTerminator st = new StreamTerminator(streamId);
-        componentContext.pushDataComponentToOutput(OUT_COUNT, st);
-        componentContext.pushDataComponentToOutput(OUT_OBJECT, st);
+        _count = 0;
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    public Strings intToStrings(int value) {
+        Strings.Builder s = Strings.newBuilder();
+        s.addValue(Integer.toString(value));
+
+        return s.build();
     }
 }

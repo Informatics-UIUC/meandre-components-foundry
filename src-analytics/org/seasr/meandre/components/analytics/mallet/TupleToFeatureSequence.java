@@ -51,8 +51,6 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -184,14 +182,10 @@ public class TupleToFeatureSequence extends AbstractStreamingExecutableComponent
     @Override
     public void startStream() throws Exception {
         _alphabet = new Alphabet();
-
-        componentContext.pushDataComponentToOutput(OUT_FEATURE_SEQ, new StreamInitiator(streamId));
     }
 
     @Override
     public void endStream() throws Exception {
         _alphabet = null;
-
-        componentContext.pushDataComponentToOutput(OUT_FEATURE_SEQ, new StreamTerminator(streamId));
     }
 }

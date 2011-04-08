@@ -55,8 +55,6 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -231,10 +229,8 @@ public class FleschKincaidReadabilityMeasure extends AbstractStreamingExecutable
         if (!_isStreaming)
             throw new Exception("Stream error - end stream received without start stream!");
 
-        componentContext.pushDataComponentToOutput(OUT_HTML_REPORT, new StreamInitiator(streamId));
-        componentContext.pushDataComponentToOutput(OUT_HTML_REPORT,
-                BasicDataTypesTools.stringToStrings(generateReport()));
-        componentContext.pushDataComponentToOutput(OUT_HTML_REPORT, new StreamTerminator(streamId));
+        componentContext.pushDataComponentToOutput(OUT_HTML_REPORT, BasicDataTypesTools.stringToStrings(generateReport()));
+
         _isStreaming = false;
         _fleschDocs.clear();
     }
