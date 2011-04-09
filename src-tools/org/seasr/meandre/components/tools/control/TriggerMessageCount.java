@@ -51,6 +51,8 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
@@ -102,6 +104,8 @@ public class TriggerMessageCount extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
+    protected boolean _isStreaming = false;
+
 
     //--------------------------------------------------------------------------------------------
 
@@ -124,10 +128,19 @@ public class TriggerMessageCount extends AbstractExecutableComponent {
                 continue;
             }
 
-            if (in_data instanceof StreamDelimiter) {
+            if (in_data instanceof StreamInitiator) {
                 // Forward it
                 cc.pushDataComponentToOutput(OUT_OBJECT, in_data);
                 componentInputCache.retrieveNext(IN_OBJECT);  // remove it from the cache
+                _isStreaming = true;
+                continue;
+            }
+
+            if (in_data instanceof StreamTerminator) {
+                // Forward it
+                cc.pushDataComponentToOutput(OUT_OBJECT, in_data);
+                componentInputCache.retrieveNext(IN_OBJECT);  // remove it from the cache
+                _isStreaming = false;
                 continue;
             }
 
@@ -136,6 +149,11 @@ public class TriggerMessageCount extends AbstractExecutableComponent {
 
             for (int i = 0; i < count; i++)
                 cc.pushDataComponentToOutput(OUT_OBJECT, data);
+        }
+
+        if (_isStreaming && componentInputCache.hasData(IN_OBJECT) && componentInputCache.peek(IN_OBJECT) instanceof StreamTerminator) {
+            cc.pushDataComponentToOutput(OUT_OBJECT, componentInputCache.retrieveNext(IN_OBJECT));
+            _isStreaming = false;
         }
     }
 
