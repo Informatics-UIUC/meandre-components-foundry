@@ -50,28 +50,33 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
- * Pushes text from a property to the output
+ * Pushes a property value to the output
  *
+ * @author Xavier Llor&agrave
  * @author Boris Capitanu
  *
  */
 @Component(
-		name = "Push Text",
-		creator = "Boris Capitanu",
+		name = "Push Text Streaming",
+		creator = "Xavier Llora",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "io, string, text",
-		description = "Pushes the value of the text message property to the output.",
+		tags = "io, string",
+		description = "Pushes the value of the text message property to the output. It provides " +
+				      "a couple of properties to control how many times it needs to be pushed, " +
+				      "and if it needs to be wrapped with delimiters.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class PushText extends AbstractExecutableComponent {
+public class PushTextStreaming extends AbstractStreamingExecutableComponent {
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -91,27 +96,65 @@ public class PushText extends AbstractExecutableComponent {
     )
     protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
 
+    @ComponentProperty(
+            name = Names.PROP_TIMES,
+            description = "The number of times to push the message. ",
+            defaultValue = "1"
+    )
+    protected static final String PROP_TIMES = Names.PROP_TIMES;
+
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the output be wrapped as a stream?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+
 	//--------------------------------------------------------------------------------------------
 
 
 	private String _text;
+	private long _count;
+	private boolean _wrapStream;
 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    super.initializeCallBack(ccp);
+
 		_text = getPropertyOrDieTrying(PROP_MESSAGE, false, false, ccp);
 		if (_text.length() == 0)
 		    console.warning("Pushing the empty string");
+
+		_count = Long.parseLong(ccp.getProperty(PROP_TIMES));
+		_wrapStream = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-	    cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(_text));
+	    if (_wrapStream)
+		    cc.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator(streamId));
+
+	    for (long l = 0; l < _count; l++)
+		    cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(_text));
+
+	    if (_wrapStream)
+	        cc.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator(streamId));
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        _text = null;
+        _count = 0;
+        _wrapStream = false;
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return false;
     }
 }
