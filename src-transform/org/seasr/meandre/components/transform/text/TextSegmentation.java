@@ -101,7 +101,10 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
 	//------------------------------ PROPERTIES --------------------------------------------------
 
 	@ComponentProperty(
-	        description = "The number of tokens for a given segment.",
+	        description = "The size of the segments to be produced (can be specified as a percentage or an integer). " +
+	        		"Example (percentage): 0.10 - indicates that segments should contain approximately 10% of the tokens; <br>" +
+	        		"Example (integer): 200 - indicates the approximate number of tokens to put in each segment. " +
+	        		"Segments always end at sentence boundaries.)",
             name = Names.PROP_SEGMENT_SIZE,
             defaultValue = "200"
 	)
@@ -118,9 +121,9 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
 
 
     protected boolean _wrapStream;
-    protected int _segmentSize;
+    protected double _segmentSize;
 
-    private int _currentSegmentTupleCount = 0;
+    private int _currentSegmentTokenCount = 0;
     private int _segmentCount = 0;
 
 
@@ -131,9 +134,9 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
 	    super.initializeCallBack(ccp);
 
 	    _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
-	    _segmentSize = Integer.parseInt(getPropertyOrDieTrying(PROP_SEGMENT_SIZE, ccp));
+	    _segmentSize = Double.parseDouble(getPropertyOrDieTrying(PROP_SEGMENT_SIZE, ccp));
 
-		if (_segmentSize < 0)
+		if (_segmentSize <= 0)
 			throw new ComponentContextException(
 			        String.format("Invalid value for property '%s'. The value must be greater than 0.", PROP_SEGMENT_SIZE));
 	}
@@ -142,10 +145,26 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		StringsMap tokenizedSentences = (StringsMap) cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES);
 
-		_segmentCount = 0;
+		// Assume specified as # tokens
+		int segmentSize = (int) _segmentSize;
+
+		// If specified as percentage
+		if (_segmentSize < 1) {
+    		// Find the total number of tokens
+    		int totalTokens = 0;
+    		for (int i = 0, iMax = tokenizedSentences.getKeyCount(); i < iMax; i++)
+    		    totalTokens += tokenizedSentences.getValue(i).getValueCount();
+
+    		// Calculate the segment size
+    		segmentSize = (int) Math.round(totalTokens * _segmentSize);
+
+    		console.fine("Calculated segment size: " + segmentSize);
+		}
 
 		if (_wrapStream)
 		    cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamInitiator(streamId));
+
+        _segmentCount = 0;
 
 		StringsMap.Builder segment = StringsMap.newBuilder();
 
@@ -154,36 +173,32 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
 		    Strings tokens = tokenizedSentences.getValue(i);
 		    int tokenCount = tokens.getValueCount();
 
-            if (_currentSegmentTupleCount + tokenCount <= _segmentSize) {
+		    int neededTokens = segmentSize - _currentSegmentTokenCount;
+		    if (neededTokens - tokenCount >= 0 || Math.abs(neededTokens - tokenCount) < neededTokens) {
 		        segment.addKey(sentence);
 		        segment.addValue(tokens);
-		        _currentSegmentTupleCount += tokenCount;
+		        _currentSegmentTokenCount += tokenCount;
+
+		        // If the segment is full or overflowed
+		        if (_currentSegmentTokenCount >= segmentSize) {
+		            pushNewSegment(segment);
+		            segment = StringsMap.newBuilder();
+		        }
+
 		        continue;
 		    }
 
-            // Cannot add to current segment - push out existing segment and create new one
-            if (segment.getValueCount() > 0) {
-                pushNewSegment(segment);
-                segment = StringsMap.newBuilder();
-
-                i--;   // Re-process the current tokenized sentence with the new segment
-
-                continue;
-            }
-
-            // The current sentence has tokenCount > _segmentSize, so push it out as it is in its own segment
-            segment.addKey(sentence);
-            segment.addValue(tokens);
-            _currentSegmentTupleCount += tokenCount;
-
+		    // Could not add this sentence to the current segment
+		    // Push out current segment and create new segment, then re-process this sentence
             pushNewSegment(segment);
             segment = StringsMap.newBuilder();
+            i--;
 		}
 
 		if (segment.getValueCount() > 0)
 		    pushNewSegment(segment);
 
-		console.info("The number of segments for the current document is " + _segmentCount + ".");
+		console.info("Number of segments for the current document: " + _segmentCount);
 
 		if (_wrapStream)
 		    cc.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, new StreamTerminator(streamId));
@@ -205,15 +220,11 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
     protected void pushNewSegment(StringsMap.Builder segment) throws ComponentContextException {
         _segmentCount++;
 
-        if (_currentSegmentTupleCount > _segmentSize)
-            console.warning(String.format("Segment %d with %d tokens is larger than the specified maximum of %d!",
-                    _segmentCount, _currentSegmentTupleCount, _segmentSize));
-
         console.fine(String.format("Pushing segment %s containing %d sentences and a total of %d tokens",
-                _segmentCount, segment.getKeyCount(), _currentSegmentTupleCount));
+                _segmentCount, segment.getKeyCount(), _currentSegmentTokenCount));
 
         componentContext.pushDataComponentToOutput(OUT_TOKENIZED_SENTENCES, segment.build());
 
-        _currentSegmentTupleCount = 0;
+        _currentSegmentTokenCount = 0;
     }
 }

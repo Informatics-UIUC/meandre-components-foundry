@@ -46,8 +46,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -58,8 +56,10 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.support.generic.io.DOMUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import cc.mallet.topics.ParallelTopicModel;
 import cc.mallet.topics.TopicAssignment;
@@ -97,16 +97,18 @@ public class TopicModeling extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            name = "doc_topics",
-            description = "A JSON array containing the documents, and for each document the set of topics and topic probabilities"
+            name = "doc_topics_xml",
+            description = "An XML document containing the processed documents, and for each processed document the set of topics and topic probabilities" +
+                "<br>TYPE: org.w3c.dom.Document"
     )
-    protected static final String OUT_DOC_TOPICS = "doc_topics";
+    protected static final String OUT_DOC_TOPICS_XML = "doc_topics_xml";
 
     @ComponentOutput(
-            name = "topic_top_words",
-            description = "A JSON array containing the topics, and for each topic the set of top words (with weights)"
+            name = "topic_top_words_xml",
+            description = "An XML document containing the topics, and for each topic the set of top words (with weights)" +
+                "<br>TYPE: org.w3c.dom.Document"
     )
-    protected static final String OUT_TOPIC_TOP_WORDS = "topic_top_words";
+    protected static final String OUT_TOPIC_TOP_WORDS_XML = "topic_top_words_xml";
 
     //----------------------------- PROPERTIES ---------------------------------------------------
 
@@ -248,7 +250,9 @@ public class TopicModeling extends AbstractExecutableComponent {
             // Initialize the sorters with dummy values
             sortedTopics[topic] = new IDSorter(topic, topic);
 
-        JSONArray jaDocTopics = new JSONArray();
+        Document topicsDoc = DOMUtils.createNewDocument();
+        Element xmlModel = topicsDoc.createElement("model");
+        topicsDoc.appendChild(xmlModel);
 
         int[] topicCounts = new int[numTopics];
         int docNum = 0;
@@ -265,26 +269,32 @@ public class TopicModeling extends AbstractExecutableComponent {
 
             Arrays.sort(sortedTopics);
 
-            JSONArray jaTopics = new JSONArray();
+            Element xmlTopics = topicsDoc.createElement("topics");
             for (int i = 0, iMax = sortedTopics.length; i < iMax; i++) {
-                JSONObject joTopic = new JSONObject();
-                joTopic.put("topic", sortedTopics[i].getID());
-                joTopic.put("weight", sortedTopics[i].getWeight());
-                jaTopics.put(joTopic);
+                Element xmlTopic = topicsDoc.createElement("topic");
+                xmlTopic.setAttribute("id", Integer.toString(sortedTopics[i].getID()));
+                xmlTopic.setAttribute("weight", Double.toString(sortedTopics[i].getWeight()));
+                xmlTopics.appendChild(xmlTopic);
             }
 
-            JSONObject joDoc = new JSONObject();
-            joDoc.put("docNum", docNum++);
-            joDoc.put("source", ta.instance.getSource());
-            joDoc.put("name", ta.instance.getName());
-            joDoc.put("topics", jaTopics);
+            Element xmlDoc = topicsDoc.createElement("document");
+            xmlDoc.setAttribute("id", Integer.toString(docNum++));
+            xmlDoc.setAttribute("name", ta.instance.getName().toString());
 
-            jaDocTopics.put(joDoc);
+            Element xmlDocSource = topicsDoc.createElement("source");
+            xmlDocSource.appendChild(topicsDoc.createTextNode(ta.instance.getSource().toString()));
+            xmlDoc.appendChild(xmlDocSource);
+            xmlDoc.appendChild(xmlTopics);
+
+            xmlModel.appendChild(xmlDoc);
         }
 
         Alphabet alphabet = topicModel.getAlphabet();
 
-        JSONArray jaTopicTopWords = new JSONArray();
+        Document topWordsDoc = DOMUtils.createNewDocument();
+        Element xmlTopicTopWords = topWordsDoc.createElement("topicTopWords");
+        topWordsDoc.appendChild(xmlTopicTopWords);
+
         @SuppressWarnings("rawtypes")
         TreeSet[] topicSortedWords = topicModel.getSortedWords();
         for (int topic = 0; topic < numTopics; topic++) {
@@ -292,27 +302,25 @@ public class TopicModeling extends AbstractExecutableComponent {
             TreeSet<IDSorter> sortedWords = topicSortedWords[topic];
             Iterator<IDSorter> iterator = sortedWords.iterator();
 
-            JSONArray jaTopWords = new JSONArray();
+            Element xmlTopic = topWordsDoc.createElement("topic");
+            xmlTopic.setAttribute("id", Integer.toString(topic));
+
             int word = 1;
             while (iterator.hasNext() && (_numTopWords == -1 || word++ < _numTopWords)) {
                 IDSorter info = iterator.next();
 
-                JSONObject joWord = new JSONObject();
-                joWord.put("word", alphabet.lookupObject(info.getID()));
-                joWord.put("weight", info.getWeight());
+                Element xmlWord = topWordsDoc.createElement("word");
+                xmlWord.setAttribute("weight", Double.toString(info.getWeight()));
+                xmlWord.appendChild(topWordsDoc.createTextNode(alphabet.lookupObject(info.getID()).toString()));
 
-                jaTopWords.put(joWord);
+                xmlTopic.appendChild(xmlWord);
             }
 
-            JSONObject joTopic = new JSONObject();
-            joTopic.put("topic", topic);
-            joTopic.put("topWords", jaTopWords);
-
-            jaTopicTopWords.put(joTopic);
+            xmlTopicTopWords.appendChild(xmlTopic);
         }
 
-        cc.pushDataComponentToOutput(OUT_DOC_TOPICS, BasicDataTypesTools.stringToStrings(jaDocTopics.toString(3)));
-        cc.pushDataComponentToOutput(OUT_TOPIC_TOP_WORDS, BasicDataTypesTools.stringToStrings(jaTopicTopWords.toString(3)));
+        cc.pushDataComponentToOutput(OUT_DOC_TOPICS_XML, topicsDoc);
+        cc.pushDataComponentToOutput(OUT_TOPIC_TOP_WORDS_XML, topWordsDoc);
     }
 
     @Override
