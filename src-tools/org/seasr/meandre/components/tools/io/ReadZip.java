@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.meandre.components.tools.text.io;
+package org.seasr.meandre.components.tools.io;
 
 import java.io.BufferedInputStream;
 import java.net.URL;

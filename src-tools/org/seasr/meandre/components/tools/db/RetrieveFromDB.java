@@ -79,7 +79,7 @@ import org.seasr.meandre.support.generic.util.UUIDUtils;
         firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tools, database, db, persistence",
+        tags = "tools, database, db, persist, serialize",
         description = "This component retrieves persisted data from a database",
         dependency = {"protobuf-java-2.2.0.jar", "guava-r06.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar"}
 )

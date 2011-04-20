@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.meandre.components.tools.text.io;
+package org.seasr.meandre.components.tools.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -63,6 +63,7 @@ import org.meandre.webui.WebUIException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.util.ComponentUtils;
+import org.seasr.meandre.components.tools.text.io.GenericTemplate;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 import com.oreilly.servlet.multipart.FilePart;

@@ -42,6 +42,10 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
@@ -52,9 +56,9 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
-import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
@@ -65,42 +69,42 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  */
 
 @Component(
-        name = "Tuple To JSON",
+        name = "JSON To Tuple",
         creator = "Boris Capitanu",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "tuple, json",
-        description = "This component converts the rows of a tuple into an array of JSON objects that are keyed on the tuple column labels" ,
-        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+        description = "This component converts a simple JSON array-of-simple-objects structure into a Tuple structure" ,
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TupleToJSON extends AbstractExecutableComponent {
+public class JSONToTuple extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            name = Names.PORT_TUPLES,
-            description = "The tuples" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+            name = "json",
+            description = "The JSON structure to convert" +
+            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String IN_TUPLES = Names.PORT_TUPLES;
-
-    @ComponentInput(
-            name = Names.PORT_META_TUPLE,
-            description = "The meta data for tuples" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-    )
-    protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
+    protected static final String IN_JSON = "json";
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            name = "json",
-            description = "The JSON encoding of the tuples" +
-            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+            name = Names.PORT_TUPLES,
+            description = "The tuples" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
     )
-    protected static final String OUT_JSON = "json";
+    protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+
+    @ComponentOutput(
+            name = Names.PORT_META_TUPLE,
+            description = "The meta data for the tuple" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
     //--------------------------------------------------------------------------------------------
 
@@ -110,26 +114,43 @@ public class TupleToJSON extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Strings inMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-        StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+        String sJson = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_JSON))[0];
 
-        SimpleTuplePeer inPeer = new SimpleTuplePeer(inMeta);
-        SimpleTuple tuple = inPeer.createTuple();
+        Set<String> fields = new HashSet<String>();
 
-        Strings[] inTuples = BasicDataTypesTools.stringsArrayToJavaArray(input);
+        JSONArray jaData = new JSONArray(sJson);
+        for (int i = 0, iMax = jaData.length(); i < iMax; i++) {
+            JSONObject jo = jaData.getJSONObject(i);
 
-        JSONArray jaTuples = new JSONArray();
-        for (Strings inTuple : inTuples) {
-            tuple.setValues(inTuple);
-
-            JSONObject joTuple = new JSONObject();
-            for (String fieldName : inPeer.getFieldNames())
-                joTuple.put(fieldName, tuple.getValue(fieldName));
-
-            jaTuples.put(joTuple);
+            Iterator<?> it = jo.keys();
+            while (it.hasNext()) {
+                String key = (String) it.next();
+                Object o = jo.get(key);
+                if (o instanceof JSONArray || o instanceof JSONObject)
+                    throw new ComponentExecutionException("Only flat JSON arrays can currently be converted to tuples.");
+                fields.add(key);
+            }
         }
 
-        cc.pushDataComponentToOutput(OUT_JSON, BasicDataTypesTools.stringToStrings(jaTuples.toString(3)));
+        String[] keys = new String[fields.size()];
+        SimpleTuplePeer outPeer = new SimpleTuplePeer(fields.toArray(keys));
+
+        StringsArray.Builder tuplesBuilder = StringsArray.newBuilder();
+        for (int i = 0, iMax = jaData.length(); i < iMax; i++) {
+            JSONObject jo = jaData.getJSONObject(i);
+            SimpleTuple outTuple = outPeer.createTuple();
+
+            Iterator<?> it = jo.keys();
+            while (it.hasNext()) {
+                String key = (String) it.next();
+                outTuple.setValue(key, jo.getString(key));
+            }
+
+            tuplesBuilder.addValue(outTuple.convert());
+        }
+
+        cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
+        cc.pushDataComponentToOutput(OUT_TUPLES, tuplesBuilder.build());
     }
 
     @Override

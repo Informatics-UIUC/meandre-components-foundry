@@ -46,10 +46,10 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
@@ -114,6 +114,20 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
     protected static final String PROP_TOKEN_SEPARATOR = "tokenSeparator";
 
     @ComponentProperty(
+            name = "token_pos",
+            description = "The position of the token (the 'token' column) in the CSV (0=first, 1=second, etc.)",
+            defaultValue = "0"
+    )
+    protected static final String PROP_TOKEN_POS = "token_pos";
+
+    @ComponentProperty(
+            name = "count_pos",
+            description = "The position of the count (the 'count' column) in the CSV (0=first, 1=second, etc.)",
+            defaultValue = "1"
+    )
+    protected static final String PROP_COUNT_POS = "count_pos";
+
+    @ComponentProperty(
             name = Names.PROP_ORDERED,
             description = "Should the resulting token counts be ordered?",
             defaultValue = "true"
@@ -125,6 +139,7 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 
     private boolean bHeader, bOrdered;
     private String separator;
+    private int tokenPos, countPos;
 
 
     //--------------------------------------------------------------------------------------------
@@ -134,6 +149,8 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
         bHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, true, true, ccp));
         bOrdered = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, true, true, ccp));
         separator = getPropertyOrDieTrying(PROP_TOKEN_SEPARATOR, true, true, ccp);
+        tokenPos = Integer.parseInt(getPropertyOrDieTrying(PROP_TOKEN_POS, ccp));
+        countPos = Integer.parseInt(getPropertyOrDieTrying(PROP_COUNT_POS, ccp));
     }
 
     @Override
@@ -153,11 +170,11 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 
     	        String line = st.nextToken();
                 String[] tokens = line.split(separator);
-    	        if (tokens.length < 2)
+    	        if (tokens.length < (Math.max(tokenPos, countPos) + 1))
     	            throw new ComponentExecutionException(String.format("CSV line: '%s' does not contain enough values", line));
 
-    	        String token = tokens[0];
-    	        int count = Integer.parseInt(tokens[1]);
+    	        String token = tokens[tokenPos];
+    	        int count = Integer.parseInt(tokens[countPos]);
 
     	        if (htCounts.containsKey(token))
     	            console.warning(String.format("Token '%s' occurs more than once in the dataset - replacing previous count...", token));
