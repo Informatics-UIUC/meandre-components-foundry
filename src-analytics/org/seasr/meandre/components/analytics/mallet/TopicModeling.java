@@ -252,6 +252,7 @@ public class TopicModeling extends AbstractExecutableComponent {
 
         Document topicsDoc = DOMUtils.createNewDocument();
         Element xmlModel = topicsDoc.createElement("model");
+        xmlModel.setAttribute("numTopics", Integer.toString(numTopics));
         topicsDoc.appendChild(xmlModel);
 
         int[] topicCounts = new int[numTopics];
@@ -310,7 +311,7 @@ public class TopicModeling extends AbstractExecutableComponent {
                 IDSorter info = iterator.next();
 
                 Element xmlWord = topWordsDoc.createElement("word");
-                xmlWord.setAttribute("weight", Double.toString(info.getWeight()));
+                xmlWord.setAttribute("weight", Integer.toString((int)info.getWeight()));
                 xmlWord.appendChild(topWordsDoc.createTextNode(alphabet.lookupObject(info.getID()).toString()));
 
                 xmlTopic.appendChild(xmlWord);

@@ -161,6 +161,7 @@ public class WriteFile extends AbstractExecutableComponent {
 
     private String defaultFolder, publicResourcesDir;
     private boolean appendTimestamp, appendData;
+    private Properties outputProperties;
 
 
     //--------------------------------------------------------------------------------------------
@@ -181,6 +182,11 @@ public class WriteFile extends AbstractExecutableComponent {
 
         publicResourcesDir = new File(ccp.getPublicResourcesDirectory()).getAbsolutePath();
         if (!publicResourcesDir.endsWith(File.separator)) publicResourcesDir += File.separator;
+
+        outputProperties = new Properties();
+        outputProperties.setProperty(OutputKeys.INDENT, "yes");
+        outputProperties.setProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        outputProperties.setProperty(OutputKeys.ENCODING, "UTF-8");
     }
 
     @Override
@@ -221,13 +227,8 @@ public class WriteFile extends AbstractExecutableComponent {
 
         else
 
-        if (inData instanceof Document) {
-            Document doc = (Document) inData;
-            Properties outputProperties = new Properties();
-            outputProperties.setProperty(OutputKeys.INDENT, "yes");
-            outputProperties.setProperty(OutputKeys.ENCODING, "UTF-8");
-            DOMUtils.writeXML(doc, fos, outputProperties);
-        }
+        if (inData instanceof Document)
+            DOMUtils.writeXML((Document) inData, fos, outputProperties);
 
         else
             fos.write(DataTypeParser.parseAsString(inData)[0].getBytes("UTF-8"));

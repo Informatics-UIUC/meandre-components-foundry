@@ -43,6 +43,9 @@
 package org.seasr.meandre.components.tools.basic;
 
 import java.io.PrintStream;
+import java.util.Properties;
+
+import javax.xml.transform.OutputKeys;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -61,6 +64,8 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.support.generic.io.DOMUtils;
+import org.w3c.dom.Document;
 
 /**
  * Prints an object to the console
@@ -168,6 +173,16 @@ public class PrintToConsole extends AbstractExecutableComponent {
 		        Integers values = im.getValue(i);
                 outputConsole.println(String.format(pattern, key, values.getValue(0)));
 		    }
+		}
+
+		else
+
+		if (data instanceof Document) {
+	        Properties outputProperties = new Properties();
+	        outputProperties.setProperty(OutputKeys.INDENT, "yes");
+            outputProperties.setProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+	        outputProperties.setProperty(OutputKeys.ENCODING, "UTF-8");
+		    DOMUtils.writeXML((Document) data, outputConsole, outputProperties);
 		}
 
 		else
