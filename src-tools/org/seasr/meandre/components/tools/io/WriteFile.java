@@ -51,6 +51,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
+
+import javax.xml.transform.OutputKeys;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -66,6 +69,8 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.support.generic.io.DOMUtils;
+import org.w3c.dom.Document;
 
 /**
  * Writes the given data to a file
@@ -99,15 +104,16 @@ public class WriteFile extends AbstractExecutableComponent {
     protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
     @ComponentInput(
-            name = "text_or_bytes",
+            name = "data",
             description = "The data to write" +
                 "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
                 "<br>TYPE: byte[]" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: org.w3c.dom.Document" +
                 "<br>TYPE: java.lang.Object"
     )
-    protected static final String IN_DATA = "text_or_bytes";
+    protected static final String IN_DATA = "data";
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -119,11 +125,11 @@ public class WriteFile extends AbstractExecutableComponent {
     protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
     @ComponentOutput(
-            name = "text_or_bytes",
+            name = "data",
             description = "The data written" +
                 "<br>TYPE: same as input"
     )
-    protected static final String OUT_DATA = "text_or_bytes";
+    protected static final String OUT_DATA = "data";
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -182,9 +188,6 @@ public class WriteFile extends AbstractExecutableComponent {
         String location = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION))[0];
         Object inData = cc.getDataComponentFromInput(IN_DATA);
 
-        byte[] data = (inData instanceof byte[] || inData instanceof Bytes) ?
-            DataTypeParser.parseAsByteArray(inData) : DataTypeParser.parseAsString(inData)[0].getBytes("UTF-8");
-
         File file = getLocation(location, defaultFolder);
         File parentDir = file.getParentFile();
 
@@ -212,7 +215,23 @@ public class WriteFile extends AbstractExecutableComponent {
 
         // Write the data to file
         FileOutputStream fos = new FileOutputStream(file, appendData);
-        fos.write(data);
+
+        if (inData instanceof byte[] || inData instanceof Bytes)
+            fos.write(DataTypeParser.parseAsByteArray(inData));
+
+        else
+
+        if (inData instanceof Document) {
+            Document doc = (Document) inData;
+            Properties outputProperties = new Properties();
+            outputProperties.setProperty(OutputKeys.INDENT, "yes");
+            outputProperties.setProperty(OutputKeys.ENCODING, "UTF-8");
+            DOMUtils.writeXML(doc, fos, outputProperties);
+        }
+
+        else
+            fos.write(DataTypeParser.parseAsString(inData)[0].getBytes("UTF-8"));
+
         fos.close();
 
         if (file.getAbsolutePath().startsWith(publicResourcesDir)) {
