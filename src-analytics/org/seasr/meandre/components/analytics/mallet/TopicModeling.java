@@ -268,13 +268,14 @@ public class TopicModeling extends AbstractExecutableComponent {
             for (int topic = 0; topic < numTopics; topic++)
                 sortedTopics[topic].set(topic, (float) topicCounts[topic] / features.length);
 
+            Arrays.fill(topicCounts, 0); // initialize for next round
             Arrays.sort(sortedTopics);
 
             Element xmlTopics = topicsDoc.createElement("topics");
             for (int i = 0, iMax = sortedTopics.length; i < iMax; i++) {
                 Element xmlTopic = topicsDoc.createElement("topic");
                 xmlTopic.setAttribute("id", Integer.toString(sortedTopics[i].getID()));
-                xmlTopic.setAttribute("weight", Double.toString(sortedTopics[i].getWeight()));
+                xmlTopic.setAttribute("weight", String.format("%.4f", sortedTopics[i].getWeight()));
                 xmlTopics.appendChild(xmlTopic);
             }
 
@@ -311,7 +312,7 @@ public class TopicModeling extends AbstractExecutableComponent {
                 IDSorter info = iterator.next();
 
                 Element xmlWord = topWordsDoc.createElement("word");
-                xmlWord.setAttribute("weight", Integer.toString((int)info.getWeight()));
+                xmlWord.setAttribute("weight", String.format("%s", (int)info.getWeight()));
                 xmlWord.appendChild(topWordsDoc.createTextNode(alphabet.lookupObject(info.getID()).toString()));
 
                 xmlTopic.appendChild(xmlWord);
