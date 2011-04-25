@@ -48,9 +48,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -101,6 +101,7 @@ public class PathMetricFinder {
         */
     }
 
+    
     public  PathMetric getBestMetric(List<PathMetric> list)
 	{
 		Iterator<PathMetric> it = list.iterator();
@@ -123,13 +124,21 @@ public class PathMetricFinder {
 		return getAllMetrics(words, targets);
 	}
 
-
-	public  List<PathMetric> getAllMetrics(List<String> words, List<String> targets)
+	public  List<PathMetric> getAllMetrics(List<String> words,List<String> targets)
+	{
+		return getAllMetrics(words,targets, 0);
+	}
+	
+	public  List<PathMetric> getAllMetrics(List<String> words, 
+			                               List<String> targets,
+			                               int attempts)
 	{
 
 		// /paths/
 
 		try {
+			
+			
 
 			// /paths/
 			StringBuffer site = new StringBuffer();
@@ -137,7 +146,7 @@ public class PathMetricFinder {
 
 			// set up the connection parameters/properties
 			URL url = new URL(site.toString());
-			URLConnection conn = url.openConnection();
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	        conn.setDoOutput(true);
 	        //conn.setDoInput (true);
 	        conn.setUseCaches (false);
@@ -158,6 +167,24 @@ public class PathMetricFinder {
 	        out.close ();
 	        */
 
+	        conn.connect();
+	        
+	        
+	        int statusCode = conn.getResponseCode();
+	        if (statusCode == HttpURLConnection.HTTP_BAD_GATEWAY) {
+	        	
+	        	conn.disconnect();
+	        	
+	        	if (attempts < 3) {
+	        		return getAllMetrics(words,targets, attempts+1);
+	        	}
+	        	else {
+	        		List<PathMetric> empty = new ArrayList<PathMetric>();
+	        		return empty;
+	        	}
+	        	
+	        }
+	        
 	        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
 	        wr.write(data);
 	        wr.flush();
@@ -243,8 +270,10 @@ public class PathMetricFinder {
 
 		return list;
 	}
-
-	public  PathMetric getMetric(String word1, String word2)
+    
+	// this is private, until the 502 error is handled here as well
+	// m.e.h.
+	private  PathMetric getMetric(String word1, String word2)
 	{
 
 		PathMetric metric = new PathMetric();
