@@ -170,6 +170,13 @@ public class PathMetricFinder {
 	        conn.connect();
 	        
 	        
+	        
+	        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+	        wr.write(data);
+	        wr.flush();
+	        // wr.close();
+	        
+	        
 	        int statusCode = conn.getResponseCode();
 	        if (statusCode == HttpURLConnection.HTTP_BAD_GATEWAY) {
 	        	
@@ -185,10 +192,6 @@ public class PathMetricFinder {
 	        	
 	        }
 	        
-	        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-	        wr.write(data);
-	        wr.flush();
-	        // wr.close();
 
 			// read response from server
 	        BufferedReader in
