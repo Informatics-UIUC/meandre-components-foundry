@@ -55,11 +55,11 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 
 /**
  *
@@ -70,6 +70,8 @@ public class PathMetricFinder {
 
 	// "http://localhost:8080/path/lovely/blue?format=json";
 	String host = "http://localhost:8080/";
+	
+	Logger logger;
 
 	protected PathMetricFinder()
     {
@@ -78,6 +80,10 @@ public class PathMetricFinder {
 	public PathMetricFinder(String host)
 	{
 		this.host = host;
+	}
+	
+	public void setLogger(Logger l) {
+		logger = l;
 	}
 
     public  String encodeParameter(String name, List<String> list)
@@ -169,16 +175,25 @@ public class PathMetricFinder {
 
 	        conn.connect();
 	        
-	        
+	        // Proper ORDER matters
+	        // open output, write, open input, read
 	        
 	        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
 	        wr.write(data);
 	        wr.flush();
 	        // wr.close();
 	        
-	        
+	        // now it's safe to read from server
 	        int statusCode = conn.getResponseCode();
 	        if (statusCode == HttpURLConnection.HTTP_BAD_GATEWAY) {
+	        	
+	        	String msg = "Bad Gateway, retry";
+	        	if (logger == null) {
+	        		System.err.println(msg);
+	        	}
+	        	else {
+	        		logger.info(msg);
+	        	}
 	        	
 	        	conn.disconnect();
 	        	

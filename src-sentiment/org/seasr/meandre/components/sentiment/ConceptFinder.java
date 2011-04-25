@@ -179,6 +179,7 @@ public class ConceptFinder extends AbstractExecutableComponent {
 
         String synnetHost = getPropertyOrDieTrying(PROP_SYNNET_HOST, ccp);
         _pathMetricFinder = new PathMetricFinder(synnetHost);
+        _pathMetricFinder.setLogger(console);
     }
 
     @Override
