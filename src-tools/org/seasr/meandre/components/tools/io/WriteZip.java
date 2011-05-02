@@ -232,6 +232,7 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
 
             console.fine(String.format("Writing file %s", outputFile));
             zipStream = new ZipOutputStream(new BufferedOutputStream(new CheckedOutputStream(new FileOutputStream(outputFile), new Adler32())));
+            zipStream.setLevel(9);
         }
 
         // Return if we haven't received a zip location yet
