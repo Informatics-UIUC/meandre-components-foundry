@@ -54,6 +54,8 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -188,8 +190,31 @@ public class TextFormat extends AbstractExecutableComponent {
             return;
 
         Object[] inputs = new Object[_usedInputs.length];
+        int numInputsStreaming = 0;
+        int sumStreamIds = 0;
+        for (int i = 0, iMax = _usedInputs.length; i < iMax; i++) {
+            inputs[i] = componentInputCache.retrieveNext(_usedInputs[i]);
+            if (inputs[i] instanceof StreamDelimiter) {
+                numInputsStreaming++;
+                sumStreamIds += ((StreamDelimiter) inputs[i]).getStreamId();
+            }
+        }
+
+        // Check for proper streaming setup
+        if (numInputsStreaming > 0) {
+            if (numInputsStreaming != _usedInputs.length)
+                throw new ComponentExecutionException("StreamDelimiters must arrive on all specified inputs synchronously!");
+
+            if (((StreamDelimiter) inputs[0]).getStreamId() * numInputsStreaming != sumStreamIds)
+                throw new ComponentExecutionException("Different stream ids received on different inputs!");
+
+            // Forward the delimiter
+            cc.pushDataComponentToOutput(OUT_TEXT, inputs[0]);
+            return;
+        }
+
         for (int i = 0, iMax = _usedInputs.length; i < iMax; i++)
-            inputs[i] = DataTypeParser.parseAsString(componentInputCache.retrieveNext(_usedInputs[i]))[0];
+            inputs[i] = DataTypeParser.parseAsString(inputs[i])[0];
 
         String result = String.format(_format, inputs);
         console.fine(String.format("Text format result (quotes added): '%s'", result));
@@ -200,5 +225,17 @@ public class TextFormat extends AbstractExecutableComponent {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
         _format = null;
         _usedInputs = null;
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    public void handleStreamInitiators() throws Exception {
+        executeCallBack(componentContext);
+    }
+
+    @Override
+    public void handleStreamTerminators() throws Exception {
+        executeCallBack(componentContext);
     }
 }
