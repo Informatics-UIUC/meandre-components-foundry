@@ -112,19 +112,29 @@ public class TopNFilter extends AbstractExecutableComponent {
     )
     protected static final String PROP_BOTTOM_N = Names.PROP_BOTTOM_N;
 
+    @ComponentProperty(
+            name = Names.PROP_ORDERED,
+            description = "Should the token counts be ordered?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_ORDERED = Names.PROP_ORDERED;
+
     //--------------------------------------------------------------------------------------------
 
 
     private int _upperLimit;
     private boolean _bottomN;
+    private boolean _ordered;
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _upperLimit = Integer.parseInt(ccp.getProperty(PROP_UPPER_LIMIT));
-        _bottomN = Boolean.parseBoolean(ccp.getProperty(PROP_BOTTOM_N));
+        String upperLimit = getPropertyOrDieTrying(PROP_UPPER_LIMIT, true, false, ccp);
+        _upperLimit = upperLimit.length() > 0 ? Integer.parseInt(upperLimit) : Integer.MAX_VALUE;
+        _bottomN = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_BOTTOM_N, ccp));
+        _ordered = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, ccp));
     }
 
     @Override
@@ -149,7 +159,7 @@ public class TopNFilter extends AbstractExecutableComponent {
         }
 
         console.fine(String.format("Filter results:%ninput_tokens=%s%noutput_tokens=%s", inputMap.size(), outputMap.size()));
-        cc.pushDataComponentToOutput(OUT_FILTERED_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
+        cc.pushDataComponentToOutput(OUT_FILTERED_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, _ordered));
     }
 
     @Override
