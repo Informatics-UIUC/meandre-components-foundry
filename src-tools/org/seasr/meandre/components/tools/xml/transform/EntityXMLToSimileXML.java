@@ -188,7 +188,7 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 			if(dateMatcher.find()) {
 				datePattern = Pattern.compile("(\\d{1,2})"); //look for 1 or 22 only
 				dateMatcher = datePattern.matcher(dateMatcher.group(1));
-				if(dateMatcher.find());
+				if(dateMatcher.find())
 					day = dateMatcher.group(1);
 			}
 
