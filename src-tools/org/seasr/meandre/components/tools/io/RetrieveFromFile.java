@@ -76,7 +76,7 @@ import org.seasr.meandre.support.generic.io.StreamUtils;
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "io, file, write, bytes",
-        description = "This component writes the given data to a file.",
+        description = "Reconstructs an object based on its persisted (serialized) state.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class RetrieveFromFile extends AbstractExecutableComponent {
