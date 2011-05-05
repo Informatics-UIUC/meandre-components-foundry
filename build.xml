@@ -302,10 +302,11 @@
             <classpath>
                 <pathelement location="${gwt.base.dir}/src"/>
                 <path refid="gwt.class.path"/>
+		<pathelement location="${lib.gwt.dir}/validation-api-1.0.0.GA.jar" />
+		<pathelement location="${lib.gwt.dir}/validation-api-1.0.0.GA-sources.jar" />
             </classpath>
             <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
             <jvmarg value="-Xmx256M"/>
-            <jvmarg value="-XstartOnFirstThread"/>
             <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
             <arg line="-war ${gwt.base.dir}/war"/>
             <arg value="${gwtmodule}"/>
