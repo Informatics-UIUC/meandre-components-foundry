@@ -20,7 +20,7 @@
 # Create the component aliases
 #
 alias <meandre://seasr.org/components/foundry/push-text> as PUSH_TEXT
-alias <meandre://seasr.org/components/foundry/write-text> as WRITE_TEXT
+alias <meandre://seasr.org/components/foundry/write-to-file> as WRITE_TEXT
 
 #
 # Create the component instances
@@ -32,21 +32,17 @@ write_text = WRITE_TEXT()
 #
 # Set component properties
 #
-push_text.ignore_errors = "false"
+push_text._ignore_errors = "false"
 push_text.message = "file:///tmp/write-text/test.txt"
-push_text.debug_level = "info"
-push_text.times = "1"
-push_text.wrap_stream = "false"
+push_text._debug_level = "info"
 
-push_text_2.ignore_errors = "false"
-push_text_2.debug_level = "info"
+push_text_2._ignore_errors = "false"
+push_text_2._debug_level = "info"
 push_text_2.message = "Hello World!"
-push_text_2.times = "1"
-push_text_2.wrap_stream = "false"
 
-write_text.ignore_errors = "false"
+write_text._ignore_errors = "false"
 write_text.append_timestamp = "false"
-write_text.debug_level = "info"
+write_text._debug_level = "info"
 write_text.default_folder = ""
 
 #

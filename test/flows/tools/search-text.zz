@@ -42,18 +42,16 @@ print_to_console = PRINT_TO_CONSOLE()
 #
 # Set component properties
 #
-push_text.ignore_errors = "false"
+push_text._ignore_errors = "false"
 push_text.message = "http://www.jstor.org/1.pdf Looking for a url for http://seasr.org/my.pdf or http://www.jstor.org/stable/my.pdf and here is another one http://www.jstor.org/anotherone.pdf"
-push_text.debug_level = "info"
-push_text.times = "1"
-push_text.wrap_stream = "false"
+push_text._debug_level = "info"
 
-search_text.ignore_errors = "false"
-search_text.debug_level = "fine"
-search_text.expression = "\b([\d\w\.\/\+\-\?\:]*)(http\:\/\/www\.jstor\.org)([\d\w\.\/\%\+\-\=\&amp;\?\:\\\&quot;\'\,\|\~\;]*)\b"
+search_text._ignore_errors = "false"
+search_text._debug_level = "fine"
+search_text.expression = "\\b(http://www.jstor.org[^ ]*)\\b"
 
-print_to_console.ignore_errors = "false"
-print_to_console.debug_level = "info"
+print_to_console._ignore_errors = "false"
+print_to_console._debug_level = "info"
 print_to_console.wrap_stream = "false"
 
 #
