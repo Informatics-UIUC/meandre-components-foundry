@@ -141,6 +141,7 @@
     <!-- Test class path -->
     <path id="classpath.test">
         <pathelement location="${test.classes.dir}"/>
+    	<path refid="classpath.foundry"/>
         <path refid="classpath.runtime"/>
     </path>
 
@@ -224,12 +225,12 @@
 			 includes="org/seasr/datatypes/datamining/**">
 			<fileset dir="${basedir}/src-datatype" includes="org/seasr/datatypes/datamining/**"/>
 		</jar>
-			
+
 		<mkdir dir="${build.dir}/classes-abstracts"/>
-		<javac target="1.5" 
-			   srcdir="${src.abstracts.dir}" 
-			   destdir="${build.dir}/classes-abstracts" 
-			   includeantruntime="false" 
+		<javac target="1.5"
+			   srcdir="${src.abstracts.dir}"
+			   destdir="${build.dir}/classes-abstracts"
+			   includeantruntime="false"
 			   updatedProperty="abstracts.updated">
 			<classpath>
 				<path refid="classpath.build"/>
