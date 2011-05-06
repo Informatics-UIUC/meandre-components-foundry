@@ -53,6 +53,6 @@ push_text_2._debug_level = "info"
 
 write_text(
 	location: push_text_2_outputs.text;
-	text: push_text_outputs.text
+	data: push_text_outputs.text
 )
 
