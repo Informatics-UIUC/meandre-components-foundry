@@ -3,12 +3,12 @@ alias <meandre://seasr.org/components/foundry/read-xml> as XMLREADER
 alias <meandre://seasr.org/components/foundry/xml-to-text> as XML2TEXT
 alias <meandre://seasr.org/components/foundry/xml-to-xml-with-xslt> as XML2XML
 alias <meandre://seasr.org/components/foundry/text-to-xml> as T2X
-alias <meandre://seasr.org/components/foundry/write-xml> as WRITE
+alias <meandre://seasr.org/components/foundry/write-to-file> as WRITE
 
 push_xml, xmlreader, xml2text, xml2xml, t2x, write = PUSH(), XMLREADER(), XML2TEXT(), XML2XML(), T2X(), WRITE()
 push_xsl, xslreader, xsl2text = PUSH(), XMLREADER(), XML2TEXT()
 push_loc = PUSH()
- 
+
 
 @xml, @xsl, @loc = push_xml(), push_xsl(), push_loc()
 
@@ -20,7 +20,7 @@ push_loc = PUSH()
 
 @x2x = xml2xml(xml:x2t.text; xsl:x2t2.text)
 @mod  = t2x(text:x2x.xml)
-write(location:loc.text; xml:mod.xml)
+write(location:loc.text; data:mod.xml)
 
 push_xml.message = "./test/data/samples/xml/aaron.xml"
 push_xsl.message = "./test/data/samples/xml/filter-tag-body.xml"

@@ -58,8 +58,8 @@ table_to_json = TABLE_TO_JSON()
 #
 # Set component properties
 #
-print_to_console.ignore_errors = "false"
-print_to_console.debug_level = "info"
+print_to_console._ignore_errors = "false"
+print_to_console._debug_level = "info"
 print_to_console.wrap_stream = "false"
 
 
@@ -73,8 +73,8 @@ create_delimited_file_parser.delimiter = "default"
 create_delimited_file_parser.typesRowIndex = "1"
 create_delimited_file_parser.labelsRowIndex = "0"
 
-table_to_json.ignore_errors = "false"
-table_to_json.debug_level = "info"
+table_to_json._ignore_errors = "false"
+table_to_json._debug_level = "info"
 
 #
 # Create the flow by connecting the components

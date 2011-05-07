@@ -4,7 +4,7 @@
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/PushText.rdf>
 #import <file:///Users/xavier/Documents/Workspace/Components/Component%20Foundry/tmp/desc/tools/WrappedModelsReducer.rdf>
 
-alias <meandre://seasr.org/components/foundry/push-text> as PUSH
+alias <meandre://seasr.org/components/foundry/push-text-streaming> as PUSH
 alias <meandre://seasr.org/components/foundry/wrap-text-into-model> as WRAP
 alias <meandre://seasr.org/components/foundry/wrapped-models-reducer> as ACC
 alias <meandre://seasr.org/components/foundry/model-to-rdf-text> as M2T

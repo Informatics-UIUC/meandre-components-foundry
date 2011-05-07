@@ -17,13 +17,13 @@
 #
 # TODO: Add component import statement(s) here
 # Example: import <URL>   (replace 'URL' with the correct location)
-import <file:///Users/lauvil/descriptors/LinkCreationToProtovis.rdf>
-import <file:///Users/lauvil/descriptors/PushText.rdf>
-import <file:///Users/lauvil/descriptors/OpenNLPSentenceTokenizer.rdf>
-import <file:///Users/lauvil/descriptors/OpenNLPNamedEntity.rdf>
-import <file:///Users/lauvil/descriptors/OpenNLPSentenceDetector.rdf>
-import <file:///Users/lauvil/descriptors/UniversalTextExtractor.rdf>
-import <file:///Users/lauvil/descriptors/PrintToConsole.rdf>
+#import <file:///Users/lauvil/descriptors/LinkCreationToProtovis.rdf>
+#import <file:///Users/lauvil/descriptors/PushText.rdf>
+#import <file:///Users/lauvil/descriptors/OpenNLPSentenceTokenizer.rdf>
+#import <file:///Users/lauvil/descriptors/OpenNLPNamedEntity.rdf>
+#import <file:///Users/lauvil/descriptors/OpenNLPSentenceDetector.rdf>
+#import <file:///Users/lauvil/descriptors/UniversalTextExtractor.rdf>
+#import <file:///Users/lauvil/descriptors/PrintToConsole.rdf>
 
 #
 # Create the component aliases
@@ -50,43 +50,41 @@ push_text = PUSH_TEXT()
 #
 # Set component properties
 #
-link_creation_to_protovis.ignore_errors = "false"
-link_creation_to_protovis.debug_level = "info"
+link_creation_to_protovis._ignore_errors = "false"
+link_creation_to_protovis._debug_level = "info"
 link_creation_to_protovis.offset = "1"
 link_creation_to_protovis.entities = "person,location,date,organization"
 
 opennlp_sentence_detector.openNLPdir = ""
-opennlp_sentence_detector.ignore_errors = "false"
-opennlp_sentence_detector.debug_level = "info"
+opennlp_sentence_detector._ignore_errors = "false"
+opennlp_sentence_detector._debug_level = "info"
 opennlp_sentence_detector.language = "english"
 
 opennlp_named_entity.openNLPdir = ""
-opennlp_named_entity.ignore_errors = "false"
-opennlp_named_entity.debug_level = "info"
+opennlp_named_entity._ignore_errors = "false"
+opennlp_named_entity._debug_level = "info"
 opennlp_named_entity.NETypes = "person,location,date,organization"
 opennlp_named_entity.ExtendedNETypes = "url"
 opennlp_named_entity.language = "english"
 
-print_to_console.ignore_errors = "false"
-print_to_console.debug_level = "info"
+print_to_console._ignore_errors = "false"
+print_to_console._debug_level = "info"
 print_to_console.wrap_stream = "false"
 
-universal_text_extractor.ignore_errors = "false"
+universal_text_extractor._ignore_errors = "false"
 universal_text_extractor.connection_timeout = "0"
-universal_text_extractor.debug_level = "info"
+universal_text_extractor._debug_level = "info"
 universal_text_extractor.read_timeout = "0"
 
 opennlp_sentence_tokenizer.openNLPdir = ""
-opennlp_sentence_tokenizer.ignore_errors = "false"
-opennlp_sentence_tokenizer.debug_level = "info"
+opennlp_sentence_tokenizer._ignore_errors = "false"
+opennlp_sentence_tokenizer._debug_level = "info"
 opennlp_sentence_tokenizer.language = "english"
 
-push_text.ignore_errors = "false"
+push_text._ignore_errors = "false"
 push_text.message = "http://docsouth.unc.edu/neh/keckley/keckley.xml"
 #push_text.message = "http://www.gutenberg.org/files/22925/22925.txt"
-push_text.debug_level = "info"
-push_text.times = "1"
-push_text.wrap_stream = "false"
+push_text._debug_level = "info"
 
 #
 # Create the flow by connecting the components

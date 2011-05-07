@@ -10,4 +10,3 @@ push,print = PUSH(),PRINT()
 print(object:msg.text)
 
 push.message = "Hello World!"
-push.times = "1"

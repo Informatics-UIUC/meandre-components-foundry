@@ -57,66 +57,64 @@ tuple_to_xml = TUPLE_TO_XML()
 #
 # Set component properties
 #
-xml_to_xml_with_xsl.ignore_errors = "false"
-xml_to_xml_with_xsl.debug_level = "info"
+xml_to_xml_with_xsl._ignore_errors = "false"
+xml_to_xml_with_xsl._debug_level = "info"
 
 fork_x2.replication_mode = "0"
-fork_x2.ignore_errors = "false"
+fork_x2._ignore_errors = "false"
 fork_x2.replication_method_name = ""
-fork_x2.debug_level = "info"
+fork_x2._debug_level = "info"
 
-print_to_console.ignore_errors = "false"
-print_to_console.debug_level = "info"
+print_to_console._ignore_errors = "false"
+print_to_console._debug_level = "info"
 print_to_console.wrap_stream = "false"
 
-date_filter.ignore_errors = "false"
+date_filter._ignore_errors = "false"
 date_filter.min_value = "1600"
-date_filter.debug_level = "info"
+date_filter._debug_level = "info"
 date_filter.max_value = "1900"
 
-push_text.ignore_errors = "false"
+push_text._ignore_errors = "false"
 push_text.message = "http://www.gutenberg.org/files/22925/22925.txt"
-push_text.debug_level = "info"
-push_text.times = "1"
-push_text.wrap_stream = "false"
+push_text._debug_level = "info"
 
-entity_xml_to_simile_xml.ignore_errors = "false"
-entity_xml_to_simile_xml.debug_level = "info"
+entity_xml_to_simile_xml._ignore_errors = "false"
+entity_xml_to_simile_xml._debug_level = "info"
 
-opennlp_sentence_detector.ignore_errors = "false"
+opennlp_sentence_detector._ignore_errors = "false"
 opennlp_sentence_detector.openNLPdir = ""
-opennlp_sentence_detector.debug_level = "info"
+opennlp_sentence_detector._debug_level = "info"
 opennlp_sentence_detector.language = "english"
 
 fork_x2_2.replication_mode = "0"
-fork_x2_2.ignore_errors = "false"
+fork_x2_2._ignore_errors = "false"
 fork_x2_2.replication_method_name = ""
-fork_x2_2.debug_level = "info"
+fork_x2_2._debug_level = "info"
 
 opennlp_sentence_tokenizer.openNLPdir = ""
-opennlp_sentence_tokenizer.ignore_errors = "false"
-opennlp_sentence_tokenizer.debug_level = "info"
+opennlp_sentence_tokenizer._ignore_errors = "false"
+opennlp_sentence_tokenizer._debug_level = "info"
 opennlp_sentence_tokenizer.language = "english"
 
-universal_text_extractor.ignore_errors = "false"
-universal_text_extractor.debug_level = "info"
+universal_text_extractor._ignore_errors = "false"
+universal_text_extractor._debug_level = "info"
 universal_text_extractor.read_timeout = "0"
 universal_text_extractor.connection_timeout = "0"
 
-opennlp_named_entity.ignore_errors = "false"
+opennlp_named_entity._ignore_errors = "false"
 opennlp_named_entity.openNLPdir = ""
 opennlp_named_entity.language = "english"
 opennlp_named_entity.ExtendedNETypes = ""
-opennlp_named_entity.debug_level = "info"
+opennlp_named_entity._debug_level = "info"
 opennlp_named_entity.NETypes = "date"
 
-simile_timeline_generator.ignore_errors = "false"
+simile_timeline_generator._ignore_errors = "false"
 simile_timeline_generator.timeline_api_url = ""
-simile_timeline_generator.debug_level = "info"
+simile_timeline_generator._debug_level = "info"
 
-tuple_to_xml.ignore_errors = "false"
+tuple_to_xml._ignore_errors = "false"
 tuple_to_xml.encoding = "ISO-8859-1"
-tuple_to_xml.debug_level = "info"
+tuple_to_xml._debug_level = "info"
 tuple_to_xml.entities = "date"
 
 #

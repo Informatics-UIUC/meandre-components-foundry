@@ -41,39 +41,37 @@ link_creation_to_protovis = LINK_CREATION_TO_PROTOVIS()
 #
 # Set component properties
 #
-html_viewer.ignore_errors = "false"
+html_viewer._ignore_errors = "false"
 html_viewer.template = "org/seasr/meandre/components/vis/html/HTMLViewer.vm"
-html_viewer.debug_level = "info"
+html_viewer._debug_level = "info"
 
-tuple_logger.ignore_errors = "false"
+tuple_logger._ignore_errors = "false"
 tuple_logger.columnSet = ""
-tuple_logger.debug_level = "info"
+tuple_logger._debug_level = "info"
 
-push_text.ignore_errors = "false"
+push_text._ignore_errors = "false"
 push_text.message = "This is an empty sentence created on May 1, 2010. However, Boris wants to test his flow. Therefore, I think he will add Mike Haberman and John Doe to his tests on May 2, 2010 at noon. Maybe we can ask Mary to see if she wants to join the test. Lastly, another empty sentence. Robert Moore likes my tests. Finally, this is the last sentence written by Boris."
-push_text.debug_level = "info"
-push_text.times = "1"
-push_text.wrap_stream = "false"
+push_text._debug_level = "info"
 
 opennlp_sentence_detector.openNLPdir = ""
-opennlp_sentence_detector.ignore_errors = "false"
-opennlp_sentence_detector.debug_level = "info"
+opennlp_sentence_detector._ignore_errors = "false"
+opennlp_sentence_detector._debug_level = "info"
 opennlp_sentence_detector.language = "english"
 
 opennlp_sentence_tokenizer.openNLPdir = ""
-opennlp_sentence_tokenizer.ignore_errors = "false"
-opennlp_sentence_tokenizer.debug_level = "info"
+opennlp_sentence_tokenizer._ignore_errors = "false"
+opennlp_sentence_tokenizer._debug_level = "info"
 opennlp_sentence_tokenizer.language = "english"
 
-opennlp_named_entity.ignore_errors = "false"
+opennlp_named_entity._ignore_errors = "false"
 opennlp_named_entity.openNLPdir = ""
 opennlp_named_entity.language = "english"
 opennlp_named_entity.ExtendedNETypes = "location,url"
-opennlp_named_entity.debug_level = "info"
+opennlp_named_entity._debug_level = "info"
 opennlp_named_entity.NETypes = "person,location,date,organization"
 
-link_creation_to_protovis.ignore_errors = "false"
-link_creation_to_protovis.debug_level = "info"
+link_creation_to_protovis._ignore_errors = "false"
+link_creation_to_protovis._debug_level = "info"
 link_creation_to_protovis.entities = "person"
 link_creation_to_protovis.offset = "1"
 

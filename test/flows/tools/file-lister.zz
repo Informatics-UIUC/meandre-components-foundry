@@ -13,5 +13,4 @@ push, list, print = PUSH(), LIST(), PRINT()
 print(object:loc.location)
 
 push.message = "test"
-push.wrap_stream = "true"
 list.expression = ".*xml$"

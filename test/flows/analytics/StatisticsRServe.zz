@@ -37,26 +37,22 @@ r_serve_wrapper_2 = R_SERVE_WRAPPER()
 #
 # Set component properties
 #
-r_serve_wrapper.ignore_errors = "false"
-r_serve_wrapper.debug_level = "info"
+r_serve_wrapper._ignore_errors = "false"
+r_serve_wrapper._debug_level = "info"
 
-push_text.ignore_errors = "false"
+push_text._ignore_errors = "false"
 push_text.message = "x <- c(10.4, 5.6, 3.1, 6.4, 21.7)"
-push_text.debug_level = "info"
-push_text.times = "1"
-push_text.wrap_stream = "false"
+push_text._debug_level = "info"
 
-r_serve_connection.ignore_errors = "false"
-r_serve_connection.debug_level = "info"
+r_serve_connection._ignore_errors = "false"
+r_serve_connection._debug_level = "info"
 
-push_text_2.ignore_errors = "false"
+push_text_2._ignore_errors = "false"
 push_text_2.message = "x= x+2"
-push_text_2.debug_level = "info"
-push_text_2.times = "1"
-push_text_2.wrap_stream = "false"
+push_text_2._debug_level = "info"
 
-r_serve_wrapper_2.ignore_errors = "false"
-r_serve_wrapper_2.debug_level = "info"
+r_serve_wrapper_2._ignore_errors = "false"
+r_serve_wrapper_2._debug_level = "info"
 
 #
 # Create the flow by connecting the components
