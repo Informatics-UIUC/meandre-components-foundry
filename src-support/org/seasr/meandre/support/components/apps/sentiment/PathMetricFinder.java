@@ -72,6 +72,7 @@ public class PathMetricFinder {
 	String host = "http://localhost:8080/";
 	
 	Logger logger;
+	int MAX_ATTEMPTS = 3;
 
 	protected PathMetricFinder()
     {
@@ -107,7 +108,9 @@ public class PathMetricFinder {
         */
     }
 
-    
+    //
+    // returns null if list is empty
+    //
     public  PathMetric getBestMetric(List<PathMetric> list)
 	{
 		Iterator<PathMetric> it = list.iterator();
@@ -127,7 +130,7 @@ public class PathMetricFinder {
 	{
 		List<String> words = new ArrayList<String>();
 		words.add(word);
-		return getAllMetrics(words, targets);
+		return getAllMetrics(words, targets, 0);
 	}
 
 	public  List<PathMetric> getAllMetrics(List<String> words,List<String> targets)
@@ -197,7 +200,7 @@ public class PathMetricFinder {
 	        	
 	        	conn.disconnect();
 	        	
-	        	if (attempts < 3) {
+	        	if (attempts < MAX_ATTEMPTS) {
 	        		return getAllMetrics(words,targets, attempts+1);
 	        	}
 	        	else {
@@ -205,6 +208,10 @@ public class PathMetricFinder {
 	        		return empty;
 	        	}
 	        	
+	        }
+	        else if (statusCode >= 300) {
+	        	// any thing above 299 is considered a fail of some kind
+	        	if (logger != null) logger.fine("status " + statusCode);
 	        }
 	        
 
