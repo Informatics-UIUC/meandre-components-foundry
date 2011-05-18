@@ -145,7 +145,7 @@ public class SpellCheckWithCounts extends SpellCheck {
 
     @Override
     protected SuggestionListener getSuggestionListener() {
-        return new SuggestionListenerWithCounts(_spellDictionary, _tokenCounts, _doCorrection, console);
+        return new SuggestionListenerWithCounts(_spellDictionary, _tokenCounts, _doCorrection, _levenshteinDistance, console);
     }
 
     //--------------------------------------------------------------------------------------------
@@ -156,18 +156,22 @@ public class SpellCheckWithCounts extends SpellCheck {
         private final SpellChecker _spellChecker;
 
         public SuggestionListenerWithCounts(SpellDictionary dictionary, Map<String,Integer> tokenCounts, boolean doCorrection) {
-            this(dictionary, tokenCounts, doCorrection, null);
+            this(dictionary, tokenCounts, doCorrection, null, null);
         }
 
-        public SuggestionListenerWithCounts(SpellDictionary dictionary, Map<String,Integer> tokenCounts, boolean doCorrection, Logger logger) {
-            super(doCorrection, logger);
+        public SuggestionListenerWithCounts(SpellDictionary dictionary, Map<String,Integer> tokenCounts, boolean doCorrection, Float levenshteinDistance) {
+            this(dictionary, tokenCounts, doCorrection, levenshteinDistance, null);
+        }
+
+        public SuggestionListenerWithCounts(SpellDictionary dictionary, Map<String,Integer> tokenCounts, boolean doCorrection, Float levenshteinDistance, Logger logger) {
+            super(doCorrection, levenshteinDistance, logger);
 
             _tokenCounts = tokenCounts;
             _spellChecker = new SpellChecker(dictionary);
         }
 
         @Override
-        protected String getReplacement(String invalidWord, List<?> suggestions) {
+        protected List<String> getFilteredSuggestions(String invalidWord, List<String> suggestions) {
             List<KeyValuePair<Integer,Entry<String,String>>> transformData =
                 computeApplicableTransformations(invalidWord, _transformations);
 
@@ -175,33 +179,20 @@ public class SpellCheckWithCounts extends SpellCheck {
             if (transformSuggestions.size() > 0)
                 console.fine("Transform suggestions: " + transformSuggestions);
 
-            if (transformSuggestions.size() == 1)
-                return transformSuggestions.get(0);
-
-            String replacement = null;
-            int maxCount = 0;
-
             if (transformSuggestions.size() > 0)
                 suggestions = transformSuggestions;
 
-            for (Object o : suggestions) {
-                String suggestion = o.toString();
-                Integer count = _tokenCounts.get(suggestion);
-                if (count != null && count > maxCount) {
-                    maxCount = count;
-                    replacement = suggestion;
-                }
-            }
+            Collections.sort(suggestions, new Comparator<String>() {
+				public int compare(String s1, String s2) {
+					Integer c1 = _tokenCounts.get(s1);
+					Integer c2 = _tokenCounts.get(s2);
+					if (c1 == null) return 1;
+					if (c2 == null) return -1;
+					return c2.compareTo(c1);
+				}
+            });
 
-            if (replacement == null) {
-                if (_logger != null)
-                    _logger.finer(String.format("None of the suggestions for the misspelled word '%s' " +
-                            "has been found in the supplied token counts. Using first suggestion.", invalidWord));
-
-                replacement = super.getReplacement(invalidWord, suggestions);
-            }
-
-            return replacement;
+            return suggestions;
         }
 
         private List<KeyValuePair<Integer,Entry<String,String>>> computeApplicableTransformations(String invalidWord, Map<String,String> tokens) {

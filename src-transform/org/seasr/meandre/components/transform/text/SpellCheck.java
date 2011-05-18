@@ -46,8 +46,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -70,6 +72,7 @@ import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.support.components.transform.text.LevenshteinDistance;
 import org.seasr.meandre.support.generic.io.IOUtils;
 
 import com.swabunga.spell.engine.SpellDictionary;
@@ -157,12 +160,29 @@ public class SpellCheck extends AbstractExecutableComponent {
     )
     protected static final String PROP_DO_CORRECTION = "do_correction";
 
+    @ComponentProperty(
+            name = "enable_levenshtein",
+            description = "Use the Levinstein algorithm to filter the list of suggestions considered",
+            defaultValue = "true"
+    )
+    protected static final String PROP_ENABLE_LEVENSHTEIN = "enable_levenshtein";
+
+    @ComponentProperty(
+            name = "levenshtein_distance",
+            description = "The Levenshtein distance is a metric for measuring the amount of difference between two sequences;" +
+            		"The value of this property should expressed as a percentage that will depend on the length of the misspelled word",
+            defaultValue = "0.33"
+    )
+    protected static final String PROP_LEVENSHTEIN_DISTANCE = "levenshtein_distance";
+
     //--------------------------------------------------------------------------------------------
 
 
     protected boolean _doCorrection;
     protected SpellChecker _spellChecker;
     protected SpellDictionary _spellDictionary;
+    protected boolean _enableLevenshtein;
+    protected Float _levenshteinDistance;
 
     // stats
     protected int _countTotalWords;
@@ -175,6 +195,9 @@ public class SpellCheck extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _doCorrection = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_DO_CORRECTION, ccp));
+        _enableLevenshtein = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ENABLE_LEVENSHTEIN, ccp));
+        _levenshteinDistance = Float.parseFloat(getPropertyOrDieTrying(PROP_LEVENSHTEIN_DISTANCE, ccp));
+        if (!_enableLevenshtein) _levenshteinDistance = null;
     }
 
     @Override
@@ -281,7 +304,7 @@ public class SpellCheck extends AbstractExecutableComponent {
     }
 
     protected SuggestionListener getSuggestionListener() {
-        return new SuggestionListener(_doCorrection, console);
+        return new SuggestionListener(_doCorrection, _levenshteinDistance, console);
     }
 
     private void processText(String[] text) throws ComponentContextException {
@@ -417,6 +440,7 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         protected final Map<String, Set<String>> _replacements;
         protected final boolean _doCorrection;
+        protected final Float _levenshteinDistance;
         protected final Logger _logger;
 
         protected int _countSpellingErrors = 0;
@@ -427,26 +451,55 @@ public class SpellCheck extends AbstractExecutableComponent {
         }
 
         public SuggestionListener(boolean doCorrection, Logger logger) {
+        	this(doCorrection, null, logger);
+        }
+
+        public SuggestionListener(boolean doCorrection, Float levenshteinDistance, Logger logger) {
             _replacements = new HashMap<String, Set<String>>();
             _doCorrection = doCorrection;
+            _levenshteinDistance = levenshteinDistance;
             _logger = logger;
         }
 
         public void spellingError(SpellCheckEvent event) {
             _countSpellingErrors++;
 
-            if (_logger != null) _logger.finer("Misspelling: " + event.getInvalidWord());
-            List<?> suggestions = event.getSuggestions();
+            String invalidWord = event.getInvalidWord();
+			if (_logger != null) _logger.finer("Misspelling: " + invalidWord);
+            int nSuggestions = event.getSuggestions().size();
+            List<String> suggestions = nSuggestions > 0 ? new ArrayList<String>(nSuggestions) : new ArrayList<String>();
+            for (Object suggestion : event.getSuggestions())
+            	suggestions.add(suggestion.toString());
+
+            suggestions = getFilteredSuggestions(invalidWord, suggestions);
 
             if (_logger != null && (_logger.getLevel() == Level.FINEST || _logger.getLevel() == Level.ALL)) {
                 StringBuilder sb = new StringBuilder();
-                for (Object suggestion : suggestions)
-                    sb.append(", ").append(suggestion.toString());
+                for (String suggestion : suggestions)
+                    sb.append(", ").append(suggestion);
+                if (sb.length() > 0)
+                    _logger.finest("Before Levenshtein Suggestions: " + sb.substring(2));
+            }
+
+            if (_levenshteinDistance != null) {
+            	Iterator<String> it = suggestions.iterator();
+            	while (it.hasNext()) {
+            		String suggestion = it.next();
+            		int score = LevenshteinDistance.computeLevenshteinDistance(invalidWord, suggestion);
+            		if (score > _levenshteinDistance * invalidWord.length())
+            			it.remove();
+            	}
+            }
+
+            if (_logger != null && (_logger.getLevel() == Level.FINER || _logger.getLevel() == Level.ALL)) {
+                StringBuilder sb = new StringBuilder();
+                for (String suggestion : suggestions)
+                    sb.append(", ").append(suggestion);
                 if (sb.length() > 0)
                     _logger.finest("Suggestions: " + sb.substring(2));
             }
 
-            String topRankedSuggestion = getReplacement(event.getInvalidWord(), suggestions);
+            String topRankedSuggestion = getReplacement(invalidWord, suggestions);
 
             if (topRankedSuggestion != null) {
                 if (_logger != null) _logger.finer("Top suggestion: " + topRankedSuggestion);
@@ -456,7 +509,7 @@ public class SpellCheck extends AbstractExecutableComponent {
                     misspellings = new HashSet<String>();
                     _replacements.put(topRankedSuggestion, misspellings);
                 }
-                misspellings.add(event.getInvalidWord());
+                misspellings.add(invalidWord);
 
                 if (_doCorrection)
                     event.replaceWord(topRankedSuggestion, true);
@@ -466,6 +519,10 @@ public class SpellCheck extends AbstractExecutableComponent {
                 _logger.finer("Suggestions: <none>");
                 _countMissedCorrections++;
             }
+        }
+
+        protected List<String> getFilteredSuggestions(String invalidWord, List<String> suggestions) {
+        	return suggestions;
         }
 
         protected String getReplacement(String invalidWord, List<?> suggestions) {
