@@ -46,11 +46,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -467,7 +466,7 @@ public class SpellCheck extends AbstractExecutableComponent {
             String invalidWord = event.getInvalidWord();
 			if (_logger != null) _logger.finer("Misspelling: " + invalidWord);
             int nSuggestions = event.getSuggestions().size();
-            List<String> suggestions = nSuggestions > 0 ? new ArrayList<String>(nSuggestions) : new ArrayList<String>();
+            Set<String> suggestions = nSuggestions > 0 ? new LinkedHashSet<String>(nSuggestions) : new LinkedHashSet<String>();
             for (Object suggestion : event.getSuggestions())
             	suggestions.add(suggestion.toString());
 
@@ -521,12 +520,12 @@ public class SpellCheck extends AbstractExecutableComponent {
             }
         }
 
-        protected List<String> getFilteredSuggestions(String invalidWord, List<String> suggestions) {
+        protected Set<String> getFilteredSuggestions(String invalidWord, Set<String> suggestions) {
         	return suggestions;
         }
 
-        protected String getReplacement(String invalidWord, List<?> suggestions) {
-            return suggestions.isEmpty() ? null : suggestions.iterator().next().toString();
+        protected String getReplacement(String invalidWord, Set<String> suggestions) {
+            return suggestions.isEmpty() ? null : suggestions.iterator().next();
         }
 
         public String getReplacementRules() {

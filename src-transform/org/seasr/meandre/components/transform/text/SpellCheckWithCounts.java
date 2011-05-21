@@ -45,9 +45,13 @@ package org.seasr.meandre.components.transform.text;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
@@ -104,7 +108,7 @@ public class SpellCheckWithCounts extends SpellCheck {
 
 
     protected Map<String, Integer> _tokenCounts;
-    protected Map<String, String> _transformations;
+    protected Map<String, List<String>> _transformations;
 
 
     //--------------------------------------------------------------------------------------------
@@ -129,7 +133,7 @@ public class SpellCheckWithCounts extends SpellCheck {
                 pushStreamDelimiter(input);
             } else {
                 String[] inputs = DataTypeParser.parseAsString(input);
-                _transformations = TextReplacement.buildDictionary(inputs[0], console);
+                _transformations = buildTransformDictionary(inputs[0]);
             }
         }
 
@@ -147,6 +151,50 @@ public class SpellCheckWithCounts extends SpellCheck {
     protected SuggestionListener getSuggestionListener() {
         return new SuggestionListenerWithCounts(_spellDictionary, _tokenCounts, _doCorrection, _levenshteinDistance, console);
     }
+
+    //--------------------------------------------------------------------------------------------
+
+    public Map<String,List<String>> buildTransformDictionary(String configData)
+	{
+		configData = configData.replaceAll("\n","");
+
+	    Map<String,List<String>> map = new HashMap<String,List<String>>();
+	    StringTokenizer tokens = new StringTokenizer(configData, ";");
+
+	    while (tokens.hasMoreTokens()) {
+	        String line = tokens.nextToken();
+	        String[] parts = line.split("=");
+
+	        if (parts.length != 2) {            // lots of = signs
+	        	parts = line.split(":=");
+	        }
+
+	        if (parts.length != 2) {
+	        	console.warning("unable to build dictionary " + configData);
+	        	return map;
+	        }
+
+	        String key    = parts[0].trim();
+	        String values = parts[1].trim();
+
+	        values = values.replace("{","");
+	        values = values.replace("}","");
+
+	        StringTokenizer vTokens = new StringTokenizer(values, ",");
+	        while (vTokens.hasMoreTokens()) {
+	            String value = vTokens.nextToken().trim();
+
+	            List<String> replacements = map.get(value);
+	            if (replacements == null) {
+	            	replacements = new ArrayList<String>();
+	            	map.put(value, replacements);
+	            }
+
+	            replacements.add(key);
+	        }
+	    }
+	    return map;
+	}
 
     //--------------------------------------------------------------------------------------------
 
@@ -171,42 +219,49 @@ public class SpellCheckWithCounts extends SpellCheck {
         }
 
         @Override
-        protected List<String> getFilteredSuggestions(String invalidWord, List<String> suggestions) {
-            List<KeyValuePair<Integer,Entry<String,String>>> transformData =
+        protected Set<String> getFilteredSuggestions(String invalidWord, Set<String> suggestions) {
+            List<KeyValuePair<Integer,KeyValuePair<String,String>>> transformData =
                 computeApplicableTransformations(invalidWord, _transformations);
 
-            List<String> transformSuggestions = checkTransformations(invalidWord, transformData);
+            Set<String> transformSuggestions = checkTransformations(invalidWord, transformData);
             if (transformSuggestions.size() > 0)
                 console.fine("Transform suggestions: " + transformSuggestions);
 
             if (transformSuggestions.size() > 0)
                 suggestions = transformSuggestions;
 
-            Collections.sort(suggestions, new Comparator<String>() {
-				public int compare(String s1, String s2) {
-					Integer c1 = _tokenCounts.get(s1);
-					Integer c2 = _tokenCounts.get(s2);
-					if (c1 == null) return 1;
-					if (c2 == null) return -1;
-					return c2.compareTo(c1);
-				}
-            });
+            if (_tokenCounts.size() > 0) {
+            	List<String> suggestionsList = new ArrayList<String>(suggestions);
+	            Collections.sort(suggestionsList, new Comparator<String>() {
+					public int compare(String s1, String s2) {
+						Integer c1 = _tokenCounts.get(s1);
+						Integer c2 = _tokenCounts.get(s2);
+						if (c1 == null && c2 == null) return 0;
+						if (c1 == null) return 1;
+						if (c2 == null) return -1;
+						return c2.compareTo(c1);
+					}
+	            });
+	            suggestions = new LinkedHashSet<String>(suggestionsList);
+            }
 
             return suggestions;
         }
 
-        private List<KeyValuePair<Integer,Entry<String,String>>> computeApplicableTransformations(String invalidWord, Map<String,String> tokens) {
-            List<KeyValuePair<Integer, Entry<String,String>>> transformations = new ArrayList<KeyValuePair<Integer,Entry<String,String>>>();
+        private List<KeyValuePair<Integer,KeyValuePair<String,String>>> computeApplicableTransformations(String invalidWord, Map<String,List<String>> tokens) {
+            List<KeyValuePair<Integer, KeyValuePair<String,String>>> transformations = new ArrayList<KeyValuePair<Integer,KeyValuePair<String,String>>>();
 
-            for (Entry<String,String> entry : tokens.entrySet()) {
+            for (Entry<String,List<String>> entry : tokens.entrySet()) {
                 int n;
 
                 for (int i = 0; (n = invalidWord.indexOf(entry.getKey(), i)) != -1; i = n + 1)
-                    transformations.add(new KeyValuePair<Integer, Entry<String,String>>(n, entry));
+                	for (String replacement : entry.getValue())
+                		transformations.add(new KeyValuePair<Integer, KeyValuePair<String,String>>(n,
+                				new KeyValuePair<String,String>(entry.getKey(), replacement)));
             }
 
-            Collections.sort(transformations, new Comparator<KeyValuePair<Integer,Entry<String,String>>>() {
-                public int compare(KeyValuePair<Integer, Entry<String, String>> o1, KeyValuePair<Integer, Entry<String, String>> o2) {
+            Collections.sort(transformations, new Comparator<KeyValuePair<Integer,KeyValuePair<String,String>>>() {
+                public int compare(KeyValuePair<Integer, KeyValuePair<String, String>> o1, KeyValuePair<Integer, KeyValuePair<String, String>> o2) {
                     return o1.getKey().compareTo(o2.getKey());
                 }
             });
@@ -214,8 +269,8 @@ public class SpellCheckWithCounts extends SpellCheck {
             return transformations;
         }
 
-        private List<String> checkTransformations(String invalidWord, List<KeyValuePair<Integer, Entry<String, String>>> transformData) {
-            List<String> suggestions = new ArrayList<String>();
+        private Set<String> checkTransformations(String invalidWord, List<KeyValuePair<Integer, KeyValuePair<String, String>>> transformData) {
+            Set<String> suggestions = new LinkedHashSet<String>();
 
             for (int i = 0, size = transformData.size(), iMax = (int) Math.pow(2, size); i < iMax; i++) {
                 int lastIndex = -1;
@@ -227,14 +282,14 @@ public class SpellCheckWithCounts extends SpellCheck {
                     if ((i & j) == j) {
                         int index = (int)(Math.log(j) / Math.log(2));
 
-                        KeyValuePair<Integer,Entry<String,String>> kvp = transformData.get(index);
+                        KeyValuePair<Integer,KeyValuePair<String,String>> kvp = transformData.get(index);
                         int n = kvp.getKey();
                         if (n < lastIndex) {
                             abort = true;
                             break;
                         }
 
-                        Entry<String,String> transform = kvp.getValue();
+                        KeyValuePair<String,String> transform = kvp.getValue();
                         lastIndex = n + transform.getKey().length();
 
                         n += adjust; lastIndex += adjust; countTransformations++;
