@@ -104,7 +104,7 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 	@ComponentProperty(
 			name = Names.PROP_SEPARATOR,
 			description = "Used to separate field values",
-		    defaultValue = ":"
+		    defaultValue = ","
 	)
 	protected static final String PROP_TEXT_SEPARATOR = Names.PROP_SEPARATOR;
 
@@ -219,7 +219,7 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 			String sToken = im.getKey(offset);
 			ps.print(sToken+textSep);
 			for ( int iCounts:im.getValue(offset).getValueList() )
-				ps.print(" "+iCounts);
+				ps.print(iCounts);
 			ps.println();
 		}
 		ps.println();

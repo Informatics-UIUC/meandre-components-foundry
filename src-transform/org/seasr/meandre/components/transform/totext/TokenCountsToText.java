@@ -73,7 +73,8 @@ import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 		rights = Licenses.UofINCSA,
 		tags = "token count, text, convert",
 		description = "Given a collection of token counts, this component converts it " +
-				      "into text.",
+				      "into text. The default separator is a comma, so make sure tokens " +
+				      "do not have commas or change the separator.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TokenCountsToText extends AnalysisToText {
@@ -92,7 +93,7 @@ public class TokenCountsToText extends AnalysisToText {
 	@ComponentProperty(
 			name = Names.PROP_MESSAGE,
 			description = "The header to use. ",
-		    defaultValue = "Available token counts"
+		    defaultValue = "tokens,counts"
 	)
 	protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
 
