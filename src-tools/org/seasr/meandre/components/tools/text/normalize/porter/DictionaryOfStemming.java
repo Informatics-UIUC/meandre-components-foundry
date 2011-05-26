@@ -201,18 +201,21 @@ public class DictionaryOfStemming extends AbstractStreamingExecutableComponent {
 		if (!_isStreaming)
 	            throw new Exception("Received StreamTerminator without receiving StreamInitiator");
 
-		org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
-        Set<String> set = _tokenMap.keySet();
-        for (String s : set ) {
-        	org.seasr.datatypes.core.BasicDataTypes.Strings.Builder sres = BasicDataTypes.Strings.newBuilder();
-        	sres.addValue(_tokenMap.get(s));
-        	mres.addKey(s);
-			mres.addValue(sres.build());
-        }
+		if (!_tokenMap.isEmpty()) {
+			org.seasr.datatypes.core.BasicDataTypes.StringsMap.Builder mres = BasicDataTypes.StringsMap.newBuilder();
+	        Set<String> set = _tokenMap.keySet();
+	        for (String s : set ) {
+	        	org.seasr.datatypes.core.BasicDataTypes.Strings.Builder sres = BasicDataTypes.Strings.newBuilder();
+	        	sres.addValue(_tokenMap.get(s));
+	        	mres.addKey(s);
+				mres.addValue(sres.build());
+	        }
 
-        componentContext.pushDataComponentToOutput(OUT_DICTIONARY, mres.build());
+	        componentContext.pushDataComponentToOutput(OUT_DICTIONARY, mres.build());
 
-        _tokenMap.clear();
+	        _tokenMap.clear();
+		}
+
         _isStreaming = false;
 	}
 }

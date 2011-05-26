@@ -46,13 +46,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
@@ -111,18 +112,28 @@ public class ZoteroAuthorExtractor extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		Map<String,byte[]> map = DataTypeParser.parseAsStringByteArrayMap(cc.getDataComponentFromInput(IN_REQUEST));
+		Map<String,String[]> map = DataTypeParser.parseAsStringStringArrayMap(cc.getDataComponentFromInput(IN_REQUEST));
+		if (!map.containsKey("zoterordf")) {
+			outputError("Zotero RDF data not found in request!", Level.SEVERE);
+			return;
+		}
 
 		List<Vector<String>> list = new LinkedList<Vector<String>>();
+		String[] rdfData = map.get("zoterordf");
 
-		for ( String sKey:map.keySet() ) {
-			Model model = ModelUtils.getModel(map.get(sKey), null);
+		for (String rdf : rdfData) {
+			Model model = ModelUtils.getModel(rdf, null);
 			List<Vector<String>> authorList = ZoteroUtils.extractAuthors(model);
             for (Vector<String> authors : authorList) {
                 for (String author : authors)
-                    console.finest("author: " + author);
+                    console.finer("author: " + author);
             }
 			list.addAll(authorList);
+		}
+
+		if (list.isEmpty()) {
+			outputError("No authors found for the items selected", Level.WARNING);
+			return;
 		}
 
 		cc.pushDataComponentToOutput(OUT_AUTHOR_LIST, list);

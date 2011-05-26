@@ -197,6 +197,11 @@ public class UniversalTextExtractor extends AbstractExecutableComponent {
             }
         }
 
+        if (text == null) {
+            outputError(String.format("Cannot retrieve the text from location '%s'", location.toString()), Level.WARNING);
+            return;
+        }
+
         cc.pushDataComponentToOutput(OUT_LOCATION, input);
         cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
     }

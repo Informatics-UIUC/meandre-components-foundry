@@ -142,6 +142,11 @@ public class ZoteroURLExtractor extends AbstractStreamingExecutableComponent {
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
 		Map<String, String[]> map = DataTypeParser.parseAsStringStringArrayMap(cc.getDataComponentFromInput(IN_REQUEST));
+		if (!map.containsKey("zoterordf")) {
+			outputError("Zotero RDF data not found in request!", Level.SEVERE);
+			return;
+		}
+
         String[] zoteroRdfs = map.get("zoterordf");
 
         if (bWrapped) pushInitiator();

@@ -47,6 +47,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -164,6 +165,12 @@ public class ServiceHeadRequest extends AbstractExecutableComponent
 		while (paramNames.hasMoreElements()) {
 			String paramName = paramNames.nextElement().toString();
 			String[] paramValues = request.getParameterValues(paramName);
+			if (console.getLevel().intValue() <= Level.FINER.intValue()) {
+				StringBuilder sb = new StringBuilder();
+				for (String paramValue : paramValues)
+					sb.append(",").append(paramValue);
+				console.finer(String.format("param: '%s' value: '%s'", paramName, sb.substring(1)));
+			}
 			paramMap.put(paramName, paramValues);
 		}
 

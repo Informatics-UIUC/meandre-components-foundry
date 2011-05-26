@@ -130,7 +130,8 @@ public class AggregateInstances extends AbstractStreamingExecutableComponent {
 
     @Override
     public void endStream() throws Exception {
-        componentContext.pushDataComponentToOutput(OUT_INSTANCE_LIST, _instanceList);
+    	if (!_instanceList.isEmpty())
+    		componentContext.pushDataComponentToOutput(OUT_INSTANCE_LIST, _instanceList);
 
         _instanceList = null;
     }
