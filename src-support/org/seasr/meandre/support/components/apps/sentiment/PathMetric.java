@@ -55,6 +55,10 @@ public class PathMetric {
 	public String concept = "";
 	public int numberOfPaths;
 	public int depthFound;
+	
+	//
+	// unique is the number of unique nodes in the graph
+	//
 	public int unique;
 	public float percentSymmetric;
 
