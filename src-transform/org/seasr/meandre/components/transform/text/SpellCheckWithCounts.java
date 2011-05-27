@@ -58,8 +58,10 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
+import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -104,12 +106,26 @@ public class SpellCheckWithCounts extends SpellCheck {
     )
     protected static final String IN_TRANSFORMATIONS = "transformations";
 
-    //--------------------------------------------------------------------------------------------
+    //------------------------------ PROPERTIES --------------------------------------------------
+    
+    @ComponentProperty(
+            name = "enable_transforms_only",
+            description = "True to only use the transformations to make suggestions for correctly spelled words; False to allow the spell checker to also make suggestions.",
+            defaultValue = "false"
+    )
+    protected static final String PROP_ENABLE_TRANSFORMS = "enable_transforms_only";
 
+    //--------------------------------------------------------------------------------------------
 
     protected Map<String, Integer> _tokenCounts;
     protected Map<String, List<String>> _transformations;
+    protected Boolean _enable_transforms_only;
 
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+
+    	super.initializeCallBack(ccp);
+    	_enable_transforms_only = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ENABLE_TRANSFORMS, ccp));
+    }
 
     //--------------------------------------------------------------------------------------------
 
@@ -227,9 +243,11 @@ public class SpellCheckWithCounts extends SpellCheck {
             if (transformSuggestions.size() > 0)
                 console.fine("Transform suggestions: " + transformSuggestions);
 
-            if (transformSuggestions.size() > 0)
+            if (_enable_transforms_only)
+            	suggestions = transformSuggestions;
+            else if (transformSuggestions.size() > 0)
                 suggestions = transformSuggestions;
-
+           
             if (_tokenCounts.size() > 0) {
             	List<String> suggestionsList = new ArrayList<String>(suggestions);
 	            Collections.sort(suggestionsList, new Comparator<String>() {
