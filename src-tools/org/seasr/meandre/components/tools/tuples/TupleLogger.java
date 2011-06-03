@@ -211,13 +211,13 @@ public class TupleLogger extends AbstractExecutableComponent {
 
     @Override
     public void handleStreamInitiators() throws Exception {
-        console.info("### BEGIN marker ###");
+        console.finer("### BEGIN marker ###");
         super.handleStreamInitiators();
     }
 
     @Override
     public void handleStreamTerminators() throws Exception {
-        console.info("### END marker ###");
+        console.finer("### END marker ###");
         super.handleStreamTerminators();
     }
 }
