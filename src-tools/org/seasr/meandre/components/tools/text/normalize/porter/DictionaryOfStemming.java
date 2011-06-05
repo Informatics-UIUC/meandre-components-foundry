@@ -67,12 +67,12 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         creator = "Lily Dong",
 		description = "Constructs a dictionary mapping the stemmed words back to " +
 		              "the actual words in the original document, so for the output map, " +
-		              "the stemmed words are keys and the actural words are values. " +
-		              "If several words have the same stem, the shortest word is choosed " +
+		              "the stemmed words are keys and the actual words are values. " +
+		              "If several words have the same stem, the shortest word is choosen " +
 		              "as the representative. ",
         firingPolicy = FiringPolicy.all,
 		name = "Dictionary Of Stemming",
-		tags = "stem dictionary",
+		tags = "stem, dictionary",
 		rights = Licenses.UofINCSA,
 		baseURL="meandre://seasr.org/components/foundry/"
 )
