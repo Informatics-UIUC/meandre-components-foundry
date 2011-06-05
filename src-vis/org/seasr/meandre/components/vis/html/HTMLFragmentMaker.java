@@ -45,10 +45,10 @@ package org.seasr.meandre.components.vis.html;
 import java.io.UnsupportedEncodingException;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -123,25 +123,34 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
     )
     protected static final String PROP_CSS = Names.PROP_CSS;
 
+    @ComponentProperty(
+            defaultValue = "true",
+            description = "Generate complete HTML page?",
+            name = "generate_complete_page"
+    )
+    protected static final String PROP_GENERATE_COMPLETE_PAGE = "generate_complete_page";
+
     //--------------------------------------------------------------------------------------------
 
 
     private String _mimeType;
     private String _id;
     private String _css;
+    private boolean _generateCompletePage;
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _mimeType = ccp.getProperty(PROP_ENCODING).toLowerCase();
+        _mimeType = getPropertyOrDieTrying(PROP_ENCODING, ccp).toLowerCase();
+        _generateCompletePage = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_GENERATE_COMPLETE_PAGE, ccp));
 
-        _id = ccp.getProperty(PROP_ID);
-        if (_id.trim().length() == 0) _id = null;
+        _id = getPropertyOrDieTrying(PROP_ID, true, false, ccp);
+        if (_id.length() == 0) _id = null;
 
-        _css = ccp.getProperty(PROP_CSS);
-        if (_css.trim().length() == 0) _css = null;
+        _css = getPropertyOrDieTrying(PROP_CSS, true, false, ccp);
+        if (_css.length() == 0) _css = null;
     }
 
     @Override
@@ -151,6 +160,8 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
         if (_mimeType.startsWith("text")) {
             for (String text : DataTypeParser.parseAsString(data)) {
                 String htmlTextFragment = org.seasr.meandre.support.generic.html.HTMLFragmentMaker.makeHtmlTextFragment(text, _id, _css);
+                if (_generateCompletePage)
+                	htmlTextFragment = String.format("<html>%n<head></head>%n<body>%n%s%n</body>%n</html>", htmlTextFragment);
                 console.fine("Pushing out text fragment: " + htmlTextFragment);
                 cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlTextFragment));
             }
@@ -160,6 +171,8 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
 
         if (_mimeType.startsWith("image")) {
             String htmlImageFragment = org.seasr.meandre.support.generic.html.HTMLFragmentMaker.makeHtmlImageFragment((byte[])data, _mimeType, _id, _css);
+            if (_generateCompletePage)
+            	htmlImageFragment = String.format("<html>%n<head></head>%n<body>%n%s%n</body>%n</html>", htmlImageFragment);
             console.fine("Pushing out image fragment: " + htmlImageFragment);
             cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlImageFragment));
         }

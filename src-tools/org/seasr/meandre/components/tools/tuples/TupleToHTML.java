@@ -68,7 +68,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 @Component(
         creator = "Boris Capitanu",
-        description = "Cretes HTML for displaying a set of tuples in a table",
+        description = "Creates HTML for displaying a set of tuples in a table",
         name = "Tuple To HTML",
         tags = "tuple, html",
         rights = Licenses.UofINCSA,
