@@ -76,7 +76,7 @@ import org.seasr.meandre.components.tools.text.io.GenericTemplate;
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.6.2-dep.jar" },
+        dependency = { "velocity-1.7-dep.jar" },
         resources = {"CrossDomainPolicyServer.vm"}
 )
 public class CrossDomainPolicyServer extends GenericTemplate

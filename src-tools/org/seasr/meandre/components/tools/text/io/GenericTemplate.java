@@ -98,7 +98,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
         resources = { "GenericTemplate.vm" },
-        dependency = { "velocity-1.6.2-dep.jar" }
+        dependency = { "velocity-1.7-dep.jar" }
 )
 public class GenericTemplate extends AbstractExecutableComponent
                              implements ConfigurableWebUIFragmentCallback {

@@ -77,7 +77,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         tags = "velocity,template,html",
         baseURL="meandre://seasr.org/components/foundry/",
         resources  = { "SampleTemplate.vm" },
-        dependency = { "velocity-1.6.2-dep.jar", "protobuf-java-2.2.0.jar" }
+        dependency = { "velocity-1.7-dep.jar", "protobuf-java-2.2.0.jar" }
 )
 public class VelocityTemplateToHTML extends AbstractExecutableComponent {
 
@@ -130,7 +130,7 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent {
     //
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-    	templateName = ccp.getProperty(PROP_TEMPLATE);
+        templateName = getPropertyOrDieTrying(PROP_TEMPLATE, ccp);
 
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
         context = velocity.getNewContext();

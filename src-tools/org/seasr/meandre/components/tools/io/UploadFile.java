@@ -80,7 +80,7 @@ import com.oreilly.servlet.multipart.Part;
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency={ "velocity-1.6.2-dep.jar", "protobuf-java-2.2.0.jar", "infusion-1.2.jar" },
+        dependency={ "velocity-1.7-dep.jar", "protobuf-java-2.2.0.jar", "infusion-1.2.jar" },
         resources={ "UploadFile.vm" }
 )
 

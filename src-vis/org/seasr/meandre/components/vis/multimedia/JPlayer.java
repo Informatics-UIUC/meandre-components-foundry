@@ -80,7 +80,7 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.6.2-dep.jar", "jquery-1.4.4.jar", "jPlayer-2.0.0.jar" },
+        dependency = { "velocity-1.7-dep.jar", "jquery-1.4.4.jar", "jPlayer-2.0.0.jar" },
         resources = { "JPlayer.vm" }
 )
 public class JPlayer extends AbstractJQueryComponent {

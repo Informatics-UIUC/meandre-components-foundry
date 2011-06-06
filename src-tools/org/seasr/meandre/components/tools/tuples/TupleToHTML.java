@@ -49,7 +49,6 @@ import java.util.Map;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
-import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
@@ -72,9 +71,8 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         name = "Tuple To HTML",
         tags = "tuple, html",
         rights = Licenses.UofINCSA,
-        mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.6.2-dep.jar", "protobuf-java-2.2.0.jar" },
+        dependency = { "velocity-1.7-dep.jar", "protobuf-java-2.2.0.jar" },
         resources = { "TupleToHTML.vm" }
 )
 public class TupleToHTML extends VelocityTemplateToHTML {

@@ -77,7 +77,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         tags = "date, xsl, filter",
         description = "This component generates an xsl template to filter an xml file and include only " +
                       "the dates between the minimum and maximum year. This is used to filter the Simile xml file that is generated.",
-        dependency = { "protobuf-java-2.2.0.jar", "velocity-1.6.2-dep.jar" },
+        dependency = { "protobuf-java-2.2.0.jar", "velocity-1.7-dep.jar" },
         resources = { "DateFilter.vm" }
 )
 public class DateFilter extends AbstractExecutableComponent {

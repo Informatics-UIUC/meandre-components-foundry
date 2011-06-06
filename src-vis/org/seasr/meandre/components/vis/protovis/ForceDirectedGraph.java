@@ -69,7 +69,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         tags = "string, visualization, protovis",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.6.2-dep.jar", "protovis-r3.2.jar" },
+        dependency = { "velocity-1.7-dep.jar", "protovis-r3.2.jar" },
         resources  = { "ForceDirectedGraph.vm", "ForceDirectedGraphUI.vm" }
 )
 public class ForceDirectedGraph extends AbstractProtovisComponent {

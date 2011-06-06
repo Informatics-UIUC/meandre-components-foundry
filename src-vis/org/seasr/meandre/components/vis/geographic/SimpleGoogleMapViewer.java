@@ -81,7 +81,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.6.2-dep.jar" },
+        dependency = { "velocity-1.7-dep.jar" },
         resources = { "SimpleGoogleMapViewer.vm" }
 )
 public class SimpleGoogleMapViewer extends GenericTemplate {

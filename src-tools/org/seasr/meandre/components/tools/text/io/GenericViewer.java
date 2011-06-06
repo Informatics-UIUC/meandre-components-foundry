@@ -65,7 +65,7 @@ import org.seasr.datatypes.core.Names;
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",
         resources = { "GenericViewer.vm" },
-        dependency = { "velocity-1.6.2-dep.jar" }
+        dependency = { "velocity-1.7-dep.jar" }
 )
 public class GenericViewer extends GenericTemplate {
 

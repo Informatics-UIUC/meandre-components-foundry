@@ -68,7 +68,7 @@ import org.seasr.meandre.components.vis.protovis.AbstractProtovisComponent;
         tags = "string, visualization, protovis",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.6.2-dep.jar", "protovis-r3.2.jar" },
+        dependency = { "velocity-1.7-dep.jar", "protovis-r3.2.jar" },
         resources  = { "TwitterCirclePackingGraph.vm" }
 )
 public class TwitterCirclePackingGraph extends AbstractProtovisComponent {
