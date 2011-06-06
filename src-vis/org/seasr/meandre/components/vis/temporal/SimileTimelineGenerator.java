@@ -48,6 +48,7 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.apache.velocity.VelocityContext;
@@ -68,6 +69,7 @@ import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.generic.encoding.Base64;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 import org.seasr.meandre.support.generic.io.DOMUtils;
+import org.seasr.meandre.support.generic.io.FileUtils;
 import org.seasr.meandre.support.generic.io.IOUtils;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 import org.w3c.dom.Document;
@@ -149,10 +151,17 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
 	@ComponentProperty(
             name = "save_output_to_file",
-            description = "The URL to the Simile Timline API, or leave empty to use the embedded one",
+            description = "Save the Simile XML output to file?",
             defaultValue = "false"
     )
     protected static final String PROP_SAVE_OUTPUT_TO_FILE = "save_output_to_file";
+
+	@ComponentProperty(
+            name = "inline_simile_xml",
+            description = "Generate inline Simile data?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_INLINE_SIMILE_XML = "inline_simile_xml";
 
     //--------------------------------------------------------------------------------------------
 
@@ -168,7 +177,10 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     /** Store the maximum value of year */
     private int maxYear;
 
+    private boolean inlineSimileXml;
     private boolean saveOutputToFile;
+
+    private final List<File> tmpFiles = new ArrayList<File>();
 
     private VelocityContext _context;
 
@@ -177,7 +189,8 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        saveOutputToFile = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SAVE_OUTPUT_TO_FILE, true, true, ccp));
+        saveOutputToFile = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SAVE_OUTPUT_TO_FILE, ccp));
+        inlineSimileXml = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_INLINE_SIMILE_XML, ccp));
         String timelineAPI = getPropertyOrDieTrying(PROP_TIMELINE_API_URL, true, false, ccp);
 
     	_context = VelocityTemplateService.getInstance().getNewContext();
@@ -201,6 +214,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
         console.fine("Using Simile Timeline API from: " + timelineAPI);
         _context.put("simileTimelineAPI", timelineAPI);
+        _context.put("inlineSimileXml", inlineSimileXml);
     }
 
     @Override
@@ -217,35 +231,46 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         }
 
         String webUiUrl = cc.getWebUIUrl(true).toString();
-        Date now = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        String htmlFileName = "my" + formatter.format(now) + ".html",
-               xmlFileName = "my" + formatter.format(now) + ".xml";
-        String htmlLocation = webUiUrl + "public/resources/simile/" + htmlFileName,
-               xmlLocation  = webUiUrl + "public/resources/simile/" + xmlFileName;
+        String dirName = cc.getPublicResourcesDirectory() + File.separator;
+        String xmlLocation = webUiUrl + "public/resources/simile/";
 
-        String simileHtml = generateHTML(simileXml, xmlLocation);
-
-        if (saveOutputToFile) {
-            console.finest("htmlFileName=" + htmlFileName);
-            console.finest("xmlFileName=" + xmlFileName);
-            console.finest("htmlLocation=" + htmlLocation);
-            console.finest("xmlLocation=" + xmlLocation);
-
-            String dirName = cc.getPublicResourcesDirectory() + File.separator;
+        if (!inlineSimileXml || saveOutputToFile) {
             dirName += "simile" + File.separator;
+            console.finest("Set storage location to " + dirName);
 
             // make sure the folder exists
             new File(dirName).mkdirs();
 
-            console.finest("Set storage location to " + dirName);
+            File xmlFile = null;
 
-            URI xmlURI = DataTypeParser.parseAsURI(new File(dirName + xmlFileName).toURI());
-            URI htmlURI = DataTypeParser.parseAsURI(new  File(dirName + htmlFileName).toURI());
+	        if (saveOutputToFile) {
+		        Date now = new Date();
+		        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+		        String xmlFileName = "my" + formatter.format(now) + ".xml";
+		        xmlLocation += xmlFileName;
+		        xmlFile = new File(dirName + xmlFileName);
+	        } else {
+	        	xmlFile = File.createTempFile("simile_", ".xml", new File(dirName));
+	        	tmpFiles.add(xmlFile);
+	        	xmlLocation += xmlFile.getName();
+	        }
+
+	        URI xmlURI = xmlFile.toURI();
 
             Writer xmlWriter = IOUtils.getWriterForResource(xmlURI);
             xmlWriter.write(simileXml);
             xmlWriter.close();
+        }
+
+        String simileHtml = generateHTML(simileXml, xmlLocation);
+
+        if (saveOutputToFile) {
+        	Date now = new Date();
+	        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+	        String htmlFileName = "my" + formatter.format(now) + ".html";
+	        String htmlLocation = webUiUrl + "public/resources/simile/" + htmlFileName;
+
+            URI htmlURI = new  File(dirName + htmlFileName).toURI();
 
             Writer htmlWriter = IOUtils.getWriterForResource(htmlURI);
             htmlWriter.write(simileHtml);
@@ -260,6 +285,8 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    	for (File tmpFile : tmpFiles)
+    		FileUtils.deleteFileOrDirectory(tmpFile);
     }
 
     //--------------------------------------------------------------------------------------------

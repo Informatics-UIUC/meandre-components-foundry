@@ -141,15 +141,16 @@
 	        bandInfos[2].highlight = true;
 	        bandInfos[2].eventPainter.setLayout(bandInfos[0].eventPainter.getLayout(1));
 
-	        tl = Timeline.create(document.getElementById("my-timeline"), bandInfos);
+            tl = Timeline.create(document.getElementById("my-timeline"), bandInfos);
 
+            #if ($inlineSimileXml)
             var simileXml = document.getElementById('__simileXml').contentWindow.document;
             eventSource.loadXML(simileXml, "$simileXmlUrl");
-
-	        //Timeline.loadXML("$simileXmlUrl",
-	    	//        function(xml, url) {
-	        //	        eventSource.loadXML(xml, url);
-	        //	    });
+            #else
+            Timeline.loadXML("$simileXmlUrl", function(xml, url) {
+               eventSource.loadXML(xml, url);
+            });
+	        #end
 	    }
 
         var resizeTimerID = null;
@@ -168,8 +169,10 @@
 </head>
 
 <body onload="onLoad('YEAR');" onresize="onResize();">
+    #if ($inlineSimileXml)
     <iframe src="data:text/xml;base64,$simileXmlBase64" id="__simileXml" tabIndex='-1'
         style="position:absolute;width:0;height:0;border:0"></iframe>
+    #end
 
 	<div align="right"> <table cellspacing="5"><tr>
 		<td onclick="onLoad('DAY');"><font id="fday" color=""> DAY</font></td>

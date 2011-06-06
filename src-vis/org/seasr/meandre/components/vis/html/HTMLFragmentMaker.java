@@ -42,7 +42,11 @@
 
 package org.seasr.meandre.components.vis.html;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
@@ -55,6 +59,7 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.support.generic.io.FileUtils;
 
 /**
  * @author Lily Dong
@@ -130,6 +135,13 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
     )
     protected static final String PROP_GENERATE_COMPLETE_PAGE = "generate_complete_page";
 
+    @ComponentProperty(
+            defaultValue = "true",
+            description = "Generate inline images?",
+            name = "generate_inline_images"
+    )
+    protected static final String PROP_GENERATE_INLINE_IMAGES = "generate_inline_images";
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -137,6 +149,8 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
     private String _id;
     private String _css;
     private boolean _generateCompletePage;
+    private boolean _generateInlineImages;
+    private final List<File> _tmpFiles = new ArrayList<File>();
 
 
     //--------------------------------------------------------------------------------------------
@@ -145,6 +159,7 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _mimeType = getPropertyOrDieTrying(PROP_ENCODING, ccp).toLowerCase();
         _generateCompletePage = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_GENERATE_COMPLETE_PAGE, ccp));
+        _generateInlineImages = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_GENERATE_INLINE_IMAGES, ccp));
 
         _id = getPropertyOrDieTrying(PROP_ID, true, false, ccp);
         if (_id.length() == 0) _id = null;
@@ -170,7 +185,26 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
         else
 
         if (_mimeType.startsWith("image")) {
-            String htmlImageFragment = org.seasr.meandre.support.generic.html.HTMLFragmentMaker.makeHtmlImageFragment((byte[])data, _mimeType, _id, _css);
+        	String htmlImageFragment = null;
+        	if (!_generateInlineImages) {
+        		byte[] imgData = (byte[])data;
+        		File imgFile = File.createTempFile("img_", ".png", new File(cc.getPublicResourcesDirectory()));
+        		FileOutputStream fos = new FileOutputStream(imgFile);
+        		fos.write(imgData);
+        		fos.close();
+        		_tmpFiles.add(imgFile);
+        		StringBuilder sb = new StringBuilder();
+                sb.append("<img");
+                if (_id != null)
+                    sb.append(" id='").append(_id).append("'");
+                if (_css != null)
+                    sb.append(" style='").append(_css).append("'");
+                sb.append(" src='").append("/public/resources/").append(imgFile.getName()).append("'");
+                sb.append("/>");
+                htmlImageFragment = sb.toString();
+        	} else {
+        		htmlImageFragment = org.seasr.meandre.support.generic.html.HTMLFragmentMaker.makeHtmlImageFragment((byte[])data, _mimeType, _id, _css);
+        	}
             if (_generateCompletePage)
             	htmlImageFragment = String.format("<html>%n<head></head>%n<body>%n%s%n</body>%n</html>", htmlImageFragment);
             console.fine("Pushing out image fragment: " + htmlImageFragment);
@@ -183,5 +217,7 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    	for (File tmpFile : _tmpFiles)
+    		FileUtils.deleteFileOrDirectory(tmpFile);
     }
 }
