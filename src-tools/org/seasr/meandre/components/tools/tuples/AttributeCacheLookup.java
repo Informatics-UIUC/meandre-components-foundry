@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
@@ -215,7 +216,7 @@ public class AttributeCacheLookup extends AbstractExecutableComponent {
 
         String key = tuple.getValue(KEY_IDX);
         // Look it up in the ignore set
-        if (_ignoreCacheSet.contains(key)) {
+        if (_ignoreCacheSet != null && _ignoreCacheSet.contains(key)) {
             console.fine(String.format("key '%s' found in ignore list", key));
             outTuple.setValue(ATTRIB_IDX, "");
             cc.pushDataComponentToOutput(OUT_TUPLE, outTuple.convert());
@@ -224,7 +225,7 @@ public class AttributeCacheLookup extends AbstractExecutableComponent {
         }
 
         // Look it up in the cache
-        String value = _attributeCacheMap.get(key);
+        String value = _attributeCacheMap != null ? _attributeCacheMap.get(key) : null;
         if (value == null) {
             // Not found in cache
             console.fine(String.format("key '%s' not cached", key));
@@ -259,6 +260,9 @@ public class AttributeCacheLookup extends AbstractExecutableComponent {
             while ((line = reader.readLine()) != null)
                 ignoreSet.add(line);
         }
+        catch (FileNotFoundException e) {
+        	return null;
+        }
         finally {
             if (reader != null)
                 reader.close();
@@ -283,6 +287,9 @@ public class AttributeCacheLookup extends AbstractExecutableComponent {
                 String value = parts[1].trim();
                 cacheMap.put(key, value);
             }
+        }
+        catch (FileNotFoundException e) {
+        	return null;
         }
         finally {
             if (reader != null)
