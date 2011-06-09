@@ -220,6 +220,7 @@ public class SQLToTuple extends AbstractDBComponent {
                 for (int i = 0; i < numberOfColumns; i++) {
                     String columnName = rsMetaData.getColumnName(i+1);
                     String value = resultSet.getString(columnName);
+                    if (value == null) value = "";  // This deals with NULL values from the database
                     outTuple.setValue(i, value);
                 }
                 output.add(outTuple.convert());
