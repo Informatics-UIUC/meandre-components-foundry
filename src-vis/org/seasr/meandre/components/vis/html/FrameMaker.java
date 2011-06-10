@@ -195,7 +195,7 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
         VelocityContext context = velocity.getNewContext();
 
         context.put("htmlDocs", _htmlDocs);
-        context.put("rows", (int)Math.ceil(_htmlDocs.size() / _columns));
+        context.put("rows", (int)Math.ceil(_htmlDocs.size() / (double)_columns));
 		context.put("columns", Math.min(_columns, _htmlDocs.size()));
 
         String html = velocity.generateOutput(context, _template);
