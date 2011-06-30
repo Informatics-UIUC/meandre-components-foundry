@@ -209,7 +209,7 @@ public class SQLToTuple extends AbstractDBComponent {
             int numberOfColumns = rsMetaData.getColumnCount();
             String[] fieldNames = new String[numberOfColumns];
             for (int i = 0; i < numberOfColumns; i++) {
-                String columnName = rsMetaData.getColumnName(i+1);
+                String columnName = rsMetaData.getColumnLabel(i+1);
                 fieldNames[i] = columnName;
             }
             outPeer = new SimpleTuplePeer(fieldNames);
@@ -218,7 +218,7 @@ public class SQLToTuple extends AbstractDBComponent {
             output = new ArrayList<Strings>();
             while (resultSet.next()) {
                 for (int i = 0; i < numberOfColumns; i++) {
-                    String columnName = rsMetaData.getColumnName(i+1);
+                    String columnName = rsMetaData.getColumnLabel(i+1);
                     String value = resultSet.getString(columnName);
                     if (value == null) value = "";  // This deals with NULL values from the database
                     outTuple.setValue(i, value);
