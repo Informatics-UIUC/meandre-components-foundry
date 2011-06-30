@@ -126,8 +126,15 @@ public class ExecuteSQL extends AbstractDBComponent {
                 }
 
                 String sqlStatements = DataTypeParser.parseAsString(input)[0];
-                for (String sql : sqlStatements.split("\n"))
-                	stmt.addBatch(sql);
+                for (String sql : sqlStatements.split("\n")) {
+                	sql = sql.trim();
+                	if (sql.startsWith("--") || sql.length() == 0)
+                		continue;
+                	if (sql.endsWith(";"))
+                		stmt.addBatch(sql);
+                	else
+                		console.warning(String.format("Ignoring malformed SQL statement '%s'", sql));
+                }
 
                 stmt.executeBatch();
             }
