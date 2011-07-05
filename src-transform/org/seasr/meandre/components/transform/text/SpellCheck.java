@@ -74,6 +74,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.transform.text.LevenshteinDistance;
 import org.seasr.meandre.support.generic.io.IOUtils;
 
+import com.swabunga.spell.engine.Configuration;
 import com.swabunga.spell.engine.SpellDictionary;
 import com.swabunga.spell.engine.SpellDictionaryHashMap;
 import com.swabunga.spell.event.SpellCheckEvent;
@@ -174,6 +175,35 @@ public class SpellCheck extends AbstractExecutableComponent {
     )
     protected static final String PROP_LEVENSHTEIN_DISTANCE = "levenshtein_distance";
 
+    @ComponentProperty(
+            name = "ignore_uppercase",
+            description = "Ignore uppercase words? Ex: CIA",
+            defaultValue = "true"
+    )
+    protected static final String PROP_IGNORE_UPPERCASE = "ignore_uppercase";
+
+    @ComponentProperty(
+            name = "ignore_mixedcase",
+            description = "Ignore mixed case words? Ex: SpellCheck",
+            defaultValue = "false"
+    )
+    protected static final String PROP_IGNORE_MIXEDCASE = "ignore_mixedcase";
+
+    @ComponentProperty(
+            name = "ignore_internetaddresses",
+            description = "Ignore internet addresses? Ex: http://www.google.com",
+            defaultValue = "true"
+    )
+    protected static final String PROP_IGNORE_INTERNETADDR = "ignore_internetaddresses";
+
+    @ComponentProperty(
+            name = "ignore_digitwords",
+            description = "Ignore digit words? Ex: mach5",
+            defaultValue = "true"
+    )
+    protected static final String PROP_IGNORE_DIGITWORDS = "ignore_digitwords";
+
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -182,6 +212,10 @@ public class SpellCheck extends AbstractExecutableComponent {
     protected SpellDictionary _spellDictionary;
     protected boolean _enableLevenshtein;
     protected Float _levenshteinDistance;
+    protected boolean _ignoreUppercase;
+    protected boolean _ignoreMixedCase;
+    protected boolean _ignoreInternetAddr;
+    protected boolean _ignoreDigitWords;
 
     // stats
     protected int _countTotalWords;
@@ -197,6 +231,11 @@ public class SpellCheck extends AbstractExecutableComponent {
         _enableLevenshtein = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ENABLE_LEVENSHTEIN, ccp));
         _levenshteinDistance = Float.parseFloat(getPropertyOrDieTrying(PROP_LEVENSHTEIN_DISTANCE, ccp));
         if (!_enableLevenshtein) _levenshteinDistance = null;
+
+        _ignoreUppercase = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_UPPERCASE, ccp));
+        _ignoreMixedCase = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_MIXEDCASE, ccp));
+        _ignoreInternetAddr = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_INTERNETADDR, ccp));
+        _ignoreDigitWords = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_DIGITWORDS, ccp));
     }
 
     @Override
@@ -210,6 +249,11 @@ public class SpellCheck extends AbstractExecutableComponent {
             } else {
                 _spellDictionary = getDictionary(in_dictionary);
                 _spellChecker = new SpellChecker(_spellDictionary);
+                Configuration configuration = _spellChecker.getConfiguration();
+				configuration.setBoolean(Configuration.SPELL_IGNOREUPPERCASE, _ignoreUppercase);
+				configuration.setBoolean(Configuration.SPELL_IGNOREMIXEDCASE, _ignoreMixedCase);
+				configuration.setBoolean(Configuration.SPELL_IGNOREINTERNETADDRESSES, _ignoreInternetAddr);
+				configuration.setBoolean(Configuration.SPELL_IGNOREDIGITWORDS, _ignoreDigitWords);
             }
         }
 
