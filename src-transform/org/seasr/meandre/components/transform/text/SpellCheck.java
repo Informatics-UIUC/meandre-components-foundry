@@ -363,10 +363,11 @@ public class SpellCheck extends AbstractExecutableComponent {
                 _countTotalWords++;
                 wordCounter.nextWord();
             }
-            _countMisspelledWords += listener.getCountSpellingErrors();
-            _countUncorrectedWords += listener.getCountMissedCorrections();
             text[i] = wordTokenizer.getContext();
         }
+
+        _countMisspelledWords = listener.getCountSpellingErrors();
+        _countUncorrectedWords = listener.getCountMissedCorrections();
 
         _spellChecker.removeSpellCheckListener(listener);
 
@@ -397,8 +398,6 @@ public class SpellCheck extends AbstractExecutableComponent {
                 _countTotalWords++;
                 wordCounter.nextWord();
             }
-            _countMisspelledWords += listener.getCountSpellingErrors();
-            _countUncorrectedWords += listener.getCountMissedCorrections();
 
             if (_doCorrection) {
                 sentence = wordTokenizer.getContext();
@@ -415,6 +414,9 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         if (!_doCorrection)
             correctedTokenizedSentences = tokenizedSentences;
+
+        _countMisspelledWords = listener.getCountSpellingErrors();
+        _countUncorrectedWords = listener.getCountMissedCorrections();
 
         _spellChecker.removeSpellCheckListener(listener);
 
@@ -442,8 +444,6 @@ public class SpellCheck extends AbstractExecutableComponent {
                 _countTotalWords++;
                 wordCounter.nextWord();
             }
-            _countMisspelledWords += listener.getCountSpellingErrors();
-            _countUncorrectedWords += listener.getCountMissedCorrections();
 
             if (_doCorrection) {
                 String token = wordTokenizer.getContext();
@@ -454,6 +454,9 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         if (!_doCorrection)
             correctedTokenCounts = tokenCounts;
+
+        _countMisspelledWords = listener.getCountSpellingErrors();
+        _countUncorrectedWords = listener.getCountMissedCorrections();
 
         _spellChecker.removeSpellCheckListener(listener);
 
