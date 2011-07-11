@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +108,7 @@ public class SpellCheckWithCounts extends SpellCheck {
     protected static final String IN_TRANSFORMATIONS = "transformations";
 
     //------------------------------ PROPERTIES --------------------------------------------------
-    
+
     @ComponentProperty(
             name = "enable_transforms_only",
             description = "True to only use the transformations to make suggestions for correctly spelled words; False to allow the spell checker to also make suggestions.",
@@ -121,7 +122,8 @@ public class SpellCheckWithCounts extends SpellCheck {
     protected Map<String, List<String>> _transformations;
     protected Boolean _enable_transforms_only;
 
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    @Override
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 
     	super.initializeCallBack(ccp);
     	_enable_transforms_only = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ENABLE_TRANSFORMS, ccp));
@@ -239,6 +241,12 @@ public class SpellCheckWithCounts extends SpellCheck {
             List<KeyValuePair<Integer,KeyValuePair<String,String>>> transformData =
                 computeApplicableTransformations(invalidWord, _transformations);
 
+            if (transformData.size() > 15) {
+            	console.warning(String.format("[%d] Too expensive to compute suggestions for the misspelled word '%s' - skipping it...",
+            			transformData.size(), invalidWord));
+            	return new HashSet<String>();
+            }
+
             Set<String> transformSuggestions = checkTransformations(invalidWord, transformData);
             if (transformSuggestions.size() > 0)
                 console.fine("Transform suggestions: " + transformSuggestions);
@@ -247,7 +255,7 @@ public class SpellCheckWithCounts extends SpellCheck {
             	suggestions = transformSuggestions;
             else if (transformSuggestions.size() > 0)
                 suggestions = transformSuggestions;
-           
+
             if (_tokenCounts.size() > 0) {
             	List<String> suggestionsList = new ArrayList<String>(suggestions);
 	            Collections.sort(suggestionsList, new Comparator<String>() {
