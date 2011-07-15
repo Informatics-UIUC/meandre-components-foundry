@@ -1,0 +1,168 @@
+<html>
+  <head>
+    <title>$title</title>
+    <script type="text/javascript" src="$protovisAPI"></script>
+
+    <script type="text/javascript">
+      var data = $data;
+    </script>
+
+    <style type="text/css">
+
+#fig {
+  width: 930px;
+  height: 390px;
+}
+
+    </style>
+  </head>
+  <body><div id="center"><div id="fig">
+    <h3>$title</h3>
+	
+    <div style="text-align:right;padding-right:20;">
+      <input checked id="scale" type="checkbox" onchange="vis.render()"
+      ><label for="scale">Scale to fit</label>
+            <b>Smoothing Moving Average of</b>
+      <select id="menu" onchange="smoothing=this.value; vis.render();">
+      <option value="0" > 0</option>
+      <option value="1" > 1</option>
+      <option value="2" > 2</option>
+      <option value="3" > 3</option>
+      <option value="4" > 4</option>
+      <option value="5" > 5</option>
+      <option value="6" > 6</option>
+      <option value="7" > 7</option>
+      <option value="8" > 8</option>
+      <option value="9" > 9</option>
+      <option value="10" selected> 10</option>
+      <option value="20" > 20</option>
+      <option value="30" > 30</option>
+      <option value="40" > 40</option>
+      <option value="50" > 50</option>
+    </select>
+    </div>
+    <script type="text/javascript+protovis">
+
+/* Scales and sizing. */
+var w = 810,
+    h1 = 300,
+    h2 = 30,
+    x = pv.Scale.linear(data[0].x, data[data.length-1].x).range(0, w),
+    y = pv.Scale.linear(0, pv.max(data, function(d) d.y)).range(0, h2);
+
+/* Interaction state. Focus scales will have domain set on-render. */
+var i = {x:200, dx:100},
+    fx = pv.Scale.linear().range(0, w),
+    fy = pv.Scale.linear().range(0, h1);
+    
+/* Smoothing indicates the size of the smoothing window, 1 indicates one value on each side of the current value.*/
+var smoothing = 10;    
+
+/* Root panel. */
+var vis = new pv.Panel()
+    .width(w)
+    .height(h1 + 20 + h2)
+    .bottom(20)
+    .left(100)
+    .right(20)
+    .top(5);
+
+/* Focus panel (zoomed in). */
+var focus = vis.add(pv.Panel)
+    .def("init", function() {
+        var d1 = x.invert(i.x),
+            d2 = x.invert(i.x + i.dx),
+            dd = data.slice(
+                Math.max(0, pv.search.index(data, d1, function(d) d.x) - 1),
+                pv.search.index(data, d2, function(d) d.x) + 1);
+        fx.domain(d1, d2);
+        fy.domain(scale.checked ? [0, pv.max(dd, function(d) d.y)] : y.domain());
+        return dd;
+      })
+    .top(0)
+    .height(h1);
+
+/* X-axis ticks. */
+focus.add(pv.Rule)
+    .data(function() fx.ticks())
+    .left(fx)
+    .strokeStyle("#eee")
+  .anchor("bottom").add(pv.Label);
+
+/* Y-axis ticks. */
+focus.add(pv.Rule)
+    .data(function() fy.ticks(7))
+    .bottom(fy)
+    .strokeStyle(function(d) d ? "#aaa" : "#000")
+  .anchor("left").add(pv.Label)
+    .text(fy.tickFormat);
+
+/* Focus area chart. */
+focus.add(pv.Panel)
+    .overflow("hidden")
+  .add(pv.Area)
+    .data(function() focus.init())
+    .left(function(d) fx(d.x))
+    .bottom(1)
+    .height(function() this.index < smoothing ? (pv.mean(data.slice(0,this.index+smoothing),function(d) fy(d.y))) :
+        (this.index + smoothing > this.length ? (pv.mean(data.slice(this.index-smoothing,this.length),function(d) fy(d.y))) :
+        (pv.mean(data.slice(this.index-smoothing,this.index+smoothing+1),function(d) fy(d.y)))))
+    .fillStyle("lightsteelblue")
+  .anchor("top").add(pv.Line)
+    .fillStyle(null)
+    .strokeStyle("steelblue")
+    .lineWidth(2);
+
+/* Context panel (zoomed out). */
+var context = vis.add(pv.Panel)
+    .bottom(0)
+    .height(h2);
+
+/* X-axis ticks. */
+context.add(pv.Rule)
+    .data(x.ticks())
+    .left(x)
+    .strokeStyle("#eee")
+  .anchor("bottom").add(pv.Label);
+
+/* Y-axis ticks. */
+context.add(pv.Rule)
+    .bottom(0);
+
+/* Context area chart. */
+context.add(pv.Area)
+    .data(data)
+    .left(function(d) x(d.x))
+    .bottom(1)
+    .height(function() this.index < smoothing ? (pv.mean(data.slice(0,this.index+smoothing),function(d) y(d.y))) :
+        (this.index + smoothing > this.length ? (pv.mean(data.slice(this.index-smoothing,this.length),function(d) y(d.y))) :
+    	(pv.mean(data.slice(this.index-smoothing,this.index+smoothing+1),function(d) y(d.y)))))
+    .fillStyle("lightsteelblue")
+  .anchor("top").add(pv.Line)
+    .strokeStyle("steelblue")
+    .lineWidth(2);
+
+/* The selectable, draggable focus region. */
+context.add(pv.Panel)
+    .data([i])
+    .cursor("crosshair")
+    .events("all")
+    .event("mousedown", pv.Behavior.select())
+    .event("select", focus)
+  .add(pv.Bar)
+    .left(function(d) d.x)
+    .width(function(d) d.dx)
+    .fillStyle("rgba(255, 128, 128, .4)")
+    .cursor("move")
+    .event("mousedown", pv.Behavior.drag())
+    .event("drag", focus);
+
+vis.render();
+
+    </script>
+    
+    <div class="caption">
+"Focus + context is a technique that allows the viewer to inspect an interesting portion of the data in detail (the focus) without losing global context. The global view is preserved at reduced detail, highlighting the focused region. The focus region can be dynamically resized and repositioned." (Originally from protovis.org)<br/>
+</div>
+  </div></div></body>
+</html>
