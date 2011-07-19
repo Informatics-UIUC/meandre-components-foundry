@@ -83,7 +83,7 @@ public class ReplacementRulesToTuple extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "Replacement rules format: newText = {old1, old2, old3}; newText2 = {old4,old5}; newText3=old6; = deleteText" +
+            description = "Replacement rules format: newText = {old1, old2, old3}; newText2 = {old4,old5}; newText3=old6;" +
                 " If you need to use an equals sign, use := to separate values (e.g.  newtext=blah := {old1=A,old2} )" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap" +
                 "<br>TYPE: java.lang.String" +
