@@ -59,6 +59,7 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.support.components.transform.text.TransformDictionary;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
@@ -140,7 +141,7 @@ public class ReplacementRulesToTuple extends AbstractExecutableComponent {
         } else {
             // Processing input as text
             String rules = DataTypeParser.parseAsString(input)[0];
-            Map<String, List<String>> rulesMap = SpellCheckWithCounts.buildTransformDictionary(rules);
+            Map<String, List<String>> rulesMap = TransformDictionary.buildFrom(rules);
 
             for (Entry<String, List<String>> entry : rulesMap.entrySet())
                 for (String misspelling : entry.getValue())

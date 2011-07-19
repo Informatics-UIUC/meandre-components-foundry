@@ -45,14 +45,12 @@ package org.seasr.meandre.components.transform.text;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
@@ -66,6 +64,7 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
+import org.seasr.meandre.support.components.transform.text.TransformDictionary;
 import org.seasr.meandre.support.generic.util.KeyValuePair;
 
 import com.swabunga.spell.engine.SpellDictionary;
@@ -151,7 +150,7 @@ public class SpellCheckWithCounts extends SpellCheck {
                 pushStreamDelimiter(input);
             } else {
                 String[] inputs = DataTypeParser.parseAsString(input);
-                _transformations = buildTransformDictionary(inputs[0]);
+                _transformations = TransformDictionary.buildFrom(inputs[0]);
             }
         }
 
@@ -169,48 +168,6 @@ public class SpellCheckWithCounts extends SpellCheck {
     protected SuggestionListener getSuggestionListener() {
         return new SuggestionListenerWithCounts(_spellDictionary, _tokenCounts, _doCorrection, _levenshteinDistance, console);
     }
-
-    //--------------------------------------------------------------------------------------------
-
-    public static Map<String,List<String>> buildTransformDictionary(String configData) throws TransformDictionaryException
-	{
-		configData = configData.replaceAll("\n","");
-
-	    Map<String,List<String>> map = new HashMap<String,List<String>>();
-	    StringTokenizer tokens = new StringTokenizer(configData, ";");
-
-	    while (tokens.hasMoreTokens()) {
-	        String line = tokens.nextToken();
-	        String[] parts = line.split("=");
-
-	        if (parts.length != 2) {            // lots of = signs
-	        	parts = line.split(":=");
-	        }
-
-	        if (parts.length != 2)
-	        	throw new TransformDictionaryException("Unable to build dictionary! Parse error.");
-
-	        String key    = parts[0].trim();
-	        String values = parts[1].trim();
-
-	        values = values.replace("{","");
-	        values = values.replace("}","");
-
-	        StringTokenizer vTokens = new StringTokenizer(values, ",");
-	        while (vTokens.hasMoreTokens()) {
-	            String value = vTokens.nextToken().trim();
-
-	            List<String> replacements = map.get(value);
-	            if (replacements == null) {
-	            	replacements = new ArrayList<String>();
-	            	map.put(value, replacements);
-	            }
-
-	            replacements.add(key);
-	        }
-	    }
-	    return map;
-	}
 
     //--------------------------------------------------------------------------------------------
 
@@ -331,14 +288,6 @@ public class SpellCheckWithCounts extends SpellCheck {
             }
 
             return suggestions;
-        }
-    }
-
-    public static class TransformDictionaryException extends Exception {
-        private static final long serialVersionUID = -122651414903745983L;
-
-        public TransformDictionaryException(String msg) {
-            super(msg);
         }
     }
 }
