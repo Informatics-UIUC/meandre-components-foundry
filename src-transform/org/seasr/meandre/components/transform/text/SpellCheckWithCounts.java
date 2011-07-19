@@ -172,7 +172,7 @@ public class SpellCheckWithCounts extends SpellCheck {
 
     //--------------------------------------------------------------------------------------------
 
-    public Map<String,List<String>> buildTransformDictionary(String configData)
+    public static Map<String,List<String>> buildTransformDictionary(String configData) throws TransformDictionaryException
 	{
 		configData = configData.replaceAll("\n","");
 
@@ -187,10 +187,8 @@ public class SpellCheckWithCounts extends SpellCheck {
 	        	parts = line.split(":=");
 	        }
 
-	        if (parts.length != 2) {
-	        	console.warning("unable to build dictionary " + configData);
-	        	return map;
-	        }
+	        if (parts.length != 2)
+	        	throw new TransformDictionaryException("Unable to build dictionary! Parse error.");
 
 	        String key    = parts[0].trim();
 	        String values = parts[1].trim();
@@ -333,6 +331,14 @@ public class SpellCheckWithCounts extends SpellCheck {
             }
 
             return suggestions;
+        }
+    }
+
+    public static class TransformDictionaryException extends Exception {
+        private static final long serialVersionUID = -122651414903745983L;
+
+        public TransformDictionaryException(String msg) {
+            super(msg);
         }
     }
 }
