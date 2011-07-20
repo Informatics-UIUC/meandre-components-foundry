@@ -70,7 +70,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 @Component(
         creator = "Boris Capitanu",
         description = "This component transforms a set of replacement rules into tuples " +
-        		"where the first column is the correct word and the second column is the misspelled word. " +
+        		"where the first column ('word') is the correct word and the second column ('misspelling') is the misspelled word. " +
         		"If multiple misspellings exist for the same correct word, multiple tuple rows are created.",
         name = "Replacement Rules To Tuple",
         tags = "replacement rules, tuple, transform",
@@ -141,11 +141,17 @@ public class ReplacementRulesToTuple extends AbstractExecutableComponent {
         } else {
             // Processing input as text
             String rules = DataTypeParser.parseAsString(input)[0];
+            // The rules map created by TransformDictionary contains the misspelled word as key
+            // and the possible correct version(s) of it as values
             Map<String, List<String>> rulesMap = TransformDictionary.buildFrom(rules);
 
-            for (Entry<String, List<String>> entry : rulesMap.entrySet())
-                for (String misspelling : entry.getValue())
-                    tuplesBuilder.addValue(getTuple(outPeer, entry.getKey(), misspelling).convert());
+            for (Entry<String, List<String>> entry : rulesMap.entrySet()) {
+                if (entry.getValue().size() != 1)
+                    console.warning(String.format("Misspelling '%s' maps to %d correct spellings: %s",
+                            entry.getKey(), entry.getValue().size(), entry.getValue()));
+                for (String word : entry.getValue())
+                    tuplesBuilder.addValue(getTuple(outPeer, word, entry.getKey()).convert());
+            }
         }
 
         cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
