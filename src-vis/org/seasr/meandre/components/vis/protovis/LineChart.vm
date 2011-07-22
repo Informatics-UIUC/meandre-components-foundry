@@ -104,8 +104,7 @@ focus.add(pv.Rule)
     .data(function() fx.ticks())
     .left(fx)
     .strokeStyle("#eee")
-  .anchor("bottom").add(pv.Label)
-    .text(fx.tickFormat);
+  .anchor("bottom").add(pv.Label);
 
 /* Y-axis ticks. */
 focus.add(pv.Rule)
@@ -144,8 +143,7 @@ context.add(pv.Rule)
     .data(x.ticks())
     .left(x)
     .strokeStyle("#eee")
-  .anchor("bottom").add(pv.Label)
-    .text(x.tickFormat);
+  .anchor("bottom").add(pv.Label);
 
 /* Y-axis ticks. */
 context.add(pv.Rule)
