@@ -1,69 +1,86 @@
 <html>
   <head>
     <title>$title</title>
+
+    <style type="text/css">
+       body {
+        margin: 0;
+        display: table;
+        height: 100%;
+        width: 100%;
+        font: 14px/134% Helvetica Neue, sans-serif;
+      }
+
+      #center {
+        display: table-cell;
+        vertical-align: middle;
+      }
+
+      #fig {
+        position: relative;
+        margin: auto;
+        width: 860px;
+        height: 390px;
+      }
+   </style>
+
     <script type="text/javascript" src="$protovisAPI"></script>
 
     <script type="text/javascript">
       var data = $data;
     </script>
 
-    <style type="text/css">
-
-#fig {
-  width: 930px;
-  height: 390px;
-}
-
-    </style>
   </head>
   <body><div id="center"><div id="fig">
     <h3>$title</h3>
-	
-    <div style="text-align:right;padding-right:20;">
-      <input checked id="scale" type="checkbox" onchange="vis.render()"
-      ><label for="scale">Scale to fit</label>
-            <b>Smoothing Moving Average of</b>
-      <select id="menu" onchange="smoothing=this.value; vis.render();">
-      <option value="0" > 0</option>
-      <option value="1" > 1</option>
-      <option value="2" > 2</option>
-      <option value="3" > 3</option>
-      <option value="4" > 4</option>
-      <option value="5" > 5</option>
-      <option value="6" > 6</option>
-      <option value="7" > 7</option>
-      <option value="8" > 8</option>
-      <option value="9" > 9</option>
-      <option value="10" selected> 10</option>
-      <option value="20" > 20</option>
-      <option value="30" > 30</option>
-      <option value="40" > 40</option>
-      <option value="50" > 50</option>
-    </select>
-    </div>
-    <script type="text/javascript+protovis">
 
+    <div style="text-align:right;padding-right:20;">
+      <label>Smoothing Moving Average of</label>
+      <select id="menu" onchange="smoothing=parseInt(this.value); vis.render();">
+         <option value="0">0</option>
+         <option value="1">1</option>
+         <option value="2">2</option>
+         <option value="3">3</option>
+         <option value="4">4</option>
+
+         <option value="5">5</option>
+         <option value="6">6</option>
+         <option value="7">7</option>
+         <option value="8">8</option>
+         <option value="9">9</option>
+
+         <option value="10" selected>10</option>
+         <option value="20">20</option>
+         <option value="30">30</option>
+         <option value="40">40</option>
+         <option value="50">50</option>
+       </select>
+    </div>
+
+    <script type="text/javascript+protovis">
 /* Scales and sizing. */
 var w = 810,
     h1 = 300,
     h2 = 30,
     x = pv.Scale.linear(data[0].x, data[data.length-1].x).range(0, w),
-    y = pv.Scale.linear(0, pv.max(data, function(d) d.y)).range(0, h2);
+    y = pv.Scale.linear(0, pv.max(data, function(d) d.y)).range(0, h2),
+    z = pv.Scale.linear(0, data.length-1).range(0, w);
 
 /* Interaction state. Focus scales will have domain set on-render. */
 var i = {x:200, dx:100},
     fx = pv.Scale.linear().range(0, w),
     fy = pv.Scale.linear().range(0, h1);
-    
+
 /* Smoothing indicates the size of the smoothing window, 1 indicates one value on each side of the current value.*/
-var smoothing = 10;    
+var menu = document.getElementById('menu');
+var smoothing = parseInt(menu.options[menu.selectedIndex].value);
 
 /* Root panel. */
 var vis = new pv.Panel()
     .width(w)
     .height(h1 + 20 + h2)
     .bottom(20)
-    .left(100)
+    .left(30)
     .right(20)
     .top(5);
 
@@ -76,7 +93,7 @@ var focus = vis.add(pv.Panel)
                 Math.max(0, pv.search.index(data, d1, function(d) d.x) - 1),
                 pv.search.index(data, d2, function(d) d.x) + 1);
         fx.domain(d1, d2);
-        fy.domain(scale.checked ? [0, pv.max(dd, function(d) d.y)] : y.domain());
+        fy.domain(y.domain());
         return dd;
       })
     .top(0)
@@ -87,7 +104,8 @@ focus.add(pv.Rule)
     .data(function() fx.ticks())
     .left(fx)
     .strokeStyle("#eee")
-  .anchor("bottom").add(pv.Label);
+  .anchor("bottom").add(pv.Label)
+    .text(fx.tickFormat);
 
 /* Y-axis ticks. */
 focus.add(pv.Rule)
@@ -104,9 +122,12 @@ focus.add(pv.Panel)
     .data(function() focus.init())
     .left(function(d) fx(d.x))
     .bottom(1)
-    .height(function() this.index < smoothing ? (pv.mean(data.slice(0,this.index+smoothing),function(d) fy(d.y))) :
-        (this.index + smoothing > this.length ? (pv.mean(data.slice(this.index-smoothing,this.length),function(d) fy(d.y))) :
-        (pv.mean(data.slice(this.index-smoothing,this.index+smoothing+1),function(d) fy(d.y)))))
+    .height(function() {
+      var dataOffset = Math.floor(z.invert(i.x)) + this.index;
+      var start = Math.max(dataOffset - smoothing, 0);
+      var end = Math.min(dataOffset + smoothing + 1, data.length);
+      return pv.mean(data.slice(start, end), function(v) fy(v.y));
+      })
     .fillStyle("lightsteelblue")
   .anchor("top").add(pv.Line)
     .fillStyle(null)
@@ -123,7 +144,8 @@ context.add(pv.Rule)
     .data(x.ticks())
     .left(x)
     .strokeStyle("#eee")
-  .anchor("bottom").add(pv.Label);
+  .anchor("bottom").add(pv.Label)
+    .text(x.tickFormat);
 
 /* Y-axis ticks. */
 context.add(pv.Rule)
@@ -134,9 +156,11 @@ context.add(pv.Area)
     .data(data)
     .left(function(d) x(d.x))
     .bottom(1)
-    .height(function() this.index < smoothing ? (pv.mean(data.slice(0,this.index+smoothing),function(d) y(d.y))) :
-        (this.index + smoothing > this.length ? (pv.mean(data.slice(this.index-smoothing,this.length),function(d) y(d.y))) :
-    	(pv.mean(data.slice(this.index-smoothing,this.index+smoothing+1),function(d) y(d.y)))))
+    .height(function() {
+      var start = Math.max(this.index - smoothing, 0);
+      var end = Math.min(this.index + smoothing + 1, data.length);
+      return pv.mean(data.slice(start, end), function(d) y(d.y));
+      })
     .fillStyle("lightsteelblue")
   .anchor("top").add(pv.Line)
     .strokeStyle("steelblue")
@@ -158,9 +182,8 @@ context.add(pv.Panel)
     .event("drag", focus);
 
 vis.render();
-
     </script>
-    
+
     <div class="caption">
 "Focus + context is a technique that allows the viewer to inspect an interesting portion of the data in detail (the focus) without losing global context. The global view is preserved at reduced detail, highlighting the focused region. The focus region can be dynamically resized and repositioned." (Originally from protovis.org)<br/>
 </div>
