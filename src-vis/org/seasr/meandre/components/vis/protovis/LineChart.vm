@@ -32,7 +32,7 @@
 
   </head>
   <body><div id="center"><div id="fig">
-    <h3>$title</h3>
+    <h3>$label</h3>
 
     <div style="text-align:right;padding-right:20;">
       <label>Smoothing Moving Average of</label>

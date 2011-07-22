@@ -43,18 +43,15 @@
 
 package org.seasr.meandre.components.vis.protovis;
 
-import java.util.Arrays;
-
 import org.meandre.annotations.Component;
+import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.meandre.annotations.Component.Licenses;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 
 /**
@@ -65,9 +62,9 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 
 @Component(
         creator = "Loretta Auvil",
-        description = "This components creates a Protovis line chart with focus plus context. " + 
-        "Original code from Protovis project with slight modifications. "+
-        "The JSON data input needs to be in an appropriate format as mentioned in the input description.",
+        description = "This components creates a Protovis line chart with focus plus context. " +
+                    "Original code from Protovis project with slight modifications. "+
+                    "The JSON data input needs to be in an appropriate format as mentioned in the input description.",
         name = "Line Chart",
         tags = "visualization, protovis, chart",
         rights = Licenses.UofINCSA,
@@ -83,9 +80,24 @@ public class LineChart extends AbstractProtovisComponent {
 	            name = Names.PORT_JSON,
 	            description = "JSON input data with the following form with x values increasing"+
 	            "'[{x: 1900, y: 10},{x: 1910, y: 20},...];'" +
-	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+	            "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                "<br>TYPE: java.lang.Object"
     )
 	protected static final String IN_JSON = Names.PORT_JSON;
+
+    @ComponentInput(
+            name = Names.PORT_TEXT,
+            description = "The label to display" +
+                    "<br>TYPE: java.lang.String" +
+                    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                    "<br>TYPE: byte[]" +
+                    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                    "<br>TYPE: java.lang.Object"
+    )
+    protected static final String IN_LABEL = Names.PORT_TEXT;
 
 	//------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -119,19 +131,16 @@ public class LineChart extends AbstractProtovisComponent {
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
 
-	    context.put("title", getPropertyOrDieTrying(PROP_TITLE, true, true, ccp));
+	    context.put("title", getPropertyOrDieTrying(PROP_TITLE, ccp));
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		//
-	    // fetch the input, push it to the context
-	    //
-	    Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_JSON);
-	    String[] data = BasicDataTypesTools.stringsToStringArray(inputMeta);
-	    String json = data[0];
+	    String json = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_JSON))[0];
+	    String label = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LABEL))[0];
 
 	    context.put("data", json);
+	    context.put("label", label);
 
 	    console.finest("data: " + json);
 
