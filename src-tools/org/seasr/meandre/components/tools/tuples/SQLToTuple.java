@@ -78,7 +78,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  * @author Mike Haberman
  * see http://jolbox.com/ for connection pool
  * RUNTIME: depends on:
- * guava-r06.jar   (google collections)
+ * guava-r09.jar   (google collections)
  * slf4j-api-1.6.1.jar, slf4j-log4j12-1.6.1.jar (connection pooling logging)
  *
  * @author Boris Capitanu
@@ -94,8 +94,8 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		rights = Licenses.UofINCSA,
 		tags = "tuple, tools, database",
 		description = "This component reads a mysql database",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
-				      "guava-r06.jar", "slf4j-api-1.6.1.jar","slf4j-log4j12-1.6.1.jar"}
+		dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
+				       "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
 )
 public class SQLToTuple extends AbstractDBComponent {
 
