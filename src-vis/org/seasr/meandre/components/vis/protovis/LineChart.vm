@@ -67,7 +67,7 @@ var w = 810,
     z = pv.Scale.linear(0, data.length-1).range(0, w);
 
 /* Interaction state. Focus scales will have domain set on-render. */
-var i = {x:200, dx:100},
+var i = {x:0, dx:810},
     fx = pv.Scale.linear().range(0, w),
     fy = pv.Scale.linear().range(0, h1);
 
@@ -80,7 +80,7 @@ var vis = new pv.Panel()
     .width(w)
     .height(h1 + 20 + h2)
     .bottom(20)
-    .left(30)
+    .left(40)
     .right(20)
     .top(5);
 
