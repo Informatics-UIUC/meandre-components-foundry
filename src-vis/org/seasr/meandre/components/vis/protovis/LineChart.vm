@@ -9,11 +9,12 @@
         height: 100%;
         width: 100%;
         font: 14px/134% Helvetica Neue, sans-serif;
+        margin-top: 25px;
       }
 
       #center {
         display: table-cell;
-        vertical-align: middle;
+        vertical-align: top;
       }
 
       #fig {
