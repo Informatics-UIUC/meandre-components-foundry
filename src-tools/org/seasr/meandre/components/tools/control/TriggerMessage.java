@@ -48,6 +48,7 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
@@ -109,17 +110,28 @@ public class TriggerMessage extends AbstractExecutableComponent {
     )
     protected static final String OUT_TRIGGER = Names.PORT_TRIGGER;
 
+    //----------------------------- PROPERTIES ---------------------------------------------------
+
+    @ComponentProperty(
+            description = "Discard saved object on new stream?",
+            name = "discard_on_new_stream",
+            defaultValue = "false"
+    )
+    protected static final String PROP_DISCARD_OBJ = "discard_on_new_stream";
+
     //--------------------------------------------------------------------------------------------
 
 
-	protected Object object;
+	protected Object _object;
+	protected boolean _discardObject;
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		object = null;
+		_object = null;
+		_discardObject = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_DISCARD_OBJ, ccp));
 	}
 
     @Override
@@ -129,15 +141,15 @@ public class TriggerMessage extends AbstractExecutableComponent {
             if (input instanceof StreamDelimiter)
                 console.warning(String.format("Stream delimiters should not arrive on port '%s'", IN_OBJECT));
             else {
-                if (object != null)
+                if (_object != null)
                     console.warning("Object already set - overwriting it. This behavior is susceptible to race conditions!");
-                object = input;
+                _object = input;
             }
         }
 
         componentInputCache.storeIfAvailable(cc, IN_TRIGGER);
 
-		if (object == null || !componentInputCache.hasData(IN_TRIGGER))
+		if (_object == null || !componentInputCache.hasData(IN_TRIGGER))
 		    // Not ready to process yet
 		    return;
 
@@ -148,8 +160,11 @@ public class TriggerMessage extends AbstractExecutableComponent {
 	                    trigger.getClass().getSimpleName(), ((StreamDelimiter) trigger).getStreamId()));
                 componentContext.pushDataComponentToOutput(OUT_OBJECT, trigger);
                 componentContext.pushDataComponentToOutput(OUT_TRIGGER, trigger);
+
+                if (_discardObject)
+                    _object = null;
             } else {
-				cc.pushDataComponentToOutput(OUT_OBJECT, object);
+				cc.pushDataComponentToOutput(OUT_OBJECT, _object);
 				cc.pushDataComponentToOutput(OUT_TRIGGER, trigger);
 	        }
 	    }
@@ -157,7 +172,7 @@ public class TriggerMessage extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		object = null;
+		_object = null;
     }
 
     //--------------------------------------------------------------------------------------------
