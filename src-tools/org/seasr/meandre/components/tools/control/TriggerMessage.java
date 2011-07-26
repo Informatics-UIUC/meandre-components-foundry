@@ -52,6 +52,7 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
@@ -161,8 +162,10 @@ public class TriggerMessage extends AbstractExecutableComponent {
                 componentContext.pushDataComponentToOutput(OUT_OBJECT, trigger);
                 componentContext.pushDataComponentToOutput(OUT_TRIGGER, trigger);
 
-                if (_discardObject)
+                if ((trigger instanceof StreamTerminator) && _discardObject) {
+                    console.fine("Discarding saved object");
                     _object = null;
+                }
             } else {
 				cc.pushDataComponentToOutput(OUT_OBJECT, _object);
 				cc.pushDataComponentToOutput(OUT_TRIGGER, trigger);
