@@ -59,12 +59,12 @@ public class ComponentLogFormatter extends Formatter {
     private final String _shortCompId;
 
 
-    public ComponentLogFormatter(String executionInstanceID, String flowExecutionInstanceID, String flowID) {
+    public ComponentLogFormatter(String instanceName, String executionInstanceID, String flowExecutionInstanceID, String flowID) {
         _compExecutionId = executionInstanceID;
         _flowExecutionId = flowExecutionInstanceID;
         _flowId = flowID;
 
-        _shortCompId = executionInstanceID.substring(executionInstanceID.lastIndexOf("/instance/") + 10);
+        _shortCompId = String.format("%s [%s]", instanceName, executionInstanceID.substring(executionInstanceID.lastIndexOf('/') + 1));
     }
 
     @Override

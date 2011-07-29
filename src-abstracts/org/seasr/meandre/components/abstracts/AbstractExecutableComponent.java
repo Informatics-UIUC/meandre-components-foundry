@@ -135,7 +135,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
 
         componentInputCache = new ComponentInputCache(new HashSet<String>(Arrays.asList(ccp.getInputNames())));
 
-        Formatter formatter = new ComponentLogFormatter(ccp.getExecutionInstanceID(), ccp.getFlowExecutionInstanceID(), ccp.getFlowID());
+        Formatter formatter = new ComponentLogFormatter(ccp.getInstanceName(), ccp.getExecutionInstanceID(), ccp.getFlowExecutionInstanceID(), ccp.getFlowID());
         Handler consoleHandler = new WebConsoleHandler(ccp.getOutputConsole(), formatter);
         consoleHandler.setLevel(Level.ALL);
 
