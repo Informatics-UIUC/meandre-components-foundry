@@ -167,6 +167,7 @@ public class TextFormat extends AbstractExecutableComponent {
 
     protected String _format;
     protected String[] _usedInputs;
+    protected int _numInputs;
 
 
     //--------------------------------------------------------------------------------------------
@@ -174,25 +175,25 @@ public class TextFormat extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _format = getPropertyOrDieTrying(PROP_FORMAT, false, true, ccp);
-        int numInputs = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_INPUTS, ccp));
-        if (numInputs > ALL_INPUTS.length)
+        _numInputs = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_INPUTS, ccp));
+        if (_numInputs > ALL_INPUTS.length)
             throw new ComponentContextException(String.format("Invalid '%s' specified: Only %d inputs are available.", PROP_NUM_INPUTS, ALL_INPUTS.length));
-        _usedInputs = Arrays.copyOfRange(ALL_INPUTS, 0, numInputs);
+        _usedInputs = Arrays.copyOfRange(ALL_INPUTS, 0, _numInputs);
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        for (int i = 0, iMax = _usedInputs.length; i < iMax; i++)
+        for (int i = 0, iMax = _numInputs; i < iMax; i++)
             componentInputCache.storeIfAvailable(cc, _usedInputs[i]);
 
         if (!componentInputCache.hasDataAll(_usedInputs))
             // Nothing to do yet
             return;
 
-        Object[] inputs = new Object[_usedInputs.length];
+        Object[] inputs = new Object[_numInputs];
         int numInputsStreaming = 0;
         int sumStreamIds = 0;
-        for (int i = 0, iMax = _usedInputs.length; i < iMax; i++) {
+        for (int i = 0, iMax = _numInputs; i < iMax; i++) {
             inputs[i] = componentInputCache.retrieveNext(_usedInputs[i]);
             if (inputs[i] instanceof StreamDelimiter) {
                 numInputsStreaming++;
@@ -202,7 +203,7 @@ public class TextFormat extends AbstractExecutableComponent {
 
         // Check for proper streaming setup
         if (numInputsStreaming > 0) {
-            if (numInputsStreaming != _usedInputs.length)
+            if (numInputsStreaming != _numInputs)
                 throw new ComponentExecutionException("StreamDelimiters must arrive on all specified inputs synchronously!");
 
             if (((StreamDelimiter) inputs[0]).getStreamId() * numInputsStreaming != sumStreamIds)
@@ -213,7 +214,7 @@ public class TextFormat extends AbstractExecutableComponent {
             return;
         }
 
-        for (int i = 0, iMax = _usedInputs.length; i < iMax; i++)
+        for (int i = 0, iMax = _numInputs; i < iMax; i++)
             inputs[i] = DataTypeParser.parseAsString(inputs[i])[0];
 
         String result = String.format(_format, inputs);

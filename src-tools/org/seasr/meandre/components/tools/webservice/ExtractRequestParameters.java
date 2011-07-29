@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.tools.webservice;
 
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
@@ -145,10 +146,10 @@ public class ExtractRequestParameters extends AbstractStreamingExecutableCompone
         console.fine("Keys available: " + map.keySet().toString());
 
 		if (map.containsKey(_field))
-		    for (String paramValue : map.get(_field))
+            for (String paramValue : map.get(_field))
 		        cc.pushDataComponentToOutput(OUT_RAW_DATA, BasicDataTypesTools.stringToStrings(paramValue));
-		else
-    		cc.pushDataComponentToOutput(OUT_ERROR, "The request does not have a parameter named '" + _field + "'");
+        else
+    		outputError("The request does not have a parameter named '" + _field + "'", Level.WARNING);
 
     	cc.pushDataComponentToOutput(OUT_REQUEST, input);
 

@@ -162,14 +162,14 @@ public class TriggerMessage extends AbstractExecutableComponent {
                 componentContext.pushDataComponentToOutput(OUT_OBJECT, trigger);
                 componentContext.pushDataComponentToOutput(OUT_TRIGGER, trigger);
 
-                if ((trigger instanceof StreamTerminator) && _discardObject) {
-                    console.fine("Discarding saved object");
+                if ((trigger instanceof StreamTerminator) && _discardObject)
                     _object = null;
-                }
-            } else {
-				cc.pushDataComponentToOutput(OUT_OBJECT, _object);
-				cc.pushDataComponentToOutput(OUT_TRIGGER, trigger);
-	        }
+
+                continue;
+            }
+
+	        cc.pushDataComponentToOutput(OUT_OBJECT, _object);
+	        cc.pushDataComponentToOutput(OUT_TRIGGER, trigger);
 	    }
     }
 
