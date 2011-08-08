@@ -50,6 +50,7 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
@@ -102,10 +103,37 @@ public class TupleToJSON extends AbstractExecutableComponent {
     )
     protected static final String OUT_JSON = "json";
 
+    //----------------------------- PROPERTIES ---------------------------------------------------
+
+    @ComponentProperty(
+            description = "Set to true so that the JSON produced uses an array for each tuple column to store the tuple values; " +
+            		"set to false if you want the JSON produced to create an object for each tuple, and record all " +
+            		"those objects into an array",
+            name = "compact_output",
+            defaultValue = "true"
+    )
+    protected static final String PROP_COMPACT_OUTPUT = "compact_output";
+
+    @ComponentProperty(
+            description = "Should the output be pretty? (indented)",
+            name = "indent_output",
+            defaultValue = "false"
+    )
+    protected static final String PROP_INDENT_OUTPUT = "indent_output";
+
+    //--------------------------------------------------------------------------------------------
+
+
+    protected boolean _compactOutput;
+    protected boolean _indentOutput;
+
+
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        _compactOutput = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_COMPACT_OUTPUT, ccp));
+        _indentOutput = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_INDENT_OUTPUT, ccp));
     }
 
     @Override
@@ -118,18 +146,34 @@ public class TupleToJSON extends AbstractExecutableComponent {
 
         Strings[] inTuples = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-        JSONArray jaTuples = new JSONArray();
-        for (Strings inTuple : inTuples) {
-            tuple.setValues(inTuple);
+        if (_compactOutput) {
+            JSONObject joResult = new JSONObject();
+            for (String fieldName : inPeer.getFieldNames()) {
+                JSONArray jaField = new JSONArray();
+                for (Strings inTuple : inTuples) {
+                    tuple.setValues(inTuple);
+                    jaField.put(tuple.getValue(fieldName));
+                }
+                joResult.put(fieldName, jaField);
+            }
 
-            JSONObject joTuple = new JSONObject();
-            for (String fieldName : inPeer.getFieldNames())
-                joTuple.put(fieldName, tuple.getValue(fieldName));
+            String output = _indentOutput ? joResult.toString(3) : joResult.toString();
+            cc.pushDataComponentToOutput(OUT_JSON, BasicDataTypesTools.stringToStrings(output));
+        } else {
+            JSONArray jaTuples = new JSONArray();
+            for (Strings inTuple : inTuples) {
+                tuple.setValues(inTuple);
 
-            jaTuples.put(joTuple);
+                JSONObject joTuple = new JSONObject();
+                for (String fieldName : inPeer.getFieldNames())
+                    joTuple.put(fieldName, tuple.getValue(fieldName));
+
+                jaTuples.put(joTuple);
+            }
+
+            String output = _indentOutput ? jaTuples.toString(3) : jaTuples.toString();
+            cc.pushDataComponentToOutput(OUT_JSON, BasicDataTypesTools.stringToStrings(output));
         }
-
-        cc.pushDataComponentToOutput(OUT_JSON, BasicDataTypesTools.stringToStrings(jaTuples.toString(3)));
     }
 
     @Override
