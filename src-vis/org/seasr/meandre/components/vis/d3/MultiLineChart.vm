@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="$d3API"></script>
+<meta charset="utf-8" />
+<title>$title</title>
+<style>
+  .line {
+    stroke-width: 2;
+    fill: none;
+  }
+
+  .xTicks, .yTicks { stroke: black; }
+  .xAxis, .yAxis { stroke: black; }
+
+  .yLabel, .legend { dominant-baseline: central; }
+
+  text {
+    font-family: Arial;
+    font-size: 9pt;
+  }
+</style>
+</head>
+<body>
+  <div id="graph"/>
+
+<script type="text/javascript">
+var data = $data,
+    labels = $labels;
+
+var lineColors = [ "steelblue", "red", "green", "purple", "black", "cyan" ];
+
+var w = 800,
+    h = 600,
+    marginX = 50,
+    marginY = 30,
+    minX = d3.min(data.map(function(d) { return Math.min.apply(null, d.x); })),
+    maxX = d3.max(data.map(function(d) { return Math.max.apply(null, d.x); })),
+    maxY = d3.max(data.map(function(d) { return Math.max.apply(null, d.y); })),
+    x = d3.scale.linear().domain([minX, maxX]).range([0 + marginX, w - marginX]),
+    y = d3.scale.linear().domain([0, maxY]).range([h - marginY, 0 + marginY]);
+
+var vis = d3.select("#graph")
+    .append("svg:svg")
+    .attr("width", w)
+    .attr("height", h);
+
+var line = d3.svg.line()
+    .x(function(d,i) { return x(minX + i); })
+    .y(function(d) { return y(d); });
+
+for (i in data) {
+    var rnd = Math.floor(Math.random() * lineColors.length);
+    var color = lineColors[rnd];
+    lineColors.splice(rnd, 1);
+
+    vis.append("svg:path").attr("d", line(data[i].y))
+        .attr("class", "line")
+        .attr("stroke", color);
+
+    var last = data[i].x.length - 1;
+
+    vis.append("svg:text")
+        .text(labels[i])
+        .attr("class", "legend")
+        .attr("x", x(data[i].x[last]))
+        .attr("y", y(data[i].y[last]))
+        .attr("text-anchor", "start")
+        .attr("fill", color)
+        .attr("dx", "4");
+}
+
+vis.append("svg:line")
+    .attr("class", "xAxis")
+    .attr("x1", x(minX))
+    .attr("y1", y(0))
+    .attr("x2", x(maxX))
+    .attr("y2", y(0));
+
+vis.append("svg:line")
+    .attr("class", "yAxis")
+    .attr("x1", x(minX))
+    .attr("y1", y(0))
+    .attr("x2", x(minX))
+    .attr("y2", y(maxY));
+
+var g = vis.append("svg:g");
+
+g.selectAll(".xLabel")
+    .data(x.ticks(10))
+    .enter().append("svg:text")
+    .attr("class", "xLabel")
+    .text(String)
+    .attr("x", function(d) { return x(d); })
+    .attr("y", h - marginY + 10 + 9)  // 9 is the font size, 10 is the tick mark height
+    .attr("text-anchor", "middle")
+    .attr("dy", "4");
+
+g.selectAll(".yLabel")
+    .data(y.ticks(10))
+    .enter().append("svg:text")
+    .attr("class", "yLabel")
+    .text(String)
+    .attr("x", marginX - 10)
+    .attr("y", function(d) { return y(d); })
+    .attr("text-anchor", "end")
+    .attr("dx", "-4");
+
+g.selectAll(".xTicks")
+    .data(x.ticks(20))
+    .enter().append("svg:line")
+    .attr("class", "xTicks")
+    .attr("x1", function(d) { return x(d); })
+    .attr("y1", h - marginY)
+    .attr("x2", function(d) { return x(d); })
+    .attr("y2", h - marginY + 10);
+
+g.selectAll(".yTicks")
+    .data(y.ticks(10))
+    .enter().append("svg:line")
+    .attr("class", "yTicks")
+    .attr("y1", function(d) { return y(d); })
+    .attr("x1", marginX - 10)
+    .attr("y2", function(d) { return y(d); })
+    .attr("x2", marginX);
+</script>
+</body>
+</html>
