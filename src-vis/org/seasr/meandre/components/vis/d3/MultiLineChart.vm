@@ -74,12 +74,13 @@
 
     var w = 800,
         h = 600,
-        marginX = 50,
+        marginXL = 50,
+        marginXR = 100,
         marginY = 30,
         minX = d3.min(data.map(function(d) { return Math.min.apply(null, d.x); })),
         maxX = d3.max(data.map(function(d) { return Math.max.apply(null, d.x); })),
         maxY = d3.max(data.map(function(d) { return Math.max.apply(null, d.y); })),
-        x = d3.scale.linear().domain([minX, maxX]).range([0 + marginX, w - marginX]),
+        x = d3.scale.linear().domain([minX, maxX]).range([0 + marginXL, w - marginXR]),
         y = d3.scale.linear().domain([0, maxY]).range([h - marginY, 0 + marginY]);
 
     var menu = d3.select("#menu").node();
@@ -111,8 +112,8 @@
 
     rulesY.append("svg:line")
         .attr("class", function(d) { return d ? null : "axis"; })
-        .attr("x1", marginX + 1)
-        .attr("x2", w - marginX)
+        .attr("x1", marginXL + 1)
+        .attr("x2", w - marginXR)
         .attr("y1", y)
         .attr("y2", y);
 
@@ -130,9 +131,9 @@
         .enter().append("svg:line")
         .attr("class", "yTicks")
         .attr("y1", function(d) { return y(d); })
-        .attr("x1", marginX - 10)
+        .attr("x1", marginXL - 10)
         .attr("y2", function(d) { return y(d); })
-        .attr("x2", marginX);
+        .attr("x2", marginXR);
 
     g.selectAll(".xLabel")
         .data(x.ticks(10))
@@ -149,7 +150,7 @@
         .enter().append("svg:text")
         .attr("class", "yLabel")
         .text(String)
-        .attr("x", marginX - 10)
+        .attr("x", marginXL - 10)
         .attr("y", function(d) { return y(d); })
         .attr("text-anchor", "end")
         .attr("dx", "-4");
