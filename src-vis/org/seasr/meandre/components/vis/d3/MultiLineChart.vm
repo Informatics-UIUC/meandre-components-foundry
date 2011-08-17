@@ -15,6 +15,12 @@
 
   .yLabel, .legend { dominant-baseline: central; }
 
+  .menu {
+      width: 800px;
+      text-align: right;
+      padding-right: 20px;
+  }
+
   text {
     font-family: Arial;
     font-size: 9pt;
@@ -22,107 +28,158 @@
 </style>
 </head>
 <body>
-  <div id="graph"/>
+    <div class="menu">
+      <label>Smoothing Moving Average of</label>
+      <select id="menu" onchange="changeSmoothing(parseInt(this.value));">
+         <option value="0">0</option>
+         <option value="1">1</option>
+         <option value="2">2</option>
+         <option value="3">3</option>
+         <option value="4">4</option>
+
+         <option value="5">5</option>
+         <option value="6">6</option>
+         <option value="7">7</option>
+         <option value="8">8</option>
+         <option value="9">9</option>
+
+         <option value="10" selected>10</option>
+         <option value="20">20</option>
+         <option value="30">30</option>
+         <option value="40">40</option>
+         <option value="50">50</option>
+      </select>
+    </div>
+
+    <div id="graph"/>
 
 <script type="text/javascript">
-var data = $data,
-    labels = $labels;
+    var data = $data,
+        labels = $labels;
 
-var lineColors = [ "steelblue", "red", "green", "purple", "black", "cyan" ];
+    var lineColors = [ "steelblue", "red", "green", "purple", "black", "cyan" ];
 
-var w = 800,
-    h = 600,
-    marginX = 50,
-    marginY = 30,
-    minX = d3.min(data.map(function(d) { return Math.min.apply(null, d.x); })),
-    maxX = d3.max(data.map(function(d) { return Math.max.apply(null, d.x); })),
-    maxY = d3.max(data.map(function(d) { return Math.max.apply(null, d.y); })),
-    x = d3.scale.linear().domain([minX, maxX]).range([0 + marginX, w - marginX]),
-    y = d3.scale.linear().domain([0, maxY]).range([h - marginY, 0 + marginY]);
+    var w = 800,
+        h = 600,
+        marginX = 50,
+        marginY = 30,
+        minX = d3.min(data.map(function(d) { return Math.min.apply(null, d.x); })),
+        maxX = d3.max(data.map(function(d) { return Math.max.apply(null, d.x); })),
+        maxY = d3.max(data.map(function(d) { return Math.max.apply(null, d.y); })),
+        x = d3.scale.linear().domain([minX, maxX]).range([0 + marginX, w - marginX]),
+        y = d3.scale.linear().domain([0, maxY]).range([h - marginY, 0 + marginY]);
 
-var vis = d3.select("#graph")
-    .append("svg:svg")
-    .attr("width", w)
-    .attr("height", h);
+    var menu = d3.select("#menu").node();
+    var smoothing = parseInt(menu.options[menu.selectedIndex].value);
 
-var line = d3.svg.line()
-    .x(function(d,i) { return x(minX + i); })
-    .y(function(d) { return y(d); });
+    var vis = d3.select("#graph")
+        .append("svg:svg")
+        .attr("width", w)
+        .attr("height", h);
 
-for (i in data) {
-    var rnd = Math.floor(Math.random() * lineColors.length);
-    var color = lineColors[rnd];
-    lineColors.splice(rnd, 1);
+    var line = d3.svg.line()
+        .x(function(d) { return x(d[0]); })
+        .y(function(d,i) {
+            var values = line.arguments[0];
+            var start = Math.max(i - smoothing, 0);
+            var end = Math.min(i + smoothing + 1, values.length);
+            return y(d3.sum(values.slice(start, end), function(e) { return e[1]; }) / (end - start));
+        });
 
-    vis.append("svg:path").attr("d", line(data[i].y))
+    vis.selectAll(".line")
+        .data(data)
+        .enter().append("svg:path")
+        .attr("d", function(d) { return line(d3.zip(d.x, d.y)); })
         .attr("class", "line")
-        .attr("stroke", color);
+        .attr("stroke", function(d,i) { return lineColors[i % lineColors.length]; });
 
-    var last = data[i].x.length - 1;
-
-    vis.append("svg:text")
-        .text(labels[i])
+    vis.selectAll(".legend")
+        .data(labels)
+        .enter().append("svg:text")
+        .text(function(d) { return d; })
         .attr("class", "legend")
-        .attr("x", x(data[i].x[last]))
-        .attr("y", y(data[i].y[last]))
+        .attr("x", function(d,i) {
+            var dataX = self.data[i].x;
+            return x(dataX[dataX.length - 1]);
+        })
+        .attr("y", function(d,i) {
+            var dataY = self.data[i].y;
+            var start = Math.max(dataY.length - smoothing - 1, 0);
+            return y(d3.sum(dataY.slice(start, dataY.length)) / (dataY.length - start));
+        })
         .attr("text-anchor", "start")
-        .attr("fill", color)
+        .attr("fill", function(d,i) { return lineColors[i % lineColors.length]; })
         .attr("dx", "4");
-}
 
-vis.append("svg:line")
-    .attr("class", "xAxis")
-    .attr("x1", x(minX))
-    .attr("y1", y(0))
-    .attr("x2", x(maxX))
-    .attr("y2", y(0));
+    vis.append("svg:line")
+        .attr("class", "xAxis")
+        .attr("x1", x(minX))
+        .attr("y1", y(0))
+        .attr("x2", x(maxX))
+        .attr("y2", y(0));
 
-vis.append("svg:line")
-    .attr("class", "yAxis")
-    .attr("x1", x(minX))
-    .attr("y1", y(0))
-    .attr("x2", x(minX))
-    .attr("y2", y(maxY));
+    vis.append("svg:line")
+        .attr("class", "yAxis")
+        .attr("x1", x(minX))
+        .attr("y1", y(0))
+        .attr("x2", x(minX))
+        .attr("y2", y(maxY));
 
-var g = vis.append("svg:g");
+    var g = vis.append("svg:g");
 
-g.selectAll(".xLabel")
-    .data(x.ticks(10))
-    .enter().append("svg:text")
-    .attr("class", "xLabel")
-    .text(String)
-    .attr("x", function(d) { return x(d); })
-    .attr("y", h - marginY + 10 + 9)  // 9 is the font size, 10 is the tick mark height
-    .attr("text-anchor", "middle")
-    .attr("dy", "4");
+    g.selectAll(".xLabel")
+        .data(x.ticks(10))
+        .enter().append("svg:text")
+        .attr("class", "xLabel")
+        .text(String)
+        .attr("x", function(d) { return x(d); })
+        .attr("y", h - marginY + 10 + 9)  // 9 is the font size, 10 is the tick mark height
+        .attr("text-anchor", "middle")
+        .attr("dy", "4");
 
-g.selectAll(".yLabel")
-    .data(y.ticks(10))
-    .enter().append("svg:text")
-    .attr("class", "yLabel")
-    .text(String)
-    .attr("x", marginX - 10)
-    .attr("y", function(d) { return y(d); })
-    .attr("text-anchor", "end")
-    .attr("dx", "-4");
+    g.selectAll(".yLabel")
+        .data(y.ticks(10))
+        .enter().append("svg:text")
+        .attr("class", "yLabel")
+        .text(String)
+        .attr("x", marginX - 10)
+        .attr("y", function(d) { return y(d); })
+        .attr("text-anchor", "end")
+        .attr("dx", "-4");
 
-g.selectAll(".xTicks")
-    .data(x.ticks(20))
-    .enter().append("svg:line")
-    .attr("class", "xTicks")
-    .attr("x1", function(d) { return x(d); })
-    .attr("y1", h - marginY)
-    .attr("x2", function(d) { return x(d); })
-    .attr("y2", h - marginY + 10);
+    g.selectAll(".xTicks")
+        .data(x.ticks(20))
+        .enter().append("svg:line")
+        .attr("class", "xTicks")
+        .attr("x1", function(d) { return x(d); })
+        .attr("y1", h - marginY)
+        .attr("x2", function(d) { return x(d); })
+        .attr("y2", h - marginY + 10);
 
-g.selectAll(".yTicks")
-    .data(y.ticks(10))
-    .enter().append("svg:line")
-    .attr("class", "yTicks")
-    .attr("y1", function(d) { return y(d); })
-    .attr("x1", marginX - 10)
-    .attr("y2", function(d) { return y(d); })
-    .attr("x2", marginX);
+    g.selectAll(".yTicks")
+        .data(y.ticks(10))
+        .enter().append("svg:line")
+        .attr("class", "yTicks")
+        .attr("y1", function(d) { return y(d); })
+        .attr("x1", marginX - 10)
+        .attr("y2", function(d) { return y(d); })
+        .attr("x2", marginX);
+
+    function changeSmoothing(newSmoothing) {
+        smoothing = newSmoothing;
+
+        vis.selectAll(".line")
+          .transition().duration(1000)
+          .attr("d", function(d) { return line(d3.zip(d.x, d.y)); });
+
+        vis.selectAll(".legend")
+            .transition().duration(1000)
+            .attr("y", function(d,i) {
+            var dataY = self.data[i].y;
+            var start = Math.max(dataY.length - smoothing - 1, 0);
+            return y(d3.sum(dataY.slice(start, dataY.length)) / (dataY.length - start));
+        });
+    }
 </script>
 </body>
 </html>
