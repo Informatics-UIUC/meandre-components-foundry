@@ -11,9 +11,22 @@
   }
 
   .xTicks, .yTicks { stroke: black; }
-  .xAxis, .yAxis { stroke: black; }
+
+  line {
+    shape-rendering: crispEdges;
+  }
+
+  .rule line {
+    stroke: #eee;
+  }
+
+  .rule line.axis {
+    stroke: black;
+  }
 
   .yLabel, .legend { dominant-baseline: central; }
+
+  .legend { font-size: 11pt; }
 
   .menu {
       width: 800px;
@@ -77,6 +90,70 @@
         .attr("width", w)
         .attr("height", h);
 
+    var g = vis.append("svg:g");
+
+    var rulesX = vis.selectAll("g.ruleX")
+        .data(x.ticks(10))
+        .enter().append("svg:g")
+        .attr("class", "rule");
+
+    rulesX.append("svg:line")
+        .attr("class", function(d) { return d != minX ? null : "axis"; })
+        .attr("x1", x)
+        .attr("x2", x)
+        .attr("y1", marginY)
+        .attr("y2", h - marginY);
+
+    var rulesY = vis.selectAll("g.ruleY")
+        .data(y.ticks(10))
+        .enter().append("svg:g")
+        .attr("class", "rule");
+
+    rulesY.append("svg:line")
+        .attr("class", function(d) { return d ? null : "axis"; })
+        .attr("x1", marginX + 1)
+        .attr("x2", w - marginX)
+        .attr("y1", y)
+        .attr("y2", y);
+
+    g.selectAll(".xTicks")
+        .data(x.ticks(20))
+        .enter().append("svg:line")
+        .attr("class", "xTicks")
+        .attr("x1", function(d) { return x(d); })
+        .attr("y1", h - marginY)
+        .attr("x2", function(d) { return x(d); })
+        .attr("y2", h - marginY + 10);
+
+    g.selectAll(".yTicks")
+        .data(y.ticks(10))
+        .enter().append("svg:line")
+        .attr("class", "yTicks")
+        .attr("y1", function(d) { return y(d); })
+        .attr("x1", marginX - 10)
+        .attr("y2", function(d) { return y(d); })
+        .attr("x2", marginX);
+
+    g.selectAll(".xLabel")
+        .data(x.ticks(10))
+        .enter().append("svg:text")
+        .attr("class", "xLabel")
+        .text(String)
+        .attr("x", function(d) { return x(d); })
+        .attr("y", h - marginY + 10 + 9)  // 9 is the font size, 10 is the tick mark height
+        .attr("text-anchor", "middle")
+        .attr("dy", "4");
+
+    g.selectAll(".yLabel")
+        .data(y.ticks(10))
+        .enter().append("svg:text")
+        .attr("class", "yLabel")
+        .text(String)
+        .attr("x", marginX - 10)
+        .attr("y", function(d) { return y(d); })
+        .attr("text-anchor", "end")
+        .attr("dx", "-4");
+
     var line = d3.svg.line()
         .x(function(d) { return x(d[0]); })
         .y(function(d,i) {
@@ -110,60 +187,6 @@
         .attr("text-anchor", "start")
         .attr("fill", function(d,i) { return lineColors[i % lineColors.length]; })
         .attr("dx", "4");
-
-    vis.append("svg:line")
-        .attr("class", "xAxis")
-        .attr("x1", x(minX))
-        .attr("y1", y(0))
-        .attr("x2", x(maxX))
-        .attr("y2", y(0));
-
-    vis.append("svg:line")
-        .attr("class", "yAxis")
-        .attr("x1", x(minX))
-        .attr("y1", y(0))
-        .attr("x2", x(minX))
-        .attr("y2", y(maxY));
-
-    var g = vis.append("svg:g");
-
-    g.selectAll(".xLabel")
-        .data(x.ticks(10))
-        .enter().append("svg:text")
-        .attr("class", "xLabel")
-        .text(String)
-        .attr("x", function(d) { return x(d); })
-        .attr("y", h - marginY + 10 + 9)  // 9 is the font size, 10 is the tick mark height
-        .attr("text-anchor", "middle")
-        .attr("dy", "4");
-
-    g.selectAll(".yLabel")
-        .data(y.ticks(10))
-        .enter().append("svg:text")
-        .attr("class", "yLabel")
-        .text(String)
-        .attr("x", marginX - 10)
-        .attr("y", function(d) { return y(d); })
-        .attr("text-anchor", "end")
-        .attr("dx", "-4");
-
-    g.selectAll(".xTicks")
-        .data(x.ticks(20))
-        .enter().append("svg:line")
-        .attr("class", "xTicks")
-        .attr("x1", function(d) { return x(d); })
-        .attr("y1", h - marginY)
-        .attr("x2", function(d) { return x(d); })
-        .attr("y2", h - marginY + 10);
-
-    g.selectAll(".yTicks")
-        .data(y.ticks(10))
-        .enter().append("svg:line")
-        .attr("class", "yTicks")
-        .attr("y1", function(d) { return y(d); })
-        .attr("x1", marginX - 10)
-        .attr("y2", function(d) { return y(d); })
-        .attr("x2", marginX);
 
     function changeSmoothing(newSmoothing) {
         smoothing = newSmoothing;
