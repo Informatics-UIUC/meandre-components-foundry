@@ -175,8 +175,6 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 						"Don't know how to handle input of type: "
 						+ input.getClass().getName());
 
-		console.info(inPeer.toString());
-
 		if (_wrapStream) {
 			StreamDelimiter sd = new StreamInitiator(streamId);
 			cc.pushDataComponentToOutput(OUT_QUERY, sd);
@@ -210,28 +208,31 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 						console.fine("word 1 = " + tuple_i.toString() + " word 2 = " + tuple_j.toString());
 
-						String query = "select  ngram1, ngram2, stat_pmcc_samp(p1, p2) as pmcc from "
-							+"(select t3.year as year, t3.sum_match_count, ngram1, c1, c1/sum_match_count*1000 as p1, ngram2, c2, c2/sum_match_count*1000 as p2 from "
-							+"(select t2.year as year, t2.sum_match_count, ifnull(ngram1,\" "
-							+ tuple_i.toString()
-							+"\") as ngram1, ifnull(c1,0) as c1, ifnull(ngram2,\" "
-							+ tuple_j.toString()
-							+"\") as ngram2, ifnull(c2,0) as c2 from "
-							+"(select year, sum_match_count from yearly_summary where " 
-							+ "year >= "+ _min_year + " and year <= "+ _max_year 
-							+") as t2 left join "
-							+"(select year, ngram_normalized as ngram1, sum(match_count) as c1 from ngrams where ngram_normalized=\""
-							+ tuple_i.toString()
-							+"\" and " 
-							+ "year >= "+ _min_year + " and year <= "+ _max_year 
-							+" group by year,ngram_normalized) as n1 on t2.year=n1.year "
-							+"left join "
-							+"(select year, ngram_normalized as ngram2, sum(match_count) as c2 from ngrams where ngram_normalized=\""
-							+ tuple_j.toString()
-							+"\" and " 
-							+ "year >= "+ _min_year + " and year <= "+ _max_year 
-							+" group by year,ngram_normalized) as n2 on t2.year=n2.year" 
-							+") as t3) as t4;";
+						String query = "SELECT \"" 
+						+tuple_i.toString()
+						+"\" as ngram1, \""
+						+tuple_j.toString()
+						+"\" as ngram2, stat_pmcc_samp(n1, n2) as pearson_analysis from "
+						+"(SELECT year, max(if(ngram_label=\""
+						+tuple_i.toString()
+						+"\",y,0)) as n1, max(if(ngram_label=\"" 
+						+tuple_j.toString()
+						+"\",y,0)) as n2 from "
+						+"(SELECT ngram_label, year, sum(match_count) / sum_match_count * 1000000 as y "
+						+"FROM ("
+						+"SELECT ngram, ifnull(ngram_spelling_checked,ngram_normalized) as ngram_label "
+						+"FROM ngram_summary ns "
+						+"WHERE ngram_normalized IN (\""
+						+tuple_i.toString()
+						+"\",\"" 
+						+tuple_j.toString()
+						+"\") OR ngram_spelling_checked IN (\""
+						+tuple_i.toString()
+						+"\",\"" 
+						+tuple_j.toString()
+						+"\")) t1 "
+						+"LEFT JOIN ngrams n USING(ngram) LEFT JOIN yearly_summary s USING(year) "
+						+"GROUP BY ngram_label, year HAVING year >= "+ _min_year+" AND year <= "+_max_year+") t2 group by year) t3;";
 
 						console.finer("query = "+query);
 						cc.pushDataComponentToOutput(OUT_QUERY, query);
