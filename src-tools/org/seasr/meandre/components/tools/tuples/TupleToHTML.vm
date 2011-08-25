@@ -50,13 +50,14 @@
     thead th {
         font-size: 105%;
         color: #000;
-        height: 33px;
+        padding-bottom: .75em;
     }
     tr {
         vertical-align: top;
     }
     tr,th,td {
-        padding: .75em;
+        padding-left: .75em;
+        padding-right: .75em;
     }
     td {
         border-left: 1px solid #dadada;
