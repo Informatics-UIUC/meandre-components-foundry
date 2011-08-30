@@ -69,6 +69,7 @@
 </style>
 </head>
 <body>
+    #if($_tuplesCount > 0)
     <table>
         <thead>
         <tr>
@@ -89,5 +90,6 @@
         #end
         </tbody>
     </table>
+    #end
 </body>
 </html>
