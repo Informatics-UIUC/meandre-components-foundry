@@ -29,7 +29,7 @@
   .legend { font-size: 11pt; }
 
   .menu {
-      width: 800px;
+      width: ${_userMap["width"]}px;
       text-align: right;
       padding-right: 20px;
   }
@@ -72,8 +72,8 @@
 
     var lineColors = [ "steelblue", "red", "green", "purple", "black", "cyan" ];
 
-    var w = 800,
-        h = 600,
+    var w = ${_userMap["width"]},
+        h = ${_userMap["height"]},
         marginXL = 50,
         marginXR = 100,
         marginY = 30,

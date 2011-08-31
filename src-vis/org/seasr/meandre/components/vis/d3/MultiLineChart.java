@@ -42,6 +42,9 @@
 
 package org.seasr.meandre.components.vis.d3;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.meandre.annotations.Component;
@@ -164,6 +167,12 @@ public class MultiLineChart extends AbstractStreamingD3Component {
     public void endStream() throws Exception {
         context.put("data", _jsonData.toString());
         context.put("labels", _jsonLabels.toString());
+
+        Map<String, String> userMap = new HashMap<String, String>();
+        userMap.put("width", "800");
+        userMap.put("height", "600");
+
+        context.put("_userMap", userMap);
 
         super.executeCallBack(componentContext);
     }
