@@ -66,6 +66,7 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -150,6 +151,13 @@ public class SpellCheck extends AbstractExecutableComponent {
                           "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
+
+    @ComponentOutput(
+            name = "uncorrected_misspellings",
+            description = "The list of words that are misspelled and for which a correction/replacement could not be found." +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_UNCORRECTED_MISSPELLINGS = "uncorrected_misspellings";
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -376,6 +384,7 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         Map<String,Set<String>> replacements = listener.getReplacements();
 
+        componentContext.pushDataComponentToOutput(OUT_UNCORRECTED_MISSPELLINGS, listener.getUncorrectedMisspellings());
         componentContext.pushDataComponentToOutput(OUT_RULES, BasicDataTypesTools.stringToStrings(replacementRules));
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, BasicDataTypesTools.mapToStringMap(getReplacementsMap(replacements)));
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
@@ -425,6 +434,7 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         Map<String,Set<String>> replacements = listener.getReplacements();
 
+        componentContext.pushDataComponentToOutput(OUT_UNCORRECTED_MISSPELLINGS, listener.getUncorrectedMisspellings());
         componentContext.pushDataComponentToOutput(OUT_RULES, BasicDataTypesTools.stringToStrings(replacementRules));
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, BasicDataTypesTools.mapToStringMap(getReplacementsMap(replacements)));
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.mapToStringMap(correctedTokenizedSentences));
@@ -465,6 +475,7 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         Map<String,Set<String>> replacements = listener.getReplacements();
 
+        componentContext.pushDataComponentToOutput(OUT_UNCORRECTED_MISSPELLINGS, listener.getUncorrectedMisspellings());
         componentContext.pushDataComponentToOutput(OUT_RULES, BasicDataTypesTools.stringToStrings(replacementRules));
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, BasicDataTypesTools.mapToStringMap(getReplacementsMap(replacements)));
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.mapToIntegerMap(correctedTokenCounts, false));
@@ -488,6 +499,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         protected final boolean _doCorrection;
         protected final Float _levenshteinDistance;
         protected final Logger _logger;
+        protected final Strings.Builder _uncorrectedMisspellings;
 
         protected int _countSpellingErrors = 0;
         protected int _countMissedCorrections = 0;
@@ -504,6 +516,7 @@ public class SpellCheck extends AbstractExecutableComponent {
             _replacements = new HashMap<String, Set<String>>();
             _doCorrection = doCorrection;
             _levenshteinDistance = levenshteinDistance;
+            _uncorrectedMisspellings = Strings.newBuilder();
             _logger = logger;
         }
 
@@ -562,6 +575,7 @@ public class SpellCheck extends AbstractExecutableComponent {
                 else
                     event.ignoreWord(true);
             } else {
+                _uncorrectedMisspellings.addValue(invalidWord);
                 _logger.finer("Suggestions: <none>");
                 _countMissedCorrections++;
             }
@@ -569,6 +583,10 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         protected Set<String> getFilteredSuggestions(String invalidWord, Set<String> suggestions) {
         	return suggestions;
+        }
+
+        protected Strings getUncorrectedMisspellings() {
+            return _uncorrectedMisspellings.build();
         }
 
         protected String getReplacement(String invalidWord, Set<String> suggestions) {
