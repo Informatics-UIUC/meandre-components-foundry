@@ -115,17 +115,31 @@ public class SpellCheckWithCounts extends SpellCheck {
     )
     protected static final String PROP_ENABLE_TRANSFORMS = "enable_transforms_only";
 
+    @ComponentProperty(
+            name = "transform_threshold",
+            description = "Cuttoff value that limits the maximum number of transformations allowed on a misspelled word " +
+            		"(the higher the number, the longer it will take to apply and check all the words resulting from applying the transformations)",
+            defaultValue = "15"
+    )
+    protected static final String PROP_TRANSFORM_THRESHOLD = "transform_threshold";
+
     //--------------------------------------------------------------------------------------------
+
 
     protected Map<String, Integer> _tokenCounts;
     protected Map<String, List<String>> _transformations;
     protected Boolean _enable_transforms_only;
+    protected int _transformThreshold;
+
+
+    //--------------------------------------------------------------------------------------------
 
     @Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-
     	super.initializeCallBack(ccp);
+
     	_enable_transforms_only = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ENABLE_TRANSFORMS, ccp));
+    	_transformThreshold = Integer.parseInt(getPropertyOrDieTrying(PROP_TRANSFORM_THRESHOLD, ccp));
     }
 
     //--------------------------------------------------------------------------------------------
@@ -196,7 +210,7 @@ public class SpellCheckWithCounts extends SpellCheck {
             List<KeyValuePair<Integer,KeyValuePair<String,String>>> transformData =
                 computeApplicableTransformations(invalidWord, _transformations);
 
-            if (transformData.size() > 15) {
+            if (transformData.size() > _transformThreshold) {
             	console.warning(String.format("[%d] Too expensive to compute suggestions for the misspelled word '%s' - skipping it...",
             			transformData.size(), invalidWord));
             	return new HashSet<String>();
