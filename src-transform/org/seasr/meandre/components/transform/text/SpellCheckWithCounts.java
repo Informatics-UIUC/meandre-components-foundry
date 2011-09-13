@@ -287,8 +287,8 @@ public class SpellCheckWithCounts extends SpellCheck {
                         KeyValuePair<String,String> transform = kvp.getValue();
                         lastIndex = n + transform.getKey().length();
 
-                        n += adjust; lastIndex += adjust; countTransformations++;
-                        suggestion = suggestion.substring(0, n) + transform.getValue() + suggestion.substring(lastIndex);
+                        n += adjust; countTransformations++;
+                        suggestion = suggestion.substring(0, n) + transform.getValue() + suggestion.substring(lastIndex + adjust);
                         adjust += transform.getValue().length() - transform.getKey().length();
                     }
 
