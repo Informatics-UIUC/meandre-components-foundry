@@ -149,7 +149,7 @@ public class ExecuteSQL extends AbstractDBComponent {
                         console.warning("SQL EXECUTE_FAILED: " + stmts.get(i));
                     else {
                         if (results[i] >= 0)
-                            console.fine(String.format("%d rows updated: " + stmts.get(i)));
+                            console.fine(String.format("%d rows updated: %s", results[i], stmts.get(i)));
                         else
                             console.fine("SQL SUCCESS_NO_INFO: " + stmts.get(i));
                     }
