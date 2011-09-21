@@ -44,6 +44,8 @@ package org.seasr.meandre.components.tools.tuples;
 
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -125,18 +127,33 @@ public class ExecuteSQL extends AbstractDBComponent {
                     continue;
                 }
 
+                List<String> stmts = new ArrayList<String>();
                 String sqlStatements = DataTypeParser.parseAsString(input)[0];
                 for (String sql : sqlStatements.split("\n")) {
                 	sql = sql.trim();
                 	if (sql.startsWith("--") || sql.length() == 0)
                 		continue;
                 	if (sql.endsWith(";"))
-                		stmt.addBatch(sql);
+                		stmts.add(sql);
                 	else
                 		console.warning(String.format("Ignoring malformed SQL statement '%s'", sql));
                 }
 
-                stmt.executeBatch();
+                for (String sql : stmts)
+                    stmt.addBatch(sql);
+
+                int[] results = stmt.executeBatch();
+
+                for (int i = 0, iMax = results.length; i < iMax; i++) {
+                    if (results[i] == Statement.EXECUTE_FAILED)
+                        console.warning("SQL EXECUTE_FAILED: " + stmts.get(i));
+                    else {
+                        if (results[i] >= 0)
+                            console.fine(String.format("%d rows updated: " + stmts.get(i)));
+                        else
+                            console.fine("SQL SUCCESS_NO_INFO: " + stmts.get(i));
+                    }
+                }
             }
         }
         finally {
