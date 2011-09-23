@@ -46,6 +46,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -142,15 +143,24 @@ public class ExecuteSQL extends AbstractDBComponent {
                 for (String sql : stmts)
                     stmt.addBatch(sql);
 
+                long startTime = System.currentTimeMillis();
                 int[] results = stmt.executeBatch();
+                double elapsedSec = (System.currentTimeMillis() - startTime) / 1000f;
 
                 for (int i = 0, iMax = results.length; i < iMax; i++) {
                     if (results[i] == Statement.EXECUTE_FAILED)
                         console.warning("SQL EXECUTE_FAILED: " + stmts.get(i));
                     else {
-                        if (results[i] >= 0)
-                            console.fine(String.format("%d rows updated: %s", results[i], stmts.get(i)));
-                        else
+                        if (results[i] >= 0) {
+                            String report = String.format("(%,.2f seconds) %,d rows updated", elapsedSec, results[i]);
+                            if (console.isLoggable(Level.FINER) || results[i] == 0)
+                                report += ": " + stmts.get(i);
+
+                            if (console.isLoggable(Level.FINER))
+                                console.finer(report);
+                            else
+                                console.fine(report);
+                        } else
                             console.fine("SQL SUCCESS_NO_INFO: " + stmts.get(i));
                     }
                 }
