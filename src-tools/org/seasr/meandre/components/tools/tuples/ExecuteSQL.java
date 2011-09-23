@@ -111,10 +111,8 @@ public class ExecuteSQL extends AbstractDBComponent {
             return;
 
         Connection connection = null;
-        Statement stmt = null;
         try {
             connection = connectionPool.getConnection();
-            stmt = connection.createStatement();
 
             Object input;
             while ((input = componentInputCache.retrieveNext(IN_TEXT)) != null) {
@@ -140,36 +138,43 @@ public class ExecuteSQL extends AbstractDBComponent {
                 		console.warning(String.format("Ignoring malformed SQL statement '%s'", sql));
                 }
 
-                for (String sql : stmts)
-                    stmt.addBatch(sql);
+                Statement stmt = null;
+                try {
+                    stmt = connection.createStatement();
 
-                long startTime = System.currentTimeMillis();
-                int[] results = stmt.executeBatch();
-                double elapsedSec = (System.currentTimeMillis() - startTime) / 1000f;
+                    for (String sql : stmts)
+                        stmt.addBatch(sql);
 
-                for (int i = 0, iMax = results.length; i < iMax; i++) {
-                    if (results[i] == Statement.EXECUTE_FAILED)
-                        console.warning("SQL EXECUTE_FAILED: " + stmts.get(i));
-                    else {
-                        if (results[i] >= 0) {
-                            String report = String.format("(%,.2f seconds) %,d rows updated", elapsedSec, results[i]);
-                            if (console.isLoggable(Level.FINER) || results[i] == 0)
-                                report += ": " + stmts.get(i);
+                    long startTime = System.currentTimeMillis();
+                    int[] results = stmt.executeBatch();
+                    double elapsedSec = (System.currentTimeMillis() - startTime) / 1000f;
 
-                            if (console.isLoggable(Level.FINER))
-                                console.finer(report);
-                            else
-                                console.fine(report);
-                        } else
-                            console.fine("SQL SUCCESS_NO_INFO: " + stmts.get(i));
+                    for (int i = 0, iMax = results.length; i < iMax; i++) {
+                        if (results[i] == Statement.EXECUTE_FAILED)
+                            console.warning("SQL EXECUTE_FAILED: " + stmts.get(i));
+                        else {
+                            if (results[i] >= 0) {
+                                String report = String.format("(%,.2f seconds) %,d rows updated", elapsedSec, results[i]);
+                                if (console.isLoggable(Level.FINER) || results[i] == 0)
+                                    report += ": " + stmts.get(i);
+
+                                if (console.isLoggable(Level.FINER))
+                                    console.finer(report);
+                                else
+                                    console.fine(report);
+                            } else
+                                console.fine("SQL SUCCESS_NO_INFO: " + stmts.get(i));
+                        }
                     }
+                }
+                finally {
+                    closeStatement(stmt);
                 }
             }
         }
         finally {
-            releaseConnection(connection, stmt);
+            releaseConnection(connection);
         }
-
     }
 
     @Override
