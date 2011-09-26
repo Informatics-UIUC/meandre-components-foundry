@@ -189,7 +189,15 @@ public class OpenMaryClient extends AbstractExecutableComponent {
 
         for (String text : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            _openMary.process(text, _inputType, _outputType, _locale, _audioType, _defaultVoiceName, baos);
+            try {
+                _openMary.process(text, _inputType, _outputType, _locale, _audioType, _defaultVoiceName, baos);
+            }
+            catch (Exception e) {
+                console.severe(e.getMessage());
+                console.severe("The failing text follows:");
+                console.severe(text);
+                throw e;
+            }
 
             cc.pushDataComponentToOutput(OUT_BYTES, BasicDataTypesTools.byteArrayToBytes(baos.toByteArray()));
         }
