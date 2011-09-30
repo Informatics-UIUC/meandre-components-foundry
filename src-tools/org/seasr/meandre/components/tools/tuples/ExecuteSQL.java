@@ -138,6 +138,8 @@ public class ExecuteSQL extends AbstractDBComponent {
                 		console.warning(String.format("Ignoring malformed SQL statement '%s'", sql));
                 }
 
+                if (stmts.isEmpty()) continue;
+
                 Statement stmt = null;
                 try {
                     stmt = connection.createStatement();
