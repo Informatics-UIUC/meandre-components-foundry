@@ -48,7 +48,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.meandre.annotations.Component;
@@ -144,7 +143,6 @@ public class TupleToSQL extends AbstractDBComponent {
 
 
     protected static final int MAX_INSERTS_PER_BATCH = 100;
-    protected static final Calendar CALENDAR = Calendar.getInstance();
 
     protected String _columnDefs;
     protected String _tableOptions;
@@ -334,7 +332,7 @@ public class TupleToSQL extends AbstractDBComponent {
     //--------------------------------------------------------------------------------------------
 
     protected synchronized String generateTableName() {
-        return "temp" + Long.toString(CALENDAR.getTimeInMillis());
+        return "temp" + Long.toString(System.currentTimeMillis());
     }
 
     protected String createNewTable(Connection connection) throws SQLException {
