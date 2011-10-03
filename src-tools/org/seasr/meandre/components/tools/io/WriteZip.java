@@ -202,7 +202,7 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
         componentInputCache.storeIfAvailable(cc, IN_DATA);
 
         if (zipStream == null && componentInputCache.hasData(IN_LOCATION)) {
-            Object input = cc.getDataComponentFromInput(IN_LOCATION);
+            Object input = componentInputCache.retrieveNext(IN_LOCATION);
             if (input instanceof StreamDelimiter)
                 throw new ComponentExecutionException(String.format("Stream delimiters should not arrive on port '%s'!", IN_LOCATION));
 
