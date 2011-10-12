@@ -131,8 +131,6 @@ public class TextReplacement extends AbstractExecutableComponent {
 
 
     boolean ignoreCase = true;
-    Map<String,String> dictionary;
-    Map<String,String> phraseReplaceDictionary;
 
 
     //--------------------------------------------------------------------------------------------
@@ -146,39 +144,38 @@ public class TextReplacement extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		if (dictionary == null) {
-			Strings input = (Strings) cc.getDataComponentFromInput(IN_MAP_DATA);
-			String[] val = BasicDataTypesTools.stringsToStringArray (input);
+	    Strings input = (Strings) cc.getDataComponentFromInput(IN_MAP_DATA);
+	    String[] val = BasicDataTypesTools.stringsToStringArray (input);
 
-			dictionary = buildDictionary(val[0], console);
-			phraseReplaceDictionary = new HashMap<String,String>();
-			for (String key : dictionary.keySet()) {
-				if (key.indexOf(" ") > 1) {
-					String value = dictionary.get(key);
-					phraseReplaceDictionary.put(key, value);
-				}
-			}
-			for (String key : phraseReplaceDictionary.keySet()) {
-				dictionary.remove(key);
-			}
+	    Map<String,String> dictionary = buildDictionary(val[0], console);
+	    Map<String,String> phraseReplaceDictionary = new HashMap<String,String>();
+	    for (String key : dictionary.keySet()) {
+	        if (key.indexOf(" ") > 1) {
+	            String value = dictionary.get(key);
+	            phraseReplaceDictionary.put(key, value);
+	        }
+	    }
+	    for (String key : phraseReplaceDictionary.keySet()) {
+	        dictionary.remove(key);
+	    }
 
 
-			if (ignoreCase) {
-				HashMap<String,String>tmp = new HashMap<String,String>();
-				for (String key : dictionary.keySet()) {
-					String v = dictionary.get(key);
-					tmp.put(key.toLowerCase(),v);
-				}
-				dictionary = tmp;
-			}
+	    if (ignoreCase) {
+	        HashMap<String,String>tmp = new HashMap<String,String>();
+	        for (String key : dictionary.keySet()) {
+	            String v = dictionary.get(key);
+	            tmp.put(key.toLowerCase(),v);
+	        }
+	        dictionary = tmp;
+	    }
 
-			/*
+	    /*
 			for (String key : dictionary.keySet()) {
 				String v = dictionary.get(key);
 				console.info(key + "-->" + v);
 			}
-			*/
-		}
+	     */
+
 
 		String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
 
@@ -206,7 +203,7 @@ public class TextReplacement extends AbstractExecutableComponent {
 			sb.append(r);
 		}
 
-		text = cleanPhrases(sb.toString());
+		text = cleanPhrases(sb.toString(), phraseReplaceDictionary);
 
 
 
@@ -222,7 +219,7 @@ public class TextReplacement extends AbstractExecutableComponent {
 		// console.info(sb.toString());
 	}
 
-	String cleanPhrases(String text)
+	String cleanPhrases(String text, Map<String,String> phraseReplaceDictionary)
 	{
 		for (String key : phraseReplaceDictionary.keySet()) {
 			String replace = phraseReplaceDictionary.get(key);
