@@ -53,13 +53,17 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamDelimiter;
+import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.tools.db.AbstractDBComponent;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.support.components.db.DBUtils;
+
+import com.jolbox.bonecp.BoneCP;
 
 
 /**
@@ -78,9 +82,16 @@ import org.seasr.meandre.components.tools.db.AbstractDBComponent;
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
                        "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
 )
-public class ExecuteSQL extends AbstractDBComponent {
+public class ExecuteSQL extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
+
+    @ComponentInput(
+            name = "db_conn_pool",
+            description = "The DB connection pool used for providing / managing connections to the specified database" +
+                "<br>TYPE: com.jolbox.bonecp.BoneCP"
+    )
+    protected static final String IN_DB_CONN_POOL = "db_conn_pool";
 
     @ComponentInput(
             name = Names.PORT_TEXT,
@@ -93,38 +104,56 @@ public class ExecuteSQL extends AbstractDBComponent {
     )
     protected static final String IN_TEXT = Names.PORT_TEXT;
 
+    //------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            name = "num_rows_updated_per_query",
+            description = "A sequence of integers representing the number of rows updated by each SQL statement executed." +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Integers"
+    )
+    protected static final String OUT_RESULT = "num_rows_updated_per_query";
+
+    //--------------------------------------------------------------------------------------------
+
+
+    protected BoneCP connectionPool = null;
+
+
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        super.initializeCallBack(ccp);
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        super.executeCallBack(cc);
-
         componentInputCache.storeIfAvailable(cc, IN_TEXT);
+
+        if (cc.isInputAvailable(IN_DB_CONN_POOL)) {
+            Object in_conn_pool = cc.getDataComponentFromInput(IN_DB_CONN_POOL);
+            if (!(in_conn_pool instanceof StreamDelimiter)) {
+                if (connectionPool == null)
+                    connectionPool = (BoneCP) in_conn_pool;
+//                else
+//                    console.warning("The connection pool can only be set once! Ignoring input from port '" + IN_DB_CONN_POOL + "'");
+            } else
+                console.warning("Stream delimiters should not arrive on port '" + IN_DB_CONN_POOL + "'. Ignoring...");
+        }
 
         if (connectionPool == null || !componentInputCache.hasData(IN_TEXT))
             // we're not ready to process yet, return
             return;
 
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
+        Object input;
+        while ((input = componentInputCache.retrieveNext(IN_TEXT)) != null) {
+            if (input instanceof StreamDelimiter) {
+                // No output to push...
+                continue;
+            }
 
-            Object input;
-            while ((input = componentInputCache.retrieveNext(IN_TEXT)) != null) {
-                if (input instanceof StreamDelimiter) {
-                    StreamDelimiter sd = (StreamDelimiter) input;
-                    if (sd.getStreamId() == streamId)
-                        throw new ComponentExecutionException(String.format("Stream id conflict! Incoming stream has the same id (%d) " +
-                                "as the one set for this component (%s)!", streamId, getClass().getSimpleName()));
-
-                    // No output to push...
-                    continue;
-                }
+            Connection connection = null;
+            try {
+                connection = connectionPool.getConnection();
 
                 List<String> stmts = new ArrayList<String>();
                 String sqlStatements = DataTypeParser.parseAsString(input)[0];
@@ -168,28 +197,25 @@ public class ExecuteSQL extends AbstractDBComponent {
                                 console.fine("SQL SUCCESS_NO_INFO: " + stmts.get(i));
                         }
                     }
+
+                    cc.pushDataComponentToOutput(OUT_RESULT, BasicDataTypesTools.integerArrayToIntegers(results));
                 }
                 finally {
-                    closeStatement(stmt);
+                    DBUtils.closeStatement(stmt);
                 }
             }
-        }
-        finally {
-            releaseConnection(connection);
+            finally {
+                DBUtils.releaseConnection(connection);
+            }
         }
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    	super.disposeCallBack(ccp);
+        connectionPool = null;
     }
 
     //--------------------------------------------------------------------------------------------
-
-    @Override
-    public boolean isAccumulator() {
-        return false;
-    }
 
     @Override
     public void handleStreamInitiators() throws Exception {

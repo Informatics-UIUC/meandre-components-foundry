@@ -60,16 +60,18 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.tools.db.AbstractDBComponent;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.support.components.db.DBUtils;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+
+import com.jolbox.bonecp.BoneCP;
 
 
 /**
@@ -97,9 +99,16 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
 				       "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
 )
-public class SQLToTuple extends AbstractDBComponent {
+public class SQLToTuple extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS -----------------------------------------------------
+
+    @ComponentInput(
+            name = "db_conn_pool",
+            description = "The DB connection pool used for providing / managing connections to the specified database" +
+                "<br>TYPE: com.jolbox.bonecp.BoneCP"
+    )
+    protected static final String IN_DB_CONN_POOL = "db_conn_pool";
 
     @ComponentInput(
             name = Names.PORT_QUERY,
@@ -123,22 +132,32 @@ public class SQLToTuple extends AbstractDBComponent {
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
+
+    protected BoneCP connectionPool = null;
 
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    super.initializeCallBack(ccp);
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-	    super.executeCallBack(cc);
-
 	    componentInputCache.storeIfAvailable(cc, IN_QUERY);
+
+        if (cc.isInputAvailable(IN_DB_CONN_POOL)) {
+            Object in_conn_pool = cc.getDataComponentFromInput(IN_DB_CONN_POOL);
+            if (!(in_conn_pool instanceof StreamDelimiter)) {
+                if (connectionPool == null)
+                    connectionPool = (BoneCP) in_conn_pool;
+                else
+                    console.warning("The connection pool can only be set once! Ignoring input from port '" + IN_DB_CONN_POOL + "'");
+            } else
+                console.warning("Stream delimiters should not arrive on port '" + IN_DB_CONN_POOL + "'. Ignoring...");
+        }
 
 	    if (connectionPool == null || !componentInputCache.hasData(IN_QUERY))
 	        // Not ready to process
@@ -148,10 +167,6 @@ public class SQLToTuple extends AbstractDBComponent {
         while ((input = componentInputCache.retrieveNext(IN_QUERY)) != null) {
             if (input instanceof StreamDelimiter) {
                 StreamDelimiter sd = (StreamDelimiter) input;
-                if (sd.getStreamId() == streamId)
-                    throw new ComponentExecutionException(String.format("Stream id conflict! Incoming stream has the same id (%d) " +
-                            "as the one set for this component (%s)!", streamId, getClass().getSimpleName()));
-
                 cc.pushDataComponentToOutput(OUT_META_TUPLE, sd);
                 cc.pushDataComponentToOutput(OUT_TUPLES, sd);
                 continue;
@@ -164,15 +179,10 @@ public class SQLToTuple extends AbstractDBComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        super.disposeCallBack(ccp);
+        connectionPool = null;
     }
 
     //--------------------------------------------------------------------------------------------
-
-    @Override
-    public boolean isAccumulator() {
-        return false;
-    }
 
     @Override
     public void handleStreamInitiators() throws Exception {
@@ -227,7 +237,7 @@ public class SQLToTuple extends AbstractDBComponent {
             }
         }
         finally {
-            releaseConnection(connection, stmt);
+            DBUtils.releaseConnection(connection, stmt);
         }
 
         // Output message to the error output port

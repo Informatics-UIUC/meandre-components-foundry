@@ -58,13 +58,18 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
+import org.seasr.meandre.support.components.db.DBUtils;
 import org.seasr.meandre.support.generic.io.Serializer;
 import org.seasr.meandre.support.generic.io.Serializer.SerializationFormat;
 import org.seasr.meandre.support.generic.util.Tuples.Tuple2;
 import org.seasr.meandre.support.generic.util.UUIDUtils;
+
+import com.jolbox.bonecp.BoneCP;
 
 @Component(
         name = "Persist To DB",
@@ -78,9 +83,16 @@ import org.seasr.meandre.support.generic.util.UUIDUtils;
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
                        "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
 )
-public class PersistToDB extends AbstractDBComponent {
+public class PersistToDB extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS -----------------------------------------------------
+
+    @ComponentInput(
+            name = "db_conn_pool",
+            description = "The DB connection pool used for providing / managing connections to the specified database" +
+                "<br>TYPE: com.jolbox.bonecp.BoneCP"
+    )
+    protected static final String IN_DB_CONN_POOL = "db_conn_pool";
 
     @ComponentInput(
             name = "data1",
@@ -119,6 +131,8 @@ public class PersistToDB extends AbstractDBComponent {
 
     /** This is the table used as a directory of metainformation for persistence "units" */
     public static final String PERSISTENCE_META_TABLE_NAME = "persistence_meta";
+
+    protected BoneCP connectionPool = null;
 
     protected String _dbTable;
 
@@ -159,11 +173,20 @@ public class PersistToDB extends AbstractDBComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        super.executeCallBack(cc);
-
         // We want to allow queueing of StreamDelimiters so
         // that we know when to process in streaming mode and when not
         componentInputCache.storeIfAvailable(cc, IN_DATA1);
+
+        if (cc.isInputAvailable(IN_DB_CONN_POOL)) {
+            Object in_conn_pool = cc.getDataComponentFromInput(IN_DB_CONN_POOL);
+            if (!(in_conn_pool instanceof StreamDelimiter)) {
+                if (connectionPool == null)
+                    connectionPool = (BoneCP) in_conn_pool;
+                else
+                    console.warning("The connection pool can only be set once! Ignoring input from port '" + IN_DB_CONN_POOL + "'");
+            } else
+                console.warning("Stream delimiters should not arrive on port '" + IN_DB_CONN_POOL + "'. Ignoring...");
+        }
 
         if (connectionPool == null || !componentInputCache.hasData(IN_DATA1))
             // we're not ready to process yet, return
@@ -218,7 +241,7 @@ public class PersistToDB extends AbstractDBComponent {
                                 BasicDataTypesTools.stringToStrings(UUIDUtils.fromBigInteger(_uuid.toBigInteger()).toString()));
                     } else
                         // Empty stream - roll back the insertPersistenceMetaInfo call
-                        rollbackTransaction(connection);
+                        DBUtils.rollbackTransaction(connection);
 
                     continue;
                 }
@@ -250,17 +273,17 @@ public class PersistToDB extends AbstractDBComponent {
 
         }
         catch (SQLException e) {
-            rollbackTransaction(connection);
+            DBUtils.rollbackTransaction(connection);
             throw e;
         }
         finally {
-            releaseConnection(connection, psMeta, psData);
+            DBUtils.releaseConnection(connection, psMeta, psData);
         }
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        super.disposeCallBack(ccp);
+        connectionPool = null;
     }
 
     //--------------------------------------------------------------------------------------------
@@ -326,11 +349,11 @@ public class PersistToDB extends AbstractDBComponent {
             _ensuredPersistenceTablesExist = true;
         }
         catch (SQLException e) {
-            rollbackTransaction(connection);
+            DBUtils.rollbackTransaction(connection);
             throw e;
         }
         finally {
-            releaseConnection(connection, stmt);
+            DBUtils.releaseConnection(connection, stmt);
         }
     }
 

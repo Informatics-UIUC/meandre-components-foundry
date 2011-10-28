@@ -94,6 +94,18 @@ public abstract class BasicDataTypesTools {
 	}
 
 	/**
+	 * Create a Integers object out of an array of Java integers
+	 *
+	 * @param ints The array of Java integers
+	 * @return The new object produced
+	 */
+	public static Integers integerArrayToIntegers(int[] ints) {
+	    org.seasr.datatypes.core.BasicDataTypes.Integers.Builder res = BasicDataTypes.Integers.newBuilder();
+	    for (int i : ints) res.addValue(i);
+	    return res.build();
+	}
+
+	/**
 	 * Creates a Strings object out of a regular String.
 	 *
 	 * @param s The string to use

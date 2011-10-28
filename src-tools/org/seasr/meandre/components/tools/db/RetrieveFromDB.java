@@ -64,9 +64,13 @@ import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
+import org.seasr.meandre.support.components.db.DBUtils;
 import org.seasr.meandre.support.generic.io.Serializer;
 import org.seasr.meandre.support.generic.io.Serializer.SerializationFormat;
 import org.seasr.meandre.support.generic.util.UUIDUtils;
+
+import com.jolbox.bonecp.BoneCP;
 
 /**
  * @author Boris Capitanu
@@ -84,9 +88,16 @@ import org.seasr.meandre.support.generic.util.UUIDUtils;
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
                        "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
 )
-public class RetrieveFromDB extends AbstractDBComponent {
+public class RetrieveFromDB extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS -----------------------------------------------------
+
+    @ComponentInput(
+            name = "db_conn_pool",
+            description = "The DB connection pool used for providing / managing connections to the specified database" +
+                "<br>TYPE: com.jolbox.bonecp.BoneCP"
+    )
+    protected static final String IN_DB_CONN_POOL = "db_conn_pool";
 
     @ComponentInput(
             name = "id",
@@ -118,6 +129,8 @@ public class RetrieveFromDB extends AbstractDBComponent {
     /** This is the table used as a directory of metainformation for persistence "units" */
     public static final String PERSISTENCE_META_TABLE_NAME = "persistence_meta";
 
+    protected BoneCP connectionPool = null;
+
     protected String _dbTable;
 
     protected String _sqlQueryMeta;
@@ -140,9 +153,18 @@ public class RetrieveFromDB extends AbstractDBComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        super.executeCallBack(cc);
-
         componentInputCache.storeIfAvailable(cc, IN_ID);
+
+        if (cc.isInputAvailable(IN_DB_CONN_POOL)) {
+            Object in_conn_pool = cc.getDataComponentFromInput(IN_DB_CONN_POOL);
+            if (!(in_conn_pool instanceof StreamDelimiter)) {
+                if (connectionPool == null)
+                    connectionPool = (BoneCP) in_conn_pool;
+                else
+                    console.warning("The connection pool can only be set once! Ignoring input from port '" + IN_DB_CONN_POOL + "'");
+            } else
+                console.warning("Stream delimiters should not arrive on port '" + IN_DB_CONN_POOL + "'. Ignoring...");
+        }
 
         if (connectionPool == null || !componentInputCache.hasData(IN_ID))
             // we're not ready to process yet, return
@@ -224,13 +246,13 @@ public class RetrieveFromDB extends AbstractDBComponent {
             }
         }
         finally {
-            releaseConnection(connection, psMeta, psData);
+            DBUtils.releaseConnection(connection, psMeta, psData);
         }
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        super.disposeCallBack(ccp);
+        connectionPool = null;
     }
 
     //--------------------------------------------------------------------------------------------

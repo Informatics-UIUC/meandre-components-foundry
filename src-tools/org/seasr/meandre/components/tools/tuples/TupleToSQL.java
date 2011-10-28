@@ -60,15 +60,19 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.tools.db.AbstractDBComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
+import org.seasr.meandre.support.components.db.DBUtils;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+
+import com.jolbox.bonecp.BoneCP;
 
 /**
  * @author Boris Capitanu
@@ -86,9 +90,16 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
                        "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
 )
-public class TupleToSQL extends AbstractDBComponent {
+public class TupleToSQL extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS -----------------------------------------------------
+
+    @ComponentInput(
+            name = "db_conn_pool",
+            description = "The DB connection pool used for providing / managing connections to the specified database" +
+                "<br>TYPE: com.jolbox.bonecp.BoneCP"
+    )
+    protected static final String IN_DB_CONN_POOL = "db_conn_pool";
 
     @ComponentInput(
             name = Names.PORT_TUPLES,
@@ -144,6 +155,8 @@ public class TupleToSQL extends AbstractDBComponent {
 
     protected static final int MAX_INSERTS_PER_BATCH = 100;
 
+    protected BoneCP connectionPool = null;
+
     protected String _columnDefs;
     protected String _tableOptions;
 
@@ -168,10 +181,19 @@ public class TupleToSQL extends AbstractDBComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        super.executeCallBack(cc);
-
         componentInputCache.storeIfAvailable(cc, IN_META_TUPLE);
         componentInputCache.storeIfAvailable(cc, IN_TUPLES);
+
+        if (cc.isInputAvailable(IN_DB_CONN_POOL)) {
+            Object in_conn_pool = cc.getDataComponentFromInput(IN_DB_CONN_POOL);
+            if (!(in_conn_pool instanceof StreamDelimiter)) {
+                if (connectionPool == null)
+                    connectionPool = (BoneCP) in_conn_pool;
+                else
+                    console.warning("The connection pool can only be set once! Ignoring input from port '" + IN_DB_CONN_POOL + "'");
+            } else
+                console.warning("Stream delimiters should not arrive on port '" + IN_DB_CONN_POOL + "'. Ignoring...");
+        }
 
         if (connectionPool == null || !componentInputCache.hasData(IN_META_TUPLE) || !componentInputCache.hasData(IN_TUPLES))
             // we're not ready to process yet, return
@@ -274,7 +296,7 @@ public class TupleToSQL extends AbstractDBComponent {
                         ps.executeBatch();
                 }
                 finally {
-                    closeStatement(ps);
+                    DBUtils.closeStatement(ps);
                     ps = null;
                 }
 
@@ -284,7 +306,7 @@ public class TupleToSQL extends AbstractDBComponent {
             } while (componentInputCache.hasData(IN_META_TUPLE) && componentInputCache.hasData(IN_TUPLES));
         }
         finally {
-            releaseConnection(connection);
+            DBUtils.releaseConnection(connection);
         }
     }
 
@@ -305,11 +327,11 @@ public class TupleToSQL extends AbstractDBComponent {
                 stmt.execute(String.format("DROP TABLE IF EXISTS %s;", tables));
             }
             finally {
-                releaseConnection(conn, stmt);
+                DBUtils.releaseConnection(conn, stmt);
             }
         }
 
-        super.disposeCallBack(ccp);
+        connectionPool = null;
     }
 
     //--------------------------------------------------------------------------------------------
@@ -352,7 +374,7 @@ public class TupleToSQL extends AbstractDBComponent {
             return tableName;
         }
         finally {
-            closeStatement(stmt);
+            DBUtils.closeStatement(stmt);
         }
     }
 
