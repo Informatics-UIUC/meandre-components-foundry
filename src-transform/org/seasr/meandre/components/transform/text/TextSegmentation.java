@@ -110,6 +110,17 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
 	)
 	protected static final String PROP_SEGMENT_SIZE = Names.PROP_SEGMENT_SIZE;
 
+	@ComponentProperty(
+            description = "This setting controls the size of the last segment. If, in the process of segmenting the text, " +
+            		"the last segment will contain _fewer_ tokens than the number specified in this property, then all the " +
+            		"tokens in this last segment will be rolled into the previous segment and this last segment discarded. " +
+            		"Practically, this allows one to require that the last segment be of a certain minimum size. " +
+            		"Setting the value of this property to 0 would allow the last segment to have any size.",
+            name = "last_segment_threshold",
+            defaultValue = "0"
+    )
+    protected static final String PROP_LAST_SEGMENT_THRESHOLD = "last_segment_threshold";
+
     @ComponentProperty(
             name = Names.PROP_WRAP_STREAM,
             description = "Should the output be wrapped as a stream?",
@@ -122,6 +133,7 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
 
     protected boolean _wrapStream;
     protected double _segmentSize;
+    protected int _lastSegmentThreshold;
 
     private int _currentSegmentTokenCount = 0;
     private int _segmentCount = 0;
@@ -135,6 +147,7 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
 
 	    _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
 	    _segmentSize = Double.parseDouble(getPropertyOrDieTrying(PROP_SEGMENT_SIZE, ccp));
+	    _lastSegmentThreshold = Integer.parseInt(getPropertyOrDieTrying(PROP_LAST_SEGMENT_THRESHOLD, ccp));
 
 		if (_segmentSize <= 0)
 			throw new ComponentContextException(
@@ -148,13 +161,13 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
 		// Assume specified as # tokens
 		int segmentSize = (int) _segmentSize;
 
+        // Find the total number of tokens
+        long totalTokens = 0;
+        for (int i = 0, iMax = tokenizedSentences.getKeyCount(); i < iMax; i++)
+            totalTokens += tokenizedSentences.getValue(i).getValueCount();
+
 		// If specified as percentage
 		if (_segmentSize < 1) {
-    		// Find the total number of tokens
-    		int totalTokens = 0;
-    		for (int i = 0, iMax = tokenizedSentences.getKeyCount(); i < iMax; i++)
-    		    totalTokens += tokenizedSentences.getValue(i).getValueCount();
-
     		// Calculate the segment size
     		segmentSize = (int) Math.round(totalTokens * _segmentSize);
 
@@ -178,6 +191,18 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
 		        segment.addKey(sentence);
 		        segment.addValue(tokens);
 		        _currentSegmentTokenCount += tokenCount;
+		        totalTokens -= tokenCount;
+
+		        if (totalTokens < _lastSegmentThreshold)
+		            for (i = i+1; i < iMax; i++) {
+		                sentence = tokenizedSentences.getKey(i);
+		                tokens = tokenizedSentences.getValue(i);
+		                tokenCount = tokens.getValueCount();
+		                segment.addKey(sentence);
+		                segment.addValue(tokens);
+		                _currentSegmentTokenCount += tokenCount;
+		                totalTokens -= tokenCount;
+		            }
 
 		        // If the segment is full or overflowed
 		        if (_currentSegmentTokenCount >= segmentSize) {
