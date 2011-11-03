@@ -150,6 +150,13 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
     )
     protected static final String PROP_DROP_TABLE = "drop_table";
 
+    @ComponentProperty(
+            description = "Set to true if you want to append multiple sets of tuples to the same table",
+            name = "append",
+            defaultValue = "false"
+    )
+    protected static final String PROP_APPEND = "append";
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -161,6 +168,7 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
     protected String _tableOptions;
 
     protected boolean _dropTable;
+    protected boolean _append;
     protected boolean _isStreaming = false;
     protected String _currentTableName;
     protected List<String> _currentTableColumns;
@@ -177,6 +185,9 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
         _columnDefs = getPropertyOrDieTrying(PROP_COLUMNDEFS, ccp);
         _tableOptions = getPropertyOrDieTrying(PROP_TABLE_OPTIONS, true, false, ccp);
         _dropTable = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_DROP_TABLE, ccp));
+        _append = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_APPEND, ccp));
+
+        _currentTableName = null;
     }
 
     @Override
@@ -255,14 +266,17 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
                         cc.pushDataComponentToOutput(OUT_TABLE_NAME, new StreamTerminator(streamId));
 
                         _isStreaming = false;
+                        _currentTableName = null;
 
                         continue;
                     } else
                         throw new ComponentExecutionException("Unbalanced stream delimiter received!");
                 }
 
-                if (!_isStreaming)
-                    _currentTableName = createNewTable(connection);
+                if (!_isStreaming) {
+                    if (!_append || (_append && _currentTableName == null))
+                        _currentTableName = createNewTable(connection);
+                }
 
                 SimpleTuplePeer metaPeer  = new SimpleTuplePeer((Strings) inMeta);
                 Strings[] tuples = BasicDataTypesTools.stringsArrayToJavaArray((StringsArray) inTuple);
