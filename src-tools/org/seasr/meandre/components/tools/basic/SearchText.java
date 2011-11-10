@@ -118,7 +118,7 @@ public class SearchText extends AbstractStreamingExecutableComponent {
 	@ComponentProperty(
 	        name = Names.PROP_EXPRESSION,
 	        description = "The regular expression to use as search criteria. ",
-	        defaultValue = ".+\\.pdf")
+	        defaultValue = "")
 	protected static final String PROP_EXPRESSION = Names.PROP_EXPRESSION;
 
     @ComponentProperty(

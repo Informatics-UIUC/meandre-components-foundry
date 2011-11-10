@@ -43,8 +43,12 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -56,6 +60,7 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -79,9 +84,11 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "count, text, tuple",
-		description = "This component counts the incoming set of tuples, based on a unique field value" ,
+		description = "This component counts the incoming set of tuples, based on a unique (set of) field value(s). " +
+				"This component works in a simmilar fashion to a 'SELECT <fields>, COUNT(*) AS count ... GROUP BY <fields>' sql statement. " +
+				"The 'tupleField' property controls the set of <fields> included in the groups counted." ,
 		baseURL = "meandre://seasr.org/components/foundry/",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+		dependency = { "protobuf-java-2.2.0.jar" }
 )
 public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
@@ -89,14 +96,14 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 	@ComponentInput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples" +
+			description = "The set of tuples" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentInput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for tuples" +
+			description = "The meta data for tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
@@ -105,14 +112,15 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 			name = Names.PORT_TUPLES,
-			description = "set of tuples (countValue, tokenValue)" +
+			description = "The set of tuples containing the counts" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
 	)
 	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
 	@ComponentOutput(
 			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuples (count, token)" +
+			description = "The meta data for the tuples (containing an additional 'count' column). " +
+					"Only the fields specified in 'tupleField' will be preserved from the original tuples." +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
@@ -121,41 +129,81 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 	@ComponentProperty(
 			name = "tupleField",
-			description = "The field that should be counted",
-		    defaultValue = "token"
-		)
+			description = "The field(s) that should be counted. Maximum of 4 fields supported. Separate multiple fields with commas. " +
+					"Example: token, pos   -- this example has the effect of counting all equal pairs of (token, pos), " +
+					"similar to a 'SELECT token, pos, COUNT(*) AS count ... GROUP BY token, pos' sql statement",
+		    defaultValue = ""
+    )
 	protected static final String PROP_FILTER_FIELD = "tupleField";
 
 	@ComponentProperty(
 			name = "threshold",
 			description = "Minimum count for a tuple to be included in the result",
 		    defaultValue = "0"
-		)
+	)
 	protected static final String PROP_FILTER_THRESHOLD = "threshold";
 
 	@ComponentProperty(
+	        name = "normalize_fields",
+	        description = "The set of fields to normalize (i.e. lowercase) (leave empty if no fields should be normalized).",
+	        defaultValue = ""
+	)
+	protected static final String PROP_NORMALIZE_FIELDS = "normalize_fields";
+
+	@ComponentProperty(
+	        name = "trim_fields",
+	        description = "The set of fields to trim whitespace from (leave empty if no fields should be trimmed).",
+	        defaultValue = ""
+	)
+	protected static final String PROP_TRIM_FIELDS = "trim_fields";
+
+	@ComponentProperty(
 			name = Names.PROP_MAX_SIZE,
-			description = "Maximum number of tuples to be included in the result",
+			description = "Maximum number of tuples to be included in the result (use -1 to indicate that all tuples should be included)",
 		    defaultValue = "-1"
-		)
+	)
 	protected static final String PROP_FILTER_TOP_N = Names.PROP_MAX_SIZE;
 
 	//--------------------------------------------------------------------------------------------
 
-	String KEY_FIELD_TUPLE;
-	int threshold = 0;
-	int topN = 0;
+	protected Set<String> fields = new HashSet<String>();
+	protected Set<String> normalizeFields = new HashSet<String>();
+	protected Set<String> trimFields = new HashSet<String>();
+	protected int threshold = 0;
+	protected int topN = 0;
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		KEY_FIELD_TUPLE = getPropertyOrDieTrying(PROP_FILTER_FIELD, true, true, ccp);
+		for (String field : getPropertyOrDieTrying(PROP_FILTER_FIELD, ccp).split(","))
+		    fields.add(field.trim());
 
-		threshold = Integer.parseInt(getPropertyOrDieTrying(PROP_FILTER_THRESHOLD, true, true, ccp));
-		topN      = Integer.parseInt(getPropertyOrDieTrying(PROP_FILTER_TOP_N, true, true, ccp));
+		if (fields.size() > 4)
+		    throw new ComponentContextException("Currently a maximum of 4 grouping fields are supported!");
 
-		console.fine(String.format("Tuples with COUNT(%s) > %d will be included in the result", KEY_FIELD_TUPLE, threshold));
+		for (String field : getPropertyOrDieTrying(PROP_NORMALIZE_FIELDS, true, false, ccp).split(",")) {
+		    field = field.trim();
+		    if (fields.contains(field))
+		        normalizeFields.add(field);
+		    else
+		        console.warning(String.format("Normalize field '%s' is not in the list of fields " +
+		        		"specified by the '%s' property! Discarding it...", field, PROP_FILTER_FIELD));
+		}
+
+		for (String field : getPropertyOrDieTrying(PROP_TRIM_FIELDS, true, false, ccp).split(",")) {
+            field = field.trim();
+            if (fields.contains(field))
+                trimFields.add(field);
+            else
+                console.warning(String.format("Trim field '%s' is not in the list of fields " +
+                        "specified by the '%s' property! Discarding it...", field, PROP_FILTER_FIELD));
+        }
+
+		threshold = Integer.parseInt(getPropertyOrDieTrying(PROP_FILTER_THRESHOLD, ccp));
+		topN      = Integer.parseInt(getPropertyOrDieTrying(PROP_FILTER_TOP_N, ccp));
+
+		console.fine(String.format("Tuples with COUNT(%s) > %d will be included in the result", fields, threshold));
 
 		if (topN > 0)
 			console.fine(String.format("Will include only the top %d tuples in the result", topN));
@@ -170,43 +218,50 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-		int KEY_FIELD_IDX = tuplePeer.getIndexForFieldName(KEY_FIELD_TUPLE);
-		if (KEY_FIELD_IDX == -1) {
-			String error = "Tuple does not have field " + KEY_FIELD_TUPLE;
-			console.warning(error);
-			console.warning(tuplePeer.toString());
-			throw new ComponentContextException(error);
-		}
+		if (!Arrays.asList(tuplePeer.getFieldNames()).containsAll(fields))
+		    throw new ComponentExecutionException("Incoming tuples do not contain all the fields listed in the '" + PROP_FILTER_FIELD + "' property.");
 
-		console.fine("Tuple field to be counted: " + KEY_FIELD_TUPLE);
-		console.fine("Index of field in tuple:   " + KEY_FIELD_IDX);
-
-		FrequencyMap<String> freqMap = new FrequencyMap<String>();
+		FrequencyMap<ValueList<String>> freqMap = new FrequencyMap<ValueList<String>>();
 		for (int i = 0; i < in.length; i++) {
 			tuple.setValues(in[i]);
-			String key = tuple.getValue(KEY_FIELD_IDX);
 
-			// simple normalization TODO: make a property for this
-			key = key.toLowerCase();
+			ValueList<String> key = new ValueList<String>(fields.size());
+			for (String field : fields) {
+			    String fieldValue = tuple.getValue(field);
+
+			    if (normalizeFields.contains(field))
+			        fieldValue = fieldValue.toLowerCase();
+
+			    if (trimFields.contains(field))
+			        fieldValue = fieldValue.trim();
+
+			    key.add(fieldValue);
+			}
 
 			freqMap.add(key);
 		}
 
-		List<Map.Entry<String, Integer>> sortedEntries = freqMap.sortedEntries();
+		List<Map.Entry<ValueList<String>, Integer>> sortedEntries = freqMap.sortedEntries();
 
-	    SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] { "token", "count" });
+		String[] outputFields = new String[fields.size() + 1];
+		fields.toArray(outputFields);
+		outputFields[fields.size()] = "count";
+
+	    SimpleTuplePeer outPeer = new SimpleTuplePeer(outputFields);
 	    SimpleTuple outTuple = outPeer.createTuple();
 
-        int TOKEN_IDX = 0; // outPeer.getFieldIndex("token")
-	    int COUNT_IDX = 1; // outPeer.getFieldIndex("count")
+	    int COUNT_IDX = fields.size();
 
 	    List<Strings> output = new ArrayList<Strings>();
 
-	    for (Map.Entry<String,Integer> v : sortedEntries) {
+	    for (Map.Entry<ValueList<String>,Integer> v : sortedEntries) {
 	    	int count = v.getValue();
 	    	if (count > threshold) {
+	    	   Iterator<String> valueIt = v.getKey().iterator();
+	    	   for (String field : fields)
+	    	       outTuple.setValue(field, valueIt.next());
+
 	    	   outTuple.setValue(COUNT_IDX, count);
-	    	   outTuple.setValue(TOKEN_IDX, v.getKey());
 
 	    	   if (topN <= 0 || topN > 0 && output.size() < topN)
 	    	      output.add(outTuple.convert());
@@ -225,6 +280,45 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @SuppressWarnings("serial")
+    static class ValueList<T> extends ArrayList<T> {
+
+        public ValueList(int size) {
+            super(size);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null || !(obj instanceof ValueList<?>))
+                return false;
+
+            @SuppressWarnings("unchecked")
+            ValueList<?> other = (ValueList<T>) obj;
+            if (this.size() != other.size()) return false;
+
+            Iterator<T> thisIt = this.iterator();
+            Iterator<?> otherIt = other.iterator();
+
+            while (thisIt.hasNext())
+                if (!thisIt.next().equals(otherIt.next()))
+                    return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int hashCode = 0;
+
+            for (T item : this)
+                hashCode += item.hashCode();
+
+            return hashCode;
+        }
     }
 }
 

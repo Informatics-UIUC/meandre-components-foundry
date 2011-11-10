@@ -158,11 +158,19 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
     )
     protected static final String PROP_APPEND_TIMESTAMP = Names.PROP_APPEND_TIMESTAMP;
 
+    @ComponentProperty(
+            name = "append_zip_extension",
+            description = "Append the .zip extension to the file specified in the location?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_APPEND_ZIP_EXTENSION = "append_zip_extension";
+
     //--------------------------------------------------------------------------------------------
 
 
     private String defaultFolder, publicResourcesDir;
     private boolean appendTimestamp;
+    private boolean appendZipExtension;
     private Properties outputProperties;
     private boolean isStreaming = false;
     private ZipOutputStream zipStream = null;
@@ -185,6 +193,7 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
         console.fine("Default folder set to: " + defaultFolder);
 
         appendTimestamp = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_APPEND_TIMESTAMP, ccp));
+        appendZipExtension = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_APPEND_ZIP_EXTENSION, ccp));
 
         publicResourcesDir = new File(ccp.getPublicResourcesDirectory()).getAbsolutePath();
         if (!publicResourcesDir.endsWith(File.separator)) publicResourcesDir += File.separator;
@@ -207,6 +216,7 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
                 throw new ComponentExecutionException(String.format("Stream delimiters should not arrive on port '%s'!", IN_LOCATION));
 
             String location = DataTypeParser.parseAsString(input)[0];
+            if (appendZipExtension) location += ".zip";
             outputFile = getLocation(location, defaultFolder);
             File parentDir = outputFile.getParentFile();
 
@@ -287,6 +297,7 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
                     throw new ComponentExecutionException("Unbalanced StreamDelimiter received!");
             }
 
+            console.fine("Adding ZIP entry: " + inFileName);
             zipStream.putNextEntry(new ZipEntry(DataTypeParser.parseAsString(inFileName)[0]));
 
             if (inData instanceof byte[] || inData instanceof Bytes)

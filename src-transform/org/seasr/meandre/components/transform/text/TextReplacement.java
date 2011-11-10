@@ -55,7 +55,6 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -144,8 +143,7 @@ public class TextReplacement extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-	    Strings input = (Strings) cc.getDataComponentFromInput(IN_MAP_DATA);
-	    String[] val = BasicDataTypesTools.stringsToStringArray (input);
+	    String[] val = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_MAP_DATA));
 
 	    Map<String,String> dictionary = buildDictionary(val[0], console);
 	    Map<String,String> phraseReplaceDictionary = new HashMap<String,String>();
@@ -241,7 +239,7 @@ public class TextReplacement extends AbstractExecutableComponent {
 
     public static Map<String,String> buildDictionary(String configData, Logger console)
 	{
-		configData = configData.replaceAll("\n","");
+		configData = configData.replaceAll("\r\n", "\n").replaceAll("\n", "");
 	    Map<String,String> map = new HashMap<String,String>();
 	    StringTokenizer tokens = new StringTokenizer(configData,";");
 	    while (tokens.hasMoreTokens()) {
