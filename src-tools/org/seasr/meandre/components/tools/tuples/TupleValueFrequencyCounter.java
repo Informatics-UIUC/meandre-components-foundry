@@ -58,7 +58,6 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
@@ -129,7 +128,7 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 
 	@ComponentProperty(
 			name = "tupleField",
-			description = "The field(s) that should be counted. Maximum of 4 fields supported. Separate multiple fields with commas. " +
+			description = "The field(s) that should be counted. Separate multiple fields with commas. " +
 					"Example: token, pos   -- this example has the effect of counting all equal pairs of (token, pos), " +
 					"similar to a 'SELECT token, pos, COUNT(*) AS count ... GROUP BY token, pos' sql statement",
 		    defaultValue = ""
@@ -178,9 +177,6 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		for (String field : getPropertyOrDieTrying(PROP_FILTER_FIELD, ccp).split(","))
 		    fields.add(field.trim());
-
-		if (fields.size() > 4)
-		    throw new ComponentContextException("Currently a maximum of 4 grouping fields are supported!");
 
 		for (String field : getPropertyOrDieTrying(PROP_NORMALIZE_FIELDS, true, false, ccp).split(",")) {
 		    field = field.trim();
