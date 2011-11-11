@@ -178,23 +178,27 @@ public class TupleValueFrequencyCounter extends AbstractExecutableComponent {
 		for (String field : getPropertyOrDieTrying(PROP_FILTER_FIELD, ccp).split(","))
 		    fields.add(field.trim());
 
-		for (String field : getPropertyOrDieTrying(PROP_NORMALIZE_FIELDS, true, false, ccp).split(",")) {
-		    field = field.trim();
-		    if (fields.contains(field))
-		        normalizeFields.add(field);
-		    else
-		        console.warning(String.format("Normalize field '%s' is not in the list of fields " +
-		        		"specified by the '%s' property! Discarding it...", field, PROP_FILTER_FIELD));
-		}
+		final String propNormFields = getPropertyOrDieTrying(PROP_NORMALIZE_FIELDS, true, false, ccp);
+		if (!propNormFields.isEmpty())
+            for (String field : propNormFields.split(",")) {
+    		    field = field.trim();
+    		    if (fields.contains(field))
+    		        normalizeFields.add(field);
+    		    else
+    		        console.warning(String.format("Normalize field '%s' is not in the list of fields " +
+    		        		"specified by the '%s' property! Discarding it...", field, PROP_FILTER_FIELD));
+            }
 
-		for (String field : getPropertyOrDieTrying(PROP_TRIM_FIELDS, true, false, ccp).split(",")) {
-            field = field.trim();
-            if (fields.contains(field))
-                trimFields.add(field);
-            else
-                console.warning(String.format("Trim field '%s' is not in the list of fields " +
-                        "specified by the '%s' property! Discarding it...", field, PROP_FILTER_FIELD));
-        }
+		final String propTrimFields = getPropertyOrDieTrying(PROP_TRIM_FIELDS, true, false, ccp);
+		if (!propTrimFields.isEmpty())
+            for (String field : propTrimFields.split(",")) {
+                field = field.trim();
+                if (fields.contains(field))
+                    trimFields.add(field);
+                else
+                    console.warning(String.format("Trim field '%s' is not in the list of fields " +
+                            "specified by the '%s' property! Discarding it...", field, PROP_FILTER_FIELD));
+            }
 
 		threshold = Integer.parseInt(getPropertyOrDieTrying(PROP_FILTER_THRESHOLD, ccp));
 		topN      = Integer.parseInt(getPropertyOrDieTrying(PROP_FILTER_TOP_N, ccp));
