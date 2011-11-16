@@ -117,6 +117,7 @@ public class TriggerMessage extends AbstractStreamingExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        super.initializeCallBack(ccp);
 	}
 
     @Override
