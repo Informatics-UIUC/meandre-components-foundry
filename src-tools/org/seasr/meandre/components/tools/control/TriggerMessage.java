@@ -48,7 +48,6 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
@@ -66,7 +65,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
 
 @Component(
         name = "Trigger Message",
-        creator = "Loretta Auvil",
+        creator = "Boris Capitanu",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
@@ -111,26 +110,13 @@ public class TriggerMessage extends AbstractStreamingExecutableComponent {
     )
     protected static final String OUT_TRIGGER = Names.PORT_TRIGGER;
 
-    //----------------------------- PROPERTIES ---------------------------------------------------
-
-    @ComponentProperty(
-            description = "Discard saved object on new stream?",
-            name = "discard_on_new_stream",
-            defaultValue = "false"
-    )
-    protected static final String PROP_DISCARD_OBJ = "discard_on_new_stream";
-
     //--------------------------------------------------------------------------------------------
-
-
-	protected boolean _discardObject;
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		_discardObject = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_DISCARD_OBJ, ccp));
 	}
 
     @Override
