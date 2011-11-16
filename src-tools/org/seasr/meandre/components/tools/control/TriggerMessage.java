@@ -54,7 +54,7 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * Trigger message.
@@ -77,7 +77,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
                       "If a new message is received, then it replaces the previous message.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TriggerMessage extends AbstractExecutableComponent {
+public class TriggerMessage extends AbstractStreamingExecutableComponent {
 
 	//------------------------------ INPUTS ------------------------------------------------------
 
@@ -123,7 +123,6 @@ public class TriggerMessage extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-	protected Object _object;
 	protected boolean _discardObject;
 
 
@@ -131,51 +130,43 @@ public class TriggerMessage extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		_object = null;
 		_discardObject = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_DISCARD_OBJ, ccp));
 	}
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        if (cc.isInputAvailable(IN_OBJECT)) {
-            Object input = cc.getDataComponentFromInput(IN_OBJECT);
-            if (input instanceof StreamDelimiter)
-                console.warning(String.format("Stream delimiters should not arrive on port '%s'", IN_OBJECT));
-            else {
-                if (_object != null)
-                    console.warning("Object already set - overwriting it. This behavior is susceptible to race conditions!");
-                _object = input;
-            }
-        }
-
         componentInputCache.storeIfAvailable(cc, IN_TRIGGER);
+        componentInputCache.storeIfAvailable(cc, IN_OBJECT);
 
-		if (_object == null || !componentInputCache.hasData(IN_TRIGGER))
-		    // Not ready to process yet
-		    return;
+	    while (componentInputCache.hasDataAll(new String[] { IN_TRIGGER, IN_OBJECT })) {
+            Object object = componentInputCache.peek(IN_OBJECT);
+            if (object instanceof StreamDelimiter) {
+                console.warning(String.format("Stream delimiters should not arrive on port '%s' - ignoring it...", IN_OBJECT));
+                componentInputCache.retrieveNext(IN_OBJECT);
+                continue;
+            }
 
-	    Object trigger;
-	    while ((trigger = componentInputCache.retrieveNext(IN_TRIGGER)) != null) {
+	        Object trigger = componentInputCache.retrieveNext(IN_TRIGGER);
 	        if (trigger instanceof StreamDelimiter) {
-	            console.fine(String.format("Forwarding the %s (id: %d) on all output ports...",
-	                    trigger.getClass().getSimpleName(), ((StreamDelimiter) trigger).getStreamId()));
+	            StreamDelimiter sd = (StreamDelimiter) trigger;
+
+	            console.fine(String.format("Forwarding the %s (id: %d) on all output ports...", trigger.getClass().getSimpleName(), sd.getStreamId()));
                 componentContext.pushDataComponentToOutput(OUT_OBJECT, trigger);
                 componentContext.pushDataComponentToOutput(OUT_TRIGGER, trigger);
 
-                if ((trigger instanceof StreamTerminator) && _discardObject)
-                    _object = null;
+                if (sd instanceof StreamTerminator && sd.getStreamId() == streamId)
+                    componentInputCache.retrieveNext(IN_OBJECT);
 
                 continue;
             }
 
-	        cc.pushDataComponentToOutput(OUT_OBJECT, _object);
+	        cc.pushDataComponentToOutput(OUT_OBJECT, object);
 	        cc.pushDataComponentToOutput(OUT_TRIGGER, trigger);
 	    }
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		_object = null;
     }
 
     //--------------------------------------------------------------------------------------------
@@ -188,5 +179,12 @@ public class TriggerMessage extends AbstractExecutableComponent {
     @Override
     public void handleStreamTerminators() throws Exception {
         executeCallBack(componentContext);
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean isAccumulator() {
+        return true;
     }
 }
