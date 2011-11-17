@@ -134,21 +134,21 @@ public class GenerateRandom extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = "random_length",
-            description = "For String random data, the length of the random string to be generated",
+            description = "For String random data, the length of the random string to be generated (prefix and suffix are extra)",
             defaultValue = "8"
     )
     protected static final String PROP_RAND_LENGTH = "random_length";
 
     @ComponentProperty(
             name = "string_prefix",
-            description = "For Integer random data, the highest boundary for the generated random number",
+            description = "The prefix to be added to the randomly generated string",
             defaultValue = ""
     )
     protected static final String PROP_STR_PREFIX = "string_prefix";
 
     @ComponentProperty(
             name = "string_suffix",
-            description = "For Integer random data, the highest boundary for the generated random number",
+            description = "The suffix to be added to the randomly generated string",
             defaultValue = ""
     )
     protected static final String PROP_STR_SUFFIX = "string_suffix";
