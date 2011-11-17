@@ -200,8 +200,8 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
             if (!(in_conn_pool instanceof StreamDelimiter)) {
                 if (connectionPool == null)
                     connectionPool = (BoneCP) in_conn_pool;
-                else
-                    console.warning("The connection pool can only be set once! Ignoring input from port '" + IN_DB_CONN_POOL + "'");
+//                else
+//                    console.warning("The connection pool can only be set once! Ignoring input from port '" + IN_DB_CONN_POOL + "'");
             } else
                 console.warning("Stream delimiters should not arrive on port '" + IN_DB_CONN_POOL + "'. Ignoring...");
         }
