@@ -48,7 +48,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -66,6 +69,7 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.seasr.meandre.support.components.db.DBUtils;
@@ -103,17 +107,25 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
 
     @ComponentInput(
             name = Names.PORT_TUPLES,
-            description = "tuples" +
+            description = "The tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
     )
     protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
     @ComponentInput(
             name = Names.PORT_META_TUPLE,
-            description = "meta data for the tuples" +
+            description = "The meta data for the tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
+
+    @ComponentInput(
+            name = "table_name",
+            description = "The table name to use" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String IN_TABLE_NAME = "table_name";
+
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -150,13 +162,6 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
     )
     protected static final String PROP_DROP_TABLE = "drop_table";
 
-    @ComponentProperty(
-            description = "Set to true if you want to append multiple sets of tuples to the same table",
-            name = "append",
-            defaultValue = "false"
-    )
-    protected static final String PROP_APPEND = "append";
-
     //--------------------------------------------------------------------------------------------
 
 
@@ -168,12 +173,10 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
     protected String _tableOptions;
 
     protected boolean _dropTable;
-    protected boolean _append;
     protected boolean _isStreaming = false;
-    protected String _currentTableName;
     protected List<String> _currentTableColumns;
 
-    protected List<String> _tableNames = new ArrayList<String>();
+    protected Set<String> _tableNames = new HashSet<String>();
 
 
     //--------------------------------------------------------------------------------------------
@@ -185,13 +188,11 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
         _columnDefs = getPropertyOrDieTrying(PROP_COLUMNDEFS, ccp);
         _tableOptions = getPropertyOrDieTrying(PROP_TABLE_OPTIONS, true, false, ccp);
         _dropTable = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_DROP_TABLE, ccp));
-        _append = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_APPEND, ccp));
-
-        _currentTableName = null;
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+        componentInputCache.storeIfAvailable(cc, IN_TABLE_NAME);
         componentInputCache.storeIfAvailable(cc, IN_META_TUPLE);
         componentInputCache.storeIfAvailable(cc, IN_TUPLES);
 
@@ -206,7 +207,7 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
                 console.warning("Stream delimiters should not arrive on port '" + IN_DB_CONN_POOL + "'. Ignoring...");
         }
 
-        if (connectionPool == null || !componentInputCache.hasData(IN_META_TUPLE) || !componentInputCache.hasData(IN_TUPLES))
+        if (connectionPool == null || !componentInputCache.hasDataAll(new String[] { IN_TABLE_NAME, IN_META_TUPLE, IN_TUPLES }))
             // we're not ready to process yet, return
             return;
 
@@ -216,8 +217,16 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
             PreparedStatement ps = null;
 
             do {
+                Object inTableName = componentInputCache.peek(IN_TABLE_NAME);
+                if (inTableName instanceof StreamDelimiter) {
+                    console.warning("Stream delimiters should not arrive on port '" + IN_TABLE_NAME + "'. Ignoring...");
+                    componentInputCache.retrieveNext(IN_TABLE_NAME);
+                    continue;
+                }
+
                 Object inMeta = componentInputCache.retrieveNext(IN_META_TUPLE);
                 Object inTuple = componentInputCache.retrieveNext(IN_TUPLES);
+                String tableName = DataTypeParser.parseAsString(inTableName)[0];
 
                 if (inMeta instanceof StreamInitiator || inTuple instanceof StreamInitiator) {
                     if (inMeta instanceof StreamInitiator && inTuple instanceof StreamInitiator) {
@@ -236,7 +245,7 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
                         if (_isStreaming)
                             console.severe("Stream error - start stream marker already received!");
 
-                        _currentTableName = createNewTable(connection);
+                        createNewTable(connection, tableName);
                         _isStreaming = true;
 
                         continue;
@@ -262,20 +271,20 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
                             console.severe("Stream error - end stream marker received without a start stream marker!");
 
                         cc.pushDataComponentToOutput(OUT_TABLE_NAME, new StreamInitiator(streamId));
-                        cc.pushDataComponentToOutput(OUT_TABLE_NAME, _currentTableName);
+                        cc.pushDataComponentToOutput(OUT_TABLE_NAME, tableName);
                         cc.pushDataComponentToOutput(OUT_TABLE_NAME, new StreamTerminator(streamId));
 
                         _isStreaming = false;
-                        _currentTableName = null;
+                        componentInputCache.retrieveNext(IN_TABLE_NAME); // remove from queue the current table name
 
                         continue;
                     } else
                         throw new ComponentExecutionException("Unbalanced stream delimiter received!");
                 }
 
-                if (!_isStreaming) {
-                    if (!_append || (_append && _currentTableName == null))
-                        _currentTableName = createNewTable(connection);
+                if (!_isStreaming)  {
+                    createNewTable(connection, tableName);
+                    componentInputCache.retrieveNext(IN_TABLE_NAME); // remove from queue the current table name
                 }
 
                 SimpleTuplePeer metaPeer  = new SimpleTuplePeer((Strings) inMeta);
@@ -285,7 +294,7 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
                 try {
                     ps = connection.prepareStatement(
                             String.format("INSERT INTO %s VALUES (%s);",
-                                    _currentTableName, getSQLInsertParams(_currentTableColumns)));
+                                    tableName, getSQLInsertParams(_currentTableColumns)));
 
                     int count = 0;
 
@@ -309,15 +318,25 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
                     if (count > 0)
                         ps.executeBatch();
                 }
+                catch (SQLException e) {
+                    String newLine = System.getProperty("line.separator");
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(newLine);
+                    for (Strings t : tuples)
+                        sb.append(SimpleTuplePeer.toString(BasicDataTypesTools.stringsToStringArray(t))).append(newLine);
+
+                    console.log(Level.SEVERE, sb.toString(), e);
+                    throw e;
+                }
                 finally {
                     DBUtils.closeStatement(ps);
                     ps = null;
                 }
 
                 if (!_isStreaming)
-                    cc.pushDataComponentToOutput(OUT_TABLE_NAME, _currentTableName);
+                    cc.pushDataComponentToOutput(OUT_TABLE_NAME, tableName);
 
-            } while (componentInputCache.hasData(IN_META_TUPLE) && componentInputCache.hasData(IN_TUPLES));
+            } while (componentInputCache.hasDataAll(new String[] { IN_TABLE_NAME, IN_META_TUPLE, IN_TUPLES }));
         }
         finally {
             DBUtils.releaseConnection(connection);
@@ -367,16 +386,11 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-    protected synchronized String generateTableName() {
-        return "temp" + Long.toString(System.currentTimeMillis());
-    }
-
-    protected String createNewTable(Connection connection) throws SQLException {
-        String tableName = generateTableName();
+    protected void createNewTable(Connection connection, String tableName) throws SQLException {
         Statement stmt = null;
         try {
             stmt = connection.createStatement();
-            stmt.execute(String.format("CREATE TABLE %s (%s) %s;", tableName, _columnDefs, _tableOptions));
+            stmt.execute(String.format("CREATE TABLE IF NOT EXISTS %s (%s) %s;", tableName, _columnDefs, _tableOptions));
             _tableNames.add(tableName);
 
             ResultSet rs = stmt.executeQuery(
@@ -384,8 +398,6 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
             _currentTableColumns = new ArrayList<String>();
             while (rs.next())
                 _currentTableColumns.add(rs.getString(1));
-
-            return tableName;
         }
         finally {
             DBUtils.closeStatement(stmt);
