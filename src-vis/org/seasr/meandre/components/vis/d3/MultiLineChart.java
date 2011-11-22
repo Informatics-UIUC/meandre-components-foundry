@@ -175,6 +175,8 @@ public class MultiLineChart extends AbstractStreamingD3Component {
 
         if (!userMap.containsKey("height"))
             userMap.put("height", "600");
+        
+        context.put("Integer", Integer.class);
 
         super.executeCallBack(componentContext);
     }

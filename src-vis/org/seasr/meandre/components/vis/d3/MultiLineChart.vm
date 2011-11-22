@@ -4,6 +4,7 @@
 <script src="$d3API"></script>
 <meta charset="utf-8" />
 <title>$title</title>
+#set( $thewidth = $Integer.parseInt("${_userMap['width']}") - 100 )
 <style>
   .line {
     stroke-width: 2;
@@ -29,15 +30,22 @@
   .legend { font-size: 11pt; }
 
   .menu {
-      width: ${_userMap["width"]}px;
+      width: ${thewidth}px;
       text-align: right;
       padding-right: 20px;
+      font-family: Arial;
+      font-size: 9pt;
   }
 
   text {
     font-family: Arial;
     font-size: 9pt;
   }
+  
+  .title {
+    font-weight: bold;
+  }
+  
 </style>
 </head>
 <body>
@@ -80,9 +88,11 @@
         minX = d3.min(data.map(function(d) { return Math.min.apply(null, d.x); })),
         maxX = d3.max(data.map(function(d) { return Math.max.apply(null, d.x); })),
         maxY = d3.max(data.map(function(d) { return Math.max.apply(null, d.y); })),
+        stddevY = d3.max(data.map(function(d) { var stats = statistics(d.y); return stats.mean + 3 * stats.stdev; })),
+        mod_maxY = Math.min(maxY,stddevY),
         x = d3.scale.linear().domain([minX, maxX]).range([0 + marginXL, w - marginXR]),
-        y = d3.scale.linear().domain([0, maxY]).range([h - marginY, 0 + marginY]);
-
+        y = d3.scale.linear().domain([0, mod_maxY]).range([h - marginY, 0 + marginY]);
+        
     var menu = d3.select("#menu").node();
     var smoothing = parseInt(menu.options[menu.selectedIndex].value);
 
@@ -92,7 +102,19 @@
         .attr("height", h);
 
     var g = vis.append("svg:g");
+    
+    vis.append("svg:text")
+        .classed("title", true)
+        .attr("transform", "translate(" + (marginXL + 5) + ",25)")
+        .attr("text-anchor", "start")
+        .text("Frequency Per Million");
 
+    vis.append("svg:text")
+        .classed("title", true)
+        .attr("transform", "translate(" + (w-70) + "," + (h-32) + ")")
+        .attr("text-anchor", "end")
+        .text("Year");
+    
     var rulesX = vis.selectAll("g.ruleX")
         .data(x.ticks(10))
         .enter().append("svg:g")
@@ -204,6 +226,15 @@
             return y(d3.sum(dataY.slice(start, dataY.length)) / (dataY.length - start));
         });
     }
+    
+    function statistics(a){
+        var r = { mean: 0, variance: 0, stdev: 0 };
+        for (var l = a.length, m, ss, s = 0, i = l; i--; s = d3.sum(a));
+        for (m = r.mean = s / l, ss = 0, i = l; i--; ss += Math.pow(a[i] - m, 2));
+        r.stdev = Math.sqrt(r.variance = ss / l);
+        return r;
+    }
+    
 </script>
 </body>
 </html>
