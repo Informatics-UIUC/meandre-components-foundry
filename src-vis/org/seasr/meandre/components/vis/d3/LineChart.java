@@ -56,7 +56,7 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.vis.html.StreamingVelocityTemplateToHTML;
+import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 
 /**
  * @author Boris Capitanu
@@ -64,16 +64,16 @@ import org.seasr.meandre.components.vis.html.StreamingVelocityTemplateToHTML;
 
 @Component(
         creator = "Boris Capitanu",
-        description = "This components uses the D3 library to generate a line chart that can contain multiple lines.",
-        name = "Multi Line Chart",
+        description = "This components uses the D3 library to generate a line chart.",
+        name = "Line Chart",
         tags = "visualization, d3, line chart",
         rights = Licenses.UofINCSA,
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.7-dep.jar", "d3-v1.29.3.jar" },
-        resources  = { "MultiLineChart.vm" }
+        resources  = { "LineChart.vm" }
 )
-public class MultiLineChart extends AbstractStreamingD3Component {
+public class LineChart extends AbstractD3Component {
 
     //------------------------------ INPUTS -----------------------------------------------------
 
@@ -118,13 +118,13 @@ public class MultiLineChart extends AbstractStreamingD3Component {
     )
     protected static final String PROP_TITLE = Names.PROP_TITLE;
 
-    private static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/d3/MultiLineChart.vm";
+    private static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/d3/LineChart.vm";
     @ComponentProperty(
             description = "The template name",
-            name = StreamingVelocityTemplateToHTML.PROP_TEMPLATE,
+            name = VelocityTemplateToHTML.PROP_TEMPLATE,
             defaultValue = DEFAULT_TEMPLATE
     )
-    protected static final String PROP_TEMPLATE = StreamingVelocityTemplateToHTML.PROP_TEMPLATE;
+    protected static final String PROP_TEMPLATE = VelocityTemplateToHTML.PROP_TEMPLATE;
 
     @ComponentProperty(
             description = "X axis label",
@@ -149,11 +149,6 @@ public class MultiLineChart extends AbstractStreamingD3Component {
 
     //--------------------------------------------------------------------------------------------
 
-    private JSONArray _jsonData = new JSONArray();
-    private JSONArray _jsonLabels = new JSONArray();
-
-    //--------------------------------------------------------------------------------------------
-
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
@@ -169,27 +164,9 @@ public class MultiLineChart extends AbstractStreamingD3Component {
         String json = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_JSON))[0];
         String label = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LABEL))[0];
 
-        _jsonData.put(new JSONObject(json));
-        _jsonLabels.put(label);
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    @Override
-    public boolean isAccumulator() {
-        return true;
-    }
-
-    @Override
-    public void startStream() throws Exception {
-        _jsonData = new JSONArray();
-        _jsonLabels = new JSONArray();
-    }
-
-    @Override
-    public void endStream() throws Exception {
-        context.put("data", _jsonData.toString());
-        context.put("labels", _jsonLabels.toString());
+        context.put("data", new JSONArray().put(new JSONObject(json)).toString());
+        context.put("labels", new JSONArray().put(label).toString());
+        context.put("Integer", Integer.class);
 
         @SuppressWarnings("unchecked")
         Map<String,String> userMap = (Map<String,String>) context.get("_userMap");
@@ -199,8 +176,6 @@ public class MultiLineChart extends AbstractStreamingD3Component {
 
         if (!userMap.containsKey("height"))
             userMap.put("height", "600");
-
-        context.put("Integer", Integer.class);
 
         super.executeCallBack(componentContext);
     }
