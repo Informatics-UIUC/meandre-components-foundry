@@ -130,13 +130,13 @@
         .classed("title", true)
         .attr("transform", "translate(" + (marginXL + 5) + ",25)")
         .attr("text-anchor", "start")
-        .text($ylabel);
+        .text("$ylabel");
 
     vis.append("svg:text")
         .classed("title", true)
         .attr("transform", "translate(" + (w-70) + "," + (h-32) + ")")
         .attr("text-anchor", "end")
-        .text($xlabel);
+        .text("$xlabel");
 
     var rulesX = vis.selectAll("g.ruleX")
         .data(x.ticks(10))
