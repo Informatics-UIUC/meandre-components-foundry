@@ -93,7 +93,7 @@ import com.swabunga.spell.event.StringWordTokenizer;
         creator = "Boris Capitanu",
         description = "Performs spell checking on the input and optionally replaces misspelled words " +
             		  "with the top ranked suggestion. The component also produces a list of the misspellings " +
-            		  "in the document.",
+            		  "in the document and a set of transformation rules.",
         name = "Spell Check",
         tags = "dictionary, word, spell check",
         firingPolicy = FiringPolicy.any,
@@ -118,7 +118,7 @@ public class SpellCheck extends AbstractExecutableComponent {
 
     @ComponentInput(
             name = "dictionary",
-            description = "The wordlist to be used as dictionary or the location of the wordlist file" +
+            description = "The word list to be used as dictionary or the location of the word list file" +
                           "<br>TYPE: java.net.URI" +
                           "<br>TYPE: java.net.URL" +
                           "<br>TYPE: java.lang.String" +
@@ -178,7 +178,8 @@ public class SpellCheck extends AbstractExecutableComponent {
     @ComponentProperty(
             name = "levenshtein_distance",
             description = "The Levenshtein distance is a metric for measuring the amount of difference between two sequences;" +
-            		"The value of this property should expressed as a percentage that will depend on the length of the misspelled word",
+            		"The value of this property should expressed as a percentage that will depend on the length of the misspelled word. " +
+            		"Lower percentages are more restrictive in matching.",
             defaultValue = "0.33"
     )
     protected static final String PROP_LEVENSHTEIN_DISTANCE = "levenshtein_distance";

@@ -78,10 +78,15 @@ import com.swabunga.spell.event.SpellChecker;
 
 @Component(
         creator = "Boris Capitanu",
-        description = "Performs spell checking on the input and optionally replaces misspelled words " +
-                      "with the top ranked suggestion based on the supplied token counts. " + "" +
+        description = "Performs spell checking on the input and optionally replaces misspelled words. " +
+                      "Suggested correct spelling can use supplied token counts to rank the suggestions. " + 
+                      "Algorithm has been improved to help with OCR errors by inputing a set of " +
+                      "transformations that can be applied to misspelled " +
+                      "words to create correctly spelled words. " +
+                      "Also Levenshtein metric has been added to enforce a minimum difference acceptable for " +
+                      "using a suggested spelling. "+
                       "The component also produces a list of the misspellings " +
-                      "in the document.",
+                      "in the document and a set of transformation rules.",
         name = "Spell Check with Counts",
         tags = "dictionary, word, spell check, token count",
         firingPolicy = FiringPolicy.any,
@@ -96,13 +101,13 @@ public class SpellCheckWithCounts extends SpellCheck {
     @ComponentInput(
             name = Names.PORT_TOKEN_COUNTS,
             description = "The token counts used for figuring out the most probable replacement for " +
-                          "a misspelled word"
+                          "a misspelled word."
     )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
     @ComponentInput(
             name = "transformations",
-            description = "The transformations that should be tried on misspelled words before taking the spell checker's suggestions"
+            description = "The transformations that should be tried on misspelled words before taking the spell checker's suggestions."
     )
     protected static final String IN_TRANSFORMATIONS = "transformations";
 
@@ -118,7 +123,7 @@ public class SpellCheckWithCounts extends SpellCheck {
     @ComponentProperty(
             name = "transform_threshold",
             description = "Cuttoff value that limits the maximum number of transformations allowed on a misspelled word " +
-            		"(the higher the number, the longer it will take to apply and check all the words resulting from applying the transformations)",
+            		"(the higher the number, the longer it will take to apply and check all the words resulting from applying the transformations).",
             defaultValue = "15"
     )
     protected static final String PROP_TRANSFORM_THRESHOLD = "transform_threshold";
