@@ -57,7 +57,7 @@ import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.components.geographic.GeoLocation;
+import org.seasr.meandre.support.generic.gis.GeoLocation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -123,16 +123,14 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
     //------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
-            defaultValue = GeoLocation.defaultAPIKey,
-            description = "This property sets Yahoo API ID. The default value is applicable to all applications.",
+            defaultValue = "yFUeASDV34FRJWiaM8pxF0eJ7d2MizbUNVB2K6in0Ybwji5YB0D4ZODR2y3LqQ--",
+            description = "This property sets the Yahoo API ID. The default value is applicable to all applications.",
             name = Names.PROP_YAHOO_API_KEY
     )
     protected static final String PROP_YAHOO_KEY = Names.PROP_YAHOO_API_KEY;
 
     //--------------------------------------------------------------------------------------------
 
-
-    private String yahooAPIKey;
 
     protected class MapData {
         public Vector<String> lat_vector;
@@ -146,7 +144,7 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        yahooAPIKey = ccp.getProperty(PROP_YAHOO_KEY);
+        GeoLocation.setAPIKey(getPropertyOrDieTrying(PROP_YAHOO_KEY, ccp));
     }
 
     @Override
@@ -163,6 +161,7 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        GeoLocation.disposeCache();
     }
 
     //--------------------------------------------------------------------------------------------
@@ -192,10 +191,10 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
             // start of the refactored code
             //
             try {
-            	GeoLocation geo = GeoLocation.getLocation(aLoc, yahooAPIKey);
-            	if (geo.isValid()) {
-            		lat.add(String.valueOf(geo.getLatitude()));
-            		lon.add(String.valueOf(geo.getLongitude()));
+            	GeoLocation[] geo = GeoLocation.geocode(aLoc);
+            	if (geo != null) {
+            		lat.add(Double.toString(geo[0].getLatitude()));
+            		lon.add(Double.toString(geo[0].getLongitude()));
             	}
             }
             catch(java.io.IOException e) {

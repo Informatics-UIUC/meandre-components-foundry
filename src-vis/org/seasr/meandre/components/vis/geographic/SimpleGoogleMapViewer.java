@@ -50,26 +50,26 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.tools.text.io.GenericTemplate;
-import org.seasr.meandre.support.components.geographic.GeoLocation;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+import org.seasr.meandre.support.generic.gis.GeoLocation;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
 /**
  *
- * @author Mike Haberman  (DO NOT DELETE, I (Mike H is using this class)
+ * @author Mike Haberman  (DO NOT DELETE, I (Mike H) is using this class)
  *
  */
 
@@ -173,24 +173,24 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 	    console.info("max locations " + maxLocations);
 	}
 
-	
+
 	//
 	// TODO: type/text/location should be properties
 	//
 	// the tuple must have either:
 	// 1. a latitude and longitude field
-	// 2. location field (who's value is be looked up)
+	// 2. location field (who's value is to be looked up)
 	// 3. type field (who's value is "location") and a text field (who's value is to be looked up)
 	//
-	
+
 	String locationField = "location";
 	String typeField     = "type";
 	String textField     = "text";
 	String latField      = "latitude";
 	String lngField      = "longitude";
-	
+
     @Override
-    public void executeCallBack(ComponentContext cc) throws Exception 
+    public void executeCallBack(ComponentContext cc) throws Exception
     {
     	//
     	// fetch the input, push it to the context
@@ -206,19 +206,19 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 		//
 		int LAT_IDX  = tuplePeer.getIndexForFieldName(latField);
 		int LONG_IDX = tuplePeer.getIndexForFieldName(lngField);
-		
+
 		int TYPE_IDX     = -1;
 		int TEXT_IDX     = -1;
 		int LOCATION_IDX = -1;
-		
+
 		if (LAT_IDX == -1 || LONG_IDX == -1) {
-			
+
 			console.info("tuple has no fields " + latField + " " + lngField);
 			console.info("trying " + locationField);
-			
+
 			LOCATION_IDX = tuplePeer.getIndexForFieldName(locationField);
 			if (LOCATION_IDX == -1) {
-				
+
 				console.info("tuple has no field named " + locationField);
 				TYPE_IDX = tuplePeer.getIndexForFieldName(typeField);
 				TEXT_IDX = tuplePeer.getIndexForFieldName(textField);
@@ -236,18 +236,18 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 		List<GeoLocation> geos = new ArrayList<GeoLocation>();
 
 		for (int i = 0; i < in.length; i++) {
-			
+
 			tuple.setValues(in[i]);
-			
-			
+
+
 			if (LAT_IDX != -1 && LONG_IDX != -1) {
-				
+
 				String lat = tuple.getValue(LAT_IDX);
 				String lng = tuple.getValue(LONG_IDX);
-				
-				GeoLocation geo = new GeoLocation(Double.parseDouble(lat), Double.parseDouble(lng));
+
+				GeoLocation geo = GeoLocation.createLocation(Double.parseDouble(lat), Double.parseDouble(lng));
 				geos.add(geo);
-				
+
 				continue;
 			}
 
@@ -269,19 +269,21 @@ public class SimpleGoogleMapViewer extends GenericTemplate {
 
 			// convert to a geo location
 			try {
-				
-				List<GeoLocation> locations = GeoLocation.getAllLocations(location);
-				for (GeoLocation g: locations) {
-					// console.info("found " + g.toString());
-					if (g.isValid()) {
-						geos.add(g);
-					}
-					else {
-						console.info("Unable to find " + location);
-					}
-					
-				}
 
+				GeoLocation[] locations = GeoLocation.geocode(location);
+				if (locations != null)
+    				for (GeoLocation g: locations) {
+    					// console.info("found " + g.toString());
+    					if (g.isValid()) {
+    						geos.add(g);
+    					}
+    					else {
+    						console.info("Unable to find " + location);
+    					}
+    				}
+				else {
+                    console.info("Unable to find " + location);
+                }
 			}
 			catch (IOException e) {
 				console.info("unable to contact yahoo " + location);

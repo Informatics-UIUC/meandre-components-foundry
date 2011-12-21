@@ -1,6 +1,49 @@
+/**
+ * University of Illinois/NCSA
+ * Open Source License
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
+ * All rights reserved.
+ *
+ * Developed by:
+ *
+ * Automated Learning Group
+ * National Center for Supercomputing Applications
+ * http://www.seasr.org
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal with the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimers.
+ *
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ *  * Neither the names of Automated Learning Group, The National Center for
+ *    Supercomputing Applications, or University of Illinois, nor the names of
+ *    its contributors may be used to endorse or promote products derived from
+ *    this Software without specific prior written permission.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * WITH THE SOFTWARE.
+ */
+
 package org.seasr.meandre.components.tools.geo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.meandre.annotations.Component;
@@ -14,8 +57,9 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
-import org.seasr.meandre.support.components.geographic.GeoLocation;
+import org.seasr.meandre.support.generic.gis.GeoLocation;
 
 @Component(
 		name = "Geo Locator",
@@ -72,6 +116,13 @@ public class GeoLocator extends AbstractStreamingExecutableComponent {
     )
     protected static final String PROP_RETURN_ONE_COORDINATE = "return_one_coordinate";
 
+    @ComponentProperty(
+            defaultValue = "yFUeASDV34FRJWiaM8pxF0eJ7d2MizbUNVB2K6in0Ybwji5YB0D4ZODR2y3LqQ--",
+            description = "This property sets the Yahoo API ID to be used for creating the geocoding request.",
+            name = Names.PROP_YAHOO_API_KEY
+    )
+    protected static final String PROP_YAHOO_KEY = Names.PROP_YAHOO_API_KEY;
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -87,6 +138,7 @@ public class GeoLocator extends AbstractStreamingExecutableComponent {
 		super.initializeCallBack(ccp);
 
 		_returnOneValue = Boolean.parseBoolean(ccp.getProperty(PROP_RETURN_ONE_COORDINATE));
+		GeoLocation.setAPIKey(getPropertyOrDieTrying(PROP_YAHOO_KEY, ccp));
 	}
 
 	@Override
@@ -95,17 +147,17 @@ public class GeoLocator extends AbstractStreamingExecutableComponent {
 		String[] locArr = DataTypeParser.parseAsString(input);
 
 		for (String loc : locArr) {
-			List<GeoLocation> locations = GeoLocation.getAllLocations(loc);
+			GeoLocation[] locations = GeoLocation.geocode(loc);
 
-			if (locations.size() == 0) {
+			if (locations == null) {
 				console.warning(String.format("The location '%s' could not be geocoded - ignoring it...", loc));
 				continue;
 			}
 
 			if (_returnOneValue)
-				_locations.add(locations.get(0));
+				_locations.add(locations[0]);
 			else
-				_locations.addAll(locations);
+				_locations.addAll(Arrays.asList(locations));
 		}
 
 		if (!_isStreaming)
@@ -115,6 +167,7 @@ public class GeoLocator extends AbstractStreamingExecutableComponent {
 	@Override
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 		_locations.clear();
+		GeoLocation.disposeCache();
 	}
 
     //--------------------------------------------------------------------------------------------
@@ -135,7 +188,7 @@ public class GeoLocator extends AbstractStreamingExecutableComponent {
 		for (GeoLocation location : _locations) {
 			String latitude = Double.toString(location.getLatitude());
 			String longitude = Double.toString(location.getLongitude());
-			String placeName = location.getQueryLocation();
+			String placeName = location.getQueryPlaceName();
 
 			componentContext.pushDataComponentToOutput(OUT_LATITUDE, BasicDataTypesTools.stringToStrings(latitude));
 			componentContext.pushDataComponentToOutput(OUT_LONGITUDE, BasicDataTypesTools.stringToStrings(longitude));

@@ -42,10 +42,10 @@
 
 package org.seasr.meandre.components.vis.geographic;
 
-import java.util.ArrayList;
 import java.util.Vector;
 
 import org.apache.velocity.VelocityContext;
+import org.json.JSONArray;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
@@ -60,7 +60,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 
 @Component(
-        creator="Lily Dong",
+        creator="Boris Capitanu",
         description="Generates a web page containing google map " +
         		"marked with locations from the original XML document.",
         name="Google Map Viewer",
@@ -114,11 +114,24 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
 	//-------------------------- PROPERTIES --------------------------
 
 	@ComponentProperty(
-	        defaultValue = "ABQIAAAAzuMq2M5--KdBKawoLNQWUxRi_j0U6kJrkFvY4-OX2XYmEAa76BQS61jzrv4ruAIpkFQs5Qp-fiN3hg",
+	        defaultValue = "",
             description = "This property sets the Google Maps API key of your web site.",
             name = Names.PROP_GOOGLE_APIS_KEY
 	)
     protected static final String PROP_GOOGLE_KEY = Names.PROP_GOOGLE_APIS_KEY;
+
+   @ComponentProperty(
+            defaultValue = "SATELLITE",
+            description = "This property controls the type of map displayed by default. " +
+            		"Valid values are:<br><ul>" +
+            		"<li>ROADMAP - displays the normal, default 2D tiles of Google Maps.</li>" +
+            		"<li>SATELLITE displays photographic tiles.</li>" +
+            		"<li>HYBRID displays a mix of photographic tiles and a tile layer for prominent features (roads, city names).</li>" +
+            		"<li>TERRAIN displays physical relief tiles for displaying elevation and water features (mountains, rivers, etc.).</li>" +
+            		"</ul>",
+            name = "map_type"
+    )
+    protected static final String PROP_MAP_TYPE = "map_type";
 
     //--------------------------------------------------------------------------------------------
 
@@ -133,7 +146,8 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     	_context = VelocityTemplateService.getInstance().getNewContext();
-    	_context.put("key", ccp.getProperty(PROP_GOOGLE_KEY));
+    	_context.put("key", getPropertyOrDieTrying(PROP_GOOGLE_KEY, ccp));
+    	_context.put("map_type", getPropertyOrDieTrying(PROP_MAP_TYPE, ccp));
     }
 
     @SuppressWarnings("unchecked")
@@ -146,23 +160,15 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
         location  = (Vector<String>)cc.getDataComponentFromInput(IN_LOCATION);
         context   = (Vector<String>)cc.getDataComponentFromInput(IN_CONTEXT);
 
-        ArrayList<String> listForLatitude  = new ArrayList<String>();
-        ArrayList<String> listForLongitude = new ArrayList<String>();
-        ArrayList<String> listForLocation  = new ArrayList<String>();
-        ArrayList<String> listForContext   = new ArrayList<String>();
+        JSONArray latList = new JSONArray(latitude);
+        JSONArray lonList = new JSONArray(longitude);
+        JSONArray locList = new JSONArray(location);
+        JSONArray ctxList = new JSONArray(context);
 
-        int len = latitude.size();
-        for(int index=0; index<len; index++) {
-        	listForLatitude.add(latitude.elementAt(index));
-    		listForLongitude.add(longitude.elementAt(index));
-        	listForLocation.add(location.elementAt(index));
-        	listForContext.add(context.elementAt(index));
-        }
-
-        _context.put("lat_list", listForLatitude);
-        _context.put("lon_list", listForLongitude);
-        _context.put("loc_list", listForLocation);
-        _context.put("cxt_list", listForContext);
+        _context.put("lat_list", latList.toString());
+        _context.put("lon_list", lonList.toString());
+        _context.put("loc_list", locList.toString());
+        _context.put("ctx_list", ctxList.toString());
 
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
         String html = velocity.generateOutput(_context, DEFAULT_TEMPLATE);

@@ -1,139 +1,81 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+<!DOCTYPE html>
+<html>
 <head>
-<style>
-.scrollable { 
-width: 150px;
-height: 450px;
-overflow: auto;
-}
-</style>
-<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 <title>Google Map Viewer</title>
-
-<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=$key"
-type="text/javascript">
-</script>
-
+<style type="text/css">
+    html { height: 100% }
+    body { height: 100%; margin: 0; padding: 0 }
+    #map_canvas { height: 100% }
+    .scrollable {
+        width: 150px;
+        height: 450px;
+        overflow: auto;
+    }
+</style>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=$key&sensor=false"></script>
 <script type="text/javascript">
-function myclick(i) {
-GEvent.trigger(gmarkers[i], "click");
-}
+    var lat = $lat_list;
+    var lon = $lon_list;
+    var loc = $loc_list;
+    var cxt = $ctx_list;
 
-function toggleVisibility(me){
-var child = me.childNodes.item(1);
-if (child.style.display=='none'){
-child.style.display='';
-}
-else {
-child.style.display='';
-//child.style.display='none';
-}
-}
+    var sidebar_html = "";
+    var markers = [];
 
-var lat = new Array();
-var lon = new Array();
-var loc  = new Array();
-var cxt   = new Array();
+    function raiseMarkerClick(markerIndex) {
+        google.maps.event.trigger(markers[markerIndex], 'click');
+    }
 
-#set($index = 0)
-#foreach ($item in $lat_list)
-lat[$index] = $item;
-#set( $index = $index + 1 )
-#end
+    function createMarker(title, content, latlng, map) {
+        var marker = new google.maps.Marker({
+            position: latlng,
+            map: map,
+            title: title
+        });
 
-#set($index = 0)
-#foreach ($item in $lon_list)
-lon[$index] = $item;
-#set( $index = $index + 1 )
-#end
+        var infowindow = new google.maps.InfoWindow({
+            content: content
+        });
 
-#set($index = 0)
-#foreach ($item in $loc_list)
-loc[$index] = "$item";
-#set( $index = $index + 1 )
-#end
+        google.maps.event.addListener(marker, 'click', function() {
+            infowindow.open(map, marker);
+        });
 
-#set($index = 0)
-#foreach ($item in $cxt_list)
-cxt[$index] = "$item";
-#set( $index = $index + 1 )
-#end
+        return marker;
+    }
 
-var side_bar_html = "";
-var gmarkers = [];
+    function initialize() {
+        var mapOptions = {
+            mapTypeId: google.maps.MapTypeId.$map_type
+        };
+        var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
-function initialize() {
-for(var i=0; i<loc.length-1; i++) {
-var min = i;
-for(var j=i+1; j<loc.length; j++) {
-	if(loc[min]>loc[j])
-		min = j;
-}
-var tmp = loc[i];
-loc[i] = loc[min];
-loc[min] = tmp;
+        var bounds = new google.maps.LatLngBounds();
+        for (var i = 0; i < loc.length; i++) {
+            var latlng = new google.maps.LatLng(lat[i], lon[i]);
+            bounds = bounds.extend(latlng);
+            var content = "<div><p><strong>" + loc[i] + "</strong></p><p>" + cxt[i] + "</p></div>";
+            var marker = createMarker(loc[i], content, latlng, map);
+            markers.push(marker);
+            sidebar_html = sidebar_html.concat("<a href='javascript:raiseMarkerClick(" + i + ")'>" + loc[i] + "</a><br>");
+        }
 
-tmp = lat[i];
-lat[i] = lat[min];
-lat[min] = tmp;
+        map.fitBounds(bounds);
+        map.setCenter(bounds.getCenter());
 
-tmp = lon[i];
-lon[i] = lon[min];
-lon[min] = tmp;
-
-tmp = cxt[i];
-cxt[i] = cxt[min];
-cxt[min] = tmp;
-}
-
-if (GBrowserIsCompatible()) {
-var map = new GMap2(document.getElementById("map_canvas"));
-var bounds = new GLatLngBounds();
-map.setCenter(new GLatLng(0,0),0);
-map.addControl(new GSmallMapControl());
-map.addControl(new GMapTypeControl());
-
-function createMarker(point, index) {
-var marker = new GMarker(point);
-GEvent.addListener(marker, "click", function() {
-var maxContent = cxt[index];
-var str = '<b>'+loc[index]+'</b>';
-marker.openInfoWindowHtml('<b>'+loc[index]+'</b>', {maxContent:maxContent, maxTitle:str});
-});
-return marker;
-}
-
-for (var i=0; i<loc.length; i++) {
-var latlng = new GLatLng(lat[i], lon[i]);
-bounds.extend(latlng);
-var marker = createMarker(latlng, i);
-gmarkers.push(marker);
-map.addOverlay(marker);
-side_bar_html = side_bar_html.concat('<a href="javascript:myclick(' + i + ')">' + loc[i] + "<\/a><br>");
-}
-map.setZoom(map.getBoundsZoomLevel(bounds));
-map.setCenter(bounds.getCenter());
-document.getElementById("side_bar").innerHTML = side_bar_html;
-}
-}
+        document.getElementById("side_bar").innerHTML = sidebar_html;
+    }
 </script>
 </head>
-
 <body onload="initialize()">
-<div align="center">
-<table border=1>
-<tr>
-<td>
-<div id="map_canvas" style="width: 800px; height: 450px"></div>
-</td>
-<td width=150 valign="top" style="text-decoration: underline; color:#4444ff;">
-<div id="side_bar" class="scrollable"></div>
-</td>
-</tr>
-</table>
-</div>
+    <table border="1" style="height:100%;">
+        <tr style="height:100%;">
+            <td style="width:100%; height:100%;"><div id="map_canvas"/></td>
+            <td style="width:150px; height:100%; text-decoration: underline; color:#4444ff;">
+                <div id="side_bar" class="scrollable"/>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

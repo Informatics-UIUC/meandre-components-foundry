@@ -79,7 +79,7 @@ import org.w3c.dom.NodeList;
 		description = "<p>Overview: <br> This component extracts " +
 		              "information from tuples and outputs it " +
 		              "as xml document. Only those entity types specified in this component's " +
-		              "properties will be included in the output XML doucment.</p>",
+		              "properties will be included in the output XML document.</p>",
         name = "Tuple To XML",
         tags = "text, document, tuple",
         rights = Licenses.UofINCSA,

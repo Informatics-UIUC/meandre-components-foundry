@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.tools.basic;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Properties;
 
 import javax.xml.transform.OutputKeys;
@@ -183,6 +184,17 @@ public class PrintToConsole extends AbstractExecutableComponent {
             outputProperties.setProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 	        outputProperties.setProperty(OutputKeys.ENCODING, "UTF-8");
 		    DOMUtils.writeXML((Document) data, outputConsole, outputProperties);
+		}
+
+		else
+
+		if (data instanceof Collection<?>) {
+		    Collection<?> collection = (Collection<?>) data;
+		    StringBuilder sb = new StringBuilder();
+		    for (Object o : collection)
+		        sb.append(", ").append(o.toString());
+		    if (sb.length() > 0)
+		        outputConsole.println("collection(" + data.getClass().getName() + "): [" + sb.substring(2) + "]");
 		}
 
 		else
