@@ -1,52 +1,49 @@
 /**
-*
-* University of Illinois/NCSA
-* Open Source License
-*
-* Copyright (c) 2008, NCSA.  All rights reserved.
-*
-* Developed by:
-* The Automated Learning Group
-* University of Illinois at Urbana-Champaign
-* http://www.seasr.org
-*
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-* "Software"), to deal with the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject
-* to the following conditions:
-*
-* Redistributions of source code must retain the above copyright
-* notice, this list of conditions and the following disclaimers.
-*
-* Redistributions in binary form must reproduce the above copyright
-* notice, this list of conditions and the following disclaimers in
-* the documentation and/or other materials provided with the distribution.
-*
-* Neither the names of The Automated Learning Group, University of
-* Illinois at Urbana-Champaign, nor the names of its contributors may
-* be used to endorse or promote products derived from this Software
-* without specific prior written permission.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-* IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE
-* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
-*
-*/
+ * University of Illinois/NCSA
+ * Open Source Limport org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextProperties;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+for Supercomputing Applications
+ * http://www.seasr.org
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal with the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimers.
+ *
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ *  * Neither the names of Automated Learning Group, The National Center for
+ *    Supercomputing Applications, or University of Illinois, nor the names of
+ *    its contributors may be used to endorse or promote products derived from
+ *    this Software without specific prior written permission.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * WITH THE SOFTWARE.
+ */
 
 package org.seasr.meandre.components.nlp.opennlp;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import opennlp.tools.lang.english.SentenceDetector;
 import opennlp.tools.sentdetect.SentenceDetectorME;
+import opennlp.tools.sentdetect.SentenceModel;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -54,144 +51,145 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.util.ComponentUtils;
+import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 /**
- * This component does sentence detection on the text contained in the input model using OpenNLP.
+ * This component does sentence detection on the text contained in the input model using Apache OpenNLP.
  *
- * @author Xavier Llor&agrave;
  * @author Boris Capitanu
- *
  */
 
-//
-// NOTE: this needs to be changed to use SentenceDetctorME
-// and NOT lang.english.SentenceDetctor
-// model = SuffixSensitiveGISModelReader(new File(modelName))).getModel())
-
 @Component(
-		name = "OpenNLP Sentence Detector",
-		creator = "Xavier Llora",
-		baseURL = "meandre://seasr.org/components/foundry/",
-		firingPolicy = FiringPolicy.all,
-		mode = Mode.compute,
-		rights = Licenses.UofINCSA,
-		tags = "nlp, text, opennlp, sentence detector",
-		description = "This component splits sentences of the text contained in the input  " +
-				      "using OpenNLP tokenizing facilities.",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "maxent-models.jar"}
+        name = "OpenNLP Sentence Detector",
+        creator = "Boris Capitanu",
+        baseURL = "meandre://seasr.org/components/foundry/",
+        firingPolicy = FiringPolicy.all,
+        mode = Mode.compute,
+        rights = Licenses.UofINCSA,
+        tags = "nlp, text, opennlp, sentence detector",
+        description = "This component performs sentence detection on the input text, " +
+        		"and outputs the detected sentences.",
+        dependency = {
+                "protobuf-java-2.2.0.jar",
+                "opennlp-tools-1.5.2-incubating.jar",
+                "opennlp-maxent-3.0.2-incubating.jar",
+                "opennlp-models-sent.jar"
+        }
 )
-public class OpenNLPSentenceDetector extends OpenNLPBaseUtilities {
+public class OpenNLPSentenceDetector extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
-	@ComponentInput(
-			name = Names.PORT_TEXT,
-			description = "The text to be split into sentences" +
-    			 "<br>TYPE: java.lang.String" +
+    @ComponentInput(
+            name = Names.PORT_TEXT,
+            description = "The text to be split into sentences" +
+                 "<br>TYPE: java.lang.String" +
                  "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
                  "<br>TYPE: byte[]" +
                  "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
                  "<br>TYPE: java.lang.Object"
-	)
-	protected static final String IN_TEXT = Names.PORT_TEXT;
+    )
+    protected static final String IN_TEXT = Names.PORT_TEXT;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
-	@ComponentOutput(
-			name = Names.PORT_SENTENCES,
-			description = "The sequence of sentences" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String OUT_SENTENCES = Names.PORT_SENTENCES;
+    @ComponentOutput(
+            name = Names.PORT_SENTENCES,
+            description = "The sentences" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_SENTENCES = Names.PORT_SENTENCES;
 
-	//--------------------------------------------------------------------------------------------
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            name = "remove_newline",
+            description = "Remove any newline characters that may be present in the sentences.",
+            defaultValue = "false"
+    )
+    protected static final String PROP_REMOVE_NEWLINE = "remove_newline";
+
+    @ComponentProperty(
+            name = "lang_code",
+            description = "The language model to use (2-character ISO 639-1 language code) (Ex: en, de, es, fr,...). " +
+            		"Note: Not all languages are supported.",
+            defaultValue = "en"
+    )
+    protected static final String PROP_LANG_CODE = "lang_code";
+
+    //--------------------------------------------------------------------------------------------
 
 
-	/** The OpenNLP tokenizer to use */
-	private SentenceDetectorME sdetector;
+    private static final String SENT_MODEL_FORMAT = "%s-sent.bin";
+
+    private SentenceDetectorME _sentDetector;
+    private boolean _removeNewLine;
 
 
     //--------------------------------------------------------------------------------------------
 
-	@Override
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		super.initializeCallBack(ccp);
+        String runDirectory = ccp.getRunDirectory();
+        String langCode = getPropertyOrDieTrying(PROP_LANG_CODE, ccp);
 
-		try {
-			sdetector = build(sOpenNLPDir, sLanguage);
-		}
-		catch ( Throwable t ) {
-			console.severe("Failed to open tokenizer model");
-			throw new ComponentExecutionException(t);
-		}
-	}
+        _sentDetector = initializeSentenceDetector(langCode, runDirectory);
+        _removeNewLine = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REMOVE_NEWLINE, ccp));
+    }
 
-	@Override
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		/*
-		String rawText = (String) cc.getDataComponentFromInput(IN_TEXT);
-		console.info("Converting " + rawText);
-		*/
-
-		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
-		StringBuilder sb = new StringBuilder();
-
-		for (String text : inputs)
-		    sb.append(text).append(" ");
-
-		console.finer("sentence conversion start");
-		String[] sa = sdetector.sentDetect(sb.toString());
-		console.finer("sentence conversion finish");
-		cc.pushDataComponentToOutput(OUT_SENTENCES, BasicDataTypesTools.stringToStrings(sa));
-	}
+        String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
+        String[] sentences = _sentDetector.sentDetect(text);
+        if (_removeNewLine)
+            for (int i = 0, iMax = sentences.length; i < iMax; i++)
+                sentences[i] = sentences[i].replaceAll("\r\n", " ").replaceAll("\n", " ");
+        console.fine(String.format("Detected %d sentences", sentences.length));
+        cc.pushDataComponentToOutput(OUT_SENTENCES, BasicDataTypesTools.stringToStrings(sentences));
+    }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        super.disposeCallBack(ccp);
-        this.sdetector = null;
+        _sentDetector = null;
     }
 
     //--------------------------------------------------------------------------------------------
 
-    public static SentenceDetectorME build(String sOpenNLPDir, String sLanguage) throws IOException {
-    	String path = sOpenNLPDir+"sentdetect"+File.separator+
-        sLanguage.substring(0,1).toUpperCase()+sLanguage.substring(1)+"SD.bin.gz";
+    private SentenceDetectorME initializeSentenceDetector(String langCode, String runDirectory) throws Exception {
+        String modelFileName = String.format(SENT_MODEL_FORMAT, langCode);
+        String nlpSentModelsDir = runDirectory + File.separator + "opennlp-models" + File.separator + "sent";
+        InstallStatus status = ComponentUtils.installJARContainingResource(getClass(), modelFileName, nlpSentModelsDir, false);
+        switch (status) {
+            case SKIPPED:
+                console.fine("Installation skipped - models already installed");
+                break;
 
-    	try {
-    	    return new SentenceDetector(path);
-    	}
-    	catch (Throwable t) {
-    		throw new IOException("unable to build sentence dectector using " + path);
-    	}
+            case FAILED:
+                throw new ComponentContextException("Failed to install models to: " + nlpSentModelsDir);
+        }
 
+        File modelFile = new File(nlpSentModelsDir, modelFileName);
+        if (!modelFile.exists()) throw new FileNotFoundException(modelFile.toString());
+
+        FileInputStream modelStream = new FileInputStream(modelFile);
+        try {
+            SentenceModel model = new SentenceModel(modelStream);
+            SentenceDetectorME sentDetector = new SentenceDetectorME(model);
+            console.fine("Sentence model loaded. Detector is ready.");
+
+            return sentDetector;
+        }
+        finally {
+            try { modelStream.close(); } catch (IOException e) { }
+        }
     }
-
-
-//	public static void main ( String [] saArgs ) throws IOException {
-//		new OpenNLPSentenceDetector();
-//		String paragraph  = "This isn't the greatest example sentence in the world because I've seen better. Neither is this one. This one's not bad, though.";
-//
-//		// the sentence detector and tokenizer constructors
-//		// take paths to their respective models
-//		SentenceDetectorME sdetector = new SentenceDetector("/Users/xavier/KK/english/sentdetect/EnglishSD.bin.gz");
-//		Tokenizer tokenizer = new Tokenizer("/Users/xavier/KK/english/tokenize/EnglishTok.bin.gz");
-//
-//		String [] ta = tokenizer.tokenize(paragraph);
-//		for ( String t:ta )
-//			System.out.println(t);
-//
-//		String [] sa = sdetector.sentDetect(paragraph);
-//		for ( String s:sa )
-//			System.out.println(s);
-//
-//
-//
-//	}
-
 }
