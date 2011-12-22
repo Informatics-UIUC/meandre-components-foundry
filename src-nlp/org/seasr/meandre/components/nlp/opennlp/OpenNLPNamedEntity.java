@@ -178,31 +178,30 @@ public class OpenNLPNamedEntity extends AbstractExecutableComponent {
         StringsArray.Builder entityTuples = StringsArray.newBuilder();
 
         try {
-            for (int i = 0, iMax = tokenizedSentences.getKeyCount(), sentenceOffset = 0; i < iMax; i++) {
+            for (int i = 0, iMax = tokenizedSentences.getKeyCount(); i < iMax; i++) {
                 String sentence = tokenizedSentences.getKey(i);
                 String[] tokens = BasicDataTypesTools.stringsToStringArray(tokenizedSentences.getValue(i));
 
-                Map<Integer, Integer> tokenPositions = new HashMap<Integer, Integer>(tokens.length);
+                Map<Integer, Span> tokenPositions = new HashMap<Integer, Span>(tokens.length);
                 for (int j = 0, jMax = tokens.length, lastPos = 0; j < jMax; j++) {
-                    int pos = sentence.indexOf(tokens[j], lastPos);
-                    tokenPositions.put(j, sentenceOffset + pos);
-                    lastPos = pos;
+                    String token = tokens[j];
+                    int pos = sentence.indexOf(token, lastPos);
+                    lastPos = pos + token.length();
+                    tokenPositions.put(j,  new Span(pos, lastPos));
                 }
-
-                sentenceOffset += sentence.length();
 
                 for (NameFinderME finder : _finders) {
                     Span[] entitySpans = finder.find(tokens);
                     for (Span span : entitySpans) {
-                        StringBuilder entity = new StringBuilder();
-                        for (int t = span.getStart(), tMax = span.getEnd(); t < tMax; t++)
-                            entity.append(" ").append(tokens[t]);
+                        Span entity = new Span(
+                                tokenPositions.get(span.getStart()).getStart(),
+                                tokenPositions.get(span.getEnd() - 1).getEnd());
 
                         SimpleTuple entityTuple = _tuplePeer.createTuple();
                         entityTuple.setValue(SENTENCE_ID_FIELD, Integer.toString(i));
-                        entityTuple.setValue(TEXT_FIELD, entity.substring(1));
+                        entityTuple.setValue(TEXT_FIELD, entity.getCoveredText(sentence).toString());
                         entityTuple.setValue(TYPE_FIELD, span.getType());
-                        entityTuple.setValue(TEXT_START_FIELD, tokenPositions.get(span.getStart()).toString());
+                        entityTuple.setValue(TEXT_START_FIELD, Integer.toString(entity.getStart()));
 
                         entityTuples.addValue(entityTuple.convert());
                     }
