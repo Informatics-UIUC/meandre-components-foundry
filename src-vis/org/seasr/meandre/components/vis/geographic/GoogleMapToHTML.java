@@ -42,10 +42,9 @@
 
 package org.seasr.meandre.components.vis.geographic;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.velocity.VelocityContext;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
@@ -58,6 +57,10 @@ import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.seasr.meandre.support.generic.html.VelocityTemplateService;
+
+/**
+ * @author Boris Capitanu
+ */
 
 @Component(
         creator="Boris Capitanu",
@@ -108,29 +111,42 @@ public class GoogleMapToHTML extends AbstractStreamingExecutableComponent {
 
     //----------------------------- PROPERTIES ---------------------------------------------------
 
+	static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/geographic/GoogleMapToHTML.vm";
     @ComponentProperty(
             description = "The template name",
             name = Names.PROP_TEMPLATE,
-            defaultValue = "org/seasr/meandre/components/vis/geographic/GoogleMapToHTML.vm"
+            defaultValue = DEFAULT_TEMPLATE
     )
     protected static final String PROP_TEMPLATE = Names.PROP_TEMPLATE;
 
-	@ComponentProperty(
-	        defaultValue = "",
-            description = "This property sets the Google Maps API key of your web site" +
-            	"<br>To obtain one, visit <a href='http://code.google.com/apis/maps/signup.html'>Google Maps API Signup Page</a>",
-            name = "google_maps_api_key"
-	)
-    protected static final String PROP_GOOGLE_KEY = "google_maps_api_key";
+    @ComponentProperty(
+            defaultValue = "",
+            description = "This property sets the Google Maps API key of your web site.",
+            name = Names.PROP_GOOGLE_APIS_KEY
+    )
+    protected static final String PROP_GOOGLE_KEY = Names.PROP_GOOGLE_APIS_KEY;
+
+    @ComponentProperty(
+            defaultValue = "SATELLITE",
+            description = "This property controls the type of map displayed by default. " +
+                    "Valid values are:<br><ul>" +
+                    "<li>ROADMAP - displays the normal, default 2D tiles of Google Maps.</li>" +
+                    "<li>SATELLITE displays photographic tiles.</li>" +
+                    "<li>HYBRID displays a mix of photographic tiles and a tile layer for prominent features (roads, city names).</li>" +
+                    "<li>TERRAIN displays physical relief tiles for displaying elevation and water features (mountains, rivers, etc.).</li>" +
+                    "</ul>",
+            name = "map_type"
+    )
+    protected static final String PROP_MAP_TYPE = "map_type";
 
     //--------------------------------------------------------------------------------------------
 
 
     protected String _template;
-    private String _googleApiKey;
-    private boolean _isStreaming = false;
+    protected VelocityContext _context;
+    protected boolean _isStreaming = false;
 
-    private final List<GoogleLocationMarker> _locations = new ArrayList<GoogleMapToHTML.GoogleLocationMarker>();
+    protected JSONArray _locations = new JSONArray();
 
 
     //--------------------------------------------------------------------------------------------
@@ -139,7 +155,10 @@ public class GoogleMapToHTML extends AbstractStreamingExecutableComponent {
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		super.initializeCallBack(ccp);
 
-		_googleApiKey = getPropertyOrDieTrying(PROP_GOOGLE_KEY, ccp);
+        _context = VelocityTemplateService.getInstance().getNewContext();
+        _context.put("key", getPropertyOrDieTrying(PROP_GOOGLE_KEY, ccp));
+        _context.put("map_type", getPropertyOrDieTrying(PROP_MAP_TYPE, ccp));
+
         _template = getPropertyOrDieTrying(PROP_TEMPLATE, ccp);
 	}
 
@@ -151,11 +170,22 @@ public class GoogleMapToHTML extends AbstractStreamingExecutableComponent {
 		String[] markerInfo = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_MARKER_INFO));
 
 		if (latStr.length == lonStr.length && lonStr.length == placeName.length && placeName.length == markerInfo.length)
-			for (int i = 0, iMax = latStr.length; i < iMax; i++)
-				_locations.add(new GoogleLocationMarker(latStr[i], lonStr[i], placeName[i], markerInfo[i]));
+			for (int i = 0, iMax = latStr.length; i < iMax; i++) {
+			    JSONObject location = new JSONObject();
+			    location.put("lat", latStr[i]);
+			    location.put("lon", lonStr[i]);
+			    location.put("placeName", placeName[i]);
+			    location.put("markerInfo", markerInfo[i]);
+			    _locations.put(location);
+			}
 		else {
 			console.warning("Multiple locations given in input data, but data lengths are inconsistent! Using first data location only!");
-			_locations.add(new GoogleLocationMarker(latStr[0], lonStr[0], placeName[0], markerInfo[0]));
+            JSONObject location = new JSONObject();
+            location.put("lat", latStr[0]);
+            location.put("lon", lonStr[0]);
+            location.put("placeName", placeName[0]);
+            location.put("markerInfo", markerInfo[0]);
+            _locations.put(location);
 		}
 
 		if (!_isStreaming)
@@ -164,7 +194,8 @@ public class GoogleMapToHTML extends AbstractStreamingExecutableComponent {
 
 	@Override
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		_locations.clear();
+		_locations = null;
+		_context = null;
 	}
 
     //--------------------------------------------------------------------------------------------
@@ -177,22 +208,18 @@ public class GoogleMapToHTML extends AbstractStreamingExecutableComponent {
 	@Override
 	public void startStream() throws Exception {
 		_isStreaming = true;
-		_locations.clear();
+		_locations = new JSONArray();
 	}
 
 	@Override
 	public void endStream() throws Exception {
-        VelocityTemplateService velocity = VelocityTemplateService.getInstance();
-        VelocityContext context = velocity.getNewContext();
+        _context.put("locations", _locations.toString());
 
-        context.put("locations", _locations);
-		context.put("google_maps_api_key", _googleApiKey);
-
-        String html = velocity.generateOutput(context, _template);
+        String html = VelocityTemplateService.getInstance().generateOutput(_context, _template);
         componentContext.pushDataComponentToOutput(OUT_HTML, html);
 
 		_isStreaming = false;
-		_locations.clear();
+		_locations = new JSONArray();
 	}
 
     //--------------------------------------------------------------------------------------------

@@ -72,7 +72,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 )
 public class GoogleMapViewer extends AbstractExecutableComponent {
 
-	//-------------------------- INPUTS --------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
 	        name = Names.PORT_LATITUDE_VECTOR,
@@ -102,7 +102,7 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
 	)
     public final static String IN_CONTEXT = Names.PORT_CONTEXT_VECTOR;
 
-	//-------------------------- OUTPUTS --------------------------
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 	        name = Names.PORT_HTML,
@@ -111,7 +111,15 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
 	)
 	protected static final String OUT_HTML = Names.PORT_HTML;
 
-	//-------------------------- PROPERTIES --------------------------
+    //----------------------------- PROPERTIES ---------------------------------------------------
+
+    static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/geographic/GoogleMapViewer.vm";
+    @ComponentProperty(
+            description = "The template name",
+            name = Names.PROP_TEMPLATE,
+            defaultValue = DEFAULT_TEMPLATE
+    )
+    protected static final String PROP_TEMPLATE = Names.PROP_TEMPLATE;
 
 	@ComponentProperty(
 	        defaultValue = "",
@@ -136,8 +144,7 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/geographic/GoogleMapViewer.vm";
-
+    private String _template;
     private VelocityContext _context;
 
 
@@ -148,6 +155,8 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
     	_context = VelocityTemplateService.getInstance().getNewContext();
     	_context.put("key", getPropertyOrDieTrying(PROP_GOOGLE_KEY, ccp));
     	_context.put("map_type", getPropertyOrDieTrying(PROP_MAP_TYPE, ccp));
+
+    	_template = getPropertyOrDieTrying(PROP_TEMPLATE, ccp);
     }
 
     @SuppressWarnings("unchecked")
@@ -171,7 +180,7 @@ public class GoogleMapViewer extends AbstractExecutableComponent {
         _context.put("ctx_list", ctxList.toString());
 
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
-        String html = velocity.generateOutput(_context, DEFAULT_TEMPLATE);
+        String html = velocity.generateOutput(_context, _template);
 
         cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(html));
     }

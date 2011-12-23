@@ -8,8 +8,8 @@
     body { height: 100%; margin: 0; padding: 0 }
     #map_canvas { height: 100% }
     .scrollable {
-        width: 150px;
-        height: 450px;
+        width: 100%;
+        height: 100%;
         overflow: auto;
     }
 </style>
@@ -58,7 +58,7 @@
             var content = "<div><p><strong>" + loc[i] + "</strong></p><p>" + cxt[i] + "</p></div>";
             var marker = createMarker(loc[i], content, latlng, map);
             markers.push(marker);
-            sidebar_html = sidebar_html.concat("<a href='javascript:raiseMarkerClick(" + i + ")'>" + loc[i] + "</a><br>");
+            sidebar_html = sidebar_html.concat("<a style='cursor:hand;' href='javascript:raiseMarkerClick(" + i + ")'>" + loc[i] + "</a><br>");
         }
 
         map.fitBounds(bounds);
@@ -72,7 +72,7 @@
     <table border="1" style="height:100%;">
         <tr style="height:100%;">
             <td style="width:100%; height:100%;"><div id="map_canvas"/></td>
-            <td style="width:150px; height:100%; text-decoration: underline; color:#4444ff;">
+            <td style="vertical-align:top; width:150px; height:100%; text-decoration: underline; color:#4444ff;">
                 <div id="side_bar" class="scrollable"/>
             </td>
         </tr>
