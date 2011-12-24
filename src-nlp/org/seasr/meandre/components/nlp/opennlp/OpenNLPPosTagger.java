@@ -1,9 +1,14 @@
 /**
  * University of Illinois/NCSA
- * Open Source Limport org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextProperties;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-for Supercomputing Applications
+ * Open Source License
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
+ * All rights reserved.
+ *
+ * Developed by:
+ *
+ * Automated Learning Group
+ * National Center for Supercomputing Applications
  * http://www.seasr.org
  *
  *
@@ -139,7 +144,7 @@ public class OpenNLPPosTagger extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    private static final String POS_MODEL_FORMAT = "%s-pos-maxent.bin";
+    protected static final String POS_MODEL_FORMAT = "%s-pos-maxent.bin";
 
     public static final String SENTENCE_ID_FIELD = "sentenceId";
     public static final String TOKEN_FIELD       = "token";
@@ -147,9 +152,9 @@ public class OpenNLPPosTagger extends AbstractExecutableComponent {
     public static final String POS_PROB_FIELD    = "posProb";
     public static final String TOKEN_START_FIELD = "tokenStart";
 
-    private POSTaggerME _posTagger;
-    private Pattern _filter;
-    private SimpleTuplePeer _tuplePeer;
+    protected POSTaggerME _posTagger;
+    protected Pattern _filter;
+    protected SimpleTuplePeer _tuplePeer;
 
 
     //--------------------------------------------------------------------------------------------

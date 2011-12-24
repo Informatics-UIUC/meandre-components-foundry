@@ -94,6 +94,7 @@
 
 	<property name="src.abstracts.dir" value="${basedir}/src-abstracts"/>
 	<property name="src.datatype.dir" value="${basedir}/src-datatype"/>
+    <property name="src.support.dir" value="${basedir}/src-support"/>
 
     <!-- Test locations -->
     <path id="src.test.root.dirs">
@@ -244,6 +245,20 @@
 			 basedir="${build.dir}/classes-abstracts">
 			<fileset dir="${basedir}/src-abstracts"/>
 		</jar>
+
+        <mkdir dir="${build.dir}/classes-support"/>
+        <javac target="${compile.target}"
+               srcdir="${src.support.dir}"
+               destdir="${build.dir}/classes-support"
+               includeantruntime="false"
+               classpathref="classpath.test"
+               updatedProperty="support.updated"/>
+
+        <jar destfile="${lib.dir}/foundry/foundry-datatype-tuples.jar"
+             basedir="${build.dir}/classes-support"
+             includes="org/seasr/meandre/support/components/tuples/**">
+            <fileset dir="${basedir}/src-support" includes="org/seasr/meandre/support/components/tuples/**"/>
+        </jar>
 	</target>
 
     <!--

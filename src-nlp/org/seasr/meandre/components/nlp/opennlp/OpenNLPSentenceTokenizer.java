@@ -1,9 +1,14 @@
 /**
  * University of Illinois/NCSA
- * Open Source Limport org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextProperties;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-for Supercomputing Applications
+ * Open Source License
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
+ * All rights reserved.
+ *
+ * Developed by:
+ *
+ * Automated Learning Group
+ * National Center for Supercomputing Applications
  * http://www.seasr.org
  *
  *
@@ -122,9 +127,9 @@ public class OpenNLPSentenceTokenizer extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    private static final String TOKEN_MODEL_FORMAT = "%s-token.bin";
+    protected static final String TOKEN_MODEL_FORMAT = "%s-token.bin";
 
-    private TokenizerME _tokenizer;
+    protected TokenizerME _tokenizer;
 
 
     //--------------------------------------------------------------------------------------------

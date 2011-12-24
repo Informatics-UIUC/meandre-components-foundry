@@ -1,9 +1,14 @@
 /**
  * University of Illinois/NCSA
- * Open Source Limport org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextProperties;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-for Supercomputing Applications
+ * Open Source License
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
+ * All rights reserved.
+ *
+ * Developed by:
+ *
+ * Automated Learning Group
+ * National Center for Supercomputing Applications
  * http://www.seasr.org
  *
  *
@@ -36,7 +41,6 @@ for Supercomputing Applications
  */
 
 package org.seasr.meandre.components.nlp.opennlp;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -66,6 +70,7 @@ import org.seasr.meandre.components.abstracts.util.ComponentUtils;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
+
 
 /**
  * This component performs part of speech tagging on the tokenized sentences
@@ -132,8 +137,8 @@ public class OpenNLPChunker extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    private static final String CHUNKER_MODEL_FORMAT = "%s-chunker.bin";
-    private static final String POS_MODEL_FORMAT = "%s-pos-maxent.bin";
+    protected static final String CHUNKER_MODEL_FORMAT = "%s-chunker.bin";
+    protected static final String POS_MODEL_FORMAT = "%s-pos-maxent.bin";
 
     public static final String SENTENCE_ID_FIELD = "sentenceId";
     public static final String TOKEN_FIELD       = "token";
@@ -143,9 +148,9 @@ public class OpenNLPChunker extends AbstractExecutableComponent {
     public static final String CHUNK_PROB_FIELD  = "chunkProb";
     public static final String TOKEN_START_FIELD = "tokenStart";
 
-    private POSTaggerME _posTagger;
-    private ChunkerME _chunker;
-    private SimpleTuplePeer _tuplePeer;
+    protected POSTaggerME _posTagger;
+    protected ChunkerME _chunker;
+    protected SimpleTuplePeer _tuplePeer;
 
 
     //--------------------------------------------------------------------------------------------

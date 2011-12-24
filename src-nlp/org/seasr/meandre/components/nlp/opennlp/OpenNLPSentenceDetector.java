@@ -1,9 +1,14 @@
 /**
  * University of Illinois/NCSA
- * Open Source Limport org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextProperties;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-for Supercomputing Applications
+ * Open Source License
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
+ * All rights reserved.
+ *
+ * Developed by:
+ *
+ * Automated Learning Group
+ * National Center for Supercomputing Applications
  * http://www.seasr.org
  *
  *
@@ -129,10 +134,10 @@ public class OpenNLPSentenceDetector extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    private static final String SENT_MODEL_FORMAT = "%s-sent.bin";
+    protected static final String SENT_MODEL_FORMAT = "%s-sent.bin";
 
-    private SentenceDetectorME _sentDetector;
-    private boolean _removeNewLine;
+    protected SentenceDetectorME _sentDetector;
+    protected boolean _removeNewLine;
 
 
     //--------------------------------------------------------------------------------------------

@@ -1,9 +1,14 @@
 /**
  * University of Illinois/NCSA
- * Open Source Limport org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextProperties;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-for Supercomputing Applications
+ * Open Source License
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
+ * All rights reserved.
+ *
+ * Developed by:
+ *
+ * Automated Learning Group
+ * National Center for Supercomputing Applications
  * http://www.seasr.org
  *
  *
@@ -110,14 +115,14 @@ public class OpenNLPNamedEntity extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_TUPLES,
-            description = "The set of tuples: (sentenceId,type,textStart,text)" +
+            description = "The set of tuples: (sentenceId, text, type, textStart)" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
     )
     protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
     @ComponentOutput(
             name = Names.PORT_META_TUPLE,
-            description = "The meta data for tuples: (sentenceId,type,textStart,text)" +
+            description = "The meta data for tuples: (sentenceId, text, type, textStart)" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
@@ -142,17 +147,17 @@ public class OpenNLPNamedEntity extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    private static final String[] ENTITY_TYPES = new String[] { "date", "location", "money", "organization",
+    protected static final String[] ENTITY_TYPES = new String[] { "date", "location", "money", "organization",
                                                                 "percentage", "person", "time" };
-    private static final String NER_MODEL_FORMAT = "%s-ner-%s.bin";
+    protected static final String NER_MODEL_FORMAT = "%s-ner-%s.bin";
 
     public static final String SENTENCE_ID_FIELD = "sentenceId";
     public static final String TYPE_FIELD        = "type";
     public static final String TEXT_START_FIELD  = "textStart";
     public static final String TEXT_FIELD        = "text";
 
-    private NameFinderME[] _finders;
-    private SimpleTuplePeer _tuplePeer;
+    protected NameFinderME[] _finders;
+    protected SimpleTuplePeer _tuplePeer;
 
 
     //--------------------------------------------------------------------------------------------
