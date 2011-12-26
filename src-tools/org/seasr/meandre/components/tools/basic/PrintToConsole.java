@@ -234,15 +234,7 @@ public class PrintToConsole extends AbstractExecutableComponent {
 	 * @param obj The delimiter to print
 	 */
 	private void printStreamDelimiter(Object obj) {
-		StringBuffer sb = new StringBuffer();
-		String [] saName = obj.getClass().getName().split("\\"+".");
-		sb.append(saName[saName.length-1]+" [ ");
-
-		StreamDelimiter sd = (StreamDelimiter) obj;
-		for (String sKey : sd.keySet())
-			sb.append("(" + sKey + "=" + sd.get(sKey) + ") ");
-		sb.append("]");
-
-		componentContext.getOutputConsole().println(sb);
+	    StreamDelimiter sd = (StreamDelimiter) obj;
+		componentContext.getOutputConsole().println(String.format("%s (id: %d)", sd.getClass().getSimpleName(), sd.getStreamId()));
 	}
 }
