@@ -43,22 +43,20 @@
 package org.seasr.meandre.components.tools.semantic;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.io.ModelUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 /**
  * Converts a text to a model
@@ -113,8 +111,8 @@ public class RDFTextToModel extends AbstractExecutableComponent {
             name=Names.PROP_BASE_URI,
             description = "The base URI to be used when converting relative URI's to absolute URI's. " +
                           "The base URI may be null if there are no relative URIs to convert. " +
-                          "A base URI of \"\" may permit relative URIs to be used in the model.",
-            defaultValue = "seasr://seasr.org/document/base"
+                          "A empty base URI may permit relative URIs to be used in the model.",
+            defaultValue = ""
     )
     protected static final String PROP_BASE_URI = Names.PROP_BASE_URI;
 
@@ -123,38 +121,25 @@ public class RDFTextToModel extends AbstractExecutableComponent {
 	//--------------------------------------------------------------------------------------------
 
 
-	/** The base url to use */
-	private String sBaseURI;
+	private String _baseURI;
 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.sBaseURI = ccp.getProperty(PROP_BASE_URI);
+		_baseURI = getPropertyOrDieTrying(PROP_BASE_URI, true, false, ccp);
+		if (_baseURI.length() == 0) _baseURI = null;
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-	    for (String modelText : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))) {
-            Model model;
-
-            try {
-                model = ModelUtils.getModel(modelText, sBaseURI);
-            } catch (Exception e) {
-                if (ignoreErrors)
-                    model = ModelFactory.createDefaultModel();
-                else
-                    throw new ComponentExecutionException(e);
-            }
-
-    	    cc.pushDataComponentToOutput(OUT_DOCUMENT, model);
-	    }
+	    String modelText = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
+	    Model model = ModelUtils.getModel(modelText, _baseURI);
+	    cc.pushDataComponentToOutput(OUT_DOCUMENT, model);
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        this.sBaseURI = null;
-        this.ignoreErrors = false;
     }
 }
