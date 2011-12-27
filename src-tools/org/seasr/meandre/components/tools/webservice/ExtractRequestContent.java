@@ -106,14 +106,19 @@ public class ExtractRequestContent extends AbstractExecutableComponent {
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
     	HttpServletRequest request = (HttpServletRequest) cc.getDataComponentFromInput(IN_REQUEST);
+    	String characterEncoding = request.getCharacterEncoding();
 
-    	if (console.isLoggable(Level.FINE)) {
+        if (console.isLoggable(Level.FINE)) {
         	console.fine("Content-Type: " + request.getContentType());
         	console.fine("Content-Length: " + request.getContentLength());
-        	console.fine("Content-Encoding: " + request.getCharacterEncoding());
+        	console.fine("Content-Encoding: " + characterEncoding);
     	}
 
-    	String content = IOUtils.getTextFromReader(new InputStreamReader(request.getInputStream(), request.getCharacterEncoding()));
+    	InputStreamReader reader =
+    	        characterEncoding != null ?
+    	                new InputStreamReader(request.getInputStream(), characterEncoding) :
+    	                new InputStreamReader(request.getInputStream());
+        String content = IOUtils.getTextFromReader(reader);
 
     	cc.pushDataComponentToOutput(OUT_REQUEST, request);
     	cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(content));
