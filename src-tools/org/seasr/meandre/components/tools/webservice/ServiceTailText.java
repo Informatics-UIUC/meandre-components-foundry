@@ -172,7 +172,7 @@ public class ServiceTailText extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _contentType = getPropertyOrDieTrying(PROP_CONTENT_TYPE, ccp);
+	    _contentType = getPropertyOrDieTrying(PROP_CONTENT_TYPE, true, false, ccp);
 	    _encoding = getPropertyOrDieTrying(PROP_ENCODING, true, false, ccp);
 
 	    for (String propName : ccp.getPropertyNames()) {
