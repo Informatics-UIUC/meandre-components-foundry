@@ -105,7 +105,7 @@ public class GetResponseContentType extends AbstractExecutableComponent {
     @ComponentProperty (
             description = "The comma-separated list of supported content types",
             name = "supported_types",
-            defaultValue = "*"
+            defaultValue = "*/*"
     )
     protected static final String PROP_SUPPORTED_TYPES = "supported_types";
 
@@ -122,7 +122,7 @@ public class GetResponseContentType extends AbstractExecutableComponent {
         String supportedTypes[] = getPropertyOrDieTrying(PROP_SUPPORTED_TYPES, ccp).split(",");
         _supportedTypes = new ArrayList<ContentType>(supportedTypes.length);
         for (String type : supportedTypes)
-            _supportedTypes.add(new ContentType(type));
+            _supportedTypes.add(new ContentType(type.trim()));
     }
 
     @Override
