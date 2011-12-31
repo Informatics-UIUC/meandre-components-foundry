@@ -43,15 +43,19 @@
 package org.seasr.meandre.components.tools.webservice;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Semaphore;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
@@ -105,31 +109,118 @@ public class ServiceTailText extends AbstractExecutableComponent {
 	)
 	protected static final String IN_SEMAPHORE = Names.PORT_SEMAPHORE;
 
+    //------------------------------ PROPERTIES ---------------------------------------------------
+
+    @ComponentProperty (
+            description = "Content-Type value (may be empty)",
+            name = "content_type",
+            defaultValue = ""
+    )
+    protected static final String PROP_CONTENT_TYPE = "content_type";
+
+    @ComponentProperty (
+            description = "Response encoding (may be empty)",
+            name = "encoding",
+            defaultValue = ""
+    )
+    protected static final String PROP_ENCODING = "encoding";
+
+    @ComponentProperty (
+            description = "Header to set (may be empty)",
+            name = "header1",
+            defaultValue = ""
+    )
+    protected static final String PROP_HEADER1 = "header1";
+
+    @ComponentProperty (
+            description = "Header to set (may be empty)",
+            name = "header2",
+            defaultValue = ""
+    )
+    protected static final String PROP_HEADER2 = "header2";
+
+    @ComponentProperty (
+            description = "Header to set (may be empty)",
+            name = "header3",
+            defaultValue = ""
+    )
+    protected static final String PROP_HEADER3 = "header3";
+
+    @ComponentProperty (
+            description = "Header to set (may be empty)",
+            name = "header4",
+            defaultValue = ""
+    )
+    protected static final String PROP_HEADER4 = "header4";
+
+    @ComponentProperty (
+            description = "Header to set (may be empty)",
+            name = "header5",
+            defaultValue = ""
+    )
+    protected static final String PROP_HEADER5 = "header5";
+
+    //--------------------------------------------------------------------------------------------
+
+
+    protected Map<String, String> _headers = new HashMap<String, String>();
+    protected String _contentType;
+    protected String _encoding;
+
+
     //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    _contentType = getPropertyOrDieTrying(PROP_CONTENT_TYPE, ccp);
+	    _encoding = getPropertyOrDieTrying(PROP_ENCODING, true, false, ccp);
+
+	    for (String propName : ccp.getPropertyNames()) {
+	        if (!propName.startsWith("header")) continue;
+	        String header = getPropertyOrDieTrying(propName, true, false, ccp);
+	        if (header.length() == 0) continue;
+	        String[] parts = header.split(":");
+	        String headerName = parts[0];
+	        String headerValue = header.substring(header.indexOf(':') + 1).trim();
+	        _headers.put(headerName, headerValue);
+	    }
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		String[] inputs = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
-		if (inputs.length > 1)
-		    throw new Exception("Cannot process multiple responses at one time");
-
-		String sResponse = inputs[0];
+		String data = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
 		Semaphore sem = (Semaphore) cc.getDataComponentFromInput(IN_SEMAPHORE);
 		HttpServletResponse response = (HttpServletResponse) cc.getDataComponentFromInput(IN_RESPONSE);
 
+		for (Entry<String, String> entry : _headers.entrySet())
+		    response.setHeader(entry.getKey(), entry.getValue());
+
+		if (_contentType.length() > 0)
+		    response.setContentType(_contentType);
+
+		if (_encoding.length() > 0)
+		    response.setCharacterEncoding(_encoding);
+
 		console.info("Sending requested results");
 
-		PrintWriter pw = response.getWriter();
-		pw.println(sResponse.toString());
-		response.getWriter().flush();
-		sem.release();
+		try {
+    		PrintWriter pw = response.getWriter();
+    		try {
+        		pw.println(data);
+        		response.getWriter().flush();
+    		}
+    		finally {
+    		    pw.close();
+    		}
+		}
+		finally {
+		    sem.release();
+		}
 	}
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        _headers.clear();
+        _headers = null;
     }
 }

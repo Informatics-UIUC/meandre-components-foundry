@@ -48,6 +48,7 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
@@ -79,19 +80,8 @@ public class SetResponseHeader extends AbstractExecutableComponent {
     protected static final String IN_RESPONSE = Names.PORT_RESPONSE_HANDLER;
 
     @ComponentInput(
-            name = "header",
-            description = "The header" +
-                    "<br>TYPE: java.lang.String" +
-                    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
-                    "<br>TYPE: byte[]" +
-                    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
-                    "<br>TYPE: java.lang.Object"
-    )
-    protected static final String IN_HEADER = "header";
-
-    @ComponentInput(
             name = "value",
-            description = "The value" +
+            description = "The value of the header" +
                     "<br>TYPE: java.lang.String" +
                     "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
                     "<br>TYPE: byte[]" +
@@ -108,19 +98,37 @@ public class SetResponseHeader extends AbstractExecutableComponent {
     )
     protected static final String OUT_RESPONSE = Names.PORT_RESPONSE_HANDLER;
 
+    //------------------------------ PROPERTIES ---------------------------------------------------
+
+    @ComponentProperty (
+            description = "The name of the header to set",
+            name = "header",
+            defaultValue = ""
+    )
+    protected static final String PROP_HEADER = "header";
+
+    //--------------------------------------------------------------------------------------------
+
+
+    protected String _headerName;
+
+
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        _headerName = getPropertyOrDieTrying(PROP_HEADER, ccp);
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
     	HttpServletResponse response = (HttpServletResponse) cc.getDataComponentFromInput(IN_RESPONSE);
-    	String header = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_HEADER))[0];
     	String value = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_VALUE))[0];
 
-    	response.setHeader(header, value);
+    	if (_headerName.equalsIgnoreCase("Content-Type"))
+    	    response.setContentType(value);
+    	else
+    	    response.setHeader(_headerName, value);
 
     	cc.pushDataComponentToOutput(OUT_RESPONSE, response);
     }
