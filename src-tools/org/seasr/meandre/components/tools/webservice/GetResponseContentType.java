@@ -143,7 +143,8 @@ public class GetResponseContentType extends AbstractExecutableComponent {
     	String accept = request.getHeader("Accept");
     	ContentType bestType = accept.length() > 0 ? ContentType.getBestContentType(accept, _supportedTypes) : _supportedTypes.get(0);
     	String encoding = request.getCharacterEncoding();
-    	String contentType = _appendCharset ? String.format("%s; charset=%s", bestType.toString(), encoding) : bestType.toString();
+    	String contentType = (_appendCharset && encoding != null) ?
+    	        String.format("%s; charset=%s", bestType.toString(), encoding) : bestType.toString();
     	console.fine("Best content type: " + contentType);
 
     	cc.pushDataComponentToOutput(OUT_CONTENT_TYPE, BasicDataTypesTools.stringToStrings(contentType));
