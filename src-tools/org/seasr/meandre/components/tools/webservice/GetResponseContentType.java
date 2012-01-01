@@ -103,16 +103,25 @@ public class GetResponseContentType extends AbstractExecutableComponent {
     //------------------------------ PROPERTIES ---------------------------------------------------
 
     @ComponentProperty (
-            description = "The comma-separated list of supported content types",
+            description = "The comma-separated list of supported content types in descending order of preference " +
+            		"(non-empty, and each entry is of the form type/subtype without the wildcard char '*')",
             name = "supported_types",
-            defaultValue = "*/*"
+            defaultValue = ""
     )
     protected static final String PROP_SUPPORTED_TYPES = "supported_types";
+
+    @ComponentProperty (
+            description = "Should the charset from request be included?",
+            name = "include_request_charset",
+            defaultValue = "true"
+    )
+    protected static final String PROP_INCLUDE_REQUEST_CHARSET = "include_request_charset";
 
     //--------------------------------------------------------------------------------------------
 
 
     protected List<ContentType> _supportedTypes;
+    protected boolean _appendCharset;
 
 
     //--------------------------------------------------------------------------------------------
@@ -123,6 +132,8 @@ public class GetResponseContentType extends AbstractExecutableComponent {
         _supportedTypes = new ArrayList<ContentType>(supportedTypes.length);
         for (String type : supportedTypes)
             _supportedTypes.add(new ContentType(type.trim()));
+
+        _appendCharset = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_INCLUDE_REQUEST_CHARSET, ccp));
     }
 
     @Override
@@ -131,9 +142,11 @@ public class GetResponseContentType extends AbstractExecutableComponent {
 
     	String accept = request.getHeader("Accept");
     	ContentType bestType = accept.length() > 0 ? ContentType.getBestContentType(accept, _supportedTypes) : _supportedTypes.get(0);
-    	console.fine("Best content type: " + bestType.toString());
+    	String encoding = request.getCharacterEncoding();
+    	String contentType = _appendCharset ? String.format("%s; charset=%s", bestType.toString(), encoding) : bestType.toString();
+    	console.fine("Best content type: " + contentType);
 
-    	cc.pushDataComponentToOutput(OUT_CONTENT_TYPE, BasicDataTypesTools.stringToStrings(bestType.toString()));
+    	cc.pushDataComponentToOutput(OUT_CONTENT_TYPE, BasicDataTypesTools.stringToStrings(contentType));
     	cc.pushDataComponentToOutput(OUT_REQUEST, request);
     }
 
