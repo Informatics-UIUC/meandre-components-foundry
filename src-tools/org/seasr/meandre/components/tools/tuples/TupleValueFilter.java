@@ -78,7 +78,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		rights = Licenses.UofINCSA,
 		tags = "tuple, tools, text, filter",
 		description = "This component filters the incoming set of tuples based on a regular expression" ,
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TupleValueFilter extends AbstractExecutableComponent {
 

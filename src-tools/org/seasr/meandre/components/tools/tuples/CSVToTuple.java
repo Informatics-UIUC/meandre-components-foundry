@@ -76,9 +76,10 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tools, text,",
-		description = "This component converts a csv string into tuples.  Each line of the incoming text is a new tuple. It does not handle missing values" ,
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+		tags = "tools, text, tuple, csv",
+		description = "This component converts a csv string into tuples.  Each line of the incoming text is a new tuple. " +
+				"It does not handle missing values." ,
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class CSVToTuple extends AbstractExecutableComponent {
 
