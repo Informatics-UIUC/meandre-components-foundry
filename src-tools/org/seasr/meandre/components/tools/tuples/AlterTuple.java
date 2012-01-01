@@ -189,7 +189,7 @@ public class AlterTuple extends AbstractExecutableComponent {
         SimpleTuplePeer inPeer = new SimpleTuplePeer(inMeta);
         Strings[] inTuples = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-        List<String> inFieldNames = Arrays.asList(inPeer.getFieldNames());
+        List<String> inFieldNames = new ArrayList<String>(Arrays.asList(inPeer.getFieldNames()));
         List<String> outFieldNames = new ArrayList<String>(inFieldNames.size());
         for (int i = 0, iMax = inFieldNames.size(); i < iMax; i++) {
             String fieldName = inFieldNames.get(i);
