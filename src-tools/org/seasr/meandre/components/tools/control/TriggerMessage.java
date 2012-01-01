@@ -48,6 +48,7 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
@@ -72,8 +73,9 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         rights = Licenses.UofINCSA,
         tags = "message, trigger",
         description = "This component will receive a message and a trigger."+
-                      "The message is saved so that it can be output for every trigger received."+
-                      "If a new message is received, then it replaces the previous message.",
+                      "The message is saved so that it can be output for every trigger received. "+
+                      "The component respects streams and outputs the same object for all the triggers that are part of the stream. " +
+                      "When operating in streaming mode, a new object will be 'retrieved' after the previous stream ends.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TriggerMessage extends AbstractStreamingExecutableComponent {
@@ -110,7 +112,21 @@ public class TriggerMessage extends AbstractStreamingExecutableComponent {
     )
     protected static final String OUT_TRIGGER = Names.PORT_TRIGGER;
 
+    //------------------------------ PROPERTIES ---------------------------------------------------
+
+    @ComponentProperty (
+            description = "Set to true to reset the state after an object has been pushed out. This means that for each " +
+            		"trigger a new object will be expected to be pushed out. This setting makes sense only if the component " +
+            		"is operating in non-streaming mode.",
+            name = "reset_on_push",
+            defaultValue = "false"
+    )
+    protected static final String PROP_RESET = "reset_on_push";
+
     //--------------------------------------------------------------------------------------------
+
+
+    protected boolean _reset;
 
 
     //--------------------------------------------------------------------------------------------
@@ -118,6 +134,8 @@ public class TriggerMessage extends AbstractStreamingExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
+
+        _reset = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_RESET, ccp));
 	}
 
     @Override
@@ -149,6 +167,9 @@ public class TriggerMessage extends AbstractStreamingExecutableComponent {
 
 	        cc.pushDataComponentToOutput(OUT_OBJECT, object);
 	        cc.pushDataComponentToOutput(OUT_TRIGGER, trigger);
+
+	        if (_reset)
+	            componentInputCache.retrieveNext(IN_OBJECT);
 	    }
     }
 
