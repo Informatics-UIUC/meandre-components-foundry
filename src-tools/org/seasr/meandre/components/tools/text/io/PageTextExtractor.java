@@ -43,11 +43,11 @@
 package org.seasr.meandre.components.tools.text.io;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -107,7 +107,7 @@ public class PageTextExtractor extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
+		Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML), "UTF-8");
 
 		NodeList nl = doc.getChildNodes().item(0).getChildNodes();
 		StringBuffer sb = new StringBuffer();

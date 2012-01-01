@@ -66,7 +66,6 @@ import org.seasr.meandre.support.generic.text.handlers.TextContentHandlerFactory
 
 /**
  * @author Boris Capitanu
- *
  */
 
 @Component(
