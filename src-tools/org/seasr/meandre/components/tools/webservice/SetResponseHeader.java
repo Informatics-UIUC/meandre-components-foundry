@@ -107,10 +107,18 @@ public class SetResponseHeader extends AbstractExecutableComponent {
     )
     protected static final String PROP_HEADER = "header";
 
+    @ComponentProperty (
+            description = "Ignore empty values? If true, an empty value will not cause the header to be set to the empty value.",
+            name = "ignore_empty_values",
+            defaultValue = "true"
+    )
+    protected static final String PROP_IGNORE_EMPTY_VALUES = "ignore_empty_values";
+
     //--------------------------------------------------------------------------------------------
 
 
     protected String _headerName;
+    protected boolean _ignoreEmptyValues;
 
 
     //--------------------------------------------------------------------------------------------
@@ -118,6 +126,7 @@ public class SetResponseHeader extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _headerName = getPropertyOrDieTrying(PROP_HEADER, ccp);
+        _ignoreEmptyValues = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_EMPTY_VALUES, ccp));
     }
 
     @Override
@@ -125,10 +134,12 @@ public class SetResponseHeader extends AbstractExecutableComponent {
     	HttpServletResponse response = (HttpServletResponse) cc.getDataComponentFromInput(IN_RESPONSE);
     	String value = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_VALUE))[0];
 
-    	if (_headerName.equalsIgnoreCase("Content-Type"))
-    	    response.setContentType(value);
-    	else
-    	    response.setHeader(_headerName, value);
+    	if (value.length() > 0 || !_ignoreEmptyValues) {
+    	    if (_headerName.equalsIgnoreCase("Content-Type"))
+    	        response.setContentType(value);
+    	    else
+    	        response.setHeader(_headerName, value);
+    	}
 
     	cc.pushDataComponentToOutput(OUT_RESPONSE, response);
     }
