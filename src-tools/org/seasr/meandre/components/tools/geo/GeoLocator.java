@@ -42,10 +42,6 @@
 
 package org.seasr.meandre.components.tools.geo;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -58,7 +54,7 @@ import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.gis.GeoLocation;
 
 @Component(
@@ -72,7 +68,7 @@ import org.seasr.meandre.support.generic.gis.GeoLocation;
 		description = "This component resolves names of locations into latitude/longitude coordinates" ,
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class GeoLocator extends AbstractStreamingExecutableComponent {
+public class GeoLocator extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -127,75 +123,40 @@ public class GeoLocator extends AbstractStreamingExecutableComponent {
 
 
     private boolean _returnOneValue;
-    private boolean _isStreaming = false;
-    private final List<GeoLocation> _locations = new ArrayList<GeoLocation>();
 
 
     //--------------------------------------------------------------------------------------------
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		super.initializeCallBack(ccp);
-
 		_returnOneValue = Boolean.parseBoolean(ccp.getProperty(PROP_RETURN_ONE_COORDINATE));
 		GeoLocation.setAPIKey(getPropertyOrDieTrying(PROP_YAHOO_KEY, ccp));
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		Object input = cc.getDataComponentFromInput(IN_PLACE_NAME);
-		String[] locArr = DataTypeParser.parseAsString(input);
+		String placeName = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_PLACE_NAME))[0];
+		GeoLocation[] locations = GeoLocation.geocode(placeName);
 
-		for (String loc : locArr) {
-			GeoLocation[] locations = GeoLocation.geocode(loc);
-
-			if (locations == null) {
-				console.warning(String.format("The location '%s' could not be geocoded - ignoring it...", loc));
-				continue;
-			}
-
-			if (_returnOneValue)
-				_locations.add(locations[0]);
-			else
-				_locations.addAll(Arrays.asList(locations));
+		if (locations.length == 0) {
+		    console.warning(String.format("The location '%s' could not be geocoded - ignoring it...", placeName));
+		    return;
 		}
 
-		if (!_isStreaming)
-			endStream();
+		for (GeoLocation location : locations) {
+		    String latitude = Double.toString(location.getLatitude());
+		    String longitude = Double.toString(location.getLongitude());
+
+		    componentContext.pushDataComponentToOutput(OUT_LATITUDE, BasicDataTypesTools.stringToStrings(latitude));
+		    componentContext.pushDataComponentToOutput(OUT_LONGITUDE, BasicDataTypesTools.stringToStrings(longitude));
+		    componentContext.pushDataComponentToOutput(OUT_PLACE_NAME, BasicDataTypesTools.stringToStrings(placeName));
+
+		    if (_returnOneValue) break;
+		}
 	}
 
 	@Override
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		_locations.clear();
 		GeoLocation.disposeCache();
-	}
-
-    //--------------------------------------------------------------------------------------------
-
-	@Override
-	public boolean isAccumulator() {
-		return true;
-	}
-
-	@Override
-	public void startStream() throws Exception {
-		_isStreaming = true;
-		_locations.clear();
-	}
-
-	@Override
-	public void endStream() throws Exception {
-		for (GeoLocation location : _locations) {
-			String latitude = Double.toString(location.getLatitude());
-			String longitude = Double.toString(location.getLongitude());
-			String placeName = location.getQueryPlaceName();
-
-			componentContext.pushDataComponentToOutput(OUT_LATITUDE, BasicDataTypesTools.stringToStrings(latitude));
-			componentContext.pushDataComponentToOutput(OUT_LONGITUDE, BasicDataTypesTools.stringToStrings(longitude));
-			componentContext.pushDataComponentToOutput(OUT_PLACE_NAME, BasicDataTypesTools.stringToStrings(placeName));
-		}
-
-		_isStreaming = false;
-		_locations.clear();
 	}
 }
