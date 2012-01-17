@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<title>Google Map Viewer</title>
+<style type="text/css">
+    html { height: 100% }
+    body { height: 100%; margin: 0; padding: 0 }
+    #map_canvas { height: 100% }
+    .scrollable {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+    }
+</style>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=$key&sensor=false"></script>
+<script type="text/javascript">
+    var map;
+    var layers = new Array();
+
+    function setLayerVisibility(i, visibility) {
+        if (visibility)
+            layers[i].setMap(map);
+        else
+            layers[i].setMap(null);
+    }
+
+    function initialize() {
+        var mapOptions = {
+            mapTypeId: google.maps.MapTypeId.$map_type
+        };
+        map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
+        var sidebar_html = "";
+        var kmlFiles = $kmlFiles;
+
+        for (var i = 0; i < kmlFiles.length; i++) {
+            var kmlFile = kmlFiles[i];
+            layers[i] = new google.maps.KmlLayer(kmlFile.url, { map: map });
+            sidebar_html = sidebar_html.concat("<input type='checkbox' checked='true' " +
+                "onchange='setLayerVisibility(" + i + ", this.checked);'>" + kmlFile.label + "</input><br>");
+        }
+
+        document.getElementById("side_bar").innerHTML = sidebar_html;
+    }
+</script>
+</head>
+<body onload="initialize()">
+    <table border="1" style="height:100%;">
+        <tr style="height:100%;">
+            <td style="width:100%; height:100%;"><div id="map_canvas"/></td>
+            <td style="vertical-align:top; width:150px; height:100%; text-decoration: underline; color:#4444ff;">
+                <div id="side_bar" class="scrollable"/>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -76,7 +76,7 @@ import org.seasr.meandre.support.generic.io.FileUtils;
         rights = Licenses.UofINCSA,
         tags = "html",
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = {"protobuf-java-2.2.0.jar","commons-lang-2.4.jar"}
+        dependency = {"protobuf-java-2.2.0.jar","commons-lang3-3.1.jar"}
 )
 public class HTMLFragmentMaker extends AbstractExecutableComponent {
 

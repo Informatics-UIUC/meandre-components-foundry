@@ -86,7 +86,7 @@ public class ExtractRequestContent extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_TEXT,
-            description = "The header value" +
+            description = "The content text" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;

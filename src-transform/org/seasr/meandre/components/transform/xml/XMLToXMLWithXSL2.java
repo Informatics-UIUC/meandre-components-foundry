@@ -70,8 +70,6 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.w3c.dom.Document;
 
 /**
- * Loretta made this class use firing policy any instead of all.
- *
  * @author Lily Dong;
  * @author Loretta Auvil
  */
@@ -136,7 +134,7 @@ public class XMLToXMLWithXSL2 extends AbstractExecutableComponent {
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
+		Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML), "UTF-8");
 		String sXsl = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_XSL))[0];
         Templates xslt = TRANSFORMER.newTemplates(new StreamSource(new StringReader(sXsl)));
 

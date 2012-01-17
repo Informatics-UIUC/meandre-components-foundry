@@ -69,7 +69,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         rights = Licenses.UofINCSA,
         tags = "tuple",
         description = "This component aggregates a set of tuples" ,
-        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TupleAggregator extends AbstractStreamingExecutableComponent {
 

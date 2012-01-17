@@ -51,11 +51,11 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
@@ -117,7 +117,7 @@ public class DFRAuthorExtractor extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_DFR_XML));
+        Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_DFR_XML), "UTF-8");
 
         XPath xpath = XPathFactory.newInstance().newXPath();
         xpath.setNamespaceContext(new DFRNamespaceContext());

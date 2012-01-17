@@ -43,7 +43,6 @@
 package org.seasr.meandre.components.tools.xml;
 
 import java.util.Properties;
-import java.util.logging.Level;
 
 import javax.xml.transform.OutputKeys;
 
@@ -64,26 +63,18 @@ import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.w3c.dom.Document;
 
 /**
- * Converts XML into text document
- *
- * @author Xavier Llor&agrave;
  * @author Boris Capitanu
- *
  */
 
 @Component(
 		name = "XML To Text",
-		creator = "Xavier Llora",
+		creator = "Boris Capitanu",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "xml, io, text",
-		description = "This component write a XML in text form and generates it text form. " +
-				      "The XML document to convert is received in its input. The component outputs the text " +
-				      "generated. A property allows to control the behaviour of the component in " +
-				      "front of an IO error, allowing to continue pushing and empty model or " +
-				      "throwing and exception forcing the finalization of the flow execution.",
+		description = "This component converts an XML document to its textual representation.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class XMLToText extends AbstractExecutableComponent {
@@ -113,56 +104,46 @@ public class XMLToText extends AbstractExecutableComponent {
     // Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
 
     @ComponentProperty(
-            name=Names.PROP_ENCODING,
-            description = "The encoding to use on the outputed text.",
+            name = Names.PROP_ENCODING,
+            description = "The document encoding",
             defaultValue = "UTF-8"
     )
     protected static final String PROP_ENCODING = Names.PROP_ENCODING;
 
+    @ComponentProperty(
+            name = "indent",
+            description = "Should the output be indented?",
+            defaultValue = "false"
+    )
+    protected static final String PROP_INDENT = "indent";
+
 	//--------------------------------------------------------------------------------------------
 
 
-	private Properties outputProps;
+	protected Properties _outputProps;
+	protected String _encoding;
 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		outputProps = new Properties();
-		outputProps.put(OutputKeys.INDENT, "yes");
-		outputProps.put(OutputKeys.ENCODING, ccp.getProperty(PROP_ENCODING));
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+	    boolean indent = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_INDENT, ccp));
+	    _encoding = getPropertyOrDieTrying(PROP_ENCODING, ccp);
+
+	    _outputProps = new Properties();
+	    _outputProps.put(OutputKeys.INDENT, indent ? "yes" : "no");
+	    _outputProps.put(OutputKeys.ENCODING, _encoding);
 	}
 
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception {
-	    String sXml = "";
-
-	    try {
-	    	Object xml = cc.getDataComponentFromInput(IN_XML);
-	    	if (xml == null) {
-	    		console.info("NO PROPERTY "+ IN_XML);
-	    	}
-
-	    	console.fine("before " + xml);
-            Document doc = DataTypeParser.parseAsDomDocument(xml);
-
-            sXml = DOMUtils.getString(doc, outputProps);
-            console.fine("got XML:\n" + sXml);
-        }
-        catch (Exception e) {
-            console.log(Level.WARNING, "XMLToText " + e.getMessage(), e);
-
-            if (ignoreErrors)
-                sXml = "";
-            else
-                throw e;
-        }
-
-        cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sXml));
+	public void executeCallBack(ComponentContext cc) throws Exception {
+	    Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML), _encoding);
+	    String xml = DOMUtils.getString(doc, _outputProps);
+	    cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(xml));
 	}
 
-    @Override
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
+	@Override
+	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	}
 }

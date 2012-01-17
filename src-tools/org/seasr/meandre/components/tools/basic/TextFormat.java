@@ -175,6 +175,8 @@ public class TextFormat extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _format = getPropertyOrDieTrying(PROP_FORMAT, false, true, ccp);
+        _format = _format.replaceAll("\\\\t", "\t").replaceAll("\\\\n", "\n").replaceAll("\\\\r", "\r");
+
         _numInputs = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_INPUTS, ccp));
         if (_numInputs > ALL_INPUTS.length)
             throw new ComponentContextException(String.format("Invalid '%s' specified: Only %d inputs are available.", PROP_NUM_INPUTS, ALL_INPUTS.length));

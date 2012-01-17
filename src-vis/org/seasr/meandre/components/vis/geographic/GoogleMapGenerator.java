@@ -149,7 +149,7 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
+        Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML), "UTF-8");
 
         MapData mapData = extractMapDataFromDocument(doc);
 

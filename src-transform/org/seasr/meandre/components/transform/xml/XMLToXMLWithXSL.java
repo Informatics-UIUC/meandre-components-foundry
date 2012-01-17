@@ -178,7 +178,7 @@ public class XMLToXMLWithXSL extends AbstractExecutableComponent {
 	            continue;
 	        }
 
-	        Document doc = DataTypeParser.parseAsDomDocument(input);
+	        Document doc = DataTypeParser.parseAsDomDocument(input, "UTF-8");
 	        String transformResult = transformXml(doc);
 	        console.finest("XSL transformation finished. Output:\n" + transformResult);
 

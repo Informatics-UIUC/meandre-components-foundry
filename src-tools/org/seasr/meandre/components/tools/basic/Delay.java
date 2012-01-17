@@ -40,9 +40,7 @@
 *
 */
 
-package org.seasr.meandre.components.tools.xml;
-
-import java.util.logging.Level;
+package org.seasr.meandre.components.tools.basic;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -50,95 +48,75 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
-import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.generic.io.DOMUtils;
-import org.w3c.dom.Document;
 
 /**
- * Converts text into a XML document
- *
- * @author Xavier Llor&agrave;
  * @author Boris Capitanu
- *
  */
 
 @Component(
-		name = "Text To XML",
-		creator = "Xavier Llora",
+		name = "Delay",
+		creator = "Boris Capitanu",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "xml, io, text",
-		description = "This component reads a XML in text form and buids a manipulatable document object. " +
-				      "The text to convert is received in its input. The component outputs the XML object " +
-				      "read. A property allows to control the behaviour of the component in " +
-				      "front of an IO error, allowing to continue pushing and empty XML or " +
-				      "throwing and exception forcing the finalization of the flow execution.",
-		dependency = {"protobuf-java-2.2.0.jar"}
+		tags = "delay, sleep",
+		description = "This component delays pushing the object specified in the input to the output port."
 )
-public class TextToXML extends AbstractExecutableComponent {
+public class Delay extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
 	@ComponentInput(
-			name = Names.PORT_TEXT,
-			description = "The text containing the XML to read" +
-                "<br>TYPE: org.w3c.dom.Document" +
-                "<br>TYPE: java.lang.String" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+			name = Names.PORT_OBJECT,
+			description = "The object" +
+                "<br>TYPE: java.lang.Object"
 	)
-	protected static final String IN_TEXT = Names.PORT_TEXT;
+	protected static final String IN_OBJECT = Names.PORT_OBJECT;
 
-    //------------------------------ OUTPUTS -----------------------------------------------------
+	//------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
-			name = Names.PORT_XML,
-			description = "The XML object containing the XML document read" +
-                "<br>TYPE: org.w3c.dom.Document"
+			name = Names.PORT_OBJECT,
+			description = "Same as input"
 	)
-	protected static final String OUT_DOCUMENT = Names.PORT_XML;
+	protected static final String OUT_OBJECT = Names.PORT_OBJECT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
-    // Inherited ignoreErrors (PROP_IGNORE_ERRORS) from AbstractExecutableComponent
+    @ComponentProperty(
+            name = "delay",
+            description = "The amount of delay to introduce, in milliseconds.",
+            defaultValue = "10000"
+    )
+    protected static final String PROP_DELAY = "delay";
+
+	//--------------------------------------------------------------------------------------------
+
+
+	protected long _delay;
+
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+		_delay = Long.parseLong(getPropertyOrDieTrying(PROP_DELAY, ccp));
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-	    Object input = cc.getDataComponentFromInput(IN_TEXT);
-	    if (input instanceof Strings) {
-            for (String sText : DataTypeParser.parseAsString(input)) {
-                Document doc = null;
-                try {
-                    doc = DataTypeParser.parseAsDomDocument(sText, "UTF-8");
-                }
-                catch (Exception e) {
-                    console.log(Level.WARNING, e.getMessage(), e);
-
-                    if (ignoreErrors)
-                        doc = DOMUtils.createNewDocument();
-                    else
-                        throw e;
-                }
-
-        		cc.pushDataComponentToOutput(OUT_DOCUMENT, doc);
-    		}
-	    } else
-	        cc.pushDataComponentToOutput(OUT_DOCUMENT, DataTypeParser.parseAsDomDocument(input, "UTF-8"));
+		Object input = cc.getDataComponentFromInput(IN_OBJECT);
+		Thread.sleep(_delay);
+		cc.pushDataComponentToOutput(OUT_OBJECT, input);
 	}
 
-    @Override
+	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
+	}
 }

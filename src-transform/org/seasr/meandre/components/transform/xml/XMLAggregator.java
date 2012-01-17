@@ -122,10 +122,10 @@ public class XMLAggregator extends AbstractStreamingExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		Document doc_in = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
+		Document doc_in = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML), "UTF-8");
 		doc_in.getDocumentElement().normalize();
 
-		if(doc_out==null) {
+		if(doc_out == null) {
 			doc_out = DOMUtils.createNewDocument();
 			rootElement = doc_out.createElement("root");
 			rootElement.setAttribute("docTitle", docTitle);

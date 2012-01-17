@@ -370,13 +370,14 @@ public abstract class DataTypeParser {
      * Attempts to convert the given data to a DOM Document
      *
      * @param data The data
+     * @param encoding The encoding
      * @return The DOM Document
      * @throws UnsupportedDataTypeException
      * @throws SAXException
      * @throws IOException
      * @throws ParserConfigurationException
      */
-    public static org.w3c.dom.Document parseAsDomDocument(Object data)
+    public static org.w3c.dom.Document parseAsDomDocument(Object data, String encoding)
         throws UnsupportedDataTypeException, SAXException, IOException, ParserConfigurationException {
 
         org.w3c.dom.Document doc;
@@ -392,7 +393,7 @@ public abstract class DataTypeParser {
         else
 
         if (data instanceof String)
-            doc = DOMUtils.createDocument((String)data);
+            doc = DOMUtils.createDocument((String)data, encoding);
 
         else
 
@@ -401,7 +402,7 @@ public abstract class DataTypeParser {
             if (strings.length > 1)
                 throw new UnsupportedDataTypeException("Cannot process more than one String data at a time");
 
-            doc = DOMUtils.createDocument(strings[0]);
+            doc = DOMUtils.createDocument(strings[0], encoding);
         }
 
         else
@@ -410,7 +411,7 @@ public abstract class DataTypeParser {
             ByteArrayInputStream bais = null;
             try {
                 bais = new ByteArrayInputStream((byte[])data);
-                doc = DOMUtils.createDocument(bais);
+                doc = DOMUtils.createDocument(bais, encoding);
             }
             finally {
                 if (bais != null)
@@ -424,7 +425,7 @@ public abstract class DataTypeParser {
             ByteArrayInputStream bais = null;
             try {
                 bais = new ByteArrayInputStream(BasicDataTypesTools.bytestoByteArray((Bytes)data));
-                doc = DOMUtils.createDocument(bais);
+                doc = DOMUtils.createDocument(bais, encoding);
             }
             finally {
                 if (bais != null)

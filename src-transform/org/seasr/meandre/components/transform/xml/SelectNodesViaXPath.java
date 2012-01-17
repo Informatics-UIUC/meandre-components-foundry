@@ -199,7 +199,7 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
+        Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML), "UTF-8");
         NodeList nodes = (NodeList) _xpathExpression.evaluate(doc, XPathConstants.NODESET);
 
         cc.pushDataComponentToOutput(OUT_XML, new StreamInitiator(streamId));

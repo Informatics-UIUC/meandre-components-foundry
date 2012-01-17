@@ -125,7 +125,7 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
-		Document doc_in = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML));
+		Document doc_in = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML), "UTF-8");
 
     	int minYear = Integer.MAX_VALUE;
     	int maxYear = Integer.MIN_VALUE;
