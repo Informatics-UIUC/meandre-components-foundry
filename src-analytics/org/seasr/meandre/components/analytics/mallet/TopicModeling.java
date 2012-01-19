@@ -42,10 +42,6 @@
 
 package org.seasr.meandre.components.analytics.mallet;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.TreeSet;
-
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -57,15 +53,9 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.generic.io.DOMUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import cc.mallet.topics.ParallelTopicModel;
-import cc.mallet.topics.TopicAssignment;
-import cc.mallet.types.Alphabet;
 import cc.mallet.types.FeatureSequence;
-import cc.mallet.types.IDSorter;
 import cc.mallet.types.InstanceList;
 
 /**
@@ -97,18 +87,11 @@ public class TopicModeling extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            name = "doc_topics_xml",
-            description = "An XML document containing the processed documents, and for each processed document the set of topics and topic probabilities" +
-                "<br>TYPE: org.w3c.dom.Document"
+            name = "topic_model",
+            description = "The topic model" +
+                "<br>TYPE: cc.mallet.topics.ParallelTopicModel"
     )
-    protected static final String OUT_DOC_TOPICS_XML = "doc_topics_xml";
-
-    @ComponentOutput(
-            name = "topic_top_words_xml",
-            description = "An XML document containing the topics, and for each topic the set of top words (with weights)" +
-                "<br>TYPE: org.w3c.dom.Document"
-    )
-    protected static final String OUT_TOPIC_TOP_WORDS_XML = "topic_top_words_xml";
+    protected static final String OUT_TOPIC_MODEL = "topic_model";
 
     //----------------------------- PROPERTIES ---------------------------------------------------
 
@@ -241,88 +224,11 @@ public class TopicModeling extends AbstractExecutableComponent {
         topicModel.setSymmetricAlpha(_useSymmetricAlpha);
         topicModel.setNumThreads(_numThreads);
 
+        console.fine("Performing topic modeling...");
         topicModel.estimate();
+        console.fine("Topic modeling completed.");
 
-        int numTopics = topicModel.getNumTopics();
-
-        IDSorter[] sortedTopics = new IDSorter[numTopics];
-        for (int topic = 0; topic < numTopics; topic++)
-            // Initialize the sorters with dummy values
-            sortedTopics[topic] = new IDSorter(topic, topic);
-
-        Document topicsDoc = DOMUtils.createNewDocument();
-        Element xmlModel = topicsDoc.createElement("model");
-        xmlModel.setAttribute("numTopics", Integer.toString(numTopics));
-        topicsDoc.appendChild(xmlModel);
-
-        int[] topicCounts = new int[numTopics];
-        int docNum = 0;
-        for (TopicAssignment ta : topicModel.getData()) {
-            int[] features = ta.topicSequence.getFeatures();
-
-            // Count up the tokens
-            for (int i = 0, iMax = features.length; i < iMax; i++)
-                topicCounts[features[i]]++;
-
-            // And normalize
-            for (int topic = 0; topic < numTopics; topic++)
-                sortedTopics[topic].set(topic, (float) topicCounts[topic] / features.length);
-
-            Arrays.fill(topicCounts, 0); // initialize for next round
-            Arrays.sort(sortedTopics);
-
-            Element xmlTopics = topicsDoc.createElement("topics");
-            for (int i = 0, iMax = sortedTopics.length; i < iMax; i++) {
-                Element xmlTopic = topicsDoc.createElement("topic");
-                xmlTopic.setAttribute("id", Integer.toString(sortedTopics[i].getID()));
-                xmlTopic.setAttribute("weight", String.format("%.4f", sortedTopics[i].getWeight()));
-                xmlTopics.appendChild(xmlTopic);
-            }
-
-            Element xmlDoc = topicsDoc.createElement("document");
-            xmlDoc.setAttribute("id", Integer.toString(docNum++));
-            xmlDoc.setAttribute("name", ta.instance.getName().toString());
-
-            Element xmlDocSource = topicsDoc.createElement("source");
-            xmlDocSource.appendChild(topicsDoc.createTextNode(ta.instance.getSource().toString()));
-            xmlDoc.appendChild(xmlDocSource);
-            xmlDoc.appendChild(xmlTopics);
-
-            xmlModel.appendChild(xmlDoc);
-        }
-
-        Alphabet alphabet = topicModel.getAlphabet();
-
-        Document topWordsDoc = DOMUtils.createNewDocument();
-        Element xmlTopicTopWords = topWordsDoc.createElement("topicTopWords");
-        topWordsDoc.appendChild(xmlTopicTopWords);
-
-        @SuppressWarnings("rawtypes")
-        TreeSet[] topicSortedWords = topicModel.getSortedWords();
-        for (int topic = 0; topic < numTopics; topic++) {
-            @SuppressWarnings("unchecked")
-            TreeSet<IDSorter> sortedWords = topicSortedWords[topic];
-            Iterator<IDSorter> iterator = sortedWords.iterator();
-
-            Element xmlTopic = topWordsDoc.createElement("topic");
-            xmlTopic.setAttribute("id", Integer.toString(topic));
-
-            int word = 1;
-            while (iterator.hasNext() && (_numTopWords == -1 || word++ < _numTopWords)) {
-                IDSorter info = iterator.next();
-
-                Element xmlWord = topWordsDoc.createElement("word");
-                xmlWord.setAttribute("weight", String.format("%s", (int)info.getWeight()));
-                xmlWord.appendChild(topWordsDoc.createTextNode(alphabet.lookupObject(info.getID()).toString()));
-
-                xmlTopic.appendChild(xmlWord);
-            }
-
-            xmlTopicTopWords.appendChild(xmlTopic);
-        }
-
-        cc.pushDataComponentToOutput(OUT_DOC_TOPICS_XML, topicsDoc);
-        cc.pushDataComponentToOutput(OUT_TOPIC_TOP_WORDS_XML, topWordsDoc);
+        cc.pushDataComponentToOutput(OUT_TOPIC_MODEL, topicModel);
     }
 
     @Override

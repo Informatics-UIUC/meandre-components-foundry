@@ -114,7 +114,6 @@ public class AggregateInstances extends AbstractStreamingExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        _instanceList.clear();
         _instanceList = null;
     }
 
