@@ -46,6 +46,8 @@ import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
+import org.meandre.core.utils.ExceptionFormatter;
+
 /**
  * @author Boris Capitanu
  *
@@ -73,12 +75,15 @@ public class ComponentLogFormatter extends Formatter {
         if (msg == null || msg.length() == 0)
             msg = null;
 
+        String extra = "";
         Throwable thrown = record.getThrown();
         if (thrown != null) {
             if (msg == null)
                 msg = thrown.toString();
             else
                 msg += "  (" + thrown.toString() + ")";
+
+            extra = ExceptionFormatter.formatException(thrown) + System.getProperty("line.separator");
         }
 
         String srcClassName = record.getSourceClassName();
@@ -86,8 +91,8 @@ public class ComponentLogFormatter extends Formatter {
 
         srcClassName = srcClassName.substring(srcClassName.lastIndexOf(".") + 1);
 
-        return String.format("%6$tm/%6$td/%6$ty %6$tH:%6$tM:%6$tS [%s]: %s\t[%s.%s] <%s>%n",
-                record.getLevel(), msg, srcClassName, srcMethodName, _shortCompId, new Date(record.getMillis()));
+        return String.format("%7$tm/%7$td/%7$ty %7$tH:%7$tM:%7$tS [%s]: %s\t[%s.%s] <%s>%n%s",
+                record.getLevel(), msg, srcClassName, srcMethodName, _shortCompId, extra, new Date(record.getMillis()));
     }
 
 }
