@@ -46,7 +46,7 @@ import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
-import org.meandre.core.utils.ExceptionFormatter;
+import org.seasr.meandre.support.generic.logging.formatter.ExceptionFormatter;
 
 /**
  * @author Boris Capitanu
