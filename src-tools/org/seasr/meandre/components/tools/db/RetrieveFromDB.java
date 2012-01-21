@@ -76,7 +76,7 @@ import com.jolbox.bonecp.BoneCP;
  */
 
 @Component(
-        name = "Retrive Persisted Data",
+        name = "Retrieve From DB",
         creator = "Boris Capitanu",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.any,
