@@ -42,16 +42,18 @@
 
 package org.seasr.meandre.components.tools.io;
 
-import java.io.DataOutputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.zip.ZipOutputStream;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -62,14 +64,11 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.io.Serializer;
-import org.seasr.meandre.support.generic.io.Serializer.SerializationFormat;
-import org.seasr.meandre.support.generic.util.Tuples.Tuple2;
 
 /**
  * Serializes the given data to a file
@@ -143,13 +142,19 @@ public class PersistToFile extends AbstractExecutableComponent {
     )
     protected static final String PROP_APPEND_TIMESTAMP = Names.PROP_APPEND_TIMESTAMP;
 
+    @ComponentProperty(
+            name = "use_compression",
+            description = "Should compression be used?",
+            defaultValue = "false"
+    )
+    protected static final String PROP_USE_COMPRESSION = "use_compression";
+
     //--------------------------------------------------------------------------------------------
 
-    public static final String SIGNATURE = "MPF";   // Meandre Persistence File
-    public static final int VERSION = 1;
+
 
     private String defaultFolder, publicResourcesDir;
-    private boolean appendTimestamp;
+    private boolean appendTimestamp, useCompression;
 
 
     //--------------------------------------------------------------------------------------------
@@ -166,6 +171,7 @@ public class PersistToFile extends AbstractExecutableComponent {
         console.fine("Default folder set to: " + defaultFolder);
 
         appendTimestamp = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_APPEND_TIMESTAMP, ccp));
+        useCompression = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_USE_COMPRESSION, ccp));
 
         publicResourcesDir = new File(ccp.getPublicResourcesDirectory()).getAbsolutePath();
         if (!publicResourcesDir.endsWith(File.separator)) publicResourcesDir += File.separator;
@@ -175,12 +181,6 @@ public class PersistToFile extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         String location = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION))[0];
         Object inObject = cc.getDataComponentFromInput(IN_OBJECT);
-
-        Tuple2<byte[], SerializationFormat> result = Serializer.serializeObject(inObject);
-        if (result == null)
-            throw new ComponentExecutionException(String.format("Could not serialize object of type '%s'!", inObject.getClass().getName()));
-
-        console.fine(String.format("Serialized as %s", result.getT2().name()));
 
         File file = getLocation(location, defaultFolder);
         File parentDir = file.getParentFile();
@@ -208,14 +208,16 @@ public class PersistToFile extends AbstractExecutableComponent {
         console.fine(String.format("Writing file %s", file));
 
         // Write the data to file
-        FileOutputStream fos = new FileOutputStream(file);
-        DataOutputStream dataStream = new DataOutputStream(fos);
-        dataStream.writeBytes(SIGNATURE);
-        dataStream.writeShort(VERSION);
-        dataStream.writeUTF(result.getT2().name());
-        dataStream.writeUTF(inObject.getClass().getName());
-        dataStream.write(result.getT1());
-        dataStream.close();
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
+        if (useCompression)
+            os = new ZipOutputStream(os);
+
+        try {
+            Serializer.serializeObject(inObject, os);
+        }
+        finally {
+            os.close();
+        }
 
         if (file.getAbsolutePath().startsWith(publicResourcesDir)) {
             String publicLoc = file.getAbsolutePath().substring(publicResourcesDir.length());

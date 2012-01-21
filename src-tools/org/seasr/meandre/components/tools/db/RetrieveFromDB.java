@@ -67,7 +67,6 @@ import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.seasr.meandre.support.components.db.DBUtils;
 import org.seasr.meandre.support.generic.io.Serializer;
-import org.seasr.meandre.support.generic.io.Serializer.SerializationFormat;
 import org.seasr.meandre.support.generic.util.UUIDUtils;
 
 import com.jolbox.bonecp.BoneCP;
@@ -209,7 +208,7 @@ public class RetrieveFromDB extends AbstractStreamingExecutableComponent {
                             cc.pushDataComponentToOutput(OUT_DATA, new StreamInitiator(streamId));
 
                         String sqlQueryData = String.format(
-                                "SELECT data, type, port_name, serializer FROM %s WHERE uuid = ? ORDER BY seq_no ASC", tableName);
+                                "SELECT data, type, port_name FROM %s WHERE uuid = ? ORDER BY seq_no ASC", tableName);
                         psData = connection.prepareStatement(sqlQueryData);
                         psData.setBigDecimal(1, uuid);
                         rs = psData.executeQuery();
@@ -219,18 +218,11 @@ public class RetrieveFromDB extends AbstractStreamingExecutableComponent {
                             try {
                                 dataStream = rs.getBinaryStream("data");
                                 String type = rs.getString("type");
-                                String serializer = rs.getString("serializer");
 
-                                console.finer(String.format("from db: type='%s', serializer='%s'", type, serializer));
+                                console.finer(String.format("from db: type='%s'", type));
 
-                                Class<?> clazz = Class.forName(type);
-                                SerializationFormat format = SerializationFormat.valueOf(serializer);
-                                if (format == null)
-                                    outputError(String.format("Unsupported serializer format '%s' for id '%s'!", serializer, input), Level.WARNING);
-                                else {
-                                    Object obj = Serializer.deserializeObject(dataStream, clazz, format);
-                                    cc.pushDataComponentToOutput(OUT_DATA, obj);
-                                }
+                                Object obj = Serializer.deserializeObject(dataStream);
+                                cc.pushDataComponentToOutput(OUT_DATA, obj);
                             }
                             finally {
                                 if (dataStream != null)

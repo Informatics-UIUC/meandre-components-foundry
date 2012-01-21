@@ -42,7 +42,7 @@
 
 package org.seasr.meandre.components.tools.io;
 
-import java.io.DataInputStream;
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.net.URI;
 
@@ -54,12 +54,10 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.io.Serializer;
-import org.seasr.meandre.support.generic.io.Serializer.SerializationFormat;
 import org.seasr.meandre.support.generic.io.StreamUtils;
 
 /**
@@ -114,25 +112,10 @@ public class RetrieveFromFile extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         URI location = DataTypeParser.parseAsURI(cc.getDataComponentFromInput(IN_LOCATION));
 
-        InputStream objStream = StreamUtils.getInputStreamForResource(location);
-        DataInputStream dataStream = new DataInputStream(objStream);
-        // check signature
-        byte[] signature = new byte[3];
-        dataStream.read(signature);
-        if (! new String(signature).equals(PersistToFile.SIGNATURE))
-            throw new ComponentExecutionException("The file at " + location + " is not a persistence file. Incorrect file header.");
+        InputStream objStream = new BufferedInputStream(StreamUtils.getInputStreamForResource(location));
+        Object obj = Serializer.deserializeObject(objStream);
 
-        int version = dataStream.readShort();
-        if (version > PersistToFile.VERSION)
-            throw new ComponentExecutionException("The file at " + location +
-                    " is not compatible with this deserializer. Incompatible version numbers (persisted file was created with newer serializer)");
-
-        String format = dataStream.readUTF();
-        String className = dataStream.readUTF();
-
-        console.fine(String.format("%s: class '%s' (serialized with '%s')", location, className, format));
-
-        Object obj = Serializer.deserializeObject(dataStream, Class.forName(className), SerializationFormat.valueOf(format));
+        console.fine(String.format("%s: class '%s'", location, obj.getClass().getName()));
 
         cc.pushDataComponentToOutput(OUT_OBJECT, obj);
     }

@@ -42,6 +42,9 @@
 
 package org.seasr.meandre.components.tools.db;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -65,11 +68,12 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 import org.seasr.meandre.support.components.db.DBUtils;
 import org.seasr.meandre.support.generic.io.Serializer;
-import org.seasr.meandre.support.generic.io.Serializer.SerializationFormat;
-import org.seasr.meandre.support.generic.util.Tuples.Tuple2;
 import org.seasr.meandre.support.generic.util.UUIDUtils;
 
 import com.jolbox.bonecp.BoneCP;
+
+import de.schlichtherle.io.FileInputStream;
+import de.schlichtherle.io.FileOutputStream;
 
 @Component(
         name = "Persist To DB",
@@ -246,23 +250,31 @@ public class PersistToDB extends AbstractStreamingExecutableComponent {
                     continue;
                 }
 
-                Tuple2<byte[], SerializationFormat> result = Serializer.serializeObject(input);
-                if (result == null) {
-                    console.warning(String.format("Could not serialize object of type '%s' - ignoring it...", input.getClass().getName()));
-                    continue;
+                File tmpFile = File.createTempFile("ser_", ".ser");
+                tmpFile.deleteOnExit();
+                BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(tmpFile));
+                try {
+                    Serializer.serializeObject(input, os);
                 }
+                finally {
+                    os.close();
+                }
+
+                BufferedInputStream is = new BufferedInputStream(new FileInputStream(tmpFile));
 
                 if (!_isStreaming)
                     insertPersistenceMetaInfo(psMeta);
 
                 psData.setBigDecimal(1, _uuid);
                 psData.setInt(2, _seqNo++);
-                psData.setBytes(3, result.getT1());
+                psData.setBlob(3, is);
                 psData.setString(4, input.getClass().getName());
                 psData.setString(5, _port1Name);
-                psData.setString(6, result.getT2().name());
                 int rowCount = psData.executeUpdate();
                 console.finer(String.format("psData: rowCount=%d", rowCount));
+
+                is.close();
+                tmpFile.delete();
 
                 if (!_isStreaming) {
                     connection.commit();
@@ -338,7 +350,6 @@ public class PersistToDB extends AbstractStreamingExecutableComponent {
                     "  data LONGBLOB NOT NULL," +
                     "  type VARCHAR(255) NOT NULL," +
                     "  port_name VARCHAR(30) NOT NULL," +
-                    "  serializer ENUM ('protobuf', 'java') NOT NULL," +
                     "  PRIMARY KEY (uuid, seq_no, port_name)," +
                     "  FOREIGN KEY (uuid) REFERENCES %s (uuid)," +
                     "  INDEX (uuid)" +
