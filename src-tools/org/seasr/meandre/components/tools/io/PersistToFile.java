@@ -53,7 +53,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.zip.ZipOutputStream;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -209,11 +208,8 @@ public class PersistToFile extends AbstractExecutableComponent {
 
         // Write the data to file
         OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-        if (useCompression)
-            os = new ZipOutputStream(os);
-
         try {
-            Serializer.serializeObject(inObject, os);
+            Serializer.serializeObject(inObject, os, useCompression);
         }
         finally {
             os.close();

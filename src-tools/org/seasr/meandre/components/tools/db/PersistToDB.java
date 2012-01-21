@@ -130,6 +130,13 @@ public class PersistToDB extends AbstractStreamingExecutableComponent {
     )
     protected static final String PROP_PORT1_NAME = "port1_name";
 
+    @ComponentProperty(
+            name = "use_compression",
+            description = "Should compression be used on the persisted object?",
+            defaultValue = "false"
+    )
+    protected static final String PROP_USE_COMPRESSION = "use_compression";
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -147,6 +154,7 @@ public class PersistToDB extends AbstractStreamingExecutableComponent {
     protected String _sqlInsertData;
 
     protected boolean _isStreaming = false;
+    protected boolean _useCompression;
 
     protected BigDecimal _uuid;
     protected int _seqNo;
@@ -162,6 +170,8 @@ public class PersistToDB extends AbstractStreamingExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
+
+        _useCompression = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_USE_COMPRESSION, ccp));
 
         _dbTable = getPropertyOrDieTrying(PROP_TABLE, ccp);
         _port1Name = getPropertyOrDieTrying(PROP_PORT1_NAME, ccp);
@@ -254,7 +264,7 @@ public class PersistToDB extends AbstractStreamingExecutableComponent {
                 tmpFile.deleteOnExit();
                 BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(tmpFile));
                 try {
-                    Serializer.serializeObject(input, os);
+                    Serializer.serializeObject(input, os, _useCompression);
                 }
                 finally {
                     os.close();
