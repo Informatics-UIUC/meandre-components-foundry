@@ -142,6 +142,9 @@ public class DocumentTopicsToXML extends AbstractExecutableComponent {
         xmlModel.setAttribute("numTopics", Integer.toString(numTopics));
         topicsDoc.appendChild(xmlModel);
 
+        int dataSize = topicModel.getData().size();
+        int processed = 0;
+
         int[] topicCounts = new int[numTopics];
         int docNum = 0;
         for (TopicAssignment ta : topicModel.getData()) {
@@ -179,7 +182,12 @@ public class DocumentTopicsToXML extends AbstractExecutableComponent {
             xmlDoc.appendChild(xmlTopics);
 
             xmlModel.appendChild(xmlDoc);
+
+            if (++processed % 1000 == 0)
+                console.fine(String.format("Processed %,d out of %,d", processed, dataSize));
         }
+
+        console.fine("XML created");
 
         cc.pushDataComponentToOutput(OUT_DOC_TOPICS_XML, topicsDoc);
         cc.pushDataComponentToOutput(OUT_TOPIC_MODEL, topicModel);
