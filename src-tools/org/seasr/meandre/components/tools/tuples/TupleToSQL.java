@@ -291,6 +291,13 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
                 Strings[] tuples = BasicDataTypesTools.stringsArrayToJavaArray((StringsArray) inTuple);
                 SimpleTuple tuple = metaPeer.createTuple();
 
+                if (console.isLoggable(Level.FINER)) {
+                    StringBuilder sb = new StringBuilder();
+                    for (String fieldName : metaPeer.getFieldNames())
+                        sb.append(", '").append(fieldName).append("'");
+                    console.finer("Tuple field names (single quotes added): " + sb.substring(2));
+                }
+
                 try {
                     ps = connection.prepareStatement(
                             String.format("INSERT INTO %s VALUES (%s);",
@@ -302,6 +309,7 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
                         tuple.setValues(t);
 
                         for (int i = 0, iMax = _currentTableColumns.size(); i < iMax; i++) {
+                            console.finer("Retrieving tuple value for column (single quotes added): '" + _currentTableColumns.get(i) + "'");
                             String tupleValue = tuple.getValue(_currentTableColumns.get(i));
                             ps.setObject(i + 1, tupleValue.length() > 0 ? tupleValue : null);
                         }
@@ -394,7 +402,7 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
             _tableNames.add(tableName);
 
             ResultSet rs = stmt.executeQuery(
-                    String.format("SELECT column_name FROM information_schema.columns WHERE table_name='%s';", tableName));
+                    String.format("SHOW COLUMNS FROM %s;", tableName));
             _currentTableColumns = new ArrayList<String>();
             while (rs.next())
                 _currentTableColumns.add(rs.getString(1));
