@@ -80,13 +80,13 @@ import org.w3c.dom.NodeList;
 		              "information from tuples and outputs it " +
 		              "as xml document. Only those entity types specified in this component's " +
 		              "properties will be included in the output XML document.</p>",
-        name = "Tuple To XML",
+        name = "Tuple To Entity XML",
         tags = "text, document, tuple",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TupleToXML extends AbstractStreamingExecutableComponent {
+public class TupleToEntityXML extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
