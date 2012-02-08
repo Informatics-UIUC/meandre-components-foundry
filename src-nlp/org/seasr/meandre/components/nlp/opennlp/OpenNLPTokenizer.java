@@ -99,7 +99,7 @@ public class OpenNLPTokenizer extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_TOKENS,
-            description = "The tokens for the sentences, one set of tokens for each sentence" +
+            description = "The tokens" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TOKENS = Names.PORT_TOKENS;
