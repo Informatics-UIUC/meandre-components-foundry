@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.nlp.opennlp;
 
+import opennlp.tools.tokenize.SimpleTokenizer;
 import opennlp.tools.tokenize.WhitespaceTokenizer;
 
 import org.meandre.annotations.Component;
@@ -50,8 +51,11 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -100,17 +104,47 @@ public class OpenNLPTokenizer extends AbstractExecutableComponent {
     )
     protected static final String OUT_TOKENS = Names.PORT_TOKENS;
 
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            name = "tokenizer_type",
+            description = "The tokenizer type. One of 'whitespace' or 'simple' (no quotes). " +
+            		"The whitespace tokenizer splits text into tokens based on whitespaces. " +
+            		"The simple tokenizer splits text based on character classes.",
+            defaultValue = "simple"
+    )
+    protected static final String PROP_TOKENIZER_TYPE = "tokenizer_type";
+
+    //--------------------------------------------------------------------------------------------
+
+
+    protected String _tokenizerType;
+
+
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        _tokenizerType = getPropertyOrDieTrying(PROP_TOKENIZER_TYPE, ccp);
+        if (!_tokenizerType.equalsIgnoreCase("simple") && !_tokenizerType.equalsIgnoreCase("whitespace"))
+            throw new ComponentContextException("Invalid tokenizer type specified!");
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
-        WhitespaceTokenizer tokenizer = WhitespaceTokenizer.INSTANCE;
-        String[] tokens = tokenizer.tokenize(text);
+        String[] tokens;
+
+        if (_tokenizerType.equalsIgnoreCase("simple"))
+            tokens = SimpleTokenizer.INSTANCE.tokenize(text);
+
+        else
+
+        if (_tokenizerType.equalsIgnoreCase("whitespace"))
+            tokens = WhitespaceTokenizer.INSTANCE.tokenize(text);
+
+        else
+            throw new ComponentExecutionException("Invalid tokenizer");
 
         cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(tokens));
     }
