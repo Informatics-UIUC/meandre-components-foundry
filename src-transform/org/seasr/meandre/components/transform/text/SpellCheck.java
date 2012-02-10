@@ -42,9 +42,7 @@
 
 package org.seasr.meandre.components.transform.text;
 
-import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -335,22 +333,9 @@ public class SpellCheck extends AbstractExecutableComponent {
         return _spellChecker != null && componentInputCache.hasData(IN_TEXT);
     }
 
-    protected SpellDictionary getDictionary(Object in_dictionary) throws UnsupportedDataTypeException, IOException {
-        Reader dictReader;
-
-        try {
-            // try parsing as url
-            URI dictUri = DataTypeParser.parseAsURI(in_dictionary);
-            dictReader = IOUtils.getReaderForResource(dictUri);
-        }
-        catch (Exception e) {
-            // parse as wordlist
-            String[] wordList = DataTypeParser.parseAsString(in_dictionary);
-            StringBuilder sb = new StringBuilder();
-            for (String word : wordList)
-                sb.append(word).append("\n");
-            dictReader = new StringReader(sb.toString());
-        }
+    protected SpellDictionary getDictionary(Object in_dictionary) throws Exception {
+        URI dictUri = DataTypeParser.parseAsURI(in_dictionary);
+        Reader dictReader = IOUtils.getReaderForResource(dictUri);
 
         return new SpellDictionaryHashMap(dictReader);
     }
