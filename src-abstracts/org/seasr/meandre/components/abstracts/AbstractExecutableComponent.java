@@ -218,6 +218,11 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
     public void execute(ComponentContext cc)
             throws ComponentExecutionException, ComponentContextException {
 
+        if (cc.isFlowAborting()) {
+            console.warning("Flow abort requested - terminating component execution...");
+            return;
+        }
+
         componentContext = cc;
 
         // Initialize the PackedDataComponent variables each iteration

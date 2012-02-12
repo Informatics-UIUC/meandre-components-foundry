@@ -77,7 +77,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         tags = "tuple, concept, counter",
         description = "This component tags tuples representing documents with an incremental 'docId' " +
         		"and a count of the frequencies of the concepts present in the document." ,
-        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ConceptCounter extends AbstractExecutableComponent {
 
@@ -85,14 +85,14 @@ public class ConceptCounter extends AbstractExecutableComponent {
 
     @ComponentInput(
             name = Names.PORT_TUPLES,
-            description = "set of labeled tuples to be grouped (e.g. startTokenPosition, token, concept)" +
+            description = "The set of tuples to be grouped" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
     )
     protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
     @ComponentInput(
             name = Names.PORT_META_TUPLE,
-            description = "meta data for tuples to be labeled" +
+            description = "The meta data for the tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
@@ -101,14 +101,14 @@ public class ConceptCounter extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_TUPLES,
-            description = "set of grouped tuples" +
+            description = "The set of grouped tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
     )
     protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
     @ComponentOutput(
             name = Names.PORT_META_TUPLE,
-            description = "meta data for the tuples (docId, concept, count)" +
+            description = "The meta data for the tuples (docId, concept, count)" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
@@ -116,7 +116,7 @@ public class ConceptCounter extends AbstractExecutableComponent {
     //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
-            description = "field name to group by",
+            description = "The field name to group by",
             name = "group_by",
             defaultValue = "concept"
     )
@@ -154,7 +154,7 @@ public class ConceptCounter extends AbstractExecutableComponent {
 
         int KEY_IDX = inPeer.getIndexForFieldName(_groupBy);
         if (KEY_IDX == -1)
-            throw new ComponentExecutionException("Tuple has no key field " + _groupBy);
+            throw new ComponentExecutionException("Tuple has no key field: " + _groupBy);
 
         Map<String, Integer> conceptMap = new HashMap<String, Integer>();
 
