@@ -69,7 +69,7 @@ import cc.mallet.types.InstanceList;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "mallet, topic model",
+        tags = "_ANALYTICS_, mallet, topic model",
         description = "This component perform topic analysis in the style of LDA and its variants using Mallet" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )

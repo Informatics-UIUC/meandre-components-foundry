@@ -69,7 +69,7 @@ import cc.mallet.types.FeatureSequence;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tuple, mallet, feature",
+        tags = "_TRANSFORM_, tuple, mallet, feature",
         description = "This component converts a specific attribute into a Mallet feature sequence" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )

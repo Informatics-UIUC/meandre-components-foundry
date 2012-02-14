@@ -87,7 +87,7 @@ import de.schlichtherle.io.FileOutputStream;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "mallet, topic model, csv",
+        tags = "_TRANSFORM_, mallet, topic model, csv",
         description = "This component creates a CSV file containing the processed documents, and for each processed document " +
         		"the set of topics and topic probabilities" ,
         dependency = {"protobuf-java-2.2.0.jar"}

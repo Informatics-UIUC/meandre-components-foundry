@@ -63,7 +63,7 @@ import cc.mallet.types.Instance;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "mallet, instance",
+        tags = "_TRANSFORM_, mallet, instance",
         description = "This component creates a Mallet instance object.<p>" +
         		"This represents a machine learning 'example' to be used in training, testing or " +
         		"performance of various machine learning algorithms.</p> <p>An instance contains four " +

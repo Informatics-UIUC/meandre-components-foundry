@@ -73,7 +73,7 @@ import cc.mallet.types.IDSorter;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "mallet, topic model, xml",
+        tags = "_TRANSFORM_, mallet, topic model, xml",
         description = "This component outputs an XML document containing the processed documents, and for each processed document the set of topics and topic probabilities" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )

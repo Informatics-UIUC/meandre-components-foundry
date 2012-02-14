@@ -75,7 +75,7 @@ import cc.mallet.types.IDSorter;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "mallet, topic model, xml",
+        tags = "_TRANSFORM_, mallet, topic model, xml",
         description = "This component outputs an XML document containing the topics, and for each topic the set of top words (with weights)" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )
