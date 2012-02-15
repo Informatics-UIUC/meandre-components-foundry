@@ -585,11 +585,11 @@ public class SpellCheck extends AbstractExecutableComponent {
                 StringBuilder sbWord = new StringBuilder();
                 for (String word : entry.getValue())
                     sbWord.append(", ").append(word);
-                String rule = String.format(";%n%s = {%s}", entry.getKey(), sbWord.substring(2));
+                String rule = String.format("%s = {%s};%n", entry.getKey(), sbWord.substring(2));
                 sb.append(rule);
             }
 
-            return sb.length() > 2 ? sb.substring(2) : "";
+            return sb.toString();
         }
 
         public Map<String, Set<String>> getReplacements() {
