@@ -222,7 +222,7 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
         Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML), "UTF-8");
         Object result = _xpathExpression.evaluate(doc, _qName);
 
-        if (result == null) {
+        if (result == null || (result instanceof NodeList && ((NodeList)result).getLength() == 0)) {
             outputError("The XPath expression did not return any results.", Level.WARNING);
             return;
         }
