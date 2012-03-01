@@ -49,10 +49,9 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -126,6 +125,20 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
     protected static final String PROP_XPATH = "xpath";
 
     @ComponentProperty(
+            name = "qname",
+            description = "The desired output format. One of: BOOLEAN, NUMBER, STRING, NODE, NODESET.",
+            defaultValue = "NODESET"
+    )
+    protected static final String PROP_QNAME = "qname";
+
+    @ComponentProperty(
+            name = "wrap_stream",
+            description = "Should the output be wrapped in a stream?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_WRAP_STREAM = "wrap_stream";
+
+    @ComponentProperty(
             name = "namespaces",
             description = "Optional: Any namespaces that you want defined<br>" +
             		"Format: &lt;prefix&gt;=&lt;namespace&gt;,&lt;prefix&gt;=&lt;namespace&gt;...<br>" +
@@ -140,6 +153,8 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
     protected XPathExpression _xpathExpression;
     protected LSSerializer _serializer;
     protected LSOutput _output;
+    protected QName _qName;
+    protected boolean _wrapStream;
 
 
     //--------------------------------------------------------------------------------------------
@@ -147,6 +162,11 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
+
+        String qName = getPropertyOrDieTrying(PROP_QNAME, ccp).toUpperCase();
+        _qName = new QName("http://www.w3.org/1999/XSL/Transform", qName);
+
+        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
 
         NamespaceContext namespaceContext = null;
 
@@ -185,7 +205,7 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
         }
 
         String xpathExpression = getPropertyOrDieTrying(PROP_XPATH, ccp);
-        XPath xpath = XPathFactory.newInstance().newXPath();
+        XPath xpath = new net.sf.saxon.xpath.XPathFactoryImpl().newXPath();
         if (namespaceContext != null)
             xpath.setNamespaceContext(namespaceContext);
         _xpathExpression = xpath.compile(xpathExpression);
@@ -200,32 +220,51 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Document doc = DataTypeParser.parseAsDomDocument(cc.getDataComponentFromInput(IN_XML), "UTF-8");
-        NodeList nodes = (NodeList) _xpathExpression.evaluate(doc, XPathConstants.NODESET);
+        Object result = _xpathExpression.evaluate(doc, _qName);
 
-        cc.pushDataComponentToOutput(OUT_XML, new StreamInitiator(streamId));
+        if (result == null) {
+            outputError("The XPath expression did not return any results.", Level.WARNING);
+            return;
+        }
 
-        for (int i = 0, iMax = nodes.getLength(); i < iMax; i++) {
-            Node node = nodes.item(i);
-            switch (node.getNodeType()) {
-                case Node.ATTRIBUTE_NODE:
-                case Node.TEXT_NODE:
-                    cc.pushDataComponentToOutput(OUT_XML,
-                            BasicDataTypesTools.stringToStrings(node.getNodeValue()));
-                    break;
+        if (_wrapStream)
+            cc.pushDataComponentToOutput(OUT_XML, new StreamInitiator(streamId));
 
-                default:
-                    StringWriter writer = new StringWriter();
-                    _output.setCharacterStream(writer);
-                    if (_serializer.write(node, _output))
-                        cc.pushDataComponentToOutput(OUT_XML,
-                                BasicDataTypesTools.stringToStrings(writer.toString()));
-                    else
-                        outputError("Cannot serialize node: " + node, Level.WARNING);
-                    break;
+        if (result instanceof NodeList) {
+            NodeList nodes = (NodeList) result;
+            for (int i = 0, iMax = nodes.getLength(); i < iMax; i++) {
+                Node node = nodes.item(i);
+                processNode(node);
             }
         }
 
-        cc.pushDataComponentToOutput(OUT_XML, new StreamTerminator(streamId));
+        else
+
+        if (result instanceof Node) {
+            Node node = (Node) result;
+            processNode(node);
+        }
+
+        else
+
+        if (result instanceof String) {
+            cc.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(result.toString()));
+        }
+
+        else
+
+        if (result instanceof Boolean) {
+            cc.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(result.toString()));
+        }
+
+        else
+
+        if (result instanceof Number) {
+            cc.pushDataComponentToOutput(OUT_XML, BasicDataTypesTools.stringToStrings(result.toString()));
+        }
+
+        if (_wrapStream)
+            cc.pushDataComponentToOutput(OUT_XML, new StreamTerminator(streamId));
     }
 
     @Override
@@ -240,5 +279,27 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
     @Override
     public boolean isAccumulator() {
         return false;
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    protected void processNode(Node node) throws Exception {
+        switch (node.getNodeType()) {
+            case Node.ATTRIBUTE_NODE:
+            case Node.TEXT_NODE:
+                componentContext.pushDataComponentToOutput(OUT_XML,
+                        BasicDataTypesTools.stringToStrings(node.getNodeValue()));
+                break;
+
+            default:
+                StringWriter writer = new StringWriter();
+                _output.setCharacterStream(writer);
+                if (_serializer.write(node, _output))
+                    componentContext.pushDataComponentToOutput(OUT_XML,
+                            BasicDataTypesTools.stringToStrings(writer.toString()));
+                else
+                    outputError("Cannot serialize node: " + node, Level.WARNING);
+                break;
+        }
     }
 }
