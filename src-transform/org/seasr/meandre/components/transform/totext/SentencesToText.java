@@ -46,11 +46,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
@@ -72,7 +72,7 @@ import org.seasr.datatypes.core.Names;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "sentence, text, convert",
-		description = "Given a collection of sentences, this component converts it " +
+		description = "Given a collection of sentences, this component converts them " +
 				      "into text.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
