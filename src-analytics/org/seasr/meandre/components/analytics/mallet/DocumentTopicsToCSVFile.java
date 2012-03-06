@@ -154,12 +154,20 @@ public class DocumentTopicsToCSVFile extends AbstractExecutableComponent {
     )
     protected static final String PROP_USE_COMPRESSION = "use_compression";
 
+    @ComponentProperty(
+            name = Names.PROP_SEPARATOR,
+            description = "The delimiter to use to separate the data columns in the CSV file",
+            defaultValue = ","
+    )
+    protected static final String PROP_SEPARATOR = Names.PROP_SEPARATOR;
+
     //--------------------------------------------------------------------------------------------
 
 
     protected static final String NEWLINE = System.getProperty("line.separator");
     protected String _defaultFolder, _publicResourcesDir;
     protected boolean _appendTimestamp, _useCompression;
+    protected String _separator;
 
 
     //--------------------------------------------------------------------------------------------
@@ -177,6 +185,7 @@ public class DocumentTopicsToCSVFile extends AbstractExecutableComponent {
 
         _appendTimestamp = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_APPEND_TIMESTAMP, ccp));
         _useCompression = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_USE_COMPRESSION, ccp));
+        _separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
 
         _publicResourcesDir = new File(ccp.getPublicResourcesDirectory()).getAbsolutePath();
         if (!_publicResourcesDir.endsWith(File.separator)) _publicResourcesDir += File.separator;
@@ -218,7 +227,7 @@ public class DocumentTopicsToCSVFile extends AbstractExecutableComponent {
 
         Writer writer = new OutputStreamWriter(os);
         try {
-            writer.write("doc_id,doc_name");
+            writer.write(String.format("doc_id%sdoc_name", _separator));
 
             int numTopics = topicModel.getNumTopics();
 
@@ -226,7 +235,7 @@ public class DocumentTopicsToCSVFile extends AbstractExecutableComponent {
             for (int topic = 0; topic < numTopics; topic++) {
                 // Initialize the sorters with dummy values
                 sortedTopics[topic] = new IDSorter(topic, topic);
-                writer.write(String.format(",topic_%d", topic));
+                writer.write(String.format("%stopic_%d", _separator, topic));
             }
 
             writer.write(NEWLINE);
@@ -248,12 +257,12 @@ public class DocumentTopicsToCSVFile extends AbstractExecutableComponent {
                 Arrays.fill(topicCounts, 0); // initialize for next round
                 Arrays.sort(sortedTopics);
 
-                writer.write(Integer.toString(docNum++) + ","); // doc_id
+                writer.write(Integer.toString(docNum++) + _separator); // doc_id
                 writer.write(ta.instance.getName().toString()); // doc_name
 
                 for (int i = 0, iMax = sortedTopics.length; i < iMax; i++) {
                     double weight = sortedTopics[i].getWeight();
-                    writer.write(String.format(",%.4f", weight));
+                    writer.write(String.format("%s%.4f", _separator, weight));
                 }
 
                 writer.write(NEWLINE);
