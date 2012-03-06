@@ -108,7 +108,7 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 
     @ComponentProperty(
             name = "tokenSeparator",
-            description = "The token to use to separate the field values",
+            description = "The token to use to separate the field values. Use \\t if the separator is the tab character.",
             defaultValue = ","
     )
     protected static final String PROP_TOKEN_SEPARATOR = "tokenSeparator";
@@ -148,7 +148,7 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         bHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, true, true, ccp));
         bOrdered = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, true, true, ccp));
-        separator = getPropertyOrDieTrying(PROP_TOKEN_SEPARATOR, true, true, ccp);
+        separator = getPropertyOrDieTrying(PROP_TOKEN_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
         tokenPos = Integer.parseInt(getPropertyOrDieTrying(PROP_TOKEN_POS, ccp));
         countPos = Integer.parseInt(getPropertyOrDieTrying(PROP_COUNT_POS, ccp));
     }
