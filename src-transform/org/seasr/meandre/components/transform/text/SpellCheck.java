@@ -108,6 +108,7 @@ public class SpellCheck extends AbstractExecutableComponent {
             description = "The text, tokens, or token counts that needs to be spell checked" +
                           "<br>TYPE: java.lang.String" +
                           "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap" +
                           "<br>TYPE: byte[]" +
                           "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
                           "<br>TYPE: java.lang.Object"
@@ -156,6 +157,14 @@ public class SpellCheck extends AbstractExecutableComponent {
                           "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_UNCORRECTED_MISSPELLINGS = "uncorrected_misspellings";
+
+    @ComponentOutput(
+            name = "mispellings_with_counts",
+            description = "The token counts of the misspelled words/tokens. " +
+            		"This output will be generated only if the property 'output_misspellings_with_counts' is set to 'true'." +
+                    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
+    )
+    protected static final String OUT_MISPELLINGS_WITH_COUNTS = "mispellings_with_counts";
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -210,6 +219,16 @@ public class SpellCheck extends AbstractExecutableComponent {
     )
     protected static final String PROP_IGNORE_DIGITWORDS = "ignore_digitwords";
 
+    @ComponentProperty(
+            name = "output_misspellings_with_counts",
+            description = "Output misspellings with counts? (output will be in token count " +
+            		"format describing the mispelled word and the count for how many times it " +
+            		"was found in the input text. The output will be pushed to the '" +
+            		OUT_MISPELLINGS_WITH_COUNTS + "' port",
+            defaultValue = "false"
+    )
+    protected static final String PROP_OUTPUT_MISSPELLINGS_WITH_COUNTS = "output_misspellings_with_counts";
+
 
     //--------------------------------------------------------------------------------------------
 
@@ -223,6 +242,7 @@ public class SpellCheck extends AbstractExecutableComponent {
     protected boolean _ignoreMixedCase;
     protected boolean _ignoreInternetAddr;
     protected boolean _ignoreDigitWords;
+    protected boolean _outputMisspellingsWithCounts;
 
     // stats
     protected int _countTotalWords;
@@ -243,6 +263,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         _ignoreMixedCase = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_MIXEDCASE, ccp));
         _ignoreInternetAddr = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_INTERNETADDR, ccp));
         _ignoreDigitWords = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_DIGITWORDS, ccp));
+        _outputMisspellingsWithCounts = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_OUTPUT_MISSPELLINGS_WITH_COUNTS, ccp));
     }
 
     @Override
@@ -341,7 +362,7 @@ public class SpellCheck extends AbstractExecutableComponent {
     }
 
     protected SuggestionListener getSuggestionListener() {
-        return new SuggestionListener(_doCorrection, _levenshteinDistance, console);
+        return new SuggestionListener(_doCorrection, _outputMisspellingsWithCounts, _levenshteinDistance, console);
     }
 
     private void processText(String[] text) throws ComponentContextException {
@@ -374,6 +395,9 @@ public class SpellCheck extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_RULES, BasicDataTypesTools.stringToStrings(replacementRules));
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, BasicDataTypesTools.mapToStringMap(getReplacementsMap(replacements)));
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
+
+        if (_outputMisspellingsWithCounts)
+            componentContext.pushDataComponentToOutput(OUT_MISPELLINGS_WITH_COUNTS, BasicDataTypesTools.mapToIntegerMap(listener.getMisspellingCounts(), true));
     }
 
     private void processTokenizedSentences(Map<String, String[]> tokenizedSentences) throws ComponentContextException {
@@ -424,6 +448,9 @@ public class SpellCheck extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_RULES, BasicDataTypesTools.stringToStrings(replacementRules));
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, BasicDataTypesTools.mapToStringMap(getReplacementsMap(replacements)));
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.mapToStringMap(correctedTokenizedSentences));
+
+        if (_outputMisspellingsWithCounts)
+            componentContext.pushDataComponentToOutput(OUT_MISPELLINGS_WITH_COUNTS, BasicDataTypesTools.mapToIntegerMap(listener.getMisspellingCounts(), true));
     }
 
     private void processTokenCounts(Map<String, Integer> tokenCounts) throws ComponentContextException {
@@ -465,6 +492,9 @@ public class SpellCheck extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_RULES, BasicDataTypesTools.stringToStrings(replacementRules));
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, BasicDataTypesTools.mapToStringMap(getReplacementsMap(replacements)));
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.mapToIntegerMap(correctedTokenCounts, false));
+
+        if (_outputMisspellingsWithCounts)
+            componentContext.pushDataComponentToOutput(OUT_MISPELLINGS_WITH_COUNTS, BasicDataTypesTools.mapToIntegerMap(listener.getMisspellingCounts(), true));
     }
 
     private Map<String,String[]> getReplacementsMap(Map<String,Set<String>> map) {
@@ -483,9 +513,11 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         protected final Map<String, Set<String>> _replacements;
         protected final boolean _doCorrection;
+        protected final boolean _trackMisspellingCounts;
         protected final Float _levenshteinDistance;
         protected final Logger _logger;
         protected final Strings.Builder _uncorrectedMisspellings;
+        protected final Map<String, Integer> _misspellingCounts;
 
         protected int _countSpellingErrors = 0;
         protected int _countMissedCorrections = 0;
@@ -499,10 +531,16 @@ public class SpellCheck extends AbstractExecutableComponent {
         }
 
         public SuggestionListener(boolean doCorrection, Float levenshteinDistance, Logger logger) {
+            this(doCorrection, false, levenshteinDistance, logger);
+        }
+
+        public SuggestionListener(boolean doCorrection, boolean trackMisspellingCounts, Float levenshteinDistance, Logger logger) {
             _replacements = new HashMap<String, Set<String>>();
             _doCorrection = doCorrection;
             _levenshteinDistance = levenshteinDistance;
             _uncorrectedMisspellings = Strings.newBuilder();
+            _misspellingCounts = new HashMap<String, Integer>();
+            _trackMisspellingCounts = trackMisspellingCounts;
             _logger = logger;
         }
 
@@ -511,6 +549,13 @@ public class SpellCheck extends AbstractExecutableComponent {
 
             String invalidWord = event.getInvalidWord();
 			if (_logger != null) _logger.finer("Misspelling: " + invalidWord);
+
+			if (_trackMisspellingCounts) {
+			    Integer oldCount = _misspellingCounts.get(invalidWord);
+			    if (oldCount == null) oldCount = 0;
+			    _misspellingCounts.put(invalidWord, oldCount + 1);
+			}
+
             int nSuggestions = event.getSuggestions().size();
             Set<String> suggestions = nSuggestions > 0 ? new LinkedHashSet<String>(nSuggestions) : new LinkedHashSet<String>();
             for (Object suggestion : event.getSuggestions())
@@ -573,6 +618,10 @@ public class SpellCheck extends AbstractExecutableComponent {
 
         protected Strings getUncorrectedMisspellings() {
             return _uncorrectedMisspellings.build();
+        }
+
+        protected Map<String, Integer> getMisspellingCounts() {
+            return _misspellingCounts;
         }
 
         protected String getReplacement(String invalidWord, Set<String> suggestions) {

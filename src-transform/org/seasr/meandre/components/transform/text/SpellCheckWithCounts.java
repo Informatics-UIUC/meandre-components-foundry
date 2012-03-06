@@ -79,7 +79,7 @@ import com.swabunga.spell.event.SpellChecker;
 @Component(
         creator = "Boris Capitanu",
         description = "Performs spell checking on the input and optionally replaces misspelled words. " +
-                      "Suggested correct spelling can use supplied token counts to rank the suggestions. " + 
+                      "Suggested correct spelling can use supplied token counts to rank the suggestions. " +
                       "Algorithm has been improved to help with OCR errors by inputing a set of " +
                       "transformations that can be applied to misspelled " +
                       "words to create correctly spelled words. " +
@@ -185,7 +185,7 @@ public class SpellCheckWithCounts extends SpellCheck {
 
     @Override
     protected SuggestionListener getSuggestionListener() {
-        return new SuggestionListenerWithCounts(_spellDictionary, _tokenCounts, _doCorrection, _levenshteinDistance, console);
+        return new SuggestionListenerWithCounts(_spellDictionary, _tokenCounts, _doCorrection, _outputMisspellingsWithCounts, _levenshteinDistance, console);
     }
 
     //--------------------------------------------------------------------------------------------
@@ -204,7 +204,11 @@ public class SpellCheckWithCounts extends SpellCheck {
         }
 
         public SuggestionListenerWithCounts(SpellDictionary dictionary, Map<String,Integer> tokenCounts, boolean doCorrection, Float levenshteinDistance, Logger logger) {
-            super(doCorrection, levenshteinDistance, logger);
+            this(dictionary, tokenCounts, doCorrection, false, levenshteinDistance, logger);
+        }
+
+        public SuggestionListenerWithCounts(SpellDictionary dictionary, Map<String,Integer> tokenCounts, boolean doCorrection, boolean trackMisspellingCounts, Float levenshteinDistance, Logger logger) {
+            super(doCorrection, trackMisspellingCounts, levenshteinDistance, logger);
 
             _tokenCounts = tokenCounts;
             _spellChecker = new SpellChecker(dictionary);
