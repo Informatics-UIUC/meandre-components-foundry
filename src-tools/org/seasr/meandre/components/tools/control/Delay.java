@@ -40,7 +40,7 @@
 *
 */
 
-package org.seasr.meandre.components.tools.basic;
+package org.seasr.meandre.components.tools.control;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -65,7 +65,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "delay, sleep",
+		tags = "#CONTROL, delay, sleep",
 		description = "This component delays pushing the object specified in the input to the output port."
 )
 public class Delay extends AbstractExecutableComponent {
