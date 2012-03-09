@@ -81,7 +81,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		              "Computational Linguistics 19.1 (Mar. 1993), 61-74. "+
 		              "or Griffiths, D. Head First Statistics. 2009. Second edition. O'Reilly.",
 		name = "Dunning Log Likelihood",
-		tags = "dunning, likelihood, loglikelihood, monk, comparison, statistics",
+		tags = "#ANALYICS, dunning, likelihood, loglikelihood, monk, comparison, statistics",
 		baseURL = "meandre://seasr.org/components/foundry/",
 	    dependency = {"protobuf-java-2.2.0.jar"}
 )

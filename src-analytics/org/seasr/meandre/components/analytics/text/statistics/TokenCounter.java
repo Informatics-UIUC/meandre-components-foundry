@@ -79,7 +79,7 @@ import de.intarsys.tools.component.ComponentException;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "text, token, count",
+		tags = "#TRANSFORM, text, token, count",
 		description = "Given a collection of tokens from a document, " +
 				      "this component counts all the different occurrences of the " +
 				      "tokens. If the document contains multiple token sequences, the " +
