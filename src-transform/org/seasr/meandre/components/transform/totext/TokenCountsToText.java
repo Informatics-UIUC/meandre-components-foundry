@@ -71,7 +71,7 @@ import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "token count, text, convert",
+		tags = "#TRANSFORM, token count, text, convert",
 		description = "Given a collection of token counts, this component converts it " +
 				      "into text. The default separator is a comma, so make sure tokens " +
 				      "do not have commas or change the separator.",

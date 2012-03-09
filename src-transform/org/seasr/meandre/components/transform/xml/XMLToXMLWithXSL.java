@@ -84,7 +84,7 @@ import org.w3c.dom.Document;
 		firingPolicy = FiringPolicy.any,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "xml, xsl, transform",
+		tags = "#TRANSFORM, xml, xsl, transform",
 		description = "This component inputs two XML documents, one the XML data and the other the XSL. " +
 		              "It transforms the XML data based on the XSL template "+
 		              "and outputs the transformed XML.",

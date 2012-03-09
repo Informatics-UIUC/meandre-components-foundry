@@ -88,7 +88,7 @@ import org.w3c.dom.ls.LSSerializer;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "xml, xpath, select nodes",
+        tags = "#TRANSFORM, xml, xpath, select nodes",
         description = "This component extracts XML nodes matching an XPath expression " +
         		      "from an XML document and outputs them one by one.",
         dependency = {"protobuf-java-2.2.0.jar"}

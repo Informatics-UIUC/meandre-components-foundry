@@ -74,7 +74,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "date, xsl, filter",
+        tags = "#TRANSFORM, date, xsl, filter",
         description = "This component generates an xsl template to filter an xml file and include only " +
                       "the dates between the minimum and maximum year. This is used to filter the Simile xml file that is generated.",
         dependency = { "protobuf-java-2.2.0.jar", "velocity-1.7-dep.jar" },

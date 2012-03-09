@@ -71,7 +71,7 @@ import org.seasr.datatypes.core.Names;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "token, text, convert",
+		tags = "#TRANSFORM, token, text, convert",
 		description = "Given a collection of tokens, this component converts it " +
 				      "into text.",
 		dependency = {"protobuf-java-2.2.0.jar"}

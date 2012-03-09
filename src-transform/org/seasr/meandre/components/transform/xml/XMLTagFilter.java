@@ -69,7 +69,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "xml, tag, xsl, filter",
+		tags = "#TRANSFORM, xml, tag, xsl, filter",
 		description = "This component generates an xsl template for extracting the structured content " +
 		    "for a specific tag. The tag is set up through a property.",
 		dependency = {"protobuf-java-2.2.0.jar", "velocity-1.7-dep.jar"},

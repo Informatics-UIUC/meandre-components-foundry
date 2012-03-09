@@ -75,7 +75,7 @@ import org.w3c.dom.NodeList;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "xml, tag, aggregate",
+		tags = "#TRANSFORM, xml, tag, aggregate",
 		description = "This component extracts information from input xml files and, " +
 		"constructs a new xml file to output. It is for TEI only.",
 		dependency = {"protobuf-java-2.2.0.jar"}

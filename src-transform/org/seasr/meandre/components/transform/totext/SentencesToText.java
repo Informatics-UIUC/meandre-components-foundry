@@ -71,7 +71,7 @@ import org.seasr.datatypes.core.Names;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "sentence, text, convert",
+		tags = "#TRANSFORM, sentence, text, convert",
 		description = "Given a collection of sentences, this component converts them " +
 				      "into text.",
 		dependency = {"protobuf-java-2.2.0.jar"}
