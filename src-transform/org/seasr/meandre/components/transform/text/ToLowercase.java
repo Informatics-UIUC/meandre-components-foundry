@@ -64,7 +64,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         creator = "Lily Dong",
         description = "Converts a text to lowercase.",
         name = "To Lowercase",
-        tags = "lowercase, text, transform",
+        tags = "#TRANSFORM, lowercase, text, transform",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}

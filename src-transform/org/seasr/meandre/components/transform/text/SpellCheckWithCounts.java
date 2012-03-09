@@ -88,7 +88,7 @@ import com.swabunga.spell.event.SpellChecker;
                       "The component also produces a list of the misspellings " +
                       "in the document and a set of transformation rules.",
         name = "Spell Check with Counts",
-        tags = "dictionary, word, spell check, token count",
+        tags = "#TRANSFORM, dictionary, word, spell check, token count",
         firingPolicy = FiringPolicy.any,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

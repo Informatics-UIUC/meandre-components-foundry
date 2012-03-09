@@ -70,7 +70,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "url, text, encode",
+        tags = "#TRANSFORM, url, text, encode",
         description = "This component takes the input and encodes it as a URL string. ",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

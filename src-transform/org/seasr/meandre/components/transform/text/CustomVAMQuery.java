@@ -69,7 +69,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
         creator = "Loretta Auvil",
         description = "Custom VAM component to query and requery until all results are received. And to select JSON attribute of records and return its value.",
         name = "Custom VAM Query",
-        tags = "JSON, transformation, select",
+        tags = "#TRANSFORM, JSON, transformation, select",
         firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

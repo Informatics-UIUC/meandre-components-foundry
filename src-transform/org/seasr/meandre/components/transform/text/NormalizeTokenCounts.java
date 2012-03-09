@@ -29,7 +29,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
        firingPolicy = FiringPolicy.all,
        mode = Mode.compute,
        rights = Licenses.UofINCSA,
-       tags = "token count, boolean, normalize",
+       tags = "#TRANSFORM, token count, boolean, normalize",
        description = "This component sets the count of tokens with a count greater than zero to 1.",
        dependency = {"protobuf-java-2.2.0.jar"}
 )

@@ -72,7 +72,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         		      "segments of size that approximates the number of tuples specified in the property. " +
         		      "Segments always end at sentence boundaries.",
         name = "Text Segmentation",
-        tags = "text, segment",
+        tags = "#TRANSFORM, text, segment",
         firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

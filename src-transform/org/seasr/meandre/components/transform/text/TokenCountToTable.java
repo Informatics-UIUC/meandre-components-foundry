@@ -72,7 +72,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         creator = "Lily Dong",
         description = "Converts token count to table.",
         name = "Token Count To Table",
-        tags = "token, count, table, convert",
+        tags = "#TRANSFORM, token, count, table, convert",
         firingPolicy = FiringPolicy.any,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

@@ -68,7 +68,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         creator = "Lily Dong",
         description = "Converts token count to JSON.",
         name = "Token Count To JSON",
-        tags = "token, count, JSON, convert",
+        tags = "#TRANSFORM, token, count, JSON, convert",
         firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

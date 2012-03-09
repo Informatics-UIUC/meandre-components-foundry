@@ -70,7 +70,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         creator = "Lily Dong",
         description = "Transforms token counts to ngram objects.",
         name = "Token To NGrams",
-        tags = "token, NGrams",
+        tags = "#TRANSFORM, token, NGrams",
         firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

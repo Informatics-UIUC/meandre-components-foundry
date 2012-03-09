@@ -69,7 +69,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         creator = "Loretta Auvil",
         description = "Select a JSON attribute and return its value.",
         name = "Select JSON attribute",
-        tags = "JSON, transformation, select",
+        tags = "#TRANSFORM, JSON, transformation, select",
         firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

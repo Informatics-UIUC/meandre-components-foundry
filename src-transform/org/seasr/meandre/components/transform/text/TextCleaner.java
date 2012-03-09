@@ -68,7 +68,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         creator = "Boris Capitanu",
         description = "Performs find and replace on text using regular expressions",
         name = "Text Cleaner",
-        tags = "text, remove, replace",
+        tags = "#TRANSFORM, text, remove, replace",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}

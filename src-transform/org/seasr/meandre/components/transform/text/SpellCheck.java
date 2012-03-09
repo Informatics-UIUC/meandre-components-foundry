@@ -93,7 +93,7 @@ import com.swabunga.spell.event.StringWordTokenizer;
             		  "with the top ranked suggestion. The component also produces a list of the misspellings " +
             		  "in the document and a set of transformation rules.",
         name = "Spell Check",
-        tags = "dictionary, word, spell check",
+        tags = "#TRANSFORM, dictionary, word, spell check",
         firingPolicy = FiringPolicy.any,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

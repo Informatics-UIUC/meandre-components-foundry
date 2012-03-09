@@ -73,7 +73,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         creator = "Surya Kallumadi",
         description = "Performs simple tuple text replacement, based on input configuration",
         name = "Tuple Text Replacement",
-        tags = "Tuple text, remove, replace",
+        tags = "#TRANSFORM, Tuple text, remove, replace",
         firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

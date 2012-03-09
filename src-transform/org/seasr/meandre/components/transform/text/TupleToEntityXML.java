@@ -81,7 +81,7 @@ import org.w3c.dom.NodeList;
 		              "as xml document. Only those entity types specified in this component's " +
 		              "properties will be included in the output XML document.</p>",
         name = "Tuple To Entity XML",
-        tags = "text, document, tuple",
+        tags = "#TRANSFORM, text, document, tuple",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}

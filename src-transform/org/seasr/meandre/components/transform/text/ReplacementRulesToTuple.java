@@ -73,7 +73,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         		"where the first column ('word') is the correct word and the second column ('misspelling') is the misspelled word. " +
         		"If multiple misspellings exist for the same correct word, multiple tuple rows are created.",
         name = "Replacement Rules To Tuple",
-        tags = "replacement rules, tuple, transform",
+        tags = "#TRANSFORM, replacement rules, tuple, transform",
         firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
