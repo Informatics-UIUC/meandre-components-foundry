@@ -69,7 +69,7 @@ import org.seasr.datatypes.core.Names;
                       "links between tuples that occur within a specified sentence distance from each other. " +
                       "The resulting graph is output as a Protovis document.</p>",
         name = "Link Creation to Protovis",
-        tags = "tuple, link, Protovis",
+        tags = "#VIS, tuple, link, Protovis",
         firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/",

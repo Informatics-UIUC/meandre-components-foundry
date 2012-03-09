@@ -70,7 +70,7 @@ import org.w3c.dom.Element;
                       "links between tuples that occur within a specified sentence distance from each other. " +
                       "The resulting graph is output as a GraphML document.</p>",
         name = "Link Creation to GraphML",
-        tags = "tuple, link, GraphML",
+        tags = "#TRANSFORM, tuple, link, GraphML",
         firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/",

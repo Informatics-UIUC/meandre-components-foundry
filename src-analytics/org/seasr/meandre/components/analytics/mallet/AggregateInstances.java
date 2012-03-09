@@ -63,7 +63,7 @@ import cc.mallet.types.InstanceList;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "_TRANSFORM_, mallet, instance, aggregator",
+        tags = "#TRANSFORM, mallet, instance, aggregator",
         description = "This component accumulates the instances belonging to the " +
         		"specified stream and produces a list of machine learning instances, " +
         		"typically used for training or testing of a machine learning algorithm." ,
