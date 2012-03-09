@@ -64,7 +64,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         description="Generates a web page containing google map " +
         		"marked with locations from the original XML document.",
         name="Google Map Viewer",
-        tags="google map, visualization",
+        tags="#VIS, google map, visualization",
         mode=Mode.webui,
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/",

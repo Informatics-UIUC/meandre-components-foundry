@@ -73,7 +73,7 @@ import org.seasr.meandre.support.generic.text.TagCloudImage;
                       "to accommodate all of tags.",
         name = "Tag Cloud Image Maker",
         rights = Licenses.UofINCSA,
-        tags = "tag cloud, visualization",
+        tags = "#VIS, tag cloud, visualization",
         baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

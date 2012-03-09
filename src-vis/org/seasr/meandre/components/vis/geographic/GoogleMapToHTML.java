@@ -66,7 +66,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         creator="Boris Capitanu",
         description="Generates a Google Maps HTML document containing markers to the locations received via the inputs.",
         name="Google Map To HTML",
-        tags="google map, html",
+        tags="#VIS, google map, html",
         mode=Mode.compute,
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/",

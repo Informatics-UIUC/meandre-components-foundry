@@ -89,7 +89,7 @@ import org.w3c.dom.Document;
                       "The two files will be stored under public/resources/timeline/. " +
                       "For fast browse, dates are grouped into different time slices. ",
         name = "Simile Timeline Generator",
-        tags = "simile, timeline",
+        tags = "#VIS, simile, timeline",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,

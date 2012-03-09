@@ -66,7 +66,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         creator = "Boris Capitanu",
         description = "This components uses the D3 library to generate a line chart.",
         name = "Line Chart",
-        tags = "visualization, d3, line chart",
+        tags = "#VIS, visualization, d3, line chart",
         rights = Licenses.UofINCSA,
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/",

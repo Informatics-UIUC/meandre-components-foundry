@@ -77,7 +77,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         creator = "Mike Haberman",
         description = "Presents a simple google map based on location inputs",
         name = "Simple Google Map Viewer",
-        tags = "string, visualization",
+        tags = "#VIS, string, visualization",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",

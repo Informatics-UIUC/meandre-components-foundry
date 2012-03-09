@@ -74,7 +74,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         creator = "Mike Haberman",
         description = "Protovis Parallel Coordinates",
         name = "Parallel Coordinates",
-        tags = "string, visualization, protovis",
+        tags = "#VIS, string, visualization, protovis",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.7-dep.jar", "protovis-r3.2.jar" },

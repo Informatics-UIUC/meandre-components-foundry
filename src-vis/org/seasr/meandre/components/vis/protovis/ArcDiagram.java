@@ -66,7 +66,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         creator = "Lily Dong",
         description = "This components creates a Protovis arc diagram based on JSON data that specifies the nodes and links.",
         name = "Arc Diagram",
-        tags = "visualization, protovis",
+        tags = "#VIS, visualization, protovis",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.7-dep.jar", "protovis-r3.2.jar" },

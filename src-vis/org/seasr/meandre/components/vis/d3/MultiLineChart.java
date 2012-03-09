@@ -66,7 +66,7 @@ import org.seasr.meandre.components.vis.html.StreamingVelocityTemplateToHTML;
         creator = "Boris Capitanu",
         description = "This components uses the D3 library to generate a line chart that can contain multiple lines.",
         name = "Multi Line Chart",
-        tags = "visualization, d3, line chart",
+        tags = "#VIS, visualization, d3, line chart",
         rights = Licenses.UofINCSA,
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/",

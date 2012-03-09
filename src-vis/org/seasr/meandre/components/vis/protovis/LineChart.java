@@ -66,7 +66,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
                     "Original code from Protovis project with slight modifications. "+
                     "The JSON data input needs to be in an appropriate format as mentioned in the input description.",
         name = "Line Chart",
-        tags = "visualization, protovis, chart",
+        tags = "#VIS, visualization, protovis, chart",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.7-dep.jar", "protovis-r3.2.jar" },

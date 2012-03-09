@@ -66,7 +66,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         description = "This components creates a Protovis link node graph that is a force "+
         "directed graph to layout the graph. It is based on JSON data that specifies the nodes and links.",
         name = "Force Directed Graph",
-        tags = "string, visualization, protovis",
+        tags = "#VIS, string, visualization, protovis",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.7-dep.jar", "protovis-r3.2.jar" },

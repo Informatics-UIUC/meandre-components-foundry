@@ -68,7 +68,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         creator="Boris Capitanu",
         description="Generates a Google Maps HTML document containing the KML layer(s) received in the input.",
         name="Google Map KML To HTML",
-        tags="google map, kml, html",
+        tags="#VIS, google map, kml, html",
         mode=Mode.compute,
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/",

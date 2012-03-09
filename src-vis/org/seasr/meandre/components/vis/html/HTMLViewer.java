@@ -86,7 +86,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
         creator = "Loretta Auvil",
         description = "Generates a webpage from the HTML text that it receives as input.",
         name = "HTML Viewer",
-        tags = "html, viewer",
+        tags = "#VIS, html, viewer",
         mode = Mode.webui,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
