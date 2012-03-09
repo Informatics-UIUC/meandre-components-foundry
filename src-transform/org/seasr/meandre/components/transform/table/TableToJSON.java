@@ -64,7 +64,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         creator = "Loretta Auvil",
         description = "Converts table to JSON format.",
         name = "Table To JSON",
-        tags = "table, JSON, convert",
+        tags = "#TRANSFORM, table, JSON, convert",
         firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

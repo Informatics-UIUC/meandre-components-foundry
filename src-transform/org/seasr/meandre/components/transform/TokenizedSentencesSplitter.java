@@ -70,7 +70,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "sentences, text",
+        tags = "#TRANSFORM, sentences, text",
         description = "This component provides the ability to extract the sentences and tokens from a tokenized_sentences structure.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

@@ -71,7 +71,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
                       "tokens based on their counts. A property can be set to filter for the " +
                       "highest counts or the lowest counts.",
         name = "Top N Filter",
-        tags = "token, word, filter",
+        tags = "#TRANSFORM, token, word, filter",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}

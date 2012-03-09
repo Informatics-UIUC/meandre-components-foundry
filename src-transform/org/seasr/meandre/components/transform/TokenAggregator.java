@@ -68,7 +68,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "token, aggregator",
+        tags = "#TRANSFORM, token, aggregator",
         description = "This component aggregates across all the tokens received as part of a stream." ,
         dependency = {
                 "protobuf-java-2.2.0.jar"

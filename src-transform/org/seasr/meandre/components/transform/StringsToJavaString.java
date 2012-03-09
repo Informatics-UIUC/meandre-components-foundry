@@ -69,7 +69,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tools, convert, transform",
+        tags = "#TRANSFORM, tools, convert, transform",
         description = "Converts a Google string into an equivalent Java string",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

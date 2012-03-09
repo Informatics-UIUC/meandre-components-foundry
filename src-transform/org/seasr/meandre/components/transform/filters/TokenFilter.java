@@ -81,7 +81,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		firingPolicy = FiringPolicy.any,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "text, filter, token, token count, tokenized sentence, word",
+		tags = "#TRANSFORM, text, filter, token, token count, tokenized sentence, word",
 		description = "This component filters the tokens of the input based " +
 				      "on the list of tokens provided. The component has 3 inputs for the " +
 				      "type of data to be filtered (tokens, token counts or tokenized sentences" +

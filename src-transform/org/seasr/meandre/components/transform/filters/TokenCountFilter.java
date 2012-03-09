@@ -69,7 +69,7 @@ import bsh.Interpreter;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "filter, token, token count",
+        tags = "#TRANSFORM, filter, token, token count",
         description = "This component filters (removes) the tokens with token counts satisfying the given constraints",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
