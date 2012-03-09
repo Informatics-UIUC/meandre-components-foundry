@@ -71,7 +71,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "message, trigger",
+        tags = "#CONTROL, message, trigger",
         description = "This component will receive a message and a trigger."+
                       "The message is saved so that it can be output for every trigger received. "+
                       "The component respects streams and outputs the same object for all the triggers that are part of the stream. " +

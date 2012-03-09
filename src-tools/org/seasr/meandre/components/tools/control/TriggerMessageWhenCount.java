@@ -68,7 +68,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "message, trigger",
+        tags = "#CONTROL, message, trigger",
         description = "This component will receive a message, a count, and a trigger."+
                       "The message is sent out when 'count' triggers have been received.",
         dependency = {"protobuf-java-2.2.0.jar"}

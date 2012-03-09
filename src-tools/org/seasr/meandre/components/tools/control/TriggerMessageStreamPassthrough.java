@@ -70,7 +70,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "message, trigger",
+        tags = "#CONTROL, message, trigger",
         description = "This component will receive a message and a trigger."+
                       "The message is saved so that it can be output for every trigger received. " +
                       "If a StreamDelimiter is received in the object port, it will be forwarded to the output object port."+

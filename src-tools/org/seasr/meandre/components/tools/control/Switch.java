@@ -68,7 +68,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         		"value does not match any of the rules set in the switch_rules property, the " +
         		"object will be output via the no_match port.",
         name = "Switch",
-        tags = "switch",
+        tags = "#CONTROL, switch",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/"
 )

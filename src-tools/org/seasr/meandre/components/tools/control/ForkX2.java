@@ -83,7 +83,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
                       "shallow copy by clone, deep copy via serialization, copy via constructor, " +
                       "or copy via custom method.</p>",
         name = "Fork x2",
-        tags = "clone, fork, copy",
+        tags = "#CONTROL, clone, fork, copy",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/"
 )

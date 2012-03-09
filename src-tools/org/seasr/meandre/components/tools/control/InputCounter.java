@@ -61,7 +61,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "input, counter, stream",
+        tags = "#CONTROL, input, counter, stream",
         description = "This component counts the number of data objects passing " +
         		"through it and outputs the current count. If the component is set " +
         		"to act on a particular stream (by setting 'streamId' appropriately) " +

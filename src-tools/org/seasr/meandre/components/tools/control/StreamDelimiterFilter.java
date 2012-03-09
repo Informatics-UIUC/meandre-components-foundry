@@ -65,7 +65,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         creator = "Boris Capitanu",
         description = "This component filters out some or all stream delimiters",
         name = "Stream Delimiter Filter",
-        tags = "filter, delimiter",
+        tags = "#CONTROL, filter, delimiter",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/"
 )

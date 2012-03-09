@@ -70,7 +70,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         description = "This component decodes the input data type and pushes out " +
         		      "the decoded types on different outputs",
         name = "Data Type Decoder",
-        tags = "decoder, data, type",
+        tags = "#CONTROL, decoder, data, type",
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
