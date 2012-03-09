@@ -69,7 +69,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "text, splitter",
+        tags = "#TRANSFORM, text, splitter",
         description = "This component takes a Strings object with multiple elements " +
         		"and creates a stream containing each individual element separately" ,
         dependency = {"protobuf-java-2.2.0.jar"}

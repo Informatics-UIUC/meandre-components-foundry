@@ -77,7 +77,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
 		              "If the pattern is found and there are no capturing groups defined, the maching text for the " +
 		              "pattern is pushed out on port Text_Found.  In both cases multiple outputs are possible." +
 		              "If the pattern is not found, it outputs the original text on port Text.",
-		tags = "text, string, search",
+		tags = "#TRANSFORM, text, string, search",
 		rights = Licenses.UofINCSA,
 		baseURL = "meandre://seasr.org/components/foundry/",
 		dependency = { "protobuf-java-2.2.0.jar" }

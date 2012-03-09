@@ -72,7 +72,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "text, format, string",
+        tags = "#TRANSFORM, text, format, string",
         description = "This component can be used to create text from the inputs based on a specified format",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

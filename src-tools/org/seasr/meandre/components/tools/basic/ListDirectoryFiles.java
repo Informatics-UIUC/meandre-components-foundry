@@ -76,7 +76,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "file, local",
+		tags = "#INPUT, file, local",
 		description = "Given a [server-relative] directory, this component pushes all the file names available that " +
 				      "match a certain regular expression given in the properties.",
 		dependency = {"protobuf-java-2.2.0.jar"}

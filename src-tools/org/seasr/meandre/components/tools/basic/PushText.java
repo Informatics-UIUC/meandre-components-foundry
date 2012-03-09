@@ -67,7 +67,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "io, string, text",
+		tags = "#INPUT, io, string, text",
 		description = "Pushes the value of the text message property to the output.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

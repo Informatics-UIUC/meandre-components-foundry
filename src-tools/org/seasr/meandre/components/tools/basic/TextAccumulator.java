@@ -68,7 +68,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "text, accumulator, string, concatenate",
+        tags = "#TRANSFORM, text, accumulator, string, concatenate",
         description = "This component accumulates multiple text values and pushes them out " +
         		"as a single concatenated value.",
         dependency = {"protobuf-java-2.2.0.jar"}

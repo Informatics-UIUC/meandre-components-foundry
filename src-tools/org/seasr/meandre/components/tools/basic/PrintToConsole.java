@@ -83,7 +83,7 @@ import org.w3c.dom.Document;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "print, console",
+		tags = "#OUTPUT, print, console",
 		description = "This component takes the input and prints it to the console. ",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )

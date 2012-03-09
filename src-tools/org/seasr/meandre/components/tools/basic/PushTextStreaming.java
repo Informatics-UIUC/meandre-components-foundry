@@ -70,7 +70,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "io, string",
+		tags = "#INPUT, io, string",
 		description = "Pushes the value of the text message property to the output. It provides " +
 				      "a couple of properties to control how many times it needs to be pushed, " +
 				      "and if it needs to be wrapped with delimiters.",

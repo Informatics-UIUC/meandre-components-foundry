@@ -72,7 +72,7 @@ import org.seasr.meandre.support.generic.io.PathUtils;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "ignore",
+        tags = "#OUTPUT, ignore",
         description = "Adds entries to an ignore list",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

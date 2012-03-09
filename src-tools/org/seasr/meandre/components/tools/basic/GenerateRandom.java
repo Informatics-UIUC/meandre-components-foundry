@@ -69,7 +69,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tools, random",
+        tags = "#INPUT, tools, random",
         description = "This component generates either a random string or a random number, depending on how it's properties are set.",
         dependency = { "protobuf-java-2.2.0.jar"}
 )

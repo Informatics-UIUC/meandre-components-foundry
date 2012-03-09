@@ -70,7 +70,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "text, string, concatenate",
+        tags = "#TRANSFORM, text, string, concatenate",
         description = "Concatenates text from multiple inputs",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
