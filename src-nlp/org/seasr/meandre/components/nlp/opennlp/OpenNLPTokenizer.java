@@ -72,7 +72,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "nlp, text, opennlp, tokenizer",
+        tags = "#ANALYICS, nlp, text, opennlp, tokenizer",
         description = "This component performs tokenization on text, and outputs the tokens." ,
         dependency = {
                 "protobuf-java-2.2.0.jar",

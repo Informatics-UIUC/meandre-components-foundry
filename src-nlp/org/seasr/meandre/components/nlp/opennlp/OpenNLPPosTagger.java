@@ -85,7 +85,7 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "text, opennlp, nlp, tokenized sentence, pos",
+        tags = "#ANALYICS, text, opennlp, nlp, tokenized sentence, pos",
         description = "This component performs part of speech tagging on the tokenized " +
         		"sentences passed in the input, using Apache OpenNLP.",
         dependency = {

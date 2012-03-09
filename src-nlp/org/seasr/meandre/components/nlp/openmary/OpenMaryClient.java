@@ -71,7 +71,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
        creator = "Boris Capitanu",
        description = "OpenMary client",
        name = "OpenMary Client",
-       tags = "openmary, speech, audio",
+       tags = "#ANALYICS, openmary, speech, audio",
        firingPolicy = FiringPolicy.all,
        rights = Licenses.UofINCSA,
        baseURL = "meandre://seasr.org/components/foundry/",

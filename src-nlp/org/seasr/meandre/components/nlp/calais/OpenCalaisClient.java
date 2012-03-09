@@ -82,7 +82,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "nlp, text, opencalais",
+        tags = "#ANALYICS, nlp, text, opencalais",
         description = "This component processes text through the OpenCalais service. " +
         		"Note: Current limits for OpenCalais allow only documents of 100,000 characters or less to be processed. ",
         dependency = {

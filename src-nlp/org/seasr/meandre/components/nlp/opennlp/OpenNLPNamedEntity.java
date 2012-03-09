@@ -90,7 +90,7 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "opennlp, semantic, text, nlp, information extraction, entity, entity extraction",
+        tags = "#ANALYICS, opennlp, semantic, text, nlp, information extraction, entity, entity extraction",
         description = "This component tags entities from the incoming set of tokenized sentences " +
                 "using Apache OpenNLP named entity facilities.",
         dependency = {

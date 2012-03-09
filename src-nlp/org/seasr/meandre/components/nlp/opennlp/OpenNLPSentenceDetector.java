@@ -80,7 +80,7 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "nlp, text, opennlp, sentence detector",
+        tags = "#ANALYICS, nlp, text, opennlp, sentence detector",
         description = "This component performs sentence detection on the input text, " +
         		"and outputs the detected sentences.",
         dependency = {
