@@ -74,7 +74,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tuple, concept, counter",
+        tags = "#TRANSFORM, tuple, concept, counter",
         description = "This component tags tuples representing documents with an incremental 'docId' " +
         		"and a count of the frequencies of the concepts present in the document." ,
         dependency = {"protobuf-java-2.2.0.jar"}

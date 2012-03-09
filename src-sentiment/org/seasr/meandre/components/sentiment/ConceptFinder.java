@@ -78,7 +78,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "sentiment, concept",
+        tags = "#ANALYICS, sentiment, concept",
         description = "This component connects to the SynNet service and computes the best concept " +
         		      "for the input token based on the defined concept rules" ,
         dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}

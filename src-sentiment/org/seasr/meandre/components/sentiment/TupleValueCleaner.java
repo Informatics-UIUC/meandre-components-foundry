@@ -79,7 +79,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tuple, clean",
+		tags = "#TRANSFORM, tuple, clean",
 		description = "DO NOT USE in production code :) testing only. This component cleans a value of a tuple based on a regular expression " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
