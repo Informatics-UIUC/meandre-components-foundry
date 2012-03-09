@@ -79,7 +79,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 		creator = "Xavier Llora",
 		description = "Extract the urls for each of the entry of a Zotero RDF",
 		name = "Zotero URL Extractor",
-		tags = "zotero, url",
+		tags = "#TRANSFORM, zotero, url",
 		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
