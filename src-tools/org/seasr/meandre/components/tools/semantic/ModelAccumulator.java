@@ -68,7 +68,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, io, model, accumulator",
+		tags = "#TRANSFORM, semantic, io, model, accumulator",
 		description = "This component is intended to work on wrapped model streams. " +
 				      "Given a sequence of wrapped models, it will create a new model that " +
 				      "accumulates/reduces all the information and then push them the resulting model. " +

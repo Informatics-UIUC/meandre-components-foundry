@@ -81,7 +81,7 @@ import org.seasr.meandre.support.generic.io.PathUtils;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "sentiment, cache, concept",
+        tags = "#ANALYTICS, sentiment, cache, concept",
         description = "This component looks up the key for a tuple in the ignore file, " +
         		"if specified, and ignores the tuple (passes it on as is) if it's found there, otherwise " +
         		"it looks it up in the cache file and if an attribute is found in cache it is associated with " +

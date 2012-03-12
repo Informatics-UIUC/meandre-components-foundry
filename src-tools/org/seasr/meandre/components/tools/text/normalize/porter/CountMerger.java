@@ -66,7 +66,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
 		description = "Merges the incoming count.",
 		firingPolicy = FiringPolicy.all,
 		name = "Count Merger",
-		tags = "count merge",
+		tags = "#TRANSFORM, count, merge",
 		rights = Licenses.UofINCSA,
 		baseURL = "meandre://seasr.org/components/foundry/"
 )

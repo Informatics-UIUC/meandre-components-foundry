@@ -35,7 +35,7 @@ import org.seasr.meandre.support.generic.text.PDFUtils;
                       "The output is the extracted text.",
         name = "PDF Text Extractor",
         rights = Licenses.UofINCSA,
-        tags = "URL, text, pdf",
+        tags = "#TRANSFORM, URL, text, pdf",
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar", "jPod.jar", "iscwt.jar", "isrt.jar", "jbig2.jar"}
 )

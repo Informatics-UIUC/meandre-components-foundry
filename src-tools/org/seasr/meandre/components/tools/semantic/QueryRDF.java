@@ -78,7 +78,7 @@ import com.hp.hpl.jena.rdf.model.Model;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "rdf, query",
+        tags = "#INPUT, rdf, query",
         description = "This component provides the ability to query RDF models via SPARQL queries.",
         dependency = {
                 "protobuf-java-2.2.0.jar"

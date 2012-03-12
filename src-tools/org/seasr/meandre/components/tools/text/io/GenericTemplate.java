@@ -93,7 +93,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         creator = "Mike Haberman",
         description = "Generates and displays a webpage via a Velocity Template ",
         name = "Generic Template",
-        tags = "string, visualization",
+        tags = "#VIS, string, visualization",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",

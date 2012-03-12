@@ -105,7 +105,7 @@ import org.w3c.dom.Document;
         		"<li>Search for documents with term 'jefferson' anywhere: <code>jstor.text=jefferson</code></li>" +
         		"</ul></p>",
         name = "JSTOR DFR Query",
-        tags = "jstor, dfr, data for research",
+        tags = "#INPUT, jstor, dfr, data for research",
         rights = Licenses.UofINCSA,
         mode = Mode.compute,
         firingPolicy = FiringPolicy.all,

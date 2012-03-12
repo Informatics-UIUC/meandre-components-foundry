@@ -89,7 +89,7 @@ import com.jolbox.bonecp.BoneCP;
         firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tuple, tools, database",
+        tags = "#TRANSFORM, tuple, tools, database, db",
         description = "This component writes tuples to a db table",
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
                        "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }

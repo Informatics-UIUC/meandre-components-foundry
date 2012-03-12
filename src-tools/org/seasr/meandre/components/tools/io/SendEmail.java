@@ -61,7 +61,7 @@ import org.seasr.meandre.components.abstracts.python.AbstractPythonExecutableCom
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "smtp, email",
+        tags = "#OUTPUT, smtp, email",
         description = "This component can send an email to an address or a list of addresses specified as an input.",
         dependency = { "protobuf-java-2.2.0.jar", "sendemail.py.jar" }
 )

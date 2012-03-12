@@ -79,7 +79,7 @@ import com.evernote.edam.userstore.UserStore;
             "and outputs note's title and note's content as XML text. " +
             "It should be pointed out that sandbox.evernote.com is only a test-only server.",
         name = "Read Evernote",
-        tags = "evernote, note, notebook, read",
+        tags = "#INPUT, evernote, note, notebook, read",
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

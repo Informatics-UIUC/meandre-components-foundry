@@ -69,7 +69,7 @@ import org.w3c.dom.Element;
 		description = "Converts tuples into an XML structure. " +
 				"Each tuple is represented by a node whose attributes are the tuple fields.",
         name = "Tuple To XML",
-        tags = "xml, tuples",
+        tags = "#TRANSFORM, xml, tuples",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}

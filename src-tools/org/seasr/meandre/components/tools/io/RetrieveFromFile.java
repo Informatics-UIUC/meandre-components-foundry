@@ -73,7 +73,7 @@ import org.seasr.meandre.support.generic.io.StreamUtils;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "io, file, write, bytes",
+        tags = "#INPUT, io, file, write, bytes",
         description = "Reconstructs an object based on its persisted (serialized) state.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

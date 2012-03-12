@@ -79,7 +79,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tuple, group",
+		tags = "#TRANSFORM, tuple, group",
 		description = "This component groups (frequency counts) consecutive tuples based on window size " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )

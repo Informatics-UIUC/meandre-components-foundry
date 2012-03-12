@@ -78,7 +78,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tuple, tools, text, filter",
+		tags = "#OUTPUT, tuple, tools, text, filter",
 		description = "This component prints the incoming set of tuples to the console (level info) " ,
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )

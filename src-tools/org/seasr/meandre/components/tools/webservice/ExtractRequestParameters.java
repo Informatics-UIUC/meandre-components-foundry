@@ -70,7 +70,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         		"<br>Note: If used in streaming mode, the component outputs the initiator and terminator markers only on the " +
         		"raw data output port.",
         name = "Extract Request Parameters",
-        tags = "webservice, field, value, extract",
+        tags = "#INPUT, webservice, field, value, extract",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}

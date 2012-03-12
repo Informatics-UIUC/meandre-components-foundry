@@ -73,7 +73,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, tools, text",
+		tags = "#TRANSFORM, semantic, tools, text",
 		description = "Given the text provided in the input, this component generates a " +
 				      "new semantic wrapper model containing the this text.",
 		dependency = {"protobuf-java-2.2.0.jar"}

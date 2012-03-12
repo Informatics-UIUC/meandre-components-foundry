@@ -73,7 +73,7 @@ import com.evernote.edam.userstore.UserStore;
            "It should be noted that sandbox.evernote.com does not corporate with the api setting the default note book. " +
            ",so designating the default note book through sandbox.evernote.com before writting.",
         name = "Write Evernote",
-        tags = "evernote, note, notebook, write",
+        tags = "#OUTPUT, evernote, note, notebook, write",
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

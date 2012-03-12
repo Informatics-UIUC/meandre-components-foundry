@@ -63,7 +63,7 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
         creator = "Boris Capitanu",
         description = "This component allows a user to enter credentials that can be passed to other components",
         name = "Input User Password",
-        tags = "credentials, username, password",
+        tags = "#INPUT, credentials, username, password",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",

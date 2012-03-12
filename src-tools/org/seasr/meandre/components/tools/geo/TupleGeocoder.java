@@ -73,7 +73,7 @@ import org.seasr.meandre.support.generic.gis.GeoLocation;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tuple, locations, geocoding",
+        tags = "#TRANSFORM, tuple, locations, geocoding",
         description = "This component adds two fields to the incoming tuples containing " +
         		"the geocoded coordinates of the names of locations (placemarks) specified in the tuples." ,
         dependency = { "protobuf-java-2.2.0.jar" }

@@ -84,7 +84,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         description = "This component allows the user to specify the dataset(s) to be processed. " +
         		      "The user can use URL(s), file(s), or input the raw text to be processed.",
         name = "Input Data",
-        tags = "input, data, file, text, url",
+        tags = "#INPUT, input, data, file, text, url",
         mode = Mode.webui,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

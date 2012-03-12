@@ -74,7 +74,7 @@ import org.w3c.dom.Document;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "xml, io, text",
+		tags = "#TRANSFORM, xml, io, text",
 		description = "This component reads a XML in text form and buids a manipulatable document object. " +
 				      "The text to convert is received in its input. The component outputs the XML object " +
 				      "read. A property allows to control the behaviour of the component in " +

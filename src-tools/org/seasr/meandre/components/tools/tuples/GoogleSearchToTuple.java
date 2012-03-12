@@ -84,7 +84,7 @@ import org.seasr.meandre.support.generic.io.HttpUtils;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tuple, google, search, text",
+		tags = "#INPUT, tuple, google, search, text",
 		description = "This component performs a Google search by accessing the Google search API."+
 		              "The search term is an input and the search results are output as tuples.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}

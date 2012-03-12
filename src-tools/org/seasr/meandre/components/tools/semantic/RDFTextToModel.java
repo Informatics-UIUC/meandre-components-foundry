@@ -73,7 +73,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, io, read, model",
+		tags = "#TRANSFORM, semantic, io, read, model",
 		description = "This component reads an RDF model in text form and buids the model. " +
 				      "The text to convert is received in its input. The component outputs the semantic model " +
 				      "read. A property allows to control the behaviour of the component in " +

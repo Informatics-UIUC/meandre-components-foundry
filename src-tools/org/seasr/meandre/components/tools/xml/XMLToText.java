@@ -73,7 +73,7 @@ import org.w3c.dom.Document;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "xml, io, text",
+		tags = "#TRANSFORM, xml, io, text",
 		description = "This component converts an XML document to its textual representation.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )

@@ -68,7 +68,7 @@ import com.google.gdata.util.ContentType;
         		"For XML and HTML documents the extracted text represents the concatenation of all the text nodes in the document.",
         name = "Extract Text",
         rights = Licenses.UofINCSA,
-        tags = "text, html, xml",
+        tags = "#TRANSFORM, text, html, xml",
         dependency = {"protobuf-java-2.2.0.jar", "htmlparser.jar", "gdata-core-1.0.jar"},
         baseURL = "meandre://seasr.org/components/foundry/"
 )

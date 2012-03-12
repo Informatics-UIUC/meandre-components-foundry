@@ -66,7 +66,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
         creator = "Boris Capitanu",
         description = "Extracts the payload (body/content) of a request.",
         name = "Extract Request Content",
-        tags = "webservice, request, content, extract",
+        tags = "#INPUT, webservice, request, content, extract",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}

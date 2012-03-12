@@ -72,7 +72,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tuple, attribute",
+        tags = "#TRANSFORM, tuple, attribute",
         description = "This component adds an extra attribute to existing tuple(s)." ,
         dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )

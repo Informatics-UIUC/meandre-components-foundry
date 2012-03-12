@@ -72,7 +72,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "io, string",
+		tags = "#INPUT, io, string",
 		description = "Pushes an empty model. It provides " +
 				      "a couple of properties to control how many times it needs to be pushed, " +
 				      "and if it needs to be wrapped with terminators ",

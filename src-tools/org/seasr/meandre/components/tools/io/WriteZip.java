@@ -93,7 +93,7 @@ import org.w3c.dom.Document;
         firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "io, write, zip",
+        tags = "#OUTPUT, io, write, zip",
         description = "This component writes a zip file containing all the data passed in the stream",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

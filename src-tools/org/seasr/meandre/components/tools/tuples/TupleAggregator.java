@@ -67,7 +67,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tuple",
+        tags = "#TRANSFORM, tuple",
         description = "This component aggregates a set of tuples" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )

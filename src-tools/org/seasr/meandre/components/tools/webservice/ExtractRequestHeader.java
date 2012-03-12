@@ -62,7 +62,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         creator = "Boris Capitanu",
         description = "Extracts the value of a request header.",
         name = "Extract Request Header",
-        tags = "webservice, header, value, extract",
+        tags = "#INPUT, webservice, header, value, extract",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}

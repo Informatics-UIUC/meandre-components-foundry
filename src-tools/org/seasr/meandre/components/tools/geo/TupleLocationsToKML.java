@@ -89,7 +89,7 @@ import de.micromata.opengis.kml.v_2_2_0.Placemark;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tuple, locations, geocoding, kml, map",
+        tags = "#TRANSFORM, tuple, locations, geocoding, kml, map",
         description = "This component geocodes the names of locations (placemarks) specified " +
         		"in the tuples and creates a KML structure with contextual details about each placemark." ,
         dependency = { "protobuf-java-2.2.0.jar", "activation-1.1.jar", "JavaAPIforKml-2.2.0-SNAPSHOT.jar",

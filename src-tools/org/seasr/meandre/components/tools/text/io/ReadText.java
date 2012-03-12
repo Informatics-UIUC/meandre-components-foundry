@@ -84,7 +84,7 @@ import org.seasr.meandre.support.generic.io.StreamUtils;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, io, read, text",
+		tags = "#INPUT, semantic, io, read, text",
 		description = "This component reads text from a local or remote location. The text location is specified " +
 				      "in the input. The component outputs the text " +
 				      "read. A property controls the behavior of the component in " +

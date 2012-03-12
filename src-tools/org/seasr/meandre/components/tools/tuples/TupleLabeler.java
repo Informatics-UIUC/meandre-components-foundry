@@ -91,7 +91,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tuple",
+		tags = "#TRANSFORM, tuple",
 		description = "This component takes in two different sets of tuples. " +
     		"The first set is used to build a key-value map.  The key field is specified as well as the value field. " +
     		"The second set of tuples is then labelled using the map built from the first set.  A value from the " +

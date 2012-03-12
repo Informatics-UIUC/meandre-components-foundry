@@ -74,7 +74,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "sentiment, concept",
+        tags = "#TRANSFORM, tuple, filter",
         description = "This component pushes unique tuples (uniqueness based on the value of an attribute) " +
         		      "on the 'unique_tuples' port and the duplicate tuples on the 'duplicate_tuples' port" ,
         dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}

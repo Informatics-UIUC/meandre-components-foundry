@@ -74,7 +74,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tools, text,",
+		tags = "#TRANSFORM, tools, text,",
 		description = "This component extracts the value(s) of an attribute from the tuple(s) and pushes it out.",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )

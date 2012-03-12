@@ -69,7 +69,7 @@ import com.google.gdata.util.ContentType;
         		"If the request does not supply an Accept header value, then the first content type specified in the 'supported_types' " +
         		"property will be returned.",
         name = "Get Response Content Type",
-        tags = "webservice, header, content type, accept",
+        tags = "#INPUT, webservice, header, content type, accept",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}

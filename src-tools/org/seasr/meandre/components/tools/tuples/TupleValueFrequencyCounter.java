@@ -82,7 +82,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "count, text, tuple",
+		tags = "#TRANSFORM, count, text, tuple",
 		description = "This component counts the incoming set of tuples, based on a unique (set of) field value(s). " +
 				"This component works in a simmilar fashion to a 'SELECT <fields>, COUNT(*) AS count ... GROUP BY <fields>' sql statement. " +
 				"The 'tupleField' property controls the set of <fields> included in the groups counted." ,

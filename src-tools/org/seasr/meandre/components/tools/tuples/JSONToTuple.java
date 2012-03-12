@@ -75,7 +75,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tuple, json",
+        tags = "#TRANSFORM, tuple, json",
         description = "This component converts a simple JSON array-of-simple-objects structure into a Tuple structure" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )

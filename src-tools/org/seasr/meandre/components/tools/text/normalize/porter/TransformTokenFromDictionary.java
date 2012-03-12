@@ -68,7 +68,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		description = "Replaces tokens with their entries from the dictionary.",
 		firingPolicy = FiringPolicy.all,
 		name = "Transform Token From Dictionary",
-		tags = "token transform",
+		tags = "#TRANSFORM, token, transform",
 		rights = Licenses.UofINCSA,
 		baseURL = "meandre://seasr.org/components/foundry/"
 )

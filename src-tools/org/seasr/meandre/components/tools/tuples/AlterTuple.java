@@ -80,7 +80,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tuple",
+        tags = "#TRANSFORM, tuple",
         description = "This component provides the ability to rename and/or remove fields from tuples. " +
         		"The original input tuples are not altered. The output is an altered copy of the original tuples." ,
         dependency = {"protobuf-java-2.2.0.jar"}

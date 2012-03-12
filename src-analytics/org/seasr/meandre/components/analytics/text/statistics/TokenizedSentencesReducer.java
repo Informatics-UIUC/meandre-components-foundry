@@ -72,7 +72,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "#ANALYICS, accumulate, reduce, sentence, tokenized sentence",
+        tags = "#TRANSFORM, accumulate, reduce, sentence, tokenized sentence",
         description = "This component is intended to work on wrapped model streams. " +
                       "Given a sequence of wrapped models, it will create a new model that " +
                       "accumulates/reduces the tokenized sentences and then pushes the resulting model. " +

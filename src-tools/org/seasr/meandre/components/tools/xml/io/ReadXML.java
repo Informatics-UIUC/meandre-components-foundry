@@ -82,7 +82,7 @@ import org.xml.sax.SAXException;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, io, read, xml",
+		tags = "#INPUT, semantic, io, read, xml",
 		description = "This component reads a XML. The XML location is specified " +
 				      "in the input. Also, it is able to read from URLs and local files " +
 				      "using URL of file syntax. The component outputs the semantic model " +

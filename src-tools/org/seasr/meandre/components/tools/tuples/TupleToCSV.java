@@ -73,7 +73,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tuple, tools, text, filter",
+		tags = "#TRANSFORM, tuple, tools, text, filter",
 		description = "This component writes the incoming set of tuples to CSV String" ,
 		dependency = {"protobuf-java-2.2.0.jar"}
 )

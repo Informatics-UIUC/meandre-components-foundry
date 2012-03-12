@@ -69,8 +69,14 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  * 
  */
 
-@Component(name = "Tuple Pearson Analysis", creator = "Loretta Auvil", baseURL = "meandre://seasr.org/components/foundry/", firingPolicy = FiringPolicy.all, mode = Mode.compute, rights = Licenses.UofINCSA, tags = "tuple, tools, text, pearson", description = "This component takes the incoming set of tuples and compares each word to every other word based on Pearson's analysis", dependency = {
-		"trove-2.0.3.jar", "protobuf-java-2.2.0.jar" })
+@Component(name = "Tuple Pearson Analysis", creator = "Loretta Auvil", 
+		baseURL = "meandre://seasr.org/components/foundry/", 
+		firingPolicy = FiringPolicy.all, mode = Mode.compute, 
+		rights = Licenses.UofINCSA, 
+		tags = "#ANALYTICS, tuple, tools, text, pearson", 
+		description = "This component takes the incoming set of tuples and compares each word to every other word based on Pearson's analysis", 
+		dependency = {"trove-2.0.3.jar", "protobuf-java-2.2.0.jar" })
+		
 		public class TuplePearsonAnalysis extends AbstractStreamingExecutableComponent {
 
 	// ------------------------------ INPUTS

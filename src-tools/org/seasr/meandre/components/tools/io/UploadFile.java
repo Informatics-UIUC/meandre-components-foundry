@@ -76,7 +76,7 @@ import com.oreilly.servlet.multipart.Part;
         description = "Uploads and submits files from user's own machine. " +
         "This component works with Fluid Infusion 1.2.",
         name = "Upload File",
-        tags = "file input upload text",
+        tags = "#INPUT, file input upload text",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",

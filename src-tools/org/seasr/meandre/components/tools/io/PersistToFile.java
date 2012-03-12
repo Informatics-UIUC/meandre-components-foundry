@@ -82,7 +82,7 @@ import org.seasr.meandre.support.generic.io.Serializer;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tools, io, file, serialize, persist",
+        tags = "#OUTPUT, tools, io, file, serialize, persist",
         description = "This component persists (serializes) the input into a file.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

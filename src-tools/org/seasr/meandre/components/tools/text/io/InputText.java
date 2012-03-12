@@ -66,7 +66,7 @@ import org.seasr.datatypes.core.Names;
         creator = "Lily Dong",
         description = "Presents a simple text area for user to input string.",
         name = "Input Text",
-        tags = "string, webui, text",
+        tags = "#INPUT, string, webui, text",
         rights = Licenses.UofINCSA,
         mode = Mode.webui,
         baseURL = "meandre://seasr.org/components/foundry/",

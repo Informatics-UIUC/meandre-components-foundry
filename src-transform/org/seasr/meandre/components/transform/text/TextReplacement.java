@@ -186,7 +186,8 @@ public class TextReplacement extends AbstractExecutableComponent {
 		// Option A, parse the text based on whitespace and punctuation
 		// cycle through these tokens, match against the dictionary
 		// we want tokens that typically mark an end of a word
-		StringTokenizer tokens = new StringTokenizer(text, " \t\n\r\f.,;!?\"\':(){}[]", true);
+		// adding a few more characters that should mark an end of a word for replacement
+		StringTokenizer tokens = new StringTokenizer(text, " \t\n\r\f.,;!?\"\':(){}[]*-<>~", true);
 		StringBuilder sb = new StringBuilder();
 		while(tokens.hasMoreTokens()) {
 

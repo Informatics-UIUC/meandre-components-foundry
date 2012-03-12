@@ -77,7 +77,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "io, read, text",
+		tags = "#INPUT, io, read, text",
 		description = "This component reads content as byte array from a remote location " +
     		"with cookie support. The text location is specified in the input and" +
     		"the cookie is also an input. "+

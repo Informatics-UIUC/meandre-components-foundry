@@ -67,7 +67,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
 		description = "Merges the incoming dictionary.",
 		firingPolicy = FiringPolicy.all,
 		name = "Dictionary Merger",
-		tags = "dictionary merge",
+		tags = "#TRANSFORM, dictionary, merge",
 		rights = Licenses.UofINCSA,
 		baseURL = "meandre://seasr.org/components/foundry/"
 )

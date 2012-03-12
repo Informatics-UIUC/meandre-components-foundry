@@ -64,7 +64,7 @@ import org.seasr.meandre.support.generic.gis.GeoLocation;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tuple, group",
+		tags = "#TRANSFORM, tuple, group",
 		description = "This component resolves names of locations into latitude/longitude coordinates" ,
 		dependency = {"protobuf-java-2.2.0.jar"}
 )

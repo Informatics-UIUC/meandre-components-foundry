@@ -77,7 +77,7 @@ import org.seasr.meandre.support.generic.io.StreamUtils;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "io, read, zip",
+		tags = "#INPUT, io, read, zip",
 		description = "This component reads a zip file and passes each file as output.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )

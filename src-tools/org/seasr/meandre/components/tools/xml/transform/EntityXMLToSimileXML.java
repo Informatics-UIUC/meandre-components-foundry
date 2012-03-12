@@ -76,7 +76,7 @@ import org.w3c.dom.NodeList;
             ",to the standard which Simile Timeline requires, such as, " +
             "<event start=\"2001\" title=\"2001(2)\"> ... </event>",
         name = "Entity XML To Simile XML",
-        tags = "date, entity, simile, xml, convert",
+        tags = "#TRANSFORM, date, entity, simile, xml, convert",
         rights = Licenses.UofINCSA,
         baseURL="meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}

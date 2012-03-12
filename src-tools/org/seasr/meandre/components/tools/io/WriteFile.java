@@ -85,7 +85,7 @@ import org.w3c.dom.Document;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "io, file, write, bytes",
+        tags = "#OUTPUT, io, file, write, bytes",
         description = "This component writes the given data to a file.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )

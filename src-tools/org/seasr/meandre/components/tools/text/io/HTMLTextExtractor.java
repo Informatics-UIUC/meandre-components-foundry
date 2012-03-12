@@ -67,7 +67,7 @@ import org.w3c.dom.Document;
         description = "Converts an HTML doc to plain text. All nodes from " +
            		      "the dom tree that are plain text nodes are appended " +
            		      "together and returned as a string.",
-        name = "HTML Text Extractor",
+        name = "#TRANSFORM, HTML Text Extractor",
         rights = Licenses.UofINCSA,
         tags = "html, text, convert",
         dependency = {"protobuf-java-2.2.0.jar", "htmlparser.jar"},

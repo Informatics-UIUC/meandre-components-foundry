@@ -89,7 +89,7 @@ import org.seasr.meandre.support.components.text.normalize.porter.PorterStemmer;
     		+ "</p>"
     		+ "<p>Trigger Criteria: <br>" + "All." + "</p>",
         name = "Stem",
-        tags = "nlp text document normalize stem",
+        tags = "#TRANSFORM, nlp, text, document, normalize, stem",
         rights = Licenses.UofINCSA,
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/"

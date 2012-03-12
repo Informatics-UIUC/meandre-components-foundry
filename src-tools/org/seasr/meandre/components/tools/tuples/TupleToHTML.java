@@ -69,7 +69,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         creator = "Boris Capitanu",
         description = "Creates HTML for displaying a set of tuples in a table",
         name = "Tuple To HTML",
-        tags = "tuple, html",
+        tags = "#TRANSFORM, tuple, html",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.7-dep.jar", "protobuf-java-2.2.0.jar" },

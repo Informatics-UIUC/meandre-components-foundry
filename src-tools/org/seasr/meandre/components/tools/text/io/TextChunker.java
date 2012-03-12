@@ -68,7 +68,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         description = "Splits the input text into chunks of specified size.",
         name = "Text Chunker",
         rights = Licenses.UofINCSA,
-        tags = "text, chunker, segmentation",
+        tags = "#TRANSFORM, text, chunker, segmentation",
         dependency = {"protobuf-java-2.2.0.jar"},
         baseURL = "meandre://seasr.org/components/foundry/"
 )

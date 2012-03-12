@@ -81,7 +81,7 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "#ANALYICS, nlp, text, opennlp, sentence tokenizer",
+        tags = "#TRANSFORM, nlp, text, opennlp, sentence tokenizer",
         description = "This component performs tokenization on sentences, and outputs the tokens." ,
         dependency = {
                 "protobuf-java-2.2.0.jar",

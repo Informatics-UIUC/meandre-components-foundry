@@ -72,7 +72,7 @@ import org.seasr.meandre.support.generic.io.ModelUtils;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "semantic, io, read, model",
+		tags = "#INPUT, semantic, io, read, model",
 		description = "This component reads a RDF model. The model name is specified " +
 				      "in the input. Also, it is able to read from URLs and local files " +
 				      "using URL of file syntax. The component outputs the semantic model " +

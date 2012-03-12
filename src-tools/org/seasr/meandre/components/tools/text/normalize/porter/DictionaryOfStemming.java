@@ -72,7 +72,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
 		              "as the representative. ",
         firingPolicy = FiringPolicy.all,
 		name = "Dictionary Of Stemming",
-		tags = "stem, dictionary",
+		tags = "#TRANSFORM, stem, dictionary",
 		rights = Licenses.UofINCSA,
 		baseURL="meandre://seasr.org/components/foundry/"
 )

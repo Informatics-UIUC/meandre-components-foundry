@@ -82,7 +82,7 @@ import com.jolbox.bonecp.BoneCP;
         firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "tools, database, db, persist, serialize",
+        tags = "#INPUT, tools, database, db, persist, serialize",
         description = "This component retrieves persisted data from a database",
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
                        "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
