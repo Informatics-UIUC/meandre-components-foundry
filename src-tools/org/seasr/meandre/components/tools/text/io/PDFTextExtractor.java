@@ -31,7 +31,7 @@ import org.seasr.meandre.support.generic.text.PDFUtils;
 @Component(
         creator = "Loretta Auvil",
         description = "This component extracts the text from a pdf document. "+
-                      "The input is a String or URL specifiying the url of the pdf document. "+
+                      "The input is a String or URL specifying the url of the pdf document. "+
                       "The output is the extracted text.",
         name = "PDF Text Extractor",
         rights = Licenses.UofINCSA,

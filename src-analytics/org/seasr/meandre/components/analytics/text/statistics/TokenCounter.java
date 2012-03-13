@@ -83,7 +83,7 @@ import de.intarsys.tools.component.ComponentException;
 		description = "Given a collection of tokens from a document, " +
 				      "this component counts all the different occurrences of the " +
 				      "tokens. If the document contains multiple token sequences, the " +
-				      "component aggregate all the sequences providing a cummulative count.",
+				      "component aggregate all the sequences providing a cumulative count.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TokenCounter extends AbstractExecutableComponent {

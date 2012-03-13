@@ -64,7 +64,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         tags = "#CONTROL, input, counter, stream",
         description = "This component counts the number of data objects passing " +
         		"through it and outputs the current count. If the component is set " +
-        		"to act on a particular stream (by setting 'streamId' appropriately) " +
+        		"to act on a particular stream (by setting '_stream_id' appropriately) " +
         		"then at the end of the stream the component will output a total " +
         		"count of all elements in that stream.",
         dependency = {"protobuf-java-2.2.0.jar"}

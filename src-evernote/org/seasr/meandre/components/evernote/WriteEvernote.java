@@ -70,8 +70,9 @@ import com.evernote.edam.userstore.UserStore;
         description = "Demonstrates how to implement " +
            "a interface to write text conforming to Evernote Markup Language" +
            "(ENML) to the owner's default note book under sandbox.evernote.com. " +
-           "It should be noted that sandbox.evernote.com does not corporate with the api setting the default note book. " +
-           ",so designating the default note book through sandbox.evernote.com before writting.",
+           "Note: this component is using sandbox.evernote.com which is a dedicated testing server " +
+           "that is not connected with Evernote's production web service, " +
+           "so designate the default note book through sandbox.evernote.com before writing.",
         name = "Write Evernote",
         tags = "#OUTPUT, evernote, note, notebook, write",
         baseURL = "meandre://seasr.org/components/foundry/",

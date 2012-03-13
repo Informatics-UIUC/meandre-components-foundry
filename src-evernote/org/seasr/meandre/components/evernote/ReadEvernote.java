@@ -74,7 +74,7 @@ import com.evernote.edam.userstore.UserStore;
 
 @Component(
         creator = "Lily Dong",
-        description = "Demomstrates how to write a interface " +
+        description = "Demonstrates how to write a interface " +
             "to read all of the notes under owner's account at sandbox.evernote.com, " +
             "and outputs note's title and note's content as XML text. " +
             "It should be pointed out that sandbox.evernote.com is only a test-only server.",

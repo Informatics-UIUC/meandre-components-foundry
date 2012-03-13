@@ -84,7 +84,7 @@ import org.seasr.meandre.support.components.text.normalize.porter.PorterStemmer;
     		+ "This component will modify (as described above) the document object that is input."
     		+ "</p>"
     		+ "<p>Scalability: <br>"
-    		+ "This compnent makes one pass over the token list resulting in linear time complexity "
+    		+ "This component makes one pass over the token list resulting in linear time complexity "
     		+ "per the number of tokens. Memory usage is proportional to the number tokens."
     		+ "</p>"
     		+ "<p>Trigger Criteria: <br>" + "All." + "</p>",

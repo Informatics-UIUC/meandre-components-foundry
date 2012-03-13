@@ -77,8 +77,8 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 @Component(
         creator = "Lily Dong",
-        description = "<p>Description: This component takes in any Java object" +
-                      "and distributes it (or copies of it) across multiple outputs.  " +
+        description = "<p>Description: This component takes in any Java object " +
+                      "and distributes it (or copies of it) across multiple outputs. " +
                       "The user can choose from five object replication methods -- by reference, " +
                       "shallow copy by clone, deep copy via serialization, copy via constructor, " +
                       "or copy via custom method.</p>",

@@ -74,8 +74,8 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
 		description = "Searches the text input for the regular expression pattern. "+
 		              "If the pattern is found and the regular expression specifies a capturing group, " +
 		              "then the matching text for the capturing group is pushed out on port Text_Found. " +
-		              "If the pattern is found and there are no capturing groups defined, the maching text for the " +
-		              "pattern is pushed out on port Text_Found.  In both cases multiple outputs are possible." +
+		              "If the pattern is found and there are no capturing groups defined, the matching text for the " +
+		              "pattern is pushed out on port Text_Found. In both cases multiple outputs are possible. " +
 		              "If the pattern is not found, it outputs the original text on port Text.",
 		tags = "#TRANSFORM, text, string, search",
 		rights = Licenses.UofINCSA,

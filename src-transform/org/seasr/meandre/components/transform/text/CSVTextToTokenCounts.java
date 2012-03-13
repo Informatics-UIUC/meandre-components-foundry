@@ -66,7 +66,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 @Component(
         creator = "Boris Capitanu",
-        description = "Converts CSV text to tount counts.",
+        description = "Converts CSV text to token counts structure.",
         name = "CSV Text To Token Counts",
         tags = "#TRANSFORM, CSV, text, token count",
         rights = Licenses.UofINCSA,

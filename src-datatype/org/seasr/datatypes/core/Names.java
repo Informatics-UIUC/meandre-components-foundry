@@ -185,7 +185,7 @@ public abstract class Names {
 
 	public static final String PROP_TAPoR_HTML_TAG = "html_tag";
 	public static final String PROP_TAPoR_LIST_OPTION = "list_option";
-	public static final String PROP_TAPoR_OPTION_SELECTION =  "option_seletion";
+	public static final String PROP_TAPoR_OPTION_SELECTION =  "option_selection";
 	public static final String PROP_TAPoR_SORTING = "sorting";
 	public static final String PROP_TAPoR_OUT_FORMAT = "out_format";
 

@@ -88,7 +88,7 @@ import cern.jet.math.Functions;
 		rights = Licenses.UofINCSA,
 		tags = "#ANALYTICS, text, sentence, token, tokenized sentence, summarization",
 		description = "This component ranks and sorts the tokenized input sentences " +
-				      "providing a simple summarization by sentence seletion.",
+				      "providing a simple summarization of top sentences and top tokens.",
 		dependency = {"colt.jar","protobuf-java-2.2.0.jar"}
 )
 public class HITSSummarizer extends AbstractExecutableComponent {

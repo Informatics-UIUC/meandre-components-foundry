@@ -68,7 +68,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
 		description = "Constructs a dictionary mapping the stemmed words back to " +
 		              "the actual words in the original document, so for the output map, " +
 		              "the stemmed words are keys and the actual words are values. " +
-		              "If several words have the same stem, the shortest word is choosen " +
+		              "If several words have the same stem, the shortest word is chosen " +
 		              "as the representative. ",
         firingPolicy = FiringPolicy.all,
 		name = "Dictionary Of Stemming",
