@@ -86,7 +86,7 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "#ANALYICS, text, opennlp, nlp, tokenized sentence, chunker",
+        tags = "#ANALYTICS, text, opennlp, nlp, tokenized sentence, chunker",
         description = "This component performs treebank chunking on the incoming set " +
         		"of tokenized sentences using Apache OpenNLP",
         dependency = {

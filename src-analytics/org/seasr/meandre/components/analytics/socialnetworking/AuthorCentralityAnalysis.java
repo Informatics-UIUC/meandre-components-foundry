@@ -81,7 +81,7 @@ import edu.uci.ics.jung.graph.Graph;
 		              "ranks each author in the author-citation graph derived from the number of "+
 		              "shortest paths that pass through them.",
 		name = "Author Centrality Analysis",
-		tags = "#ANALYICS, author, betweenness centrality, social network analysis",
+		tags = "#ANALYTICS, author, betweenness centrality, social network analysis",
 		rights = Licenses.UofINCSA,
 		mode = Mode.compute,
 		firingPolicy = FiringPolicy.all,
