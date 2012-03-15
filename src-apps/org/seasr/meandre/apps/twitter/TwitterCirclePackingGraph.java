@@ -65,7 +65,7 @@ import org.seasr.meandre.components.vis.protovis.AbstractProtovisComponent;
         creator = "Mike Haberman",
         description = "Twitter Circle Packing Graph",
         name = "Twitter Circle Packing Graph",
-        tags = "string, visualization, protovis",
+        tags = "#VIS, string, visualization, protovis",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.7-dep.jar", "protovis-r3.2.jar" },

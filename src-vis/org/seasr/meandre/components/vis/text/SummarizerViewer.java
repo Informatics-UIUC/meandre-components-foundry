@@ -73,7 +73,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
         firingPolicy = FiringPolicy.all,
         mode = Mode.webui,
         rights = Licenses.UofINCSA,
-        tags = "token, sentence, viewer",
+        tags = "#VIS, token, sentence, viewer",
         description = "Visualizes tokens and sentences from HitsSummarizer. " +
         "Its inputs should be connected directly to HitsSummarizer.",
         dependency = {"protobuf-java-2.2.0.jar"},

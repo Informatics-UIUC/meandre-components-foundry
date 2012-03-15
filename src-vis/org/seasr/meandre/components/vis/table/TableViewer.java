@@ -85,7 +85,7 @@ import org.seasr.meandre.support.generic.html.VelocityTemplateService;
                       "Rows are fetched automatically as needed and column rendering is done only for the visible" +
                       "columns to improve performance for large datasets.",
         name = "Table Viewer",
-        tags = "table viewer",
+        tags = "#VIS, table viewer",
         mode = Mode.webui,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

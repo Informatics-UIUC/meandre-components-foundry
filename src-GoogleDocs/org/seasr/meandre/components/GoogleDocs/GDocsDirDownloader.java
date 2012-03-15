@@ -75,7 +75,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "google, google doc, download",
+		tags = "#INPUT, google, google doc, download",
 		description = "This component extracts data from a Google Docs directory and creates a local copy of the directory",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "activation-1.1.jar","gdata-client-1.0.jar","gdata-client-meta-1.0.jar","gdata-core-1.0.jar","gdata-docs-3.0.jar","gdata-docs-meta-3.0.jar","gdata-media-1.0.jar","guava-r09.jar","jsr305.jar","mail.jar"}
 )

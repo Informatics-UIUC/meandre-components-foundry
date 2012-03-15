@@ -76,7 +76,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "TRANSFORM, accumulate, reduce, token, count, token count",
+		tags = "#TRANSFORM, accumulate, reduce, token, count, token count",
 		description = "This component is intended to work on wrapped model streams. " +
 				      "Given a sequence of wrapped models, it will create a new model that " +
 				      "accumulates/reduces the token counts and then pushes the resulting model. " +

@@ -50,7 +50,7 @@ import twitter4j.User;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "tuple, twitter",
+		tags = "#TRANSFORM, tuple, twitter",
 		description = "This component reads a twitter stream and pushes out tuples (id,text,userid, followers, location)",
 		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "twitter4j-core-2.1.2.jar"}
 )

@@ -77,7 +77,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         creator = "Mike Haberman",
         description = "Performs simple text replacement, based on input configuration",
         name = "Text Replacement",
-        tags = "text, remove, replace",
+        tags = "#TRANSFORM, text, remove, replace",
         firingPolicy = FiringPolicy.all,
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",

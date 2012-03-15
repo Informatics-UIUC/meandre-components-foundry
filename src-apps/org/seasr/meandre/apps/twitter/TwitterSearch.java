@@ -76,7 +76,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "twitter, search",
+        tags = "#INPUT, twitter, search",
         description = "This component searches Twitter for stuff" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )

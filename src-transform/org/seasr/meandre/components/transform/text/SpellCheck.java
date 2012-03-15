@@ -177,7 +177,7 @@ public class SpellCheck extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = "enable_levenshtein",
-            description = "Use the Levinstein algorithm to filter the list of suggestions considered",
+            description = "Use the Levenshtein algorithm to filter the list of suggestions considered",
             defaultValue = "true"
     )
     protected static final String PROP_ENABLE_LEVENSHTEIN = "enable_levenshtein";
