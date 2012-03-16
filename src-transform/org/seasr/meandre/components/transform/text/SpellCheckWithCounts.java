@@ -128,6 +128,13 @@ public class SpellCheckWithCounts extends SpellCheck {
     )
     protected static final String PROP_TRANSFORM_THRESHOLD = "transform_threshold";
 
+    @ComponentProperty(
+            name = "min_rule_support",
+            description = "The minimum support that a suggested replacement should have. (checked against the supplied token counts)",
+            defaultValue = "1"
+    )
+    protected static final String PROP_MIN_RULE_SUPPORT = "min_rule_support";
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -135,6 +142,7 @@ public class SpellCheckWithCounts extends SpellCheck {
     protected Map<String, List<String>> _transformations;
     protected Boolean _enable_transforms_only;
     protected int _transformThreshold;
+    protected int _minRuleSupport;
 
 
     //--------------------------------------------------------------------------------------------
@@ -145,6 +153,7 @@ public class SpellCheckWithCounts extends SpellCheck {
 
     	_enable_transforms_only = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ENABLE_TRANSFORMS, ccp));
     	_transformThreshold = Integer.parseInt(getPropertyOrDieTrying(PROP_TRANSFORM_THRESHOLD, ccp));
+    	_minRuleSupport = Integer.parseInt(getPropertyOrDieTrying(PROP_MIN_RULE_SUPPORT, ccp));
     }
 
     //--------------------------------------------------------------------------------------------
@@ -304,8 +313,13 @@ public class SpellCheckWithCounts extends SpellCheck {
                 if (abort) continue;
 
                 if (_spellChecker.isCorrect(suggestion)) {
-                    suggestions.add(suggestion);
-                    console.finer(String.format("Transformed '%s' into '%s' after %d transformations", invalidWord, suggestion, countTransformations));
+                    Integer count = _tokenCounts.get(suggestion);
+                    if (count == null) count = 0;
+                    if (count >= _minRuleSupport) {
+                        suggestions.add(suggestion);
+                        console.finer(String.format("Transformed '%s' into '%s' after %d transformations", invalidWord, suggestion, countTransformations));
+                    } else
+                        console.finer(String.format("Suggestion '%s' => '%s' ignored because it does not meet the minimum support threshold (count=%d).", invalidWord, suggestion, count));
                 } else
                     console.finest(String.format("Discarding transformation '%s' - not found in dictionary", suggestion));
             }
