@@ -90,7 +90,7 @@ import de.schlichtherle.io.FileOutputStream;
         tags = "#TRANSFORM, mallet, topic model, csv",
         description = "This component creates a CSV file containing the processed documents, and for each processed document " +
         		"the set of topics and topic probabilities" ,
-        dependency = {"protobuf-java-2.2.0.jar"}
+        dependency = {"protobuf-java-2.2.0.jar","trove-2.0.3.jar"}
 )
 public class DocumentTopicsToCSVFile extends AbstractExecutableComponent {
 
@@ -242,6 +242,7 @@ public class DocumentTopicsToCSVFile extends AbstractExecutableComponent {
 
             int dataSize = topicModel.getData().size();
             int[] topicCounts = new int[numTopics];
+            double temp_weight[] = new double[numTopics];
             int docNum = 0;
             for (TopicAssignment ta : topicModel.getData()) {
                 int[] features = ta.topicSequence.getFeatures();
@@ -256,13 +257,17 @@ public class DocumentTopicsToCSVFile extends AbstractExecutableComponent {
 
                 Arrays.fill(topicCounts, 0); // initialize for next round
                 Arrays.sort(sortedTopics);
-
+                Arrays.fill(temp_weight, 0); // initialize for next round
+                
                 writer.write(Integer.toString(docNum++) + _separator); // doc_id
                 writer.write(ta.instance.getName().toString()); // doc_name
 
                 for (int i = 0, iMax = sortedTopics.length; i < iMax; i++) {
                     double weight = sortedTopics[i].getWeight();
-                    writer.write(String.format("%s%.4f", _separator, weight));
+                    temp_weight[sortedTopics[i].getID()] = weight;
+                }
+                for (int i = 0, iMax = sortedTopics.length; i < iMax; i++) {
+                   writer.write(String.format("%s%.4f", _separator, temp_weight[i]));
                 }
 
                 writer.write(NEWLINE);
