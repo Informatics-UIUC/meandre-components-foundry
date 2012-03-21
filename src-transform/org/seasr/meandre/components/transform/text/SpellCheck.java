@@ -159,12 +159,12 @@ public class SpellCheck extends AbstractExecutableComponent {
     protected static final String OUT_UNCORRECTED_MISSPELLINGS = "uncorrected_misspellings";
 
     @ComponentOutput(
-            name = "mispellings_with_counts",
+            name = "misspellings_with_counts",
             description = "The token counts of the misspelled words/tokens. " +
             		"This output will be generated only if the property 'output_misspellings_with_counts' is set to 'true'." +
                     "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
     )
-    protected static final String OUT_MISPELLINGS_WITH_COUNTS = "mispellings_with_counts";
+    protected static final String OUT_MISSPELLINGS_WITH_COUNTS = "misspellings_with_counts";
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -224,7 +224,7 @@ public class SpellCheck extends AbstractExecutableComponent {
             description = "Output misspellings with counts? (output will be in token count " +
             		"format describing the mispelled word and the count for how many times it " +
             		"was found in the input text. The output will be pushed to the '" +
-            		OUT_MISPELLINGS_WITH_COUNTS + "' port",
+            		OUT_MISSPELLINGS_WITH_COUNTS + "' port",
             defaultValue = "false"
     )
     protected static final String PROP_OUTPUT_MISSPELLINGS_WITH_COUNTS = "output_misspellings_with_counts";
@@ -348,6 +348,8 @@ public class SpellCheck extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, input);
         componentContext.pushDataComponentToOutput(OUT_RULES, input);
         componentContext.pushDataComponentToOutput(OUT_TEXT, input);
+        componentContext.pushDataComponentToOutput(OUT_UNCORRECTED_MISSPELLINGS, input);
+        componentContext.pushDataComponentToOutput(OUT_MISSPELLINGS_WITH_COUNTS, input);
     }
 
     protected boolean isReadyToProcessInputs() throws ComponentContextException {
@@ -397,7 +399,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
 
         if (_outputMisspellingsWithCounts)
-            componentContext.pushDataComponentToOutput(OUT_MISPELLINGS_WITH_COUNTS, BasicDataTypesTools.mapToIntegerMap(listener.getMisspellingCounts(), true));
+            componentContext.pushDataComponentToOutput(OUT_MISSPELLINGS_WITH_COUNTS, BasicDataTypesTools.mapToIntegerMap(listener.getMisspellingCounts(), true));
     }
 
     private void processTokenizedSentences(Map<String, String[]> tokenizedSentences) throws ComponentContextException {
@@ -450,7 +452,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.mapToStringMap(correctedTokenizedSentences));
 
         if (_outputMisspellingsWithCounts)
-            componentContext.pushDataComponentToOutput(OUT_MISPELLINGS_WITH_COUNTS, BasicDataTypesTools.mapToIntegerMap(listener.getMisspellingCounts(), true));
+            componentContext.pushDataComponentToOutput(OUT_MISSPELLINGS_WITH_COUNTS, BasicDataTypesTools.mapToIntegerMap(listener.getMisspellingCounts(), true));
     }
 
     private void processTokenCounts(Map<String, Integer> tokenCounts) throws ComponentContextException {
@@ -494,7 +496,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.mapToIntegerMap(correctedTokenCounts, false));
 
         if (_outputMisspellingsWithCounts)
-            componentContext.pushDataComponentToOutput(OUT_MISPELLINGS_WITH_COUNTS, BasicDataTypesTools.mapToIntegerMap(listener.getMisspellingCounts(), true));
+            componentContext.pushDataComponentToOutput(OUT_MISSPELLINGS_WITH_COUNTS, BasicDataTypesTools.mapToIntegerMap(listener.getMisspellingCounts(), true));
     }
 
     private Map<String,String[]> getReplacementsMap(Map<String,Set<String>> map) {
