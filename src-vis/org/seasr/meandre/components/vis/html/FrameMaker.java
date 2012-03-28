@@ -75,7 +75,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.7-dep.jar", "protobuf-java-2.2.0.jar" },
-        resources = { "FrameMaker.vm" }
+        resources = { "FrameMaker.vm","iFrameViewer.vm" }
 )
 public class FrameMaker extends AbstractStreamingExecutableComponent {
 

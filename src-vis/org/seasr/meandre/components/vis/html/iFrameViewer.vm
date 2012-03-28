@@ -1,0 +1,17 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head></head>
+<script language="Javascript">
+if (window.innerWidth) {
+ winW = window.innerWidth;
+};
+var sz =  Math.round(winW / $columns);
+</script>
+<body>
+
+    #foreach( $src in $htmlDocs )
+    <iframe src='$src' width=sz height=sz frameborder="0" marginheight="0" marginwidth="0">
+		Your browser does not support frames!</iframe>
+    #end
+</body>
+</html>
