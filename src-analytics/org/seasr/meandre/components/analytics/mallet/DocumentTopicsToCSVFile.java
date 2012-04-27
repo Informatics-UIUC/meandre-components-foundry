@@ -256,18 +256,14 @@ public class DocumentTopicsToCSVFile extends AbstractExecutableComponent {
                     sortedTopics[topic].set(topic, (float) topicCounts[topic] / features.length);
 
                 Arrays.fill(topicCounts, 0); // initialize for next round
-                Arrays.sort(sortedTopics);
-                Arrays.fill(temp_weight, 0); // initialize for next round
-                
+                //Arrays.sort(sortedTopics);
+
                 writer.write(Integer.toString(docNum++) + _separator); // doc_id
                 writer.write(ta.instance.getName().toString()); // doc_name
 
                 for (int i = 0, iMax = sortedTopics.length; i < iMax; i++) {
                     double weight = sortedTopics[i].getWeight();
-                    temp_weight[sortedTopics[i].getID()] = weight;
-                }
-                for (int i = 0, iMax = sortedTopics.length; i < iMax; i++) {
-                   writer.write(String.format("%s%.4f", _separator, temp_weight[i]));
+                    writer.write(String.format("%s%.4f", _separator, weight));
                 }
 
                 writer.write(NEWLINE);
