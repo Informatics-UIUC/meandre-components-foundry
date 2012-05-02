@@ -222,7 +222,7 @@ public class SpellCheck extends AbstractExecutableComponent {
     @ComponentProperty(
             name = "output_misspellings_with_counts",
             description = "Output misspellings with counts? (output will be in token count " +
-            		"format describing the mispelled word and the count for how many times it " +
+            		"format describing the misspelled word and the count for how many times it " +
             		"was found in the input text. The output will be pushed to the '" +
             		OUT_MISSPELLINGS_WITH_COUNTS + "' port",
             defaultValue = "false"
