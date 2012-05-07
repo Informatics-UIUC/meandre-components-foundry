@@ -1,17 +1,40 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
-<head></head>
-<script language="Javascript">
-if (window.innerWidth) {
- winW = window.innerWidth;
-};
-var sz =  Math.round(winW / $columns);
-</script>
 <body>
+##-----------------------------------------------------------------
+## Add commas in a comma separated list to all items but the last
+## Param: $index - pass in $velocityCount
+## Param: $list  - pass in your velocity list variable
+##-----------------------------------------------------------------
+#macro(commaIfNeeded $index $list)
+#set ( $lastone = $list.Count - 1 )
+#if( $index <= $lastone ),
+#else
 
-    #foreach( $src in $htmlDocs )
-    <iframe src='$src' width=sz height=sz frameborder="0" marginheight="0" marginwidth="0">
-		Your browser does not support frames!</iframe>
-    #end
+#end
+#end
+<script type="text/javascript">
+    function createIframe(src, width, height) {
+        var iframe = document.createElement('iframe');
+        iframe.setAttribute('src', src);
+        iframe.setAttribute('width', width);
+        iframe.setAttribute('height', height);
+        iframe.setAttribute('frameborder', 0);
+        iframe.setAttribute('marginwidth', 0);
+        iframe.setAttribute('marginheight', 0);
+        iframe.innerHTML = 'Your browser does not support frames!';
+
+        return iframe;
+    }
+
+    var sz =  Math.round(window.innerWidth / $columns);
+    var docs = [
+        #foreach( $src in $htmlDocs ) '$src'#commaIfNeeded( $velocityCount $htmlDocs ) #end
+    ];
+
+    var body = document.getElementsByTagName("body");
+    for each(var src in docs)
+        body.appendChild(createIframe(src, sz, sz));
+</script>
 </body>
 </html>
