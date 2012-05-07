@@ -7,7 +7,7 @@
 ## Param: $list  - pass in your velocity list variable
 ##-----------------------------------------------------------------
 #macro(commaIfNeeded $index $list)
-#set ( $lastone = $list.Count - 1 )
+#set ( $lastone = $list.size() - 1 )
 #if( $index <= $lastone ),
 #else
 
