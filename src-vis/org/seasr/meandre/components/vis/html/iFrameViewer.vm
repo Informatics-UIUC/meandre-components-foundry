@@ -29,12 +29,11 @@
 
     var sz =  Math.round(window.innerWidth / $columns);
     var docs = [
-        #foreach( $src in $htmlDocs ) '$src'#commaIfNeeded( $velocityCount $htmlDocs ) #end
+        #foreach( $src in $htmlDocs ) '$src'#commaIfNeeded( $velocityCount $htmlDocs )#end
     ];
 
-    var body = document.getElementsByTagName("body");
     for each(var src in docs)
-        body.appendChild(createIframe(src, sz, sz));
+        document.body.appendChild(createIframe(src, sz, sz));
 </script>
 </body>
 </html>
