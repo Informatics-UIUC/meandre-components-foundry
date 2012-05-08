@@ -27,7 +27,7 @@
         return iframe;
     }
 
-    var sz =  Math.floor(window.innerWidth / $columns);
+    var sz =  $columns + 6;
     var docs = [
         #foreach( $src in $htmlDocs ) '$src'#commaIfNeeded( $velocityCount $htmlDocs )#end
     ];
