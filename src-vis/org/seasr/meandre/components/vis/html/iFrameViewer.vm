@@ -32,8 +32,8 @@
         #foreach( $src in $htmlDocs ) '$src'#commaIfNeeded( $velocityCount $htmlDocs )#end
     ];
 
-    for each(var src in docs)
-        document.body.appendChild(createIframe(src, sz, sz));
+    for (var i in docs)
+        document.body.appendChild(createIframe(docs[i], sz, sz));
 </script>
 </body>
 </html>
