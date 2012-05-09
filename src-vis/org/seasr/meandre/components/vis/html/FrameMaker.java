@@ -69,7 +69,12 @@ import org.seasr.meandre.support.generic.io.IOUtils;
 
 @Component(
         creator = "Boris Capitanu",
-        description = "Arranges into frames multiple HTML documents that are part of a stream",
+        description = "Arranges multiple HTML documents into a single web page from "+
+        "all HTML documents that are part of a stream. Two layouts currently exist. "+
+        "1) FrameMaker.vm fits all frames in the browser window and adjusts size of " +
+            "each frame using the number of columns provided."+
+        "2) iFrameViewer.vm allows the frame size to be set as pixels for column for each HTML document "+
+            "and thus allows as much scrolling as needed",
         name = "Frame Maker",
         tags = "html, frames",
         rights = Licenses.UofINCSA,
@@ -105,16 +110,23 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
     //------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
-            description = "The template name",
+            description = "The template name. Two templates have been created." +
+            "1) FrameMaker.vm fits all frames in the browser window and adjusts size of " +
+            "each frame."+
+            "2) iFrameViewer.vm allows the frame size to be set "+
+            "and thus allows as much scrolling as needed",
             name = Names.PROP_TEMPLATE,
             defaultValue = "org/seasr/meandre/components/vis/html/FrameMaker.vm"
     )
     protected static final String PROP_TEMPLATE = Names.PROP_TEMPLATE;
 
     @ComponentProperty(
-            description = "Number of columns (rows calculated automatically)",
+            description = "Setting to determine the column layout of the frames. "+
+            "For FrameMaker.vm, this should be the number of columns of frames to create "+
+            "(rows calculated automatically). " +
+            "For iFrameViewer.vm, this should be the number of pixels to use for each frame width (and height).",
             name = "columns",
-            defaultValue = ""
+            defaultValue = "4"
     )
     protected static final String PROP_COLUMNS = "columns";
 
@@ -193,10 +205,11 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
 	public void endStream() throws Exception {
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
         VelocityContext context = velocity.getNewContext();
+        context.put("Math", Math.class);
 
         context.put("htmlDocs", _htmlDocs);
         context.put("rows", (int)Math.ceil(_htmlDocs.size() / (double)_columns));
-		context.put("columns", Math.min(_columns, _htmlDocs.size()));
+		context.put("columns", _columns);
 
         String html = velocity.generateOutput(context, _template);
         componentContext.pushDataComponentToOutput(OUT_HTML, html);

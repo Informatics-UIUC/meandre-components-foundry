@@ -1,7 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head></head>
-<frameset rows='#foreach( $row in [1..$rows] )*#if( $foreach.hasNext ),#end#end' cols='#foreach( $col in [1..$columns] )*#if( $foreach.hasNext ),#end#end'>
+#set( $minCols = $Math.min($columns,$htmlDocs.size()) )
+<frameset rows='#foreach( $row in [1..$rows] )*#if( $foreach.hasNext ),#end#end' cols='#foreach( $col in [1..$minCols] )*#if( $foreach.hasNext ),#end#end'>
     #foreach( $src in $htmlDocs )
     <frame src='$src'/>
     #end
