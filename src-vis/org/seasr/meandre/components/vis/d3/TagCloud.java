@@ -64,7 +64,13 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 
 @Component(
         creator = "Boris Capitanu",
-        description = "This components uses the D3 library to generate a tag cloud.",
+        description = "This components uses the D3 library to generate a tag cloud. "+
+        "In the properties setting, you can also indicate the rotation for the text, "+
+        "for instance, 'rotation=0' means all words are horizontal; "+
+        "'rotation=90' means all words are horizontal or vertical. "+
+        "References: D3: Data-Driven Documents, Michael Bostock, Vadim Ogievetsky, Jeffrey Heer, "+
+        "IEEE Trans. Visualization & Comp. Graphics (Proc. InfoVis), 2011. " +
+		"D3 tag cloud code from http://github.com/jasondavies/d3-cloud.",
         name = "Tag Cloud",
         tags = "#VIS, visualization, d3, tag cloud",
         rights = Licenses.UofINCSA,
