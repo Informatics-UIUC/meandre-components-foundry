@@ -53,6 +53,8 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
@@ -76,15 +78,16 @@ public class TupleAggregator extends AbstractStreamingExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            name = Names.PORT_TUPLE,
-            description = "The individual tuples" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+            name = Names.PORT_TUPLES,
+            description = "The tuple(s)" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
     )
-    protected static final String IN_TUPLE = Names.PORT_TUPLE;
+    protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
     @ComponentInput(
             name = Names.PORT_META_TUPLE,
-            description = "The meta data for the tuples" +
+            description = "meta data for tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
@@ -121,17 +124,34 @@ public class TupleAggregator extends AbstractStreamingExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Strings tuple = (Strings) cc.getDataComponentFromInput(IN_TUPLE);
-        Strings metaTuple = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-
         if (_tuples == null)
             throw new ComponentExecutionException("Start stream marker not received!");
 
-        _metaTuple = metaTuple;
-        _tuples.addValue(tuple);
+        Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+        Object input = cc.getDataComponentFromInput(IN_TUPLES);
+        Strings[] tuples;
+
+        if (input instanceof StringsArray)
+            tuples = BasicDataTypesTools.stringsArrayToJavaArray((StringsArray) input);
+
+        else
+
+        if (input instanceof Strings)
+            tuples = new Strings[] { (Strings) input };
+
+        else
+            throw new ComponentExecutionException("Don't know how to handle input of type: " + input.getClass().getName());
+
+        if (_metaTuple != null && !equalMeta(_metaTuple, inputMeta))
+        	throw new ComponentExecutionException("Tuple metadata mismatch!");
+
+        _metaTuple = inputMeta;
+
+        for (Strings tuple : tuples)
+        	_tuples.addValue(tuple);
     }
 
-    @Override
+	@Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
@@ -157,4 +177,16 @@ public class TupleAggregator extends AbstractStreamingExecutableComponent {
 
         _tuples = null;
     }
+
+    //--------------------------------------------------------------------------------------------
+
+    private boolean equalMeta(Strings meta1, Strings meta2) {
+		if (meta1.getValueCount() != meta2.getValueCount()) return false;
+		for (int i = 0, iMax = meta1.getValueCount(); i < iMax; i++)
+			if (!meta1.getValue(i).equals(meta2.getValue(i)))
+				return false;
+
+		return true;
+	}
+
 }
