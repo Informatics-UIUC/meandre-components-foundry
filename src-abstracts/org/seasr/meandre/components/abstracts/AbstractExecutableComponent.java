@@ -45,6 +45,7 @@ package org.seasr.meandre.components.abstracts;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -145,7 +146,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
         console.setParent(ccp.getLogger());
         console.setLevel(Level.ALL);
 
-        String debugLevel = ccp.getProperty(PROP_DEBUG_LEVEL).trim();
+        String debugLevel = getPropertyOrDieTrying(PROP_DEBUG_LEVEL, ccp);
         StringTokenizer st = new StringTokenizer(debugLevel, " ,;/+&");
         if (st.countTokens() > 2)
             throw new ComponentContextException("Invalid value for property '" + PROP_DEBUG_LEVEL + "' specified: " + debugLevel);
@@ -171,7 +172,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
             throw new ComponentContextException(e);
         }
 
-        ignoreErrors = Boolean.parseBoolean(ccp.getProperty(PROP_IGNORE_ERRORS));
+        ignoreErrors = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_IGNORE_ERRORS, ccp));
         if (ignoreErrors)
             console.fine("Exceptions are being ignored per user's request.");
 
@@ -458,7 +459,15 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
     public String getPropertyOrDieTrying(String propName, boolean ignoreWhitespace, boolean failIfEmptyValue, ComponentContextProperties context)
         throws ComponentExecutionException {
 
-        String propValue = context.getProperty(propName);
+    	String compInstanceId = context.getExecutionInstanceID();
+    	Properties flowProperties = context.getFlowProperties();
+    	// Look for a flow level property named "all#" + propName, and if found, use that value
+    	// otherwise look for a flow level property name compInstanceId + "#" + propName and use that value if found,
+    	// or finally use the component property
+    	String propValue = flowProperties.getProperty("all#" + propName,
+    			flowProperties.getProperty(compInstanceId + "#" + propName,
+    					context.getProperty(propName)));
+
         if (propValue == null) {
             StringBuilder sb = new StringBuilder();
             for (String name : context.getPropertyNames())

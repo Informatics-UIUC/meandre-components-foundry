@@ -214,6 +214,7 @@
 			   srcdir="${src.datatype.dir}"
 			   destdir="${build.dir}/classes-datatype"
 			   includeantruntime="false"
+               debug="true"
 			   classpathref="classpath.build"
 			   updatedProperty="datatype.updated"/>
 
@@ -234,6 +235,7 @@
 			   srcdir="${src.abstracts.dir}"
 			   destdir="${build.dir}/classes-abstracts"
 			   includeantruntime="false"
+               debug="true"
 			   updatedProperty="abstracts.updated">
 			<classpath>
 				<path refid="classpath.build"/>
@@ -251,6 +253,7 @@
                srcdir="${src.support.dir}"
                destdir="${build.dir}/classes-support"
                includeantruntime="false"
+               debug="true"
                classpathref="classpath.test"
                updatedProperty="support.updated"/>
 
