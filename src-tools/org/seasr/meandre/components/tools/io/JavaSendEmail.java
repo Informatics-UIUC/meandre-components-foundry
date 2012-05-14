@@ -42,20 +42,33 @@
 
 package org.seasr.meandre.components.tools.io;
 
+import java.util.Properties;
+
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
-import org.seasr.meandre.components.abstracts.python.AbstractPythonExecutableComponent;
+import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.DataTypeParser;
+import org.seasr.datatypes.core.Names;
+import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 /**
  * @author Boris Capitanu
  */
 
 @Component(
-        name = "Python Send Email",
+        name = "Send Email",
         creator = "Boris Capitanu",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
@@ -63,9 +76,9 @@ import org.seasr.meandre.components.abstracts.python.AbstractPythonExecutableCom
         rights = Licenses.UofINCSA,
         tags = "#OUTPUT, smtp, email",
         description = "This component can send an email to an address or a list of addresses specified as an input.",
-        dependency = { "protobuf-java-2.2.0.jar", "sendemail.py.jar" }
+        dependency = { "protobuf-java-2.2.0.jar", "mail.jar" }
 )
-public class SendEmail extends AbstractPythonExecutableComponent {
+public class JavaSendEmail extends AbstractExecutableComponent {
 
     // ------------------------------ INPUTS ------------------------------------------------------
 
@@ -113,6 +126,15 @@ public class SendEmail extends AbstractPythonExecutableComponent {
     )
     public static final String IN_FROM = "email_from";
 
+    // ------------------------------ OUTPUTS -----------------------------------------------------
+
+    @ComponentOutput(
+            name = Names.PORT_TEXT,
+            description = "The message body" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_TEXT = Names.PORT_TEXT;
+
     //------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
@@ -121,4 +143,57 @@ public class SendEmail extends AbstractPythonExecutableComponent {
             defaultValue = ""
     )
     public static final String PROP_SMTP_SERVER = "smtp_server";
+
+    @ComponentProperty(
+            name = "format",
+            description = "The message format. One of text/html or text/plain",
+            defaultValue = "text/html"
+    )
+    public static final String PROP_FORMAT = "format";
+
+    //--------------------------------------------------------------------------------------------
+
+
+    protected String _smtpServer;
+    protected String _format;
+
+
+    //--------------------------------------------------------------------------------------------
+
+	@Override
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+		_smtpServer = getPropertyOrDieTrying(PROP_SMTP_SERVER, ccp);
+		_format = getPropertyOrDieTrying(PROP_FORMAT, ccp);
+	}
+
+	@Override
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		String inFrom = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_FROM))[0];
+		String inTo = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TO))[0];
+		String inSubject = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_SUBJECT))[0];
+		String inBody = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_BODY_TEXT))[0];
+
+		Properties properties = System.getProperties();
+		properties.setProperty("mail.smtp.host", _smtpServer);
+
+		Session session = Session.getDefaultInstance(properties);
+
+		MimeMessage message = new MimeMessage(session);
+		message.setFrom(new InternetAddress(inFrom));
+
+		for (String to : inTo.split(","))
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to.trim()));
+
+		message.setSubject(inSubject);
+		message.setContent(inBody, _format);
+
+		// Send message
+		Transport.send(message);
+
+		cc.pushDataComponentToOutput(OUT_TEXT, inBody);
+	}
+
+	@Override
+	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	}
 }
