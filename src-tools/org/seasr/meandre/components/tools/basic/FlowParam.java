@@ -55,11 +55,9 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 /**
- * Pushes text from a property to the output
- *
  * @author Boris Capitanu
- *
  */
+
 @Component(
 		name = "Push Text",
 		creator = "Boris Capitanu",
@@ -68,16 +66,16 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "#INPUT, io, string, text",
-		description = "Pushes the value of the text message property to the output.",
+		description = "Pushes the value of a flow parameter to the output.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class PushText extends AbstractExecutableComponent {
+public class FlowParam extends AbstractExecutableComponent {
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
 	@ComponentOutput(
 			name = Names.PORT_TEXT,
-			description = "The text message being pushed" +
+			description = "The parameter value" +
 			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
 	)
 	protected static final String OUT_TEXT = Names.PORT_TEXT;
@@ -85,33 +83,41 @@ public class PushText extends AbstractExecutableComponent {
     //------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
-            name = Names.PROP_MESSAGE,
-            description = "The text message to push. ",
+            name = "param_name",
+            description = "The parameter name whose value to push",
             defaultValue = ""
     )
-    protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
+    protected static final String PROP_PARAM_NAME = "param_name";
+
+    @ComponentProperty(
+            name = "default_value",
+            description = "The parameter value to use if the flow parameter specified is not set",
+            defaultValue = ""
+    )
+    protected static final String PROP_DEFAULT_VALUE = "default_value";
 
 	//--------------------------------------------------------------------------------------------
 
 
-	private String _text;
+    protected String _paramName;
+    protected String _defaultValue;
 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
-    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		_text = getPropertyOrDieTrying(PROP_MESSAGE, false, false, ccp);
-		if (_text.length() == 0)
-		    console.warning("Pushing the empty string");
+	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+		_paramName = getPropertyOrDieTrying(PROP_PARAM_NAME, ccp);
+		_defaultValue = getPropertyOrDieTrying(PROP_DEFAULT_VALUE, false, false, ccp);
 	}
 
 	@Override
-    public void executeCallBack(ComponentContext cc) throws Exception {
-	    cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(_text));
+	public void executeCallBack(ComponentContext cc) throws Exception {
+		String paramValue = cc.getFlowProperties().getProperty(_paramName, _defaultValue);
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(paramValue));
 	}
 
-    @Override
-    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
+	@Override
+	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	}
 }
