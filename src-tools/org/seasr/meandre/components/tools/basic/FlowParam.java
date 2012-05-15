@@ -59,7 +59,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
  */
 
 @Component(
-		name = "Push Text",
+		name = "Flow Parameter",
 		creator = "Boris Capitanu",
 		baseURL = "meandre://seasr.org/components/foundry/",
 		firingPolicy = FiringPolicy.all,
