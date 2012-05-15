@@ -65,7 +65,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "#INPUT, io, string, text",
+		tags = "#INPUT, io, string, parameter",
 		description = "Pushes the value of a flow parameter to the output.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
