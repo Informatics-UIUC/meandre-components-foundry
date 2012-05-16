@@ -305,7 +305,7 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 
 	@Override
 	public void endStream() throws Exception {
-		console.info("Data received, now computing similarities...");
+		console.fine("Data received, now computing similarities...");
 		_prosody.computeSimilarities();
 
 		List<KeyValuePair<SimpleTuplePeer, Strings[]>> output = _prosody.getOutput();
@@ -322,6 +322,7 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 
 	protected void reset() {
 		_prosody = new Prosody();
+		_prosody.setLogger(console);
 		_prosody.setProblemGenerationStartTableIndex(_cmpStartIdx);
 		_prosody.setProblemGenerationEndTableIndex(_cmpEndIdx);
 		_prosody.setMaxNumPhonemesPerVolume(_maxPhonemesPerVol);

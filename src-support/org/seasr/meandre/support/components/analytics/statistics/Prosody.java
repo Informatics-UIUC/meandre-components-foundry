@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
@@ -96,6 +98,8 @@ public class Prosody {
 	int textIndex = 0;
 
 	List<KeyValuePair<SimpleTuplePeer, Strings[]>> output = new ArrayList<KeyValuePair<SimpleTuplePeer,Strings[]>>();
+
+	Logger logger = Logger.getLogger(Prosody.class.getName());
 
 	/******************************************************************************************/
 
@@ -381,15 +385,16 @@ public class Prosody {
 				for (int j = 0; j < numTexts; j++) {
 
 					if (j == problem.seedTextIndex)
-						System.out.print("\t" + 0.0);
+						outTuple.setValue(docNames[j], "0");
 					else if (phonemeIndex < windowSizeInPhonemes / 2)
-						System.out.print("\t" + 0.0);
-					else
-						System.out.printf("\t%7.5f", prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j]);
-
+						outTuple.setValue(docNames[j], "0");
+					else {
+						double similarityValue = prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j];
+						outTuple.setValue(docNames[j], String.format("%7.5f", similarityValue));
+					}
 				}
 
-				System.out.printf("\t%7.5f",  similaritySum);
+				//System.out.printf("\t%7.5f",  similaritySum);
 
 			}
 
@@ -443,16 +448,18 @@ public class Prosody {
 		//
 		// print table header
 		//
+		StringBuilder sb = new StringBuilder();
+		sb.append("\n");
 		for (int textIndex1 = 0; textIndex1 < numTexts; textIndex1++) {
-			System.out.print("\t");
+			sb.append("\t");
 			// System.out.print(tableNames.elementAt(textIndex1));
-			System.out.printf("%15.7s", toUseVolumeNames[textIndex1]);
+			sb.append(String.format("%15.7s", docNames[textIndex1]));
 		}
-		System.out.println();
+		sb.append("\n");
 
 		for (int textIndex1 = 0; textIndex1 < numTexts; textIndex1++) {
 
-			System.out.printf("%15.7s", toUseVolumeNames[textIndex1]);
+			sb.append(String.format("%15.7s", docNames[textIndex1]));
 
 			for (int textIndex2 = 0; textIndex2 < numTexts; textIndex2++) {
 
@@ -461,11 +468,11 @@ public class Prosody {
 				double weight = similarityWeights[textIndex1][textIndex2];
 				// double weight = similarityWeights[textIndex1][textIndex2] / numRounds;
 
-				System.out.print("\t");
-				System.out.printf("%7.5f", weight);
+				sb.append("\t");
+				sb.append(String.format("%7.5f", weight));
 
 			}
-			System.out.println();
+			sb.append("\n");
 		}
 
 		double withinClassSimilarityWeight = 0;
@@ -488,8 +495,7 @@ public class Prosody {
 
 		double withinVsBetweenSimilarityRatio = withinClassSimilarity / betweenClassSimilarity;
 
-		System.out.println("withinVsBetweenSimilarityRatio = " + withinVsBetweenSimilarityRatio);
-
+		sb.append("withinVsBetweenSimilarityRatio = " + withinVsBetweenSimilarityRatio).append("\n");
 	}
 
 	private void scaleSimilarities() {
@@ -525,16 +531,16 @@ public class Prosody {
 	}
 
 	private void reportStats() {
-		System.out.println("numPhrases = " + numPhrases);
-		System.out.println("numPhonemes = " + numPhonemes);
+		logger.fine("numPhrases = " + numPhrases);
+		logger.fine("numPhonemes = " + numPhonemes);
 
 		double phonemsPerPhrase = (double) numPhonemes / numPhrases;
-		System.out.println("phonemsPerPhrase = " + phonemsPerPhrase);
+		logger.fine("phonemsPerPhrase = " + phonemsPerPhrase);
 
 		int numTextSymbols = symbolIndex;
 
-		System.out.println("numTextSymbols = " + numTextSymbols);
-		System.out.println("numTexts = " + numTexts);
+		logger.fine("numTextSymbols = " + numTextSymbols);
+		logger.fine("numTexts = " + numTexts);
 	}
 
 	private void createProblems() {
@@ -580,8 +586,8 @@ public class Prosody {
 				}
 
 				int seedNumSymbols = textEndSymbolIndex[seedVolumeIndex] - seedStartSymbolIndex;
-				System.out.println("seedVolumeIndex = " + seedVolumeIndex);
-				System.out.println("seedNumSymbols  = " + seedNumSymbols);
+				logger.fine("seedVolumeIndex = " + seedVolumeIndex);
+				logger.fine("seedNumSymbols  = " + seedNumSymbols);
 
 				int numWindows = (seedNumSymbols - windowSizeInFeatures) / numFeatures + 1;
 
@@ -923,31 +929,31 @@ public class Prosody {
 
 			int numProblemsSolved = countNumContiguousProblemsSolved();
 
-//			if (numProblemsSolved >= nextReportNumProblemsSolved) {
-//				long time = System.currentTimeMillis();
-//
-//				double duration = (time - startTime) / 1000.0;
-//
-//				double seedsPerSecond = numProblemsSolved / duration;
-//
-//				double timePerSeed = duration / numProblemsSolved;
-//				double totalTimeEst = timePerSeed * numProblems;
-//				double timeLeft = totalTimeEst - duration;
-//
-//				System.out.println("seedsPerSecond   = " + seedsPerSecond);
-//				System.out.println("timePerSeed      = " + timePerSeed);
-//				System.out.println("totalTimeEst   = " + totalTimeEst);
-//				System.out.println("timeLeft (s)     = " + timeLeft);
-//				System.out.println("timeLeft (m)     = " + timeLeft / 60);
-//				System.out.println("timeLeft (h)     = " + timeLeft / 3600);
-//				System.out.println("timeLeft (d)     = " + timeLeft / 3600 / 24);
-//
-//				// System.out.println("numProblemsSolved = " + numProblemsSolved);
-//
-//				System.out.println("numProblemsSolved = " + numProblemsSolved);
-//				System.out.println("numProblems       = " + numProblems);
-//				nextReportNumProblemsSolved += reportIntervalInProblems;
-//			}
+			if (logger.isLoggable(Level.FINER)) {
+				if (numProblemsSolved >= nextReportNumProblemsSolved) {
+					long time = System.currentTimeMillis();
+
+					double duration = (time - startTime) / 1000.0;
+
+					double seedsPerSecond = numProblemsSolved / duration;
+
+					double timePerSeed = duration / numProblemsSolved;
+					double totalTimeEst = timePerSeed * numProblems;
+					double timeLeft = totalTimeEst - duration;
+
+					logger.finer("seedsPerSecond   = " + seedsPerSecond);
+					logger.finer("timePerSeed      = " + timePerSeed);
+					logger.finer("totalTimeEst   = " + totalTimeEst);
+					logger.finer("timeLeft (s)     = " + timeLeft);
+					logger.finer("timeLeft (m)     = " + timeLeft / 60);
+					logger.finer("timeLeft (h)     = " + timeLeft / 3600);
+					logger.finer("timeLeft (d)     = " + timeLeft / 3600 / 24);
+
+					logger.finer("numProblemsSolved = " + numProblemsSolved);
+					logger.finer("numProblems       = " + numProblems);
+					nextReportNumProblemsSolved += reportIntervalInProblems;
+				}
+			}
 
 			if (numProblemsSolved == numProblems) {
 				break;
@@ -977,6 +983,10 @@ public class Prosody {
 		}
 
 		return numProblemsSolved;
+	}
+
+	public void setLogger(Logger logger) {
+		this.logger = logger;
 	}
 }
 
