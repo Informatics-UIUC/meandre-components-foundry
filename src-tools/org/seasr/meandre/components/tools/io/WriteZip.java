@@ -322,6 +322,9 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        if (componentContext.isFlowAborting() && outputFile != null)
+        	outputFile.delete();
+
         zipStream = null;
         outputFile = null;
         outputProperties = null;

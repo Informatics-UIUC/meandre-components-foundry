@@ -162,7 +162,7 @@ public class WriteFile extends AbstractExecutableComponent {
     private String defaultFolder, publicResourcesDir;
     private boolean appendTimestamp, appendData;
     private Properties outputProperties;
-
+    private File file = null;
 
     //--------------------------------------------------------------------------------------------
 
@@ -194,7 +194,7 @@ public class WriteFile extends AbstractExecutableComponent {
         String location = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION))[0];
         Object inData = cc.getDataComponentFromInput(IN_DATA);
 
-        File file = getLocation(location, defaultFolder);
+        file = getLocation(location, defaultFolder);
         File parentDir = file.getParentFile();
 
         if (!parentDir.exists()) {
@@ -249,6 +249,10 @@ public class WriteFile extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    	if (componentContext.isFlowAborting() && file != null)
+    		file.delete();
+
+    	file = null;
     }
 
     //--------------------------------------------------------------------------------------------
