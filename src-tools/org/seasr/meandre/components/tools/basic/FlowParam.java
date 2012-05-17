@@ -50,9 +50,11 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
 
 /**
  * @author Boris Capitanu
@@ -69,7 +71,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 		description = "Pushes the value of a flow parameter to the output.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class FlowParam extends AbstractExecutableComponent {
+public class FlowParam extends AbstractStreamingExecutableComponent {
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -96,11 +98,19 @@ public class FlowParam extends AbstractExecutableComponent {
     )
     protected static final String PROP_DEFAULT_VALUE = "default_value";
 
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the output be wrapped as a stream?",
+            defaultValue = "false"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+
 	//--------------------------------------------------------------------------------------------
 
 
     protected String _paramName;
     protected String _defaultValue;
+    protected boolean _wrapStream;
 
 
 	//--------------------------------------------------------------------------------------------
@@ -109,15 +119,29 @@ public class FlowParam extends AbstractExecutableComponent {
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		_paramName = getPropertyOrDieTrying(PROP_PARAM_NAME, ccp);
 		_defaultValue = getPropertyOrDieTrying(PROP_DEFAULT_VALUE, false, false, ccp);
+		_wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
 	}
 
 	@Override
 	public void executeCallBack(ComponentContext cc) throws Exception {
+		if (_wrapStream)
+			cc.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator(streamId));
+
 		String paramValue = cc.getFlowProperties().getProperty(_paramName, _defaultValue);
 		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(paramValue));
+
+		if (_wrapStream)
+			cc.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator(streamId));
 	}
 
 	@Override
 	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+	}
+
+	//--------------------------------------------------------------------------------------------
+
+	@Override
+	public boolean isAccumulator() {
+		return false;
 	}
 }
