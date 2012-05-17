@@ -49,6 +49,7 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
@@ -87,10 +88,26 @@ public class StreamDelimiterFilter extends AbstractStreamingExecutableComponent 
     )
     protected static final String OUT_OBJECT = Names.PORT_OBJECT;
 
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            name = "advanced_filter",
+            description = "Use this filter for more fine grained control as to what is filtered - " +
+            		"for example, you can filter out (i.e. remove) only stream initiator markers or " +
+            		"only stream terminator markers. Valid values are 0 or 1. A value of 0 specifies " +
+            		"that only stream initiators with the specified id should be removed (stream " +
+            		"terminators are unaffected). A value of 1 filters out only stream terminators " +
+            		"with the specified id. Leaving this property empty means both initiator and terminator " +
+            		"markers will be filtered out.",
+            defaultValue = ""
+    )
+    protected static final String PROP_ADVANCED_FILTER = "advanced_filter";
+
     //--------------------------------------------------------------------------------------------
 
 
     private final Set<Integer> streamIds = new HashSet<Integer>();
+    private Integer _advancedFilter = null;
 
 
     //--------------------------------------------------------------------------------------------
@@ -101,6 +118,9 @@ public class StreamDelimiterFilter extends AbstractStreamingExecutableComponent 
             if (id.trim().length() == 0) continue;
             streamIds.add(Integer.parseInt(id.trim()));
         }
+
+        String advanced = getPropertyOrDieTrying(PROP_ADVANCED_FILTER, true, false, ccp);
+        if (advanced.length() > 0) _advancedFilter = Integer.parseInt(advanced);
     }
 
     @Override
@@ -123,7 +143,7 @@ public class StreamDelimiterFilter extends AbstractStreamingExecutableComponent 
     @Override
     public void handleStreamInitiators() throws Exception {
         StreamInitiator si = (StreamInitiator) componentContext.getDataComponentFromInput(IN_OBJECT);
-        if (streamIds.size() == 0 || streamIds.contains(si.getStreamId()))
+        if ((streamIds.size() == 0 || streamIds.contains(si.getStreamId())) && (_advancedFilter == null || _advancedFilter == 0))
             console.fine(String.format("Ignoring %s received on ports %s",
                     StreamInitiator.class.getSimpleName(), inputPortsWithInitiators));
         else {
@@ -135,7 +155,7 @@ public class StreamDelimiterFilter extends AbstractStreamingExecutableComponent 
     @Override
     public void handleStreamTerminators() throws Exception {
         StreamTerminator st = (StreamTerminator) componentContext.getDataComponentFromInput(IN_OBJECT);
-        if (streamIds.size() == 0 || streamIds.contains(st.getStreamId()))
+        if ((streamIds.size() == 0 || streamIds.contains(st.getStreamId())) && (_advancedFilter == null || _advancedFilter == 1))
             console.fine(String.format("Ignoring %s received on ports %s",
                     StreamTerminator.class.getSimpleName(), inputPortsWithTerminators));
         else {
