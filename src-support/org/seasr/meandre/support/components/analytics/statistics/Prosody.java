@@ -1,11 +1,6 @@
 package org.seasr.meandre.support.components.analytics.statistics;
 
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,10 +20,9 @@ public class Prosody {
 	boolean normalizeForShakespearAnalysis = true;  /* we don't want to use -- Chris will normalize in UI */
 	boolean useCache = false;  /* not very useful - won't be needed */
 	boolean hasSectionId = false;
-	int problemGenerationStartTableIndex = 0; /* start index to start comparing */
-	int problemGenerationEndTableIndex = 1; /* end index for focused comparison */
+	List<Integer> focusedComparisonIndexes = new ArrayList<Integer>();
 	int maxNumPhonemesPerVolume = 999999999;  /* max number of examples to use */
-	public String[] toUseVolumeNames = { "1h4", "1h6", "2h6", "3h6", "he8" };
+//	public String[] toUseVolumeNames = { "1h4", "1h6", "2h6", "3h6", "he8" };
 	public int numThreads = 16;
 	int numRounds = 1;  /* relevant when using sampling */
 	double weightingPower = 32.0; /* main parameter to be controlled - valid values: greater than zero to 100 */
@@ -55,11 +49,11 @@ public class Prosody {
 	public static final String TONE 		  = "tone";
 	public static final String BREAK_INDEX 	  = "break_index";
 
-	String username = "dtcheng";
-	String port = "3306";
-	String machine = "leovip032.ncsa.uiuc.edu";
-	String dbInstance = "Shakespeare";
-	String password = "!seasr!";
+//	String username = "dtcheng";
+//	String port = "3306";
+//	String machine = "leovip032.ncsa.uiuc.edu";
+//	String dbInstance = "Shakespeare";
+//	String password = "!seasr!";
 
 	int[] windowFeatureWeights;
 	double[] differenceSumToWeight;
@@ -86,11 +80,11 @@ public class Prosody {
 	int numPhonemes = 0;
 
 	int[] symbols = new int[maxNumSymbols];
-	int maxNumDBStringBytes = 0;
-	byte[] dbStringBytes = new byte[maxNumDBStringBytes];
-	int[] dbStringStartIndices = new int[maxNumPhonemes];
+//	int maxNumDBStringBytes = 0;
+//	byte[] dbStringBytes = new byte[maxNumDBStringBytes];
+//	int[] dbStringStartIndices = new int[maxNumPhonemes];
 
-	String[] dbStrings = new String[maxNumSymbols];
+//	String[] dbStrings = new String[maxNumSymbols];
 	int symbolIndex = 0;
 	int stringIndex = 0;
 
@@ -103,12 +97,12 @@ public class Prosody {
 
 	/******************************************************************************************/
 
-	public static void main(String[] args) {
-
-		Prosody prosody = new Prosody();
-		prosody.loadFromDatabase();
-		prosody.computeSimilarities();
-	}
+//	public static void main(String[] args) {
+//
+//		Prosody prosody = new Prosody();
+//		prosody.loadFromDatabase();
+//		prosody.computeSimilarities();
+//	}
 
 	public Prosody() {
 		for (int i = 0; i < numFeatures; i++)
@@ -131,20 +125,12 @@ public class Prosody {
 		this.normalizeForShakespearAnalysis = normalizeForShakespearAnalysis;
 	}
 
-	public int getProblemGenerationStartTableIndex() {
-		return problemGenerationStartTableIndex;
+	public List<Integer> getFocusedComparisonIndexes() {
+		return focusedComparisonIndexes;
 	}
 
-	public void setProblemGenerationStartTableIndex(int problemGenerationStartTableIndex) {
-		this.problemGenerationStartTableIndex = problemGenerationStartTableIndex;
-	}
-
-	public int getProblemGenerationEndTableIndex() {
-		return problemGenerationEndTableIndex;
-	}
-
-	public void setProblemGenerationEndTableIndex(int problemGenerationEndTableIndex) {
-		this.problemGenerationEndTableIndex = problemGenerationEndTableIndex;
+	public void addIndexToFocusedComparison(int index) {
+		this.focusedComparisonIndexes.add(index);
 	}
 
 	public int getMaxNumPhonemesPerVolume() {
@@ -239,7 +225,7 @@ public class Prosody {
 		return output;
 	}
 
-	public void addData(SimpleTuplePeer tuplePeer, Strings[] tuples) {
+	public int addData(SimpleTuplePeer tuplePeer, Strings[] tuples) {
 		output.add(new KeyValuePair<SimpleTuplePeer, Strings[]>(tuplePeer, tuples));
 
 		SimpleTuple tuple = tuplePeer.createTuple();
@@ -285,7 +271,8 @@ public class Prosody {
 		}
 
 		textEndSymbolIndex[textIndex] = symbolIndex;
-		textIndex++;
+
+		return textIndex++;
 	}
 
 	public void computeSimilarities() {
@@ -576,7 +563,7 @@ public class Prosody {
 		if (useAllText) {
 
 			prosodyProblems = new ArrayList<ProsodyProblem>(0);
-			for (int seedVolumeIndex = problemGenerationStartTableIndex; seedVolumeIndex < problemGenerationEndTableIndex; seedVolumeIndex++) {
+			for (int seedVolumeIndex : focusedComparisonIndexes) {
 
 				int seedStartSymbolIndex = -1;
 				if (seedVolumeIndex == 0) {
@@ -644,158 +631,158 @@ public class Prosody {
 		textEndSymbolIndex = temp;
 	}
 
-	private void loadFromDatabase() {
-		String driver = "com.mysql.jdbc.Driver";
-
-		try {
-			Class.forName(driver).newInstance();
-		} catch (InstantiationException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (IllegalAccessException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (ClassNotFoundException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-
-		String url = "jdbc:mysql://" + machine + ":" + port + "/" + dbInstance;
-
-		System.out.println("creating connection for " + url);
-
-		try {
-			Connection connection = DriverManager.getConnection(url, username, password);
-
-			//
-			// get list of all tables
-			//
-
-			java.sql.DatabaseMetaData md = connection.getMetaData();
-			ResultSet rs = md.getTables(null, null, "%", null);
-			while (rs.next()) {
-				String tableName = rs.getString(3);
-
-				System.out.println("tableName = " + tableName);
-			}
-
-			// int numTables = tableNames.size();
-			// System.out.println("numTables = " + numTables);
-			//
-			// if (true)
-			// for (int i = 0; i < numTables; i++) {
-			// String tableName = tableNames.elementAt(i);
-			// System.out.println(tableName);
-			//
-			// }
-
-			int numTables = toUseVolumeNames.length;
-			String[] featurePatterns = new String[numFeatures];
-
-			for (int i = 0; i < numTables; i++) {
-
-				String lastUniquePhraseID = "";
-
-				String tableName = toUseVolumeNames[i];
-
-				System.out.println("processing  " + tableName);
-
-				String query;
-				query = "SELECT *  FROM " + tableName;
-
-				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery(query);
-				ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-
-				int numColumns = resultSetMetaData.getColumnCount();
-				// System.out.println("numColumns = " + numColumns);
-				while (resultSet.next()) {
-
-					int tei_section_id = -1;
-					if (hasSectionId) {
-						tei_section_id = resultSet.getInt("tei_section_id");
-					}
-					int sentence_id = resultSet.getInt("sentence_id");
-					int phrase_id = resultSet.getInt("phrase_id");
-					String word = resultSet.getString("word");
-					String part_of_speech = resultSet.getString("part_of_speech");
-					String accent = resultSet.getString("accent");
-					String phoneme = resultSet.getString("phoneme");
-					String stress = resultSet.getString("stress");
-					String tone = resultSet.getString("tone");
-					int break_index = resultSet.getInt("break_index");
-					// int phoneme_id = resultSet.getInt("phoneme_id");
-					// int word_id = resultSet.getInt("word_id");
-					// int pos_id = resultSet.getInt("pos_id");
-
-					String string = "";
-
-					string += tableName + "\t";
-					string += tei_section_id + "\t";
-					string += sentence_id + "\t";
-					string += phrase_id + "\t";
-					string += word + "\t";
-					string += part_of_speech + "\t";
-					string += accent + "\t";
-					string += phoneme + "\t";
-					string += stress + "\t";
-					string += tone + "\t";
-					string += break_index;
-					// string += phoneme_id + "\t";
-					// string += word_id + "\t";
-					// string += pos_id;
-
-					dbStrings[stringIndex++] = string;
-
-					String uniquePhraseID = /* tei_chapter_id + tei_section_id + */"" + tei_section_id + ":" + sentence_id + ":" + phrase_id;
-
-					if (!uniquePhraseID.equals(lastUniquePhraseID)) {
-						numPhrases++;
-						lastUniquePhraseID = uniquePhraseID;
-					}
-					numPhonemes++;
-
-					// String combinedPattern = null;
-					// combinedPattern = part_of_speech + ":" + accent + ":" + stress + ":" + tone + ":" + phrase_id + ":" + break_index;
-
-					featurePatterns[0] = part_of_speech;
-					featurePatterns[1] = accent;
-					featurePatterns[2] = stress;
-					featurePatterns[3] = tone;
-					featurePatterns[4] = Integer.toString(phrase_id);
-					featurePatterns[5] = Integer.toString(break_index);
-
-					for (int f = 0; f < numFeatures; f++) {
-						if (!symbolToIndex[f].containsKey(featurePatterns[f])) {
-							symbolToIndex[f].put(featurePatterns[f], numSymbols++);
-						}
-					}
-
-//						if (false) {
-//							System.out.print(tableName);
-//							for (int j = 0; j < numFeatures; j++) {
-//								int symbol = symbolToIndex[j].get(featurePatterns[j]);
-//								System.out.print("\t" + symbol);
-//							}
-//							System.out.println("\t" + word);
+//	private void loadFromDatabase() {
+//		String driver = "com.mysql.jdbc.Driver";
+//
+//		try {
+//			Class.forName(driver).newInstance();
+//		} catch (InstantiationException e2) {
+//			// TODO Auto-generated catch block
+//			e2.printStackTrace();
+//		} catch (IllegalAccessException e2) {
+//			// TODO Auto-generated catch block
+//			e2.printStackTrace();
+//		} catch (ClassNotFoundException e2) {
+//			// TODO Auto-generated catch block
+//			e2.printStackTrace();
+//		}
+//
+//		String url = "jdbc:mysql://" + machine + ":" + port + "/" + dbInstance;
+//
+//		System.out.println("creating connection for " + url);
+//
+//		try {
+//			Connection connection = DriverManager.getConnection(url, username, password);
+//
+//			//
+//			// get list of all tables
+//			//
+//
+//			java.sql.DatabaseMetaData md = connection.getMetaData();
+//			ResultSet rs = md.getTables(null, null, "%", null);
+//			while (rs.next()) {
+//				String tableName = rs.getString(3);
+//
+//				System.out.println("tableName = " + tableName);
+//			}
+//
+//			// int numTables = tableNames.size();
+//			// System.out.println("numTables = " + numTables);
+//			//
+//			// if (true)
+//			// for (int i = 0; i < numTables; i++) {
+//			// String tableName = tableNames.elementAt(i);
+//			// System.out.println(tableName);
+//			//
+//			// }
+//
+//			int numTables = toUseVolumeNames.length;
+//			String[] featurePatterns = new String[numFeatures];
+//
+//			for (int i = 0; i < numTables; i++) {
+//
+//				String lastUniquePhraseID = "";
+//
+//				String tableName = toUseVolumeNames[i];
+//
+//				System.out.println("processing  " + tableName);
+//
+//				String query;
+//				query = "SELECT *  FROM " + tableName;
+//
+//				Statement statement = connection.createStatement();
+//				ResultSet resultSet = statement.executeQuery(query);
+//				ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+//
+//				int numColumns = resultSetMetaData.getColumnCount();
+//				// System.out.println("numColumns = " + numColumns);
+//				while (resultSet.next()) {
+//
+//					int tei_section_id = -1;
+//					if (hasSectionId) {
+//						tei_section_id = resultSet.getInt("tei_section_id");
+//					}
+//					int sentence_id = resultSet.getInt("sentence_id");
+//					int phrase_id = resultSet.getInt("phrase_id");
+//					String word = resultSet.getString("word");
+//					String part_of_speech = resultSet.getString("part_of_speech");
+//					String accent = resultSet.getString("accent");
+//					String phoneme = resultSet.getString("phoneme");
+//					String stress = resultSet.getString("stress");
+//					String tone = resultSet.getString("tone");
+//					int break_index = resultSet.getInt("break_index");
+//					// int phoneme_id = resultSet.getInt("phoneme_id");
+//					// int word_id = resultSet.getInt("word_id");
+//					// int pos_id = resultSet.getInt("pos_id");
+//
+//					String string = "";
+//
+//					string += tableName + "\t";
+//					string += tei_section_id + "\t";
+//					string += sentence_id + "\t";
+//					string += phrase_id + "\t";
+//					string += word + "\t";
+//					string += part_of_speech + "\t";
+//					string += accent + "\t";
+//					string += phoneme + "\t";
+//					string += stress + "\t";
+//					string += tone + "\t";
+//					string += break_index;
+//					// string += phoneme_id + "\t";
+//					// string += word_id + "\t";
+//					// string += pos_id;
+//
+//					dbStrings[stringIndex++] = string;
+//
+//					String uniquePhraseID = /* tei_chapter_id + tei_section_id + */"" + tei_section_id + ":" + sentence_id + ":" + phrase_id;
+//
+//					if (!uniquePhraseID.equals(lastUniquePhraseID)) {
+//						numPhrases++;
+//						lastUniquePhraseID = uniquePhraseID;
+//					}
+//					numPhonemes++;
+//
+//					// String combinedPattern = null;
+//					// combinedPattern = part_of_speech + ":" + accent + ":" + stress + ":" + tone + ":" + phrase_id + ":" + break_index;
+//
+//					featurePatterns[0] = part_of_speech;
+//					featurePatterns[1] = accent;
+//					featurePatterns[2] = stress;
+//					featurePatterns[3] = tone;
+//					featurePatterns[4] = Integer.toString(phrase_id);
+//					featurePatterns[5] = Integer.toString(break_index);
+//
+//					for (int f = 0; f < numFeatures; f++) {
+//						if (!symbolToIndex[f].containsKey(featurePatterns[f])) {
+//							symbolToIndex[f].put(featurePatterns[f], numSymbols++);
 //						}
-
-					for (int j = 0; j < numFeatures; j++) {
-						int symbol = symbolToIndex[j].get(featurePatterns[j]);
-						symbols[symbolIndex++] = symbol;
-					}
-				}
-
-				textEndSymbolIndex[textIndex] = symbolIndex;
-
-				textIndex++;
-
-				statement.close();
-			}
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-	}
+//					}
+//
+////						if (false) {
+////							System.out.print(tableName);
+////							for (int j = 0; j < numFeatures; j++) {
+////								int symbol = symbolToIndex[j].get(featurePatterns[j]);
+////								System.out.print("\t" + symbol);
+////							}
+////							System.out.println("\t" + word);
+////						}
+//
+//					for (int j = 0; j < numFeatures; j++) {
+//						int symbol = symbolToIndex[j].get(featurePatterns[j]);
+//						symbols[symbolIndex++] = symbol;
+//					}
+//				}
+//
+//				textEndSymbolIndex[textIndex] = symbolIndex;
+//
+//				textIndex++;
+//
+//				statement.close();
+//			}
+//		} catch (Exception e) {
+//			System.out.println(e);
+//		}
+//	}
 
 	int nextProblemIndex = 0;
 

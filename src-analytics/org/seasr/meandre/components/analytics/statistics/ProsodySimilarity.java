@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.analytics.statistics;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.meandre.annotations.Component;
@@ -115,18 +116,15 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
     //----------------------------- PROPERTIES ---------------------------------------------------
 
 	@ComponentProperty(
-	        name = "cmp_start_idx",
-	        description = "Start index to start comparing",
-	        defaultValue = "0"
-	)
-	protected static final String PROP_COMP_START_INDEX = "cmp_start_idx";
-
-	@ComponentProperty(
-	        name = "cmp_end_idx",
-	        description = "End index for focused comparison",
-	        defaultValue = "1"
+	        name = "comparison_range",
+	        description = "The zero-based, comma-separated, indexes of the documents that should be compared with all " +
+	        		"other documents. For example, using '0' means that only the first document will " +
+	        		"be compared with all others. Using '0,2' means that the first and third document " +
+	        		"submitted will be compared with all others. Using 'all' means that everything will " +
+	        		"be compared with everything else.",
+	        defaultValue = "all"
     )
-	protected static final String PROP_COMP_END_INDEX = "cmp_end_idx";
+	protected static final String PROP_COMP_RANGE = "comparison_range";
 
 	@ComponentProperty(
 	        name = "max_phonemes_per_vol",
@@ -224,8 +222,7 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 
 	protected Prosody _prosody;
 
-	protected int _cmpStartIdx;
-	protected int _cmpEndIdx;
+	protected List<Integer> _focusedComparisonIndexes = new ArrayList<Integer>();
 
 	protected int _maxPhonemesPerVol;
 	protected int _numThreads;
@@ -252,8 +249,13 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		super.initializeCallBack(ccp);
 
-		_cmpStartIdx = Integer.parseInt(getPropertyOrDieTrying(PROP_COMP_START_INDEX, ccp));
-		_cmpEndIdx = Integer.parseInt(getPropertyOrDieTrying(PROP_COMP_END_INDEX, ccp));
+		String cmpRange = getPropertyOrDieTrying(PROP_COMP_RANGE, ccp);
+		if (!cmpRange.equalsIgnoreCase("all")) {
+			String[] indexes = cmpRange.split(",");
+			for (String index : indexes)
+				_focusedComparisonIndexes.add(Integer.parseInt(index.trim()));
+		}
+
 		_maxPhonemesPerVol = Integer.parseInt(getPropertyOrDieTrying(PROP_MAX_PHONEMES_PER_VOL, ccp));
 		_numThreads = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_THREADS, ccp));
 		_numRounds = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_ROUNDS, ccp));
@@ -282,7 +284,9 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inMeta);
 		Strings[] tuples = BasicDataTypesTools.stringsArrayToJavaArray(inTuple);
 
-		_prosody.addData(tuplePeer, tuples);
+		int index = _prosody.addData(tuplePeer, tuples);
+		if (_focusedComparisonIndexes.size() == 0)
+			_prosody.addIndexToFocusedComparison(index);
 	}
 
 	@Override
@@ -306,6 +310,10 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 	@Override
 	public void endStream() throws Exception {
 		console.fine("Data received, now computing similarities...");
+
+		for (int index : _focusedComparisonIndexes)
+			_prosody.addIndexToFocusedComparison(index);
+
 		_prosody.computeSimilarities();
 
 		List<KeyValuePair<SimpleTuplePeer, Strings[]>> output = _prosody.getOutput();
@@ -323,8 +331,6 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 	protected void reset() {
 		_prosody = new Prosody();
 		_prosody.setLogger(console);
-		_prosody.setProblemGenerationStartTableIndex(_cmpStartIdx);
-		_prosody.setProblemGenerationEndTableIndex(_cmpEndIdx);
 		_prosody.setMaxNumPhonemesPerVolume(_maxPhonemesPerVol);
 		_prosody.setNumThreads(_numThreads);
 		_prosody.setNumRounds(_numRounds);
