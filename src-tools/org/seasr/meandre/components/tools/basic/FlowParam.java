@@ -117,6 +117,8 @@ public class FlowParam extends AbstractStreamingExecutableComponent {
 
 	@Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+		super.initializeCallBack(ccp);
+
 		_paramName = getPropertyOrDieTrying(PROP_PARAM_NAME, ccp);
 		_defaultValue = getPropertyOrDieTrying(PROP_DEFAULT_VALUE, false, false, ccp);
 		_wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
