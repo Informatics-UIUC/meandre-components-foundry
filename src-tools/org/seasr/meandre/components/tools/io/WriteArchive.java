@@ -43,9 +43,11 @@
 package org.seasr.meandre.components.tools.io;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -53,13 +55,17 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
-import java.util.zip.Adler32;
-import java.util.zip.CheckedOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.zip.Deflater;
 
 import javax.xml.transform.OutputKeys;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveOutputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -87,23 +93,23 @@ import org.w3c.dom.Document;
  */
 
 @Component(
-        name = "Write To Zip",
+        name = "Write To Archive",
         creator = "Boris Capitanu",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "#OUTPUT, io, write, zip",
-        description = "This component writes a zip file containing all the data passed in the stream",
-        dependency = {"protobuf-java-2.2.0.jar"}
+        tags = "#OUTPUT, io, write, zip, tar, tgz, archive",
+        description = "This component writes an archive file containing all the data passed in the stream",
+        dependency = {"protobuf-java-2.2.0.jar", "commons-compress-1.4.jar"}
 )
-public class WriteZip extends AbstractStreamingExecutableComponent {
+public class WriteArchive extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
             name = Names.PORT_LOCATION,
-            description = "The URL or file name specifying where the zip file will be written" +
+            description = "The URL or file name specifying where the archive file will be written" +
                 "<br>TYPE: java.net.URI" +
                 "<br>TYPE: java.net.URL" +
                 "<br>TYPE: java.lang.String" +
@@ -113,7 +119,7 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
 
     @ComponentInput(
             name = "file_name",
-            description = "The file name to use to add to the ZIP set" +
+            description = "The file name to use to add to the archive" +
                 "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
@@ -121,7 +127,7 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
 
     @ComponentInput(
             name = "data",
-            description = "The data corresponding to the file name specified, to be zipped" +
+            description = "The data corresponding to the file name specified, to be archived" +
                 "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
                 "<br>TYPE: byte[]" +
@@ -135,7 +141,7 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_LOCATION,
-            description = "The URL or file name of the resulting ZIP file" +
+            description = "The URL or file name of the resulting archive file" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_LOCATION = Names.PORT_LOCATION;
@@ -159,23 +165,41 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
     protected static final String PROP_APPEND_TIMESTAMP = Names.PROP_APPEND_TIMESTAMP;
 
     @ComponentProperty(
-            name = "append_zip_extension",
-            description = "Append the .zip extension to the file specified in the location?",
+            name = "timestamp_format",
+            description = "The timestamp format to use. See Java SimpleDateFormat for documentation.",
+            defaultValue = "yyyy-MM-dd-HH-mm-ss"
+    )
+    protected static final String PROP_TIMESTAMP_FORMAT = "timestamp_format";
+
+    @ComponentProperty(
+            name = "append_extension",
+            description = "Append the appropriate extension (.zip, .tar, or .tgz depending on archive format) to the file specified in the location?",
             defaultValue = "true"
     )
-    protected static final String PROP_APPEND_ZIP_EXTENSION = "append_zip_extension";
+    protected static final String PROP_APPEND_EXTENSION = "append_extension";
+
+    @ComponentProperty(
+            name = "archive_format",
+            description = "The desired archive format. One of: zip, tar, tgz",
+            defaultValue = "zip"
+    )
+    protected static final String PROP_ARCHIVE_FORMAT = "archive_format";
 
     //--------------------------------------------------------------------------------------------
 
 
     private String defaultFolder, publicResourcesDir;
+
     private boolean appendTimestamp;
-    private boolean appendZipExtension;
+    private String timestampFormat;
+    private boolean appendExtension;
+    private String archiveFormat;
+
     private Properties outputProperties;
     private boolean isStreaming = false;
-    private ZipOutputStream zipStream = null;
     private File outputFile = null;
 
+    private ArchiveOutputStream archiveStream = null;
 
     //--------------------------------------------------------------------------------------------
 
@@ -193,7 +217,13 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
         console.fine("Default folder set to: " + defaultFolder);
 
         appendTimestamp = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_APPEND_TIMESTAMP, ccp));
-        appendZipExtension = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_APPEND_ZIP_EXTENSION, ccp));
+        timestampFormat = getPropertyOrDieTrying(PROP_TIMESTAMP_FORMAT, ccp);
+
+        appendExtension = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_APPEND_EXTENSION, ccp));
+        archiveFormat = getPropertyOrDieTrying(PROP_ARCHIVE_FORMAT, ccp).toLowerCase();
+
+        if (!archiveFormat.equals("zip") && !archiveFormat.equals("tar") && !archiveFormat.equals("tgz"))
+        	throw new ComponentContextException("Invalid archive format! Must be one of: zip, tar, tgz");
 
         publicResourcesDir = new File(ccp.getPublicResourcesDirectory()).getAbsolutePath();
         if (!publicResourcesDir.endsWith(File.separator)) publicResourcesDir += File.separator;
@@ -210,13 +240,13 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
         componentInputCache.storeIfAvailable(cc, IN_FILE_NAME);
         componentInputCache.storeIfAvailable(cc, IN_DATA);
 
-        if (zipStream == null && componentInputCache.hasData(IN_LOCATION)) {
+        if (archiveStream == null && componentInputCache.hasData(IN_LOCATION)) {
             Object input = componentInputCache.retrieveNext(IN_LOCATION);
             if (input instanceof StreamDelimiter)
                 throw new ComponentExecutionException(String.format("Stream delimiters should not arrive on port '%s'!", IN_LOCATION));
 
             String location = DataTypeParser.parseAsString(input)[0];
-            if (appendZipExtension) location += ".zip";
+            if (appendExtension) location += String.format(".%s", archiveFormat);
             outputFile = getLocation(location, defaultFolder);
             File parentDir = outputFile.getParentFile();
 
@@ -229,7 +259,7 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
 
             if (appendTimestamp) {
                 String name = outputFile.getName();
-                String timestamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+                String timestamp = new SimpleDateFormat(timestampFormat).format(new Date());
 
                 int pos = name.lastIndexOf(".");
                 if (pos < 0)
@@ -241,12 +271,24 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
             }
 
             console.fine(String.format("Writing file %s", outputFile));
-            zipStream = new ZipOutputStream(new BufferedOutputStream(new CheckedOutputStream(new FileOutputStream(outputFile), new Adler32())));
-            zipStream.setLevel(9);
+
+            if (archiveFormat.equals("zip")) {
+	            archiveStream = new ZipArchiveOutputStream(outputFile);
+	            ((ZipArchiveOutputStream) archiveStream).setLevel(Deflater.BEST_COMPRESSION);
+            }
+
+            else
+
+            if (archiveFormat.equals("tar") || archiveFormat.equals("tgz")) {
+            	OutputStream fileStream = new BufferedOutputStream(new FileOutputStream(outputFile));
+            	if (archiveFormat.equals("tgz"))
+            		fileStream = new GzipCompressorOutputStream(fileStream);
+            	archiveStream = new TarArchiveOutputStream(fileStream);
+            }
         }
 
-        // Return if we haven't received a zip location yet
-        if (zipStream == null) return;
+        // Return if we haven't received a zip or tar location yet
+        if (archiveStream == null) return;
 
         while (componentInputCache.hasDataAll(new String[] { IN_FILE_NAME, IN_DATA })) {
             Object inFileName = componentInputCache.retrieveNext(IN_FILE_NAME);
@@ -283,7 +325,7 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
 
                     if (stFileName.getStreamId() == streamId) {
                         // end of stream reached
-                        closeZipAndPushOutput();
+                        closeArchiveAndPushOutput();
                         isStreaming = false;
                         break;
                     } else {
@@ -297,24 +339,44 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
                     throw new ComponentExecutionException("Unbalanced StreamDelimiter received!");
             }
 
-            console.fine("Adding ZIP entry: " + inFileName);
-            zipStream.putNextEntry(new ZipEntry(DataTypeParser.parseAsString(inFileName)[0]));
+
+            byte[] entryData = null;
 
             if (inData instanceof byte[] || inData instanceof Bytes)
-                zipStream.write(DataTypeParser.parseAsByteArray(inData));
+                entryData = DataTypeParser.parseAsByteArray(inData);
 
             else
 
-            if (inData instanceof Document)
-                DOMUtils.writeXML((Document) inData, zipStream, outputProperties);
+            if (inData instanceof Document) {
+            	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                DOMUtils.writeXML((Document) inData, baos, outputProperties);
+                entryData = baos.toByteArray();
+            }
 
             else
-                zipStream.write(DataTypeParser.parseAsString(inData)[0].getBytes("UTF-8"));
+                entryData = DataTypeParser.parseAsString(inData)[0].getBytes("UTF-8");
 
-            zipStream.closeEntry();
+            String entryName = DataTypeParser.parseAsString(inFileName)[0];
+
+            console.fine(String.format("Adding %s entry: %s", archiveFormat.toUpperCase(), entryName));
+
+            ArchiveEntry entry = null;
+            if (archiveFormat.equals("zip"))
+            	entry = new ZipArchiveEntry(entryName);
+
+            else
+
+           if (archiveFormat.equals("tar") || archiveFormat.equals("tgz")) {
+        	   entry = new TarArchiveEntry(entryName);
+        	   ((TarArchiveEntry) entry).setSize(entryData.length);
+           }
+
+            archiveStream.putArchiveEntry(entry);
+            archiveStream.write(entryData);
+            archiveStream.closeArchiveEntry();
 
             if (!isStreaming) {
-                closeZipAndPushOutput();
+                closeArchiveAndPushOutput();
                 break;
             }
         }
@@ -322,10 +384,14 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+    	if (archiveStream != null) {
+    		archiveStream.close();
+    		archiveStream = null;
+    	}
+
         if (componentContext.isFlowAborting() && outputFile != null)
         	outputFile.delete();
 
-        zipStream = null;
         outputFile = null;
         outputProperties = null;
     }
@@ -349,9 +415,11 @@ public class WriteZip extends AbstractStreamingExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-    protected void closeZipAndPushOutput() throws IOException, MalformedURLException, ComponentContextException {
-        zipStream.close();
-        zipStream = null;
+    protected void closeArchiveAndPushOutput() throws IOException, MalformedURLException, ComponentContextException {
+        if (archiveStream != null) {
+        	archiveStream.finish();
+        	archiveStream.close();
+        }
 
         if (outputFile.getAbsolutePath().startsWith(publicResourcesDir)) {
             String publicLoc = outputFile.getAbsolutePath().substring(publicResourcesDir.length());
