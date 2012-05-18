@@ -419,6 +419,7 @@ public class WriteArchive extends AbstractStreamingExecutableComponent {
         if (archiveStream != null) {
         	archiveStream.finish();
         	archiveStream.close();
+        	archiveStream = null;
         }
 
         if (outputFile.getAbsolutePath().startsWith(publicResourcesDir)) {

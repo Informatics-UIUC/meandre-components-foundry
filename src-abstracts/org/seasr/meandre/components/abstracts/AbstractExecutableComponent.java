@@ -61,6 +61,7 @@ import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.meandre.core.ExecutableComponent;
+import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.Names;
@@ -237,8 +238,11 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
                 Object data = cc.getDataComponentFromInput(inputPort);
 
                 // show the inputs and data-types received on each input in "debug" mode
-                console.finer(String.format("Input port '%s' has data of type '%s'",
-                            inputPort, data.getClass().getName()));
+                String debugMsg = String.format("Input port '%s' has data of type '%s'",
+                        inputPort, data.getClass().getName());
+                if (data instanceof StreamDelimiter)
+                	debugMsg += String.format(" (stream: %d)", ((StreamDelimiter)data).getStreamId());
+                console.finer(debugMsg);
 
                 if (data instanceof StreamInitiator)
                     inputPortsWithInitiators.add(inputPort);
