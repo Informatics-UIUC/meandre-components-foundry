@@ -13,9 +13,11 @@
         height = $height,
         fontMin = $fontMin,
         fontMax = $fontMax,
+    #if( $_userMap.contains("rotation") )
         rotation = $_userMap.get("rotation");
-        
-    if (!rotation) rotation = 0;
+    #else
+        rotation = 0;
+    #end
 
     var scale = d3.scale.${scale}();
     var fill = d3.scale.${colorPalette}();
