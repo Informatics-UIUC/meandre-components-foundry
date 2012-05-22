@@ -47,8 +47,8 @@ import java.io.PrintStream;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 /**
@@ -73,18 +73,20 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
     //------------------------------ PROPERTIES --------------------------------------------------
 
 	@ComponentProperty(
-			name = Names.PROP_HEADER,
-			description = "Should the header be added? ",
-		    defaultValue = "true"
+			name = Names.PROP_SEPARATOR,
+			description = "Used to separate field values",
+		    defaultValue = ","
 	)
-	protected static final String PROP_HEADER = Names.PROP_HEADER;
+	protected static final String PROP_TEXT_SEPARATOR = Names.PROP_SEPARATOR;
 
 	@ComponentProperty(
-			name = Names.PROP_MESSAGE,
-			description = "The header to use. ",
-		    defaultValue = "The header message"
+			name = "header",
+			description = "The comma-separated list of attribute names. The commas will be replaced " +
+					"by the separator specified in the " + PROP_TEXT_SEPARATOR + " property. If this property is empty, " +
+					"no header will be used.",
+		    defaultValue = ""
 	)
-	protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
+	protected static final String PROP_HEADER = "header";
 
 	@ComponentProperty(
 			name = Names.PROP_OFFSET,
@@ -100,13 +102,6 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 		    defaultValue = "-1"
 	)
 	protected static final String PROP_COUNT = Names.PROP_COUNT;
-
-	@ComponentProperty(
-			name = Names.PROP_SEPARATOR,
-			description = "Used to separate field values",
-		    defaultValue = ","
-	)
-	protected static final String PROP_TEXT_SEPARATOR = Names.PROP_SEPARATOR;
 
 	//--------------------------------------------------------------------------------------------
 
@@ -131,12 +126,14 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		this.bHeaderAdded = Boolean.parseBoolean(ccp.getProperty(PROP_HEADER));
-		this.sHeader = ccp.getProperty(PROP_MESSAGE);
-		this.iOffset = Integer.parseInt(ccp.getProperty(PROP_OFFSET));
-		this.iCount = Integer.parseInt(ccp.getProperty(PROP_COUNT));
+		this.sHeader = getPropertyOrDieTrying(PROP_HEADER, true, false, ccp);
+		this.bHeaderAdded = this.sHeader.length() > 0;
 
-		this.textSep = ccp.getProperty(PROP_TEXT_SEPARATOR).trim();
+		this.iOffset = Integer.parseInt(getPropertyOrDieTrying(PROP_OFFSET, ccp));
+		this.iCount = Integer.parseInt(getPropertyOrDieTrying(PROP_COUNT, ccp));
+
+		this.textSep = getPropertyOrDieTrying(PROP_TEXT_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
+		this.sHeader = this.sHeader.replaceAll(",", this.textSep);
 	}
 
 	@Override

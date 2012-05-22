@@ -46,15 +46,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
+import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 
 /**
  * This component tokenizes the text contained in the input model using OpenNLP.
@@ -92,7 +92,7 @@ public class TokenCountsToText extends AnalysisToText {
 
 	@ComponentProperty(
 			name = Names.PROP_MESSAGE,
-			description = "The header to use. ",
+			description = "The header to use.",
 		    defaultValue = "tokens,counts"
 	)
 	protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
