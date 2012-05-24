@@ -91,11 +91,11 @@ public class TokenCountsToText extends AnalysisToText {
     //------------------------------ PROPERTIES --------------------------------------------------
 
 	@ComponentProperty(
-			name = Names.PROP_MESSAGE,
+			name = "header",
 			description = "The header to use.",
 		    defaultValue = "tokens,counts"
 	)
-	protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
+	protected static final String PROP_HEADER = "header";
 
 
 	//--------------------------------------------------------------------------------------------
