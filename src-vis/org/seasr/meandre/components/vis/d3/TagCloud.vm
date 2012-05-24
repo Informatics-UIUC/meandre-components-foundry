@@ -13,7 +13,7 @@
         height = $height,
         fontMin = $fontMin,
         fontMax = $fontMax,
-    #if( $_userMap.contains("rotation") )
+    #if( $_userMap.containsKey("rotation") )
         rotation = $_userMap.get("rotation");
     #else
         rotation = 0;
