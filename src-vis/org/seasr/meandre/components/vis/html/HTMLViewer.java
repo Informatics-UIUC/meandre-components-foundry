@@ -53,10 +53,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.VelocityContext;
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.webui.WebUIException;
@@ -142,15 +142,15 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
             _context.put("ccp", ccp);
         }
     }
-    
+
     public String getWebUIUrl(ComponentContext cc) throws Exception
     {
     	String webUIUrl = cc.getWebUIUrl(true).toString();
-        if (webUIUrl.endsWith("/")) 
+        if (webUIUrl.endsWith("/"))
         	webUIUrl = webUIUrl.substring(0, webUIUrl.length()-1);
         return webUIUrl;
     }
-    
+
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
@@ -184,7 +184,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
             }
 
             _done = false;
-            
+
             String webURL = getWebUIUrl(cc);
             console.info("webUIUrl " + webURL);
 

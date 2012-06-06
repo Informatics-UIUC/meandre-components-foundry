@@ -105,10 +105,10 @@ public class TokenCountsToText extends AnalysisToText {
 	    IntegersMap tokenCounts = (IntegersMap)cc.getDataComponentFromInput(INPUT_TOKEN_COUNTS);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
+		PrintStream ps = new PrintStream(baos, false, "UTF-8");
 
 		printIntegerMap(ps, tokenCounts, this.iCount, this.iOffset);
 
-		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString()));
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString("UTF-8")));
 	}
 }

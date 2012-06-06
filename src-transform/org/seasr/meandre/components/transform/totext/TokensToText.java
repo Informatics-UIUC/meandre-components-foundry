@@ -46,11 +46,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
@@ -108,10 +108,10 @@ public class TokensToText extends AnalysisToText {
 		String[] tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
+		PrintStream ps = new PrintStream(baos, false, "UTF-8");
 
 		printStrings(ps, tokens, this.iCount, this.iOffset);
 
-		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString()));
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString("UTF-8")));
 	}
 }

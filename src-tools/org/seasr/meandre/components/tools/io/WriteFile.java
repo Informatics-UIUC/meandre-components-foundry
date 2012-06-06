@@ -249,8 +249,9 @@ public class WriteFile extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    	if (componentContext.isFlowAborting() && file != null)
+    	if (componentContext != null && componentContext.isFlowAborting() && file != null) {
     		file.delete();
+    	}
 
     	file = null;
     }
