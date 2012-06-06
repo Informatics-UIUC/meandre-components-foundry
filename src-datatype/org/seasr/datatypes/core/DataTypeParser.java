@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -95,12 +96,12 @@ public abstract class DataTypeParser {
         else
 
         if (data instanceof byte[])
-            text = new String[] { new String((byte[])data) };
+            text = new String[] { new String((byte[])data, Charset.forName("UTF-8")) };
 
         else
 
         if (data instanceof Bytes)
-            text = new String[] { new String(BasicDataTypesTools.bytestoByteArray((Bytes)data)) };
+            text = new String[] { new String(BasicDataTypesTools.bytestoByteArray((Bytes)data), Charset.forName("UTF-8")) };
 
         else
             text = new String[] { data.toString() };
