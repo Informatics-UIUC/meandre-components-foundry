@@ -206,14 +206,16 @@ public class ListDirectoryFiles extends AbstractStreamingExecutableComponent {
 	 */
 	private void pushLocations(File fileLoc) throws Exception {
 	    if (fileLoc.isDirectory()) {
-	        for (File file : fileLoc.listFiles()) {
-	            if (file.isDirectory() && bRecursive)
-	                pushLocations(file);
-	            else {
-	                if (file.isFile())
-	                    pushLocation(file);
-	            }
-	        }
+	        File[] files = fileLoc.listFiles();
+	        if (files != null)
+				for (File file : files) {
+		            if (file.isDirectory() && bRecursive)
+		                pushLocations(file);
+		            else {
+		                if (file.isFile())
+		                    pushLocation(file);
+		            }
+		        }
 	    } else {
 	        if (fileLoc.exists())
 	            pushLocation(fileLoc);
