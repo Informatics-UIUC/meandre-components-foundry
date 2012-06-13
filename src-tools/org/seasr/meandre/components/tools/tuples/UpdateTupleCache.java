@@ -75,7 +75,7 @@ import org.seasr.meandre.support.generic.io.PathUtils;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "#TRANSFORM, cache",
+        tags = "#OUTPUT, cache",
         description = "Adds entries to the cache",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
