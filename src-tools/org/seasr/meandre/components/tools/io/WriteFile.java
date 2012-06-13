@@ -221,19 +221,21 @@ public class WriteFile extends AbstractExecutableComponent {
 
         // Write the data to file
         FileOutputStream fos = new FileOutputStream(file, appendData);
+        try {
+	        if (inData instanceof byte[] || inData instanceof Bytes)
+	            fos.write(DataTypeParser.parseAsByteArray(inData));
 
-        if (inData instanceof byte[] || inData instanceof Bytes)
-            fos.write(DataTypeParser.parseAsByteArray(inData));
+	        else
 
-        else
+	        if (inData instanceof Document)
+	            DOMUtils.writeXML((Document) inData, fos, outputProperties);
 
-        if (inData instanceof Document)
-            DOMUtils.writeXML((Document) inData, fos, outputProperties);
-
-        else
-            fos.write(DataTypeParser.parseAsString(inData)[0].getBytes("UTF-8"));
-
-        fos.close();
+	        else
+	            fos.write(DataTypeParser.parseAsString(inData)[0].getBytes("UTF-8"));
+	        }
+        finally {
+        	fos.close();
+        }
 
         if (file.getAbsolutePath().startsWith(publicResourcesDir)) {
             String publicLoc = file.getAbsolutePath().substring(publicResourcesDir.length());
@@ -249,8 +251,10 @@ public class WriteFile extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    	if (componentContext != null && componentContext.isFlowAborting() && file != null) {
-    		file.delete();
+    	if (componentContext.isFlowAborting() && file != null) {
+    		try {
+    			file.delete();
+    		} catch (Exception e) { }
     	}
 
     	file = null;
