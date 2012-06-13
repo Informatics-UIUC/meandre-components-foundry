@@ -106,7 +106,7 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
 	        		"Example (integer): 200 - indicates the approximate number of tokens to put in each segment. " +
 	        		"Segments always end at sentence boundaries.)",
             name = Names.PROP_SEGMENT_SIZE,
-            defaultValue = "200"
+            defaultValue = "1000"
 	)
 	protected static final String PROP_SEGMENT_SIZE = Names.PROP_SEGMENT_SIZE;
 
@@ -117,7 +117,7 @@ public class TextSegmentation extends AbstractStreamingExecutableComponent {
             		"Practically, this allows one to require that the last segment be of a certain minimum size. " +
             		"Setting the value of this property to 0 would allow the last segment to have any size.",
             name = "last_segment_threshold",
-            defaultValue = "0"
+            defaultValue = "500"
     )
     protected static final String PROP_LAST_SEGMENT_THRESHOLD = "last_segment_threshold";
 
