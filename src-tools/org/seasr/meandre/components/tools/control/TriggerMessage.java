@@ -72,7 +72,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "#CONTROL, message, trigger",
-        description = "This component will receive a message and a trigger."+
+        description = "This component will receive a message and a trigger. "+
                       "The message is saved so that it can be output for every trigger received. "+
                       "The component respects streams and outputs the same object for all the triggers that are part of the stream. " +
                       "When operating in streaming mode, a new object will be 'retrieved' after the previous stream ends.",
