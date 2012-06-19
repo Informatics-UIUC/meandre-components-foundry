@@ -53,6 +53,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Formatter;
+import java.util.Locale;
 import java.util.zip.GZIPOutputStream;
 
 import org.meandre.annotations.Component;
@@ -69,7 +71,10 @@ import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
+import cc.mallet.examples.TopicModel;
 import cc.mallet.topics.ParallelTopicModel;
+import cc.mallet.types.FeatureSequence;
+import cc.mallet.types.LabelSequence;
 import de.schlichtherle.io.FileOutputStream;
 
 /**
@@ -213,7 +218,38 @@ public class SaveTopicModelState extends AbstractExecutableComponent {
 
         PrintStream stream = new PrintStream(os);
         try {
-            topicModel.printState(stream);
+            //topicModel.printState(stream);
+        	// instead of calling the above printState which doesn't provide
+        	// appropriate delimiters for words with spaces - I've copied the code here
+        	// and modified it to use tabs -Loretta
+    		stream.println ("#doc\tsource\tpos\ttypeindex\ttype\ttopic");
+    		stream.print("#alpha : ");
+    		for (int topic = 0; topic < topicModel.numTopics; topic++) {
+    			stream.print(topicModel.alpha[topic] + " ");
+    		}
+    		stream.println();
+    		stream.println("#beta : " + topicModel.beta);
+
+    		for (int doc = 0; doc < topicModel.data.size(); doc++) {
+    			FeatureSequence tokenSequence =	(FeatureSequence) topicModel.data.get(doc).instance.getData();
+    			LabelSequence topicSequence =	(LabelSequence) topicModel.data.get(doc).topicSequence;
+
+    			String source = "NA";
+    			if (topicModel.data.get(doc).instance.getSource() != null) {
+    				source = topicModel.data.get(doc).instance.getSource().toString();
+    			}
+
+    			Formatter output = new Formatter(new StringBuilder(), Locale.US);
+
+    			for (int pi = 0; pi < topicSequence.getLength(); pi++) {
+    				int type = tokenSequence.getIndexAtPosition(pi);
+    				int topic = topicSequence.getIndexAtPosition(pi);
+
+    				output.format("%d\t%s\t%d\t%d\t%s\t%d\n", doc, source, pi, type, topicModel.alphabet.lookupObject(type), topic);
+    			}
+    			stream.print(output);
+    		}
+    	
             console.fine("State file created");
         }
         finally {
