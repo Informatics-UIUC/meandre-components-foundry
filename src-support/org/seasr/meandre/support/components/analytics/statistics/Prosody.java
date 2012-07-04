@@ -370,11 +370,15 @@ public class Prosody {
 				}
 
 				for (int j = 0; j < numTexts; j++) {
-
-					if (j == problem.seedTextIndex)
+					if (phonemeIndex < windowSizeInPhonemes / 2)
 						outTuple.setValue(docNames[j], "0");
-					else if (phonemeIndex < windowSizeInPhonemes / 2)
-						outTuple.setValue(docNames[j], "0");
+					else
+					if (j == problem.seedTextIndex) {
+						double selfSimilarity = prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j];
+						double similarityValue = selfSimilarity / (similaritySum + selfSimilarity);
+						outTuple.setValue(docNames[j], String.format("%7.5f", similarityValue));
+						//outTuple.setValue(docNames[j], "0");
+					}
 					else {
 						double similarityValue = prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j];
 						outTuple.setValue(docNames[j], String.format("%7.5f", similarityValue));
@@ -402,10 +406,15 @@ public class Prosody {
 
 				for (int j = 0; j < numTexts; j++) {
 
-					if (j == problem.seedTextIndex)
+					if (phonemeIndex < windowSizeInPhonemes / 2)
 						outTuple.setValue(docNames[j], "0");
-					else if (phonemeIndex < windowSizeInPhonemes / 2)
-						outTuple.setValue(docNames[j], "0");
+					else
+					if (j == problem.seedTextIndex) {
+						double selfSimilarity = prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j];
+						double similarityValue = selfSimilarity / (similaritySum + selfSimilarity);
+						outTuple.setValue(docNames[j], String.format("%7.5f", similarityValue));
+						//outTuple.setValue(docNames[j], "0");
+					}
 					else {
 						double similarityValue = prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j] / similaritySum;
 						outTuple.setValue(docNames[j], String.format("%7.5f", similarityValue));
