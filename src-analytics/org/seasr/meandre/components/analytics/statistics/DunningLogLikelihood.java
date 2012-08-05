@@ -69,12 +69,14 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
  * @author Loretta Auvil
  * @author Lily Dong
  * @author Boris Capitanu
+ * @author Ian Wood
  */
 
 @Component(
         creator = "Amit Kumar & Loretta Auvil & Lily Dong",
 		description = "This component calculates DunningLogLikelihood "+
 		              "based on the input of two counts. " +
+		              "It has two outputs with the liklihoods as integer and doubles respectively. " +
 		              "This major functionality was developed as part of the Monk Project (http://monkproject.org) " +
 		              "<p>References: For more information on Dunning's log-likelihood statistic, see "+
 		              "Dunning, T. 1993. Accurate methods for the statistics of surprise and coincidence. "+
@@ -93,7 +95,8 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 	        name = Names.PORT_TOKEN_COUNTS,
 	        description = "Token counts for the analysis set of documents." +
     	        "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>" +
-    	        "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
+    	        "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.IntegersMap"
+    	        //TODO: I've corrected this type, it was: org.seasr.datatypes.BasicDataTypes.IntegersMap
 	)
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
@@ -101,7 +104,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 	        name = Names.PORT_TOKEN_COUNTS_REFERENCE,
 	        description = "Token counts for the reference set of documents." +
     	        "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>" +
-    	        "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
+    	        "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.IntegersMap"
 	)
 	protected static final String IN_REF_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS_REFERENCE;
 
@@ -110,9 +113,16 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 	@ComponentOutput(
 	        name = Names.PORT_TOKEN_COUNTS,
 	        description = "Resulting analysis of dunning loglikelihood." +
-	            "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
+                "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.IntegersMap"
 	)
     protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+
+	@ComponentOutput(
+	        name = Names.PORT_TOKEN_DOUBLE_VALUES,
+	        description = "Resulting analysis of dunning loglikelihood." +
+	            "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
+	)
+    protected static final String OUT_TOKEN_DOUBLES = Names.PORT_TOKEN_DOUBLE_VALUES;
 
     //--------------------------------------------------------------------------------------------
 
@@ -162,8 +172,14 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 
 			console.fine(String.format("%s\t%s\t%s", key.getString(), score, (int)score));
 		}
+		
+		Map<String,Double> outputMapDoubles = new Hashtable<String, Double>();
+		for (ReverseScoredString key : results.keySet()) {
+			outputMapDoubles.put(key.getString(), new Double(key.getScore()));
+		}
 
 		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
+		cc.pushDataComponentToOutput(OUT_TOKEN_DOUBLES, BasicDataTypesTools.mapToDoubleMap(outputMapDoubles, false));
 	}
 
     @Override

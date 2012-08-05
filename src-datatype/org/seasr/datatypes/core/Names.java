@@ -93,6 +93,7 @@ public abstract class Names {
 	public static final String PORT_TITLE = "title";
 	public static final String PORT_TOKEN_BLACKLIST = "tokens_blacklist";
 	public static final String PORT_TOKEN_COUNTS = "token_counts";
+	public static final String PORT_TOKEN_DOUBLE_VALUES = "token_double_values";
 	public static final String PORT_TOKEN_COUNTS_REFERENCE = "token_counts_reference";
 	public static final String PORT_TOKEN_MAP = "token_map";
 	public static final String PORT_TOKENIZED_SENTENCES = "tokenized_sentences";

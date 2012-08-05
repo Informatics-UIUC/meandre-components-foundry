@@ -53,6 +53,7 @@ import org.seasr.datatypes.core.BasicDataTypes.Bytes;
 import org.seasr.datatypes.core.BasicDataTypes.BytesMap;
 import org.seasr.datatypes.core.BasicDataTypes.Integers;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
+import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
@@ -65,6 +66,7 @@ import com.google.protobuf.ByteString;
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
  * @author Mike Haberman
+ * @author Ian Wood
  *
  */
 public abstract class BasicDataTypesTools {
@@ -247,6 +249,35 @@ public abstract class BasicDataTypesTools {
 			ht.put(im.getKey(i), im.getValue(i).getValue(0));
 
 		return ht;
+	}
+
+	/**
+	 * Builds the doubles map and sorts it if needed.
+	 *
+	 * @param htDoubles The token values as doubles
+	 * @param bOrdered Should the values be ordered?
+	 * @return The DoublesMap
+	 */
+	@SuppressWarnings("unchecked")
+	public static DoublesMap mapToDoubleMap(Map<String, Double> htDoubles, boolean bOrdered) {
+		Set<Entry<String,Double>> setCnts = htDoubles.entrySet();
+		Entry<String, Double>[] esa  = new Entry[setCnts.size()];
+		esa = setCnts.toArray(esa);
+
+		// Sort if needed
+		if ( bOrdered ) {
+			Arrays.sort(esa, new Comparator<Entry<String,Double>>(){
+				public int compare(Entry<String, Double> o1,Entry<String, Double> o2) {
+					return (int) (o2.getValue()-o1.getValue());
+				}} );
+		}
+
+		org.seasr.datatypes.core.BasicDataTypes.DoublesMap.Builder res = BasicDataTypes.DoublesMap.newBuilder();
+		for ( Entry<String, Double> entry:esa ) {
+			res.addKey(entry.getKey());
+			res.addValue(BasicDataTypes.Doubles.newBuilder().addValue(entry.getValue()));
+		}
+		return res.build();
 	}
 
 	/**
