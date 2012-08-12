@@ -65,12 +65,15 @@ import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
+import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.transform.text.LevenshteinDistance;
+import org.seasr.meandre.support.components.tuples.SimpleTuple;
+import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.seasr.meandre.support.generic.io.IOUtils;
 
 import com.swabunga.spell.engine.Configuration;
@@ -165,6 +168,20 @@ public class SpellCheck extends AbstractExecutableComponent {
                     "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
     )
     protected static final String OUT_MISSPELLINGS_WITH_COUNTS = "misspellings_with_counts";
+
+    @ComponentOutput(
+            name = Names.PORT_TUPLES,
+            description = "The stats data as tuples" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+    )
+    protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+
+    @ComponentOutput(
+            name = Names.PORT_META_TUPLE,
+            description = "The meta data for tuples" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -321,6 +338,20 @@ public class SpellCheck extends AbstractExecutableComponent {
                 console.info(String.format("Total number of words (including duplicates): %d", _countTotalWords));
                 console.info(String.format("Number of unique misspelled words: %d", _countMisspelledWords));
                 console.info(String.format("Number of unique misspelled words with no suggested replacement: %d", _countUncorrectedWords));
+
+                SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] { "countTotalWords", "countMisspelledWords", "countUncorrectedWords" });
+        	    StringsArray.Builder tuplesBuilder = StringsArray.newBuilder();
+        	    String[] fieldValues = new String[] {
+        	    		Integer.toString(_countTotalWords),
+        	    		Integer.toString(_countMisspelledWords),
+        	    		Integer.toString(_countUncorrectedWords)
+        	    };
+    	        SimpleTuple tuple = outPeer.createTuple();
+    	        tuple.setValues(fieldValues);
+    	        tuplesBuilder.addValue(tuple.convert());
+
+    	        cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
+    		    cc.pushDataComponentToOutput(OUT_TUPLES, tuplesBuilder.build());
             }
         }
     }
