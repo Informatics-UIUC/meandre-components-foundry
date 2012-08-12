@@ -73,9 +73,6 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
 
 
 /**
- * This component performs part of speech tagging on the tokenized sentences
- * passed in the input, using Apache OpenNLP.
- *
  * @author Boris Capitanu
  */
 
