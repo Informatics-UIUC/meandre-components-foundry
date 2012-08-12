@@ -42,7 +42,6 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
-import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import org.meandre.annotations.Component;
@@ -199,8 +198,16 @@ public class TupleValueFilter extends AbstractExecutableComponent {
 
 		// Return if nothing to output
 		if (tuplesBuilder.getValueCount() == 0) {
-		    outputError("Nothing to output - no tuples pass the filter rule", Level.WARNING);
-		    console.fine("Nothing to output - no tuples pass the filter rule");
+		    //outputError("Nothing to output - no tuples pass the filter rule", Level.WARNING);
+		    console.warning("No tuples pass the filter rule - outputting empty tuple");
+
+		    if (input instanceof Strings)
+			    cc.pushDataComponentToOutput(OUT_TUPLES, Strings.newBuilder().build());
+
+			if (input instanceof StringsArray)
+			    cc.pushDataComponentToOutput(OUT_TUPLES, tuplesBuilder.build());
+
+			cc.pushDataComponentToOutput(OUT_META_TUPLE, inMeta);
 		    return;
 		}
 
