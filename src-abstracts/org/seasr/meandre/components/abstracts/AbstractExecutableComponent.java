@@ -463,14 +463,7 @@ public abstract class AbstractExecutableComponent implements ExecutableComponent
     public String getPropertyOrDieTrying(String propName, boolean ignoreWhitespace, boolean failIfEmptyValue, ComponentContextProperties context)
         throws ComponentExecutionException {
 
-    	String compInstanceId = context.getExecutionInstanceID();
-    	Properties flowProperties = context.getFlowProperties();
-    	// Look for a flow level property named "all#" + propName, and if found, use that value
-    	// otherwise look for a flow level property name compInstanceId + "#" + propName and use that value if found,
-    	// or finally use the component property
-    	String propValue = flowProperties.getProperty("all#" + propName,
-    			flowProperties.getProperty(compInstanceId + "#" + propName,
-    					context.getProperty(propName)));
+    	String propValue = context.getProperty(propName);
 
         if (propValue == null) {
             StringBuilder sb = new StringBuilder();
