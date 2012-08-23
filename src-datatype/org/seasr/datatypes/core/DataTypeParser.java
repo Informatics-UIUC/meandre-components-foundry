@@ -214,11 +214,12 @@ public abstract class DataTypeParser {
      * Attempts to convert the given data to a Map<String, Integer>
      *
      * @param data The data
+     * @param ordered Whether an ordered map (LinkedHashMap) or regular map (HashMap) should be returned
      * @return The Map<String, Integer>
      * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
      */
     @SuppressWarnings("unchecked")
-    public static Map<String, Integer> parseAsStringIntegerMap(Object data) throws UnsupportedDataTypeException {
+    public static Map<String, Integer> parseAsStringIntegerMap(Object data, boolean ordered) throws UnsupportedDataTypeException {
         Map<String, Integer> map;
 
         if (data == null)
@@ -227,7 +228,7 @@ public abstract class DataTypeParser {
         else
 
         if (data instanceof IntegersMap)
-            map = BasicDataTypesTools.IntegerMapToMap((IntegersMap)data);
+            map = BasicDataTypesTools.IntegerMapToMap((IntegersMap)data, ordered);
 
         else
 
@@ -241,6 +242,17 @@ public abstract class DataTypeParser {
             throw new UnsupportedDataTypeException(data.getClass().getName());
 
         return map;
+    }
+
+    /**
+     * Attempts to convert the given data to an unordered Map<String, Integer>
+     *
+     * @param data The data
+     * @return The Map<String, Integer>
+     * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
+     */
+    public static Map<String, Integer> parseAsStringIntegerMap(Object data) throws UnsupportedDataTypeException {
+    	return parseAsStringIntegerMap(data, false);
     }
 
     /**

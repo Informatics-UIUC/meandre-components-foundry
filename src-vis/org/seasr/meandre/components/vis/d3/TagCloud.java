@@ -197,7 +197,7 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Map<String, Integer> tokenCounts = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
+        Map<String, Integer> tokenCounts = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS), true);
 
         JSONArray words = new JSONArray();
         JSONArray counts = new JSONArray();

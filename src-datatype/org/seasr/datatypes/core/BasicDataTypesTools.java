@@ -44,7 +44,9 @@ package org.seasr.datatypes.core;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -237,18 +239,32 @@ public abstract class BasicDataTypesTools {
 	}
 
 	/**
-	 * Converts a protocol buffer string integer map to the equivalent java map
+	 * Converts a protocol buffer string integer map to the equivalent (unordered) java map
 	 *
 	 * @param im The integer map to convert
 	 * @return The converted map
 	 */
 	public static Map<String,Integer> IntegerMapToMap ( IntegersMap im ) {
-		Hashtable<String,Integer> ht = new Hashtable<String,Integer>(im.getValueCount());
+		return IntegerMapToMap(im, false);
+	}
+
+	/**
+	 * Converts a protocol buffer string integer map to the equivalent java map.
+	 * If an ordered map is desired (one that maintains the insertion order of the key-value pairs, set ordered=true)
+	 *
+	 * @param im The integer map to convert
+	 * @param ordered True to return an ordered map (LinkedHashMap), false to return a regular map (HashMap)
+	 * @return The converted map
+	 */
+	public static Map<String, Integer> IntegerMapToMap(IntegersMap im, boolean ordered) {
+		Map<String,Integer> map = (ordered) ?
+				new LinkedHashMap<String, Integer>(im.getValueCount()) :
+				new HashMap<String,Integer>(im.getValueCount());
 
 		for ( int i=0,iMax=im.getValueCount() ; i<iMax ; i++ )
-			ht.put(im.getKey(i), im.getValue(i).getValue(0));
+			map.put(im.getKey(i), im.getValue(i).getValue(0));
 
-		return ht;
+		return map;
 	}
 
 	/**
