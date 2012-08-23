@@ -381,6 +381,8 @@ public class SpellCheck extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_TEXT, input);
         componentContext.pushDataComponentToOutput(OUT_UNCORRECTED_MISSPELLINGS, input);
         componentContext.pushDataComponentToOutput(OUT_MISSPELLINGS_WITH_COUNTS, input);
+        componentContext.pushDataComponentToOutput(OUT_TUPLES, input);
+        componentContext.pushDataComponentToOutput(OUT_META_TUPLE, input);
     }
 
     protected boolean isReadyToProcessInputs() throws ComponentContextException {
