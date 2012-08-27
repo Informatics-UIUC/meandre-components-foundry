@@ -165,7 +165,7 @@ public class SpellCheckWithCounts extends SpellCheck {
 
             if (input instanceof StreamDelimiter) {
                 // Forward any stream delimiter received
-                pushStreamDelimiter(input);
+                //pushStreamDelimiter(input);
             } else
                 _tokenCounts = DataTypeParser.parseAsStringIntegerMap(input);
         }
@@ -175,7 +175,7 @@ public class SpellCheckWithCounts extends SpellCheck {
 
             if (input instanceof StreamDelimiter) {
                 // Forward any stream delimiter received
-                pushStreamDelimiter(input);
+                //pushStreamDelimiter(input);
             } else {
                 String[] inputs = DataTypeParser.parseAsString(input);
                 _transformations = TransformDictionary.buildFrom(inputs[0]);
