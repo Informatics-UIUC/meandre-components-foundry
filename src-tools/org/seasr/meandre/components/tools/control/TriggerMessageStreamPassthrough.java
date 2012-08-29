@@ -71,9 +71,9 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "#CONTROL, message, trigger",
-        description = "This component will receive a message and a trigger."+
+        description = "This component will receive a message and a trigger. "+
                       "The message is saved so that it can be output for every trigger received. " +
-                      "If a StreamDelimiter is received in the object port, it will be forwarded to the output object port."+
+                      "If a StreamDelimiter is received in the object port, it will be forwarded to the output object port. "+
                       "When operating in streaming mode, a new object will be 'retrieved' after the previous stream ends.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
