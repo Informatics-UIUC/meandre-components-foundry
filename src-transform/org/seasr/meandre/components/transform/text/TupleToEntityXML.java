@@ -78,7 +78,7 @@ import org.w3c.dom.NodeList;
         creator = "Lily Dong",
 		description = "<p>Overview: <br> This component extracts " +
 		              "information from tuples and outputs it " +
-		              "as xml document. Only those entity types specified in this component's " +
+		              "as xml document. Only the entity types specified in this component's " +
 		              "properties will be included in the output XML document.</p>",
         name = "Tuple To Entity XML",
         tags = "#TRANSFORM, text, document, tuple",
@@ -134,7 +134,7 @@ public class TupleToEntityXML extends AbstractStreamingExecutableComponent {
     //------------------------------ PROPERTIES --------------------------------------------------
 
 	@ComponentProperty(
-	        description = "Entity types (comma delimited list).",
+	        description = "Entity types (comma delimited list). Valid values are: person, organization, location, time, money, percentage, date.",
             name = Names.PROP_ENTITIES,
             defaultValue =  "person,organization,location,time,money,percentage,date"
 	)
@@ -143,7 +143,7 @@ public class TupleToEntityXML extends AbstractStreamingExecutableComponent {
 
 	@ComponentProperty(
 			name=Names.PROP_ENCODING,
-			description = "The encoding to use on the outputed text.",
+			description = "The encoding to use for the xml text output.",
 			defaultValue = "ISO-8859-1"
 	    )
 	protected static final String PROP_ENCODING = Names.PROP_ENCODING;
@@ -327,8 +327,6 @@ public class TupleToEntityXML extends AbstractStreamingExecutableComponent {
                 }
             }
         }
-
         return doc;
     }
-
 }
