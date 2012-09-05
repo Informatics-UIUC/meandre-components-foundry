@@ -144,6 +144,10 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 			String aDate = elEntity.getAttribute("value");
 
 			console.finest("aDate: '" + aDate + "'");
+			String origDate = aDate;
+	        aDate = aDate.replaceAll("[^a-zA-Z0-9\\., ]"," "); //remove all invalid chars
+	        aDate = aDate.replaceAll("\t|\r|\n", " ");
+	        aDate.trim();
 
 			//standardize date
 
@@ -204,9 +208,10 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 			        String docTitle = elSentence.getAttribute("docTitle");
 			        String theSentence = elSentence.getTextContent();
 
+			        theSentence = theSentence.replaceAll(origDate, aDate); //replace date changes in the sentence
 			        theSentence = theSentence.replaceAll("\t|\r|\n", " ");
-			        aDate = aDate.replaceAll("\t|\r|\n", " ");
-
+			        theSentence.trim();
+			        
 			        //look for date only with word boundary and eliminate mismatching
 			        Pattern p = Pattern.compile("\\b"+aDate+"\\b", Pattern.CASE_INSENSITIVE);
 			        Matcher m = p.matcher(theSentence);
