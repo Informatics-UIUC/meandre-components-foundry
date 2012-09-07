@@ -335,16 +335,17 @@ public class SpellCheck extends AbstractExecutableComponent {
                 }
 
                 // Display stats
+                int countCorrectedWords = _countMisspelledWords-_countUncorrectedWords;
                 console.info(String.format("Total number of words (including duplicates): %d", _countTotalWords));
                 console.info(String.format("Number of unique misspelled words: %d", _countMisspelledWords));
-                console.info(String.format("Number of unique misspelled words with no suggested replacement: %d", _countUncorrectedWords));
+                console.info(String.format("Number of unique corrected words: %d", countCorrectedWords));
 
-                SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] { "countTotalWords", "countMisspelledWords", "countUncorrectedWords" });
+                SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] { "countTotalWords", "countMisspelledWords", "countCorrectedWords" });
         	    StringsArray.Builder tuplesBuilder = StringsArray.newBuilder();
         	    String[] fieldValues = new String[] {
         	    		Integer.toString(_countTotalWords),
         	    		Integer.toString(_countMisspelledWords),
-        	    		Integer.toString(_countUncorrectedWords)
+        	    		Integer.toString(countCorrectedWords)
         	    };
     	        SimpleTuple tuple = outPeer.createTuple();
     	        tuple.setValues(fieldValues);
