@@ -130,18 +130,40 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
     )
     protected static final String PROP_COLUMNS = "columns";
 
+    @ComponentProperty(
+            description = "Location where to write out the HTML files for each frame. " +
+            		"Note: The folder will be created if it does not exist; also, if the " +
+            		"folder is relative, it will be considered as relative to the published_resources folder.",
+            name = "output_folder",
+            defaultValue = "frame_maker"
+    )
+    protected static final String PROP_OUTPUT_FOLDER = "output_folder";
+
+    @ComponentProperty(
+            description = "The URL to use in the generated master HTML as the base URL for how the frame HTML files will be referenced.",
+            name = "frame_ref_url",
+            defaultValue = "/public/resources/frame_maker"
+    )
+    protected static final String PROP_REF_URL = "frame_ref_url";
+
+    @ComponentProperty(
+            description = "Set to true for the component to remove the generated frame HTML files upon flow termination.  " +
+            		"Set to false if you want to preserve the generated frame HTML files past the flow completion.",
+            name = "clean_up",
+            defaultValue = "true"
+    )
+    protected static final String PROP_CLEANUP = "clean_up";
+
     //--------------------------------------------------------------------------------------------
 
-    protected static final String FRAME_MAKER_HOME = "frame_maker";
-    protected static final String FRAME_MAKER_URL = "/public/resources/" + FRAME_MAKER_HOME;
-
     protected String _template;
-    protected File _parent;
     protected List<String> _htmlDocs = new ArrayList<String>();
     protected List<File> _tmpFiles = new ArrayList<File>();
     protected int _columns;
     protected boolean _isStreaming;
-
+    protected boolean _doCleanup;
+    protected String _frameRefURL;
+    protected File _parent;
 
     //--------------------------------------------------------------------------------------------
 
@@ -152,7 +174,17 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
         _template = getPropertyOrDieTrying(PROP_TEMPLATE, ccp);
         _columns = Integer.parseInt(getPropertyOrDieTrying(PROP_COLUMNS, ccp));
 
-		_parent = new File(ccp.getPublicResourcesDirectory(), FRAME_MAKER_HOME);
+        _doCleanup = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_CLEANUP, ccp));
+        _frameRefURL = getPropertyOrDieTrying(PROP_REF_URL, true, false, ccp);
+        if (_frameRefURL.length() > 0 && !_frameRefURL.endsWith("/"))
+        	_frameRefURL += "/";
+
+        String outputFolder = getPropertyOrDieTrying(PROP_OUTPUT_FOLDER, ccp);
+        if (!outputFolder.startsWith(File.pathSeparator))
+        	_parent = new File(ccp.getPublicResourcesDirectory(), outputFolder);
+        else
+        	_parent = new File(outputFolder);
+
         _parent.mkdirs();
 
         _isStreaming = false;
@@ -169,8 +201,10 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
 			writer.write(html);
 			writer.close();
 
-    		_tmpFiles.add(tmpFile);
-    		_htmlDocs.add(String.format("%s/%s", FRAME_MAKER_URL, tmpFile.getName()));
+			if (_doCleanup)
+				_tmpFiles.add(tmpFile);
+
+    		_htmlDocs.add(String.format("%s%s", _frameRefURL, tmpFile.getName()));
     	} else {
     		console.warning("No stream detected - forwarding input unmodified");
     		cc.pushDataComponentToOutput(OUT_HTML, input);

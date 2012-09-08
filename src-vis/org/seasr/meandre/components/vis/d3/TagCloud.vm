@@ -26,7 +26,7 @@
 
     d3.layout.cloud().size([width, height])
         .words(data.words.map(function (d, i) { return { 'text': d, 'size': scale(data.counts[i]) }; }))
-        .rotate(function() { if (rotation==0) { return 0} else {return ~~(Math.random() * 2) * rotation }})
+        .rotate(function() { return ~~(Math.random() * 2) * rotation; })
         .fontSize(function(d) { return d.size; })
         #if( $fontName )
         .font("$fontName")
