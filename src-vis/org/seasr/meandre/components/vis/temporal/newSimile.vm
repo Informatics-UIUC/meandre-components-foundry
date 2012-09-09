@@ -1,0 +1,209 @@
+<!DOCTYPE html SYSTEM "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>SIMILE Widgets | Timeline</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/timeline/styles.css' type='text/css' />
+    <link rel="alternate" type="application/rdf+xml" href="http://www.simile-widgets.org/timeline/doap.rdf" />
+    
+    <script src="$simileTimelineAPI" type="text/javascript"></script>
+    <script type="text/javascript">
+    
+      SimileAjax.History.enabled = false;
+      var tl;
+      var selection;
+      
+      function submit() {
+	     var select_list_field = document.getElementById('year');
+	     var select_list_selected_index = select_list_field.selectedIndex;
+	     var year = select_list_field.options[select_list_selected_index].text;
+
+	     var select_list_field = document.getElementById('month');
+	     var month = select_list_field.selectedIndex+1;
+
+	     var select_list_field = document.getElementById('day');
+	     var select_list_selected_index = select_list_field.selectedIndex;
+	     var day = select_list_field.options[select_list_selected_index].text;
+
+	     var str = "Date(" + year +"," + month +"," + day +")";
+	     tl.getBand(0).setCenterVisibleDate(Timeline.DateTime.parseGregorianDateTime(eval('new ' + str)));
+	    }     
+        
+        function onLoad(view) {
+            
+            var band0Unit;
+			var band1Unit;
+			var band2Unit;
+
+			var fday = document.getElementById("fday");
+			var fmonth = document.getElementById("fmonth");
+			var fyear = document.getElementById("fyear");
+
+            fday.setAttribute("color", "");
+            fmonth.setAttribute("color", "");
+            fyear.setAttribute("color", "");
+
+			var color = "red";
+			
+            switch (view) {
+    			 case 'DAY':
+    	    		band0Unit = Timeline.DateTime.DAY;
+    	    		band1Unit = Timeline.DateTime.MONTH;
+    	    		band2Unit = Timeline.DateTime.YEAR;
+    				fday.setAttribute("color", color);
+    				selection = "DAY";
+    			    break;
+
+    			 case 'MONTH':
+    	    		band0Unit = Timeline.DateTime.MONTH;
+    	    		band1Unit = Timeline.DateTime.YEAR;
+    	    		band2Unit = Timeline.DateTime.DECADE;
+    				fmonth.setAttribute("color",color);
+    				selection = "MONTH";
+    				break;
+
+                case 'YEAR':
+    	   			band0Unit = Timeline.DateTime.YEAR;
+    	    		band1Unit = Timeline.DateTime.DECADE;
+    				band2Unit = Timeline.DateTime.CENTURY;
+    				fyear.setAttribute("color",color);
+    				selection = "YEAR";
+    		        break;
+			}
+            
+            var eventSource = new Timeline.DefaultEventSource();
+           
+            var theme = Timeline.ClassicTheme.create();
+            theme.event.bubble.width = 250;
+            
+            var date = Timeline.DateTime.parseGregorianDateTime("$minYear")
+            var bandInfos = [
+		        Timeline.createBandInfo({
+		            eventSource:    eventSource,
+		            date:           date,
+		            width:          "70%",
+		            intervalUnit:   band0Unit,
+		            intervalPixels: 100,
+		            theme:          theme
+		        }),
+		        Timeline.createBandInfo({
+		            overview:       true,
+		            trackHeight:     0.5,
+		            trackGap:        0.2,
+		            eventSource:    eventSource,
+		            date:           date,
+		            width:          "20%",
+		            intervalUnit:   band1Unit,
+		            intervalPixels: 200
+		        }),
+		        Timeline.createBandInfo({
+		            overview:       true,
+		            trackHeight:     0.5,
+		            trackGap:        0.2,
+		            eventSource:    eventSource,
+		            date:           date,
+		            width:          "10%",
+		            intervalUnit:   band2Unit,
+		            intervalPixels: 500
+		        })
+	        ];
+	        
+            bandInfos[1].syncWith = 0;
+            bandInfos[1].highlight = true;
+            bandInfos[2].syncWith = 0;
+	        bandInfos[2].highlight = true;
+	        
+	               
+            tl = Timeline.create(document.getElementById("my-timeline"), bandInfos, Timeline.HORIZONTAL);
+            
+            #if ($inlineSimileXml)
+            var simileXml = document.getElementById('__simileXml').contentWindow.document;
+            eventSource.loadXML(simileXml, "$simileXmlUrl");
+            #else
+            Timeline.loadXML("$simileXmlUrl", function(xml, url) {
+               eventSource.loadXML(xml, url);
+            });
+	        #end
+	    }
+        
+        var resizeTimerID = null;
+        function onResize() {
+            if (resizeTimerID == null) {
+                resizeTimerID = window.setTimeout(function() {
+                    resizeTimerID = null;
+                    tl.layout();
+                }, 500);
+                onLoad(selection);
+            }
+        }
+        
+        function themeSwitch(){
+          var timeline = document.getElementById('my-timeline');		
+          timeline.className = (timeline.className.indexOf('dark-theme') != -1) ? timeline.className.replace('dark-theme', '') : timeline.className += ' dark-theme';
+        }
+    </script>
+    
+    <style type="text/css">
+        .t-highlight1 { background-color: #ccf; }
+        .p-highlight1 { background-color: #fcc; }
+
+        .timeline-highlight-label-start .label_t-highlight1 { color: #f00; }
+        .timeline-highlight-label-end .label_t-highlight1 { color: #aaf; }
+
+        .timeline-band-events .important { color: #f00; }
+        .timeline-band-events .small-important { background: #c00; }
+
+        /*---------------------------------*/
+
+        .dark-theme { color: #eee; }
+        .dark-theme .timeline-band-0 .timeline-ether-bg { background-color: #333 }
+        .dark-theme .timeline-band-1 .timeline-ether-bg { background-color: #111 }
+        .dark-theme .timeline-band-2 .timeline-ether-bg { background-color: #222 }
+        .dark-theme .timeline-band-3 .timeline-ether-bg { background-color: #444 }
+
+        .dark-theme .t-highlight1 { background-color: #003; }
+        .dark-theme .p-highlight1 { background-color: #300; }
+
+        .dark-theme .timeline-highlight-label-start .label_t-highlight1 { color: #f00; }
+        .dark-theme .timeline-highlight-label-end .label_t-highlight1 { color: #115; }
+
+        .dark-theme .timeline-band-events .important { color: #c00; }
+        .dark-theme .timeline-band-events .small-important { background: #c00; }
+
+        .dark-theme .timeline-date-label-em { color: #fff; }
+        .dark-theme .timeline-ether-lines { border-color: #555; border-style: solid; }
+        .dark-theme .timeline-ether-highlight { background: #555; }
+
+        .dark-theme .timeline-event-tape,
+        .dark-theme .timeline-small-event-tape { background: #f60; }
+        .dark-theme .timeline-ether-weekends { background: #111; }
+    </style>
+  </head>
+  <body onload="onLoad('YEAR');" onresize="onResize();">
+     #if ($inlineSimileXml)
+    <iframe src="data:text/xml;base64,$simileXmlBase64" id="__simileXml" tabIndex='-1'
+        style="position:absolute;width:0;height:0;border:0"></iframe>
+    #end
+    
+    <div> <table width=100%; cellspacing="5"><tr>
+		<td style="font-size: 100%; color: #888;">
+          Try dragging it horizontally or using your mouse-wheel. Click on each event for more details.
+        </td>
+        <td onclick="onLoad('DAY');"><font id="fday" color=""> DAY</font></td>
+	 	<td onclick="onLoad('MONTH');"> <font id="fmonth"  color="">MONTH</font></td>
+	 	<td onclick="onLoad('YEAR');"> <font id="fyear" color="">YEAR</font></td>
+	 	<td valign="bottom" align="right"><button onclick="themeSwitch();">Switch theme</button></td>
+	 	</tr></table>
+	</div>
+
+	<div id="my-timeline" class="timeline-default" style="height: 650px; border: 1px solid #aaa"></div>
+
+          <h2>Credits</h2>
+          <p>This software was originally sponsored by 
+              <a href="http://mellon.org/">The Andrew W. Mellon Foundation</a>
+              as part of the <a href="http://simile.mit.edu/">SIMILE project</a>.
+              Its original author is <a href="http://davidhuynh.net/">David Fran&ccedil;ois Huynh</a>.
+              Now it is being maintained and developed by many members of this open-source community.
+          </p>
+  </body>
+</html>

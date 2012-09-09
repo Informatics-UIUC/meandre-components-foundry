@@ -94,7 +94,7 @@ import org.w3c.dom.Document;
         baseURL="meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         dependency = {"protobuf-java-2.2.0.jar", "simile-timeline.jar"},
-        resources = {"SimileTimelineGenerator.vm"}
+        resources = {"SimileTimelineGenerator.vm","newSimile.vm"}
 )
 public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
@@ -184,9 +184,10 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     protected static final String SIMILE_API_PATH = "simile-timeline-api";   // this path is assumed to be appended to the published_resources location
     protected static final String SIMILE_JS = "timeline-api.js";
 
-    protected static final String simileVelocityTemplate =
-        "org/seasr/meandre/components/vis/temporal/SimileTimelineGenerator.vm";
-
+	protected static final String simileVelocityTemplate =
+	    "org/seasr/meandre/components/vis/temporal/newSimile.vm";
+	//protected static final String simileVelocityTemplate =
+	//    "org/seasr/meandre/components/vis/temporal/SimileTimelineGenerator.vm";
     /** Store the minimum value of year */
     private int minYear;
 
