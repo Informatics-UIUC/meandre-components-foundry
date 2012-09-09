@@ -70,7 +70,7 @@ import org.seasr.meandre.components.vis.html.StreamingVelocityTemplateToHTML;
         rights = Licenses.UofINCSA,
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.7-dep.jar", "d3-v2.8.1.jar" },
+        dependency = { "velocity-1.7-dep.jar", "d3-v2.10.1.jar" },
         resources  = { "MultiLineChart.vm" }
 )
 public class MultiLineChart extends AbstractStreamingD3Component {

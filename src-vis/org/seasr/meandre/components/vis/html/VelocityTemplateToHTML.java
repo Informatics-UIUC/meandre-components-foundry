@@ -103,6 +103,20 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent {
 	)
 	protected static final String PROP_TEMPLATE_PROPERTIES = Names.PROP_PROPERTIES;
 
+	@ComponentProperty(
+	        description = "CSS definitions that can be placed inside a &lt;style&gt;...&lt;/style&gt; block.<br>" +
+	        				"You can reference these in your template using the $_css indicator. " +
+	        				"You would typically set up your velocity template like this:<br>" +
+	        				"&lt;style type=\"text/css\"&gt;<br>" +
+	        				"... other 'fixed' css definitions...<br>" +
+	        				"$_css<br>" +
+	        				"&lt;/style&gt;<br>" +
+	        				"Should not include the &lt;style&gt; tags in the value of this property!",
+	        name = Names.PROP_CSS,
+	        defaultValue = ""
+	)
+	protected static final String PROP_CSS = Names.PROP_CSS;
+
    //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
@@ -119,8 +133,8 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent {
     protected String templateName;
 
     // convenience properties to easily push additional properties
-    // not needed, template can always do $ccp.getProperty("title")
-    protected String[] templateVariables = {};
+    // not needed, template can always do $_ccp.getProperty("title")
+    protected String[] templateVariables = { };
 
 
     //--------------------------------------------------------------------------------------------
@@ -164,6 +178,8 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent {
             String value = ccp.getProperty(name);
             context.put(name,value);
         }
+
+        context.put("_css", getPropertyOrDieTrying(PROP_CSS, true, false, ccp));
     }
 
     @Override

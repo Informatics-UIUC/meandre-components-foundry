@@ -76,7 +76,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         rights = Licenses.UofINCSA,
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.7-dep.jar", "d3-v2.8.1.jar", "d3.layout.cloud.jar" },
+        dependency = { "velocity-1.7-dep.jar", "d3-v2.10.1.jar", "d3.layout.cloud.jar" },
         resources  = { "TagCloud.vm" }
 )
 public class TagCloud extends AbstractD3CloudLayoutComponent {

@@ -151,7 +151,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
 	@ComponentProperty(
             name = "save_output_to_file",
-            description = "Save the Simile XML output to file?",
+            description = "Save the Simile XML and generated HTML output to file?",
             defaultValue = "false"
     )
     protected static final String PROP_SAVE_OUTPUT_TO_FILE = "save_output_to_file";
@@ -162,6 +162,22 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
             defaultValue = "true"
     )
     protected static final String PROP_INLINE_SIMILE_XML = "inline_simile_xml";
+
+    @ComponentProperty(
+            description = "Location where to write out the Simile XML file. " +
+            		"Note: The folder will be created if it does not exist; also, if the " +
+            		"folder is relative, it will be considered as relative to the published_resources folder.",
+            name = "output_folder",
+            defaultValue = "simile"
+    )
+    protected static final String PROP_OUTPUT_FOLDER = "output_folder";
+
+    @ComponentProperty(
+            description = "The URL to use in the generated HTML as reference for the Simile XML location.",
+            name = "simile_ref_url",
+            defaultValue = "/public/resources/simile"
+    )
+    protected static final String PROP_REF_URL = "simile_ref_url";
 
     //--------------------------------------------------------------------------------------------
 
@@ -179,6 +195,9 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     private boolean inlineSimileXml;
     private boolean saveOutputToFile;
+
+    protected String _simileRefURL;
+    protected File _parent;
 
     private final List<File> tmpFiles = new ArrayList<File>();
 
@@ -215,6 +234,18 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         console.fine("Using Simile Timeline API from: " + timelineAPI);
         _context.put("simileTimelineAPI", timelineAPI);
         _context.put("inlineSimileXml", inlineSimileXml);
+
+        _simileRefURL = getPropertyOrDieTrying(PROP_REF_URL, true, false, ccp);
+        if (_simileRefURL.length() > 0 && !_simileRefURL.endsWith("/"))
+        	_simileRefURL += "/";
+
+        String outputFolder = getPropertyOrDieTrying(PROP_OUTPUT_FOLDER, ccp);
+        if (!outputFolder.startsWith(File.pathSeparator))
+        	_parent = new File(ccp.getPublicResourcesDirectory(), outputFolder);
+        else
+        	_parent = new File(outputFolder);
+
+        _parent.mkdirs();
     }
 
     @Override
@@ -230,16 +261,10 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
             return;
         }
 
-        String webUiUrl = cc.getWebUIUrl(true).toString();
-        String dirName = cc.getPublicResourcesDirectory() + File.separator;
-        String xmlLocation = webUiUrl + "public/resources/simile/";
+        String xmlLocation = _simileRefURL;
 
         if (!inlineSimileXml || saveOutputToFile) {
-            dirName += "simile" + File.separator;
-            console.finest("Set storage location to " + dirName);
-
-            // make sure the folder exists
-            new File(dirName).mkdirs();
+            console.finest("Set storage location to " + _parent);
 
             File xmlFile = null;
 
@@ -248,9 +273,9 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 		        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 		        String xmlFileName = "my" + formatter.format(now) + ".xml";
 		        xmlLocation += xmlFileName;
-		        xmlFile = new File(dirName + xmlFileName);
+		        xmlFile = new File(_parent, xmlFileName);
 	        } else {
-	        	xmlFile = File.createTempFile("simile_", ".xml", new File(dirName));
+	        	xmlFile = File.createTempFile("simile_", ".xml", _parent);
 	        	tmpFiles.add(xmlFile);
 	        	xmlLocation += xmlFile.getName();
 	        }
@@ -268,9 +293,9 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         	Date now = new Date();
 	        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 	        String htmlFileName = "my" + formatter.format(now) + ".html";
-	        String htmlLocation = webUiUrl + "public/resources/simile/" + htmlFileName;
+	        String htmlLocation = _simileRefURL + htmlFileName;
 
-            URI htmlURI = new  File(dirName + htmlFileName).toURI();
+            URI htmlURI = new  File(_parent, htmlFileName).toURI();
 
             Writer htmlWriter = IOUtils.getWriterForResource(htmlURI);
             htmlWriter.write(simileHtml);
