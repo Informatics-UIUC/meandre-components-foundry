@@ -164,7 +164,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     protected static final String PROP_INLINE_SIMILE_XML = "inline_simile_xml";
 
     @ComponentProperty(
-            description = "Location where to write out the Simile XML file. " +
+            description = "Location where to write out the generated Simile file(s). " +
                     "Note: The folder will be created if it does not exist; also, if the " +
                     "folder is relative, it will be considered as relative to the published_resources folder.",
             name = "output_folder",
