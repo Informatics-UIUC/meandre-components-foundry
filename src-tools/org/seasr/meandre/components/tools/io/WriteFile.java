@@ -248,17 +248,9 @@ public class WriteFile extends AbstractExecutableComponent {
 
         cc.pushDataComponentToOutput(OUT_DATA, inData);
     }
-    
+
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    	if (componentContext != null) {
-    		if (componentContext.isFlowAborting() && file != null) {
-    			try {
-    				file.delete();
-    			} catch (Exception e) { }
-    		}
-    	}
-    	
     	file = null;
     }
 
