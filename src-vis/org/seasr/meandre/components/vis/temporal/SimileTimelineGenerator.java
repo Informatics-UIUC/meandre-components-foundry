@@ -100,63 +100,63 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
-	@ComponentInput(
-	        name = Names.PORT_MIN_VALUE,
-	        description = "The minimum year in input document." +
+    @ComponentInput(
+            name = Names.PORT_MIN_VALUE,
+            description = "The minimum year in input document." +
                 "<br>TYPE: java.lang.Integer" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Integers" +
                 "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
+    )
     protected static final String IN_MIN_YEAR = Names.PORT_MIN_VALUE;
 
-	@ComponentInput(
-	        name = Names.PORT_MAX_VALUE,
-	        description = "The maximum year in input document." +
+    @ComponentInput(
+            name = Names.PORT_MAX_VALUE,
+            description = "The maximum year in input document." +
                 "<br>TYPE: java.lang.Integer" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Integers" +
                 "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
+    )
     protected static final String IN_MAX_YEAR = Names.PORT_MAX_VALUE;
 
-	@ComponentInput(
-	        name = Names.PORT_XML,
-	        description = "The source XML document" +
+    @ComponentInput(
+            name = Names.PORT_XML,
+            description = "The source XML document" +
                 "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
                 "<br>TYPE: byte[]" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
                 "<br>TYPE: java.lang.Object"
-	)
+    )
     protected static final String IN_XML = Names.PORT_XML;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
-	@ComponentOutput(
-	        name = Names.PORT_HTML,
-	        description = "The HTML for the Simile Timeline viewer" +
+    @ComponentOutput(
+            name = Names.PORT_HTML,
+            description = "The HTML for the Simile Timeline viewer" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String OUT_HTML = Names.PORT_HTML;
+    )
+    protected static final String OUT_HTML = Names.PORT_HTML;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
-	@ComponentProperty(
+    @ComponentProperty(
             name = "timeline_api_url",
             description = "The URL to the Simile Timline API, or leave empty to use the embedded one",
             defaultValue = ""
     )
     protected static final String PROP_TIMELINE_API_URL = "timeline_api_url";
 
-	@ComponentProperty(
+    @ComponentProperty(
             name = "save_output_to_file",
             description = "Save the Simile XML and generated HTML output to file?",
             defaultValue = "false"
     )
     protected static final String PROP_SAVE_OUTPUT_TO_FILE = "save_output_to_file";
 
-	@ComponentProperty(
+    @ComponentProperty(
             name = "inline_simile_xml",
             description = "Generate inline Simile data?",
             defaultValue = "true"
@@ -165,8 +165,8 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @ComponentProperty(
             description = "Location where to write out the Simile XML file. " +
-            		"Note: The folder will be created if it does not exist; also, if the " +
-            		"folder is relative, it will be considered as relative to the published_resources folder.",
+                    "Note: The folder will be created if it does not exist; also, if the " +
+                    "folder is relative, it will be considered as relative to the published_resources folder.",
             name = "output_folder",
             defaultValue = "simile"
     )
@@ -181,11 +181,11 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-	protected static final String SIMILE_API_PATH = "simile-timeline-api";   // this path is assumed to be appended to the published_resources location
-	protected static final String SIMILE_JS = "timeline-api.js";
+    protected static final String SIMILE_API_PATH = "simile-timeline-api";   // this path is assumed to be appended to the published_resources location
+    protected static final String SIMILE_JS = "timeline-api.js";
 
-	protected static final String simileVelocityTemplate =
-	    "org/seasr/meandre/components/vis/temporal/SimileTimelineGenerator.vm";
+    protected static final String simileVelocityTemplate =
+        "org/seasr/meandre/components/vis/temporal/SimileTimelineGenerator.vm";
 
     /** Store the minimum value of year */
     private int minYear;
@@ -212,7 +212,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         inlineSimileXml = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_INLINE_SIMILE_XML, ccp));
         String timelineAPI = getPropertyOrDieTrying(PROP_TIMELINE_API_URL, true, false, ccp);
 
-    	_context = VelocityTemplateService.getInstance().getNewContext();
+        _context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
 
         if (timelineAPI.length() == 0) {
@@ -237,22 +237,22 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
         _simileRefURL = getPropertyOrDieTrying(PROP_REF_URL, true, false, ccp);
         if (_simileRefURL.length() > 0 && !_simileRefURL.endsWith("/"))
-        	_simileRefURL += "/";
+            _simileRefURL += "/";
 
         String outputFolder = getPropertyOrDieTrying(PROP_OUTPUT_FOLDER, ccp);
         if (!outputFolder.startsWith(File.pathSeparator))
-        	_parent = new File(ccp.getPublicResourcesDirectory(), outputFolder);
+            _parent = new File(ccp.getPublicResourcesDirectory(), outputFolder);
         else
-        	_parent = new File(outputFolder);
+            _parent = new File(outputFolder);
 
         _parent.mkdirs();
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	String simileXml = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_XML))[0];
-    	minYear = DataTypeParser.parseAsInteger(cc.getDataComponentFromInput(IN_MIN_YEAR))[0].intValue();
-    	maxYear = DataTypeParser.parseAsInteger(cc.getDataComponentFromInput(IN_MAX_YEAR))[0].intValue();
+        String simileXml = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_XML))[0];
+        minYear = DataTypeParser.parseAsInteger(cc.getDataComponentFromInput(IN_MIN_YEAR))[0].intValue();
+        maxYear = DataTypeParser.parseAsInteger(cc.getDataComponentFromInput(IN_MAX_YEAR))[0].intValue();
 
         Document xmlDoc = DOMUtils.createDocument(simileXml);
         xmlDoc.normalize();
@@ -268,19 +268,19 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
             File xmlFile = null;
 
-	        if (saveOutputToFile) {
-		        Date now = new Date();
-		        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-		        String xmlFileName = "my" + formatter.format(now) + ".xml";
-		        xmlLocation += xmlFileName;
-		        xmlFile = new File(_parent, xmlFileName);
-	        } else {
-	        	xmlFile = File.createTempFile("simile_", ".xml", _parent);
-	        	tmpFiles.add(xmlFile);
-	        	xmlLocation += xmlFile.getName();
-	        }
+            if (saveOutputToFile) {
+                Date now = new Date();
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+                String xmlFileName = "my" + formatter.format(now) + ".xml";
+                xmlLocation += xmlFileName;
+                xmlFile = new File(_parent, xmlFileName);
+            } else {
+                xmlFile = File.createTempFile("simile_", ".xml", _parent);
+                tmpFiles.add(xmlFile);
+                xmlLocation += xmlFile.getName();
+            }
 
-	        URI xmlURI = xmlFile.toURI();
+            URI xmlURI = xmlFile.toURI();
 
             Writer xmlWriter = IOUtils.getWriterForResource(xmlURI);
             xmlWriter.write(simileXml);
@@ -290,10 +290,10 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         String simileHtml = generateHTML(simileXml, xmlLocation);
 
         if (saveOutputToFile) {
-        	Date now = new Date();
-	        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-	        String htmlFileName = "my" + formatter.format(now) + ".html";
-	        String htmlLocation = _simileRefURL + htmlFileName;
+            Date now = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+            String htmlFileName = "my" + formatter.format(now) + ".html";
+            String htmlLocation = _simileRefURL + htmlFileName;
 
             URI htmlURI = new  File(_parent, htmlFileName).toURI();
 
@@ -310,8 +310,8 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    	for (File tmpFile : tmpFiles)
-    		FileUtils.deleteFileOrDirectory(tmpFile);
+        for (File tmpFile : tmpFiles)
+            FileUtils.deleteFileOrDirectory(tmpFile);
     }
 
     //--------------------------------------------------------------------------------------------
@@ -319,22 +319,28 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     private String generateHTML(String simileXml, String simileXmlUrl) throws Exception {
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
 
-        int range = maxYear-minYear;
+        int range = maxYear - minYear;
         int interval;
         ArrayList<Integer> list = new ArrayList<Integer>();
 
-        if(range<20)  //for every single year
-        	interval = 1;
-        else  if(range>=20 && range<100) //for every decade
-        	interval = 10;
-        else { //for every century
-        	interval = 100;
-        }
+        //for every single year
+        if (range < 20)
+            interval = 1;
 
-        for(int year=minYear; year<=maxYear; year+=interval)
-    		list.add(new Integer(year));
+        else
 
-        _context.put("interval",  (int)Math.ceil((float)range/interval));
+        //for every decade
+        if (range >= 20 && range < 100)
+            interval = 10;
+
+        else
+            //for every century
+            interval = 100;
+
+        for (int year = minYear; year <= maxYear; year += interval)
+            list.add(new Integer(year));
+
+        _context.put("interval", (int) Math.ceil((float) range / interval));
         _context.put("items", list);
 
         _context.put("maxYear", maxYear);
