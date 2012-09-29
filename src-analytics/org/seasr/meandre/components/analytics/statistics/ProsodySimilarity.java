@@ -117,7 +117,7 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 
 	@ComponentProperty(
 	        name = "comparison_range",
-	        description = "The zero-based, comma-separated, indexes of the documents that should be compared with all " +
+	        description = "The zero-based, comma-separated, indices of the documents that should be compared with all " +
 	        		"other documents. For example, using '0' means that only the first document will " +
 	        		"be compared with all others. Using '0,2' means that the first and third document " +
 	        		"submitted will be compared with all others. Using 'all' means that everything will " +
@@ -148,8 +148,18 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 	protected static final String PROP_NUM_ROUNDS = "num_rounds";
 
 	@ComponentProperty(
+	        name = "use_sampling",
+	        description = "Should sampling be used? (useful for very large data sets)",
+	        defaultValue = "false"
+    )
+	protected static final String PROP_USE_SAMPLING = "use_sampling";
+
+	@ComponentProperty(
 	        name = "weighting_power",
-	        description = "Main parameter to be controlled. Valid values are in the range 0 to 100",
+	        description = "Main parameter to be controlled. Valid values are in the range 0 to 100. " +
+	        		"High values cause it to behave like nearest-neighbor - finds the closest window; " +
+	        		"At lower values, it uses a larger neighborhood size to make the instance-based prediction; " +
+	        		"When set to zero, it equally weighs all examples.",
 	        defaultValue = "32.0"
     )
 	protected static final String PROP_WEIGHTING_POWER = "weighting_power";
@@ -203,20 +213,6 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
     )
 	protected static final String PROP_BREAKINDEX_WEIGHT = "breakIndex_weight";
 
-	@ComponentProperty(
-	        name = "normalizeForThreeLives",
-	        description = "Normalize for Three Lives analysis (sum to 1)",
-	        defaultValue = "false"
-    )
-	protected static final String PROP_NORM_3LIVES = "normalizeForThreeLives";
-
-	@ComponentProperty(
-	        name = "normalizeForShakespeare",
-	        description = "Normalize for Shakespeare analysis",
-	        defaultValue = "true"
-    )
-	protected static final String PROP_NORM_SHAKESPEARE = "normalizeForShakespeare";
-
 	//--------------------------------------------------------------------------------------------
 
 
@@ -224,9 +220,9 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 
 	protected List<Integer> _focusedComparisonIndexes = new ArrayList<Integer>();
 
-	protected int _maxPhonemesPerVol;
 	protected int _numThreads;
-	protected int _numRounds;
+
+	protected int _maxPhonemesPerVol;
 	protected double _weightingPower;
 	protected int _phonemesWinSize;
 
@@ -237,8 +233,8 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 	protected int _phraseIdWeight;
 	protected int _breakIdxWeight;
 
-	protected boolean _normalizeForThreeLivesAnalysis;
-	protected boolean _normalizeForShakespeareAnalysis;
+	protected boolean _useSampling;
+	protected int _numRounds;
 
 	protected boolean _isStreaming = false;
 
@@ -258,7 +254,6 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 
 		_maxPhonemesPerVol = Integer.parseInt(getPropertyOrDieTrying(PROP_MAX_PHONEMES_PER_VOL, ccp));
 		_numThreads = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_THREADS, ccp));
-		_numRounds = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_ROUNDS, ccp));
 		_weightingPower = Double.parseDouble(getPropertyOrDieTrying(PROP_WEIGHTING_POWER, ccp));
 		_phonemesWinSize = Integer.parseInt(getPropertyOrDieTrying(PROP_PHONEMES_WIN_SIZE, ccp));
 		_posWeight = Integer.parseInt(getPropertyOrDieTrying(PROP_POS_WEIGHT, ccp));
@@ -267,8 +262,8 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 		_toneWeight = Integer.parseInt(getPropertyOrDieTrying(PROP_TONE_WEIGHT, ccp));
 		_phraseIdWeight = Integer.parseInt(getPropertyOrDieTrying(PROP_PHRASEID_WEIGHT, ccp));
 		_breakIdxWeight = Integer.parseInt(getPropertyOrDieTrying(PROP_BREAKINDEX_WEIGHT, ccp));
-		_normalizeForThreeLivesAnalysis = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_NORM_3LIVES, ccp));
-		_normalizeForShakespeareAnalysis = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_NORM_SHAKESPEARE, ccp));
+		_numRounds = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_ROUNDS, ccp));
+		_useSampling = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_USE_SAMPLING, ccp));
 
 		reset();
 	}
@@ -342,7 +337,6 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 		_prosody.setToneWeight(_toneWeight);
 		_prosody.setPhraseIdWeight(_phraseIdWeight);
 		_prosody.setBreakIndexWeight(_breakIdxWeight);
-		_prosody.setNormalizeForThreeLivesAnalysis(_normalizeForThreeLivesAnalysis);
-		_prosody.setNormalizeForShakespearAnalysis(_normalizeForShakespeareAnalysis);
+		_prosody.setUseSampling(_useSampling);
 	}
 }

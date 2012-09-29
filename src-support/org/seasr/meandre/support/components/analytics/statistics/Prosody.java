@@ -16,15 +16,11 @@ import org.seasr.meandre.support.generic.util.KeyValuePair;
 public class Prosody {
 
 	/* Parameters */
-	boolean normalizeForThreeLivesAnalysis = false; /* normalizes to add up to 1 */
-	boolean normalizeForShakespearAnalysis = true;  /* we don't want to use -- Chris will normalize in UI */
-	boolean useCache = false;  /* not very useful - won't be needed */
-	boolean hasSectionId = false;
 	List<Integer> focusedComparisonIndexes = new ArrayList<Integer>();
 	int maxNumPhonemesPerVolume = 999999999;  /* max number of examples to use */
-//	public String[] toUseVolumeNames = { "1h4", "1h6", "2h6", "3h6", "he8" };
 	public int numThreads = 16;
 	int numRounds = 1;  /* relevant when using sampling */
+	boolean useSampling = false;
 	double weightingPower = 32.0; /* main parameter to be controlled - valid values: greater than zero to 100 */
 	int windowSizeInPhonemes = 8;
 	int part_of_speech_weight = 1;
@@ -49,12 +45,6 @@ public class Prosody {
 	public static final String TONE 		  = "tone";
 	public static final String BREAK_INDEX 	  = "break_index";
 
-//	String username = "dtcheng";
-//	String port = "3306";
-//	String machine = "leovip032.ncsa.uiuc.edu";
-//	String dbInstance = "Shakespeare";
-//	String password = "!seasr!";
-
 	int[] windowFeatureWeights;
 	double[] differenceSumToWeight;
 	double[][] similarityWeights;
@@ -73,6 +63,7 @@ public class Prosody {
 
 	int[] featureWeights = new int[] { part_of_speech_weight, accent_weight, stress_weight, tone_weight, phrase_id_weight, break_index_weight };
 
+	@SuppressWarnings("unchecked")
 	HashMap<String, Integer>[] symbolToIndex = new HashMap[numFeatures];
 	int numSymbols = 0;
 	int numExamples = 0;
@@ -80,11 +71,6 @@ public class Prosody {
 	int numPhonemes = 0;
 
 	int[] symbols = new int[maxNumSymbols];
-//	int maxNumDBStringBytes = 0;
-//	byte[] dbStringBytes = new byte[maxNumDBStringBytes];
-//	int[] dbStringStartIndices = new int[maxNumPhonemes];
-
-//	String[] dbStrings = new String[maxNumSymbols];
 	int symbolIndex = 0;
 	int stringIndex = 0;
 
@@ -97,32 +83,9 @@ public class Prosody {
 
 	/******************************************************************************************/
 
-//	public static void main(String[] args) {
-//
-//		Prosody prosody = new Prosody();
-//		prosody.loadFromDatabase();
-//		prosody.computeSimilarities();
-//	}
-
 	public Prosody() {
 		for (int i = 0; i < numFeatures; i++)
 			symbolToIndex[i] = new HashMap<String,Integer>();
-	}
-
-	public boolean normalizeForThreeLivesAnalysis() {
-		return normalizeForThreeLivesAnalysis;
-	}
-
-	public void setNormalizeForThreeLivesAnalysis(boolean normalizeForThreeLivesAnalysis) {
-		this.normalizeForThreeLivesAnalysis = normalizeForThreeLivesAnalysis;
-	}
-
-	public boolean normalizeForShakespearAnalysis() {
-		return normalizeForShakespearAnalysis;
-	}
-
-	public void setNormalizeForShakespearAnalysis(boolean normalizeForShakespearAnalysis) {
-		this.normalizeForShakespearAnalysis = normalizeForShakespearAnalysis;
 	}
 
 	public List<Integer> getFocusedComparisonIndexes() {
@@ -155,6 +118,14 @@ public class Prosody {
 
 	public void setNumRounds(int numRounds) {
 		this.numRounds = numRounds;
+	}
+
+	public boolean getUseSampling() {
+		return useSampling;
+	}
+
+	public void setUseSampling(boolean useSampling) {
+		this.useSampling = useSampling;
 	}
 
 	public double getWeightingPower() {
@@ -297,21 +268,6 @@ public class Prosody {
 		////////////////////
 		solveProblems();
 
-		// scale all similarity values
-		scaleSimilarities();
-
-//		System.out.print("DATA" + "\t" + "tableName" + "\t" + "tei_paragraph_id" + "\t" + "sentence_id" + "\t" + "phrase_id" + "\t" + "word" + "\t" + "part_of_speech" + "\t" + "accent" + "\t" + "phoneme" + "\t" + "stress" + "\t" + "tone" + "\t"
-//				+ "break_index");
-//		// "phoneme_id" + "\t" + "word_id" + "\t" + "pos_id");
-//
-//		for (int j = 0; j < numTexts; j++) {
-//			System.out.print("\t" + toUseVolumeNames[j]);
-//		}
-//		if (normalizeForThreeLivesAnalysis) {
-//			System.out.print("\t" + "similarity_sum");
-//		}
-//		System.out.println();
-
 		String[] docNames = new String[output.size()];
 		for (int i = 0, iMax = output.size(); i < iMax; i++) {
 			KeyValuePair<SimpleTuplePeer, Strings[]> doc = output.get(i);
@@ -325,6 +281,7 @@ public class Prosody {
 		KeyValuePair<SimpleTuplePeer, Strings[]> outputDoc = null;
 		SimpleTuple tuple = null, outTuple = null;
 		Strings[] docData = null, outData = null;
+
 		for (int i = 0; i < numProblems; i++) {
 
 			ProsodyProblem problem = prosodyProblems.get(i);
@@ -350,179 +307,18 @@ public class Prosody {
 			tuple.setValues(docData[phonemeIndex]);
 			outTuple.setValue(tuple);
 
-//			String string = dbStrings[problem.seedWindowSymbolIndex / numFeatures];
-//
-//			System.out.print("DATA" + "\t" + string);
-
-			if (normalizeForThreeLivesAnalysis) {
-
-				double similaritySum = 0.0;
-				for (int j = 0; j < numTexts; j++) {
-
-					if (j == problem.seedTextIndex)
-						continue;
-
-					if (phonemeIndex < windowSizeInPhonemes / 2)
-						similaritySum += 1;
-					else
-						similaritySum += prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j];
-
+			for (int j = 0; j < numTexts; j++) {
+				if (phonemeIndex < windowSizeInPhonemes / 2)
+					outTuple.setValue(docNames[j], "0");
+				else {
+					double similarityValue = prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j];
+					outTuple.setValue(docNames[j], Double.toString(similarityValue));
 				}
-
-				for (int j = 0; j < numTexts; j++) {
-					if (phonemeIndex < windowSizeInPhonemes / 2)
-						outTuple.setValue(docNames[j], "0");
-					else
-					if (j == problem.seedTextIndex) {
-						double selfSimilarity = prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j];
-						double similarityValue = selfSimilarity / (similaritySum + selfSimilarity);
-						outTuple.setValue(docNames[j], String.format("%7.5f", similarityValue));
-						//outTuple.setValue(docNames[j], "0");
-					}
-					else {
-						double similarityValue = prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j];
-						outTuple.setValue(docNames[j], String.format("%7.5f", similarityValue));
-					}
-				}
-
-				//System.out.printf("\t%7.5f",  similaritySum);
-
 			}
 
-			if (normalizeForShakespearAnalysis) {
-
-				double similaritySum = 0.0;
-				for (int j = 0; j < numTexts; j++) {
-
-					if (j == problem.seedTextIndex)
-						continue;
-
-					if (phonemeIndex < windowSizeInPhonemes / 2)
-						similaritySum += 1;
-					else
-						similaritySum += prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j];
-
-				}
-
-				for (int j = 0; j < numTexts; j++) {
-
-					if (phonemeIndex < windowSizeInPhonemes / 2)
-						outTuple.setValue(docNames[j], "0");
-					else
-					if (j == problem.seedTextIndex) {
-						double selfSimilarity = prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j];
-						double similarityValue = selfSimilarity / (similaritySum + selfSimilarity);
-						outTuple.setValue(docNames[j], String.format("%7.5f", similarityValue));
-						//outTuple.setValue(docNames[j], "0");
-					}
-					else {
-						double similarityValue = prosodyProblems.get(i - windowSizeInPhonemes / 2).similarities[j] / similaritySum;
-						outTuple.setValue(docNames[j], String.format("%7.5f", similarityValue));
-					}
-				}
-
-				outData[phonemeIndex] = outTuple.convert();
-			}
-
-			//System.out.println();
+			outData[phonemeIndex] = outTuple.convert();
 
 			phonemeIndex++;
-
-		}
-
-		double totalWeight = 0;
-		int totalNumCells = 0;
-		for (int textIndex1 = 0; textIndex1 < numTexts; textIndex1++) {
-			for (int textIndex2 = 0; textIndex2 < numTexts; textIndex2++) {
-				totalWeight += similarityWeights[textIndex1][textIndex2];
-				totalNumCells++;
-			}
-		}
-
-		double averageWeight = totalWeight / totalNumCells;
-
-		//
-		// print table header
-		//
-		StringBuilder sb = new StringBuilder();
-		sb.append("\n");
-		for (int textIndex1 = 0; textIndex1 < numTexts; textIndex1++) {
-			sb.append("\t");
-			// System.out.print(tableNames.elementAt(textIndex1));
-			sb.append(String.format("%15.7s", docNames[textIndex1]));
-		}
-		sb.append("\n");
-
-		for (int textIndex1 = 0; textIndex1 < numTexts; textIndex1++) {
-
-			sb.append(String.format("%15.7s", docNames[textIndex1]));
-
-			for (int textIndex2 = 0; textIndex2 < numTexts; textIndex2++) {
-
-				// double weight = (similarityWeights[realIndex1][realIndex2] - averageWeight) / averageWeight * 100;
-				// double weight = similarityWeights[textIndex1][textIndex2] / averageWeight;
-				double weight = similarityWeights[textIndex1][textIndex2];
-				// double weight = similarityWeights[textIndex1][textIndex2] / numRounds;
-
-				sb.append("\t");
-				sb.append(String.format("%7.5f", weight));
-
-			}
-			sb.append("\n");
-		}
-
-		double withinClassSimilarityWeight = 0;
-		int withinClassSimilarityCount = 0;
-		double betweenClassSimilarityWeight = 0;
-		int betweenClassSimilarityCount = 0;
-		for (int textIndex1 = 0; textIndex1 < numTexts; textIndex1++) {
-			for (int textIndex2 = 0; textIndex2 < numTexts; textIndex2++) {
-				if (textIndex1 != textIndex2) {
-					betweenClassSimilarityWeight += similarityWeights[textIndex1][textIndex2];
-					betweenClassSimilarityCount++;
-				} else {
-					withinClassSimilarityWeight += similarityWeights[textIndex1][textIndex2];
-					withinClassSimilarityCount++;
-				}
-			}
-		}
-		double withinClassSimilarity = withinClassSimilarityWeight / withinClassSimilarityCount;
-		double betweenClassSimilarity = betweenClassSimilarityWeight / betweenClassSimilarityCount;
-
-		double withinVsBetweenSimilarityRatio = withinClassSimilarity / betweenClassSimilarity;
-
-		sb.append("withinVsBetweenSimilarityRatio = " + withinVsBetweenSimilarityRatio).append("\n");
-	}
-
-	private void scaleSimilarities() {
-		Double minSimilarity = Double.POSITIVE_INFINITY;
-		Double maxSimilarity = Double.NEGATIVE_INFINITY;
-		for (int i = 0; i < numProblems; i++) {
-
-			for (int j = 0; j < numTexts; j++) {
-
-				double similarity = prosodyProblems.get(i).similarities[j];
-
-				if (similarity < minSimilarity) {
-					minSimilarity = similarity;
-				}
-				if (similarity > maxSimilarity) {
-					maxSimilarity = similarity;
-				}
-			}
-
-		}
-
-		double range = maxSimilarity - minSimilarity;
-
-		for (int i = 0; i < numProblems; i++) {
-
-			for (int j = 0; j < numTexts; j++) {
-
-				prosodyProblems.get(i).similarities[j] = (prosodyProblems.get(i).similarities[j] - minSimilarity) / range;
-
-			}
-
 		}
 	}
 
@@ -542,7 +338,6 @@ public class Prosody {
 	private void createProblems() {
 		int numProblemsToCreate = -1;
 
-		boolean useSampling = false;
 		boolean useAllText = !useSampling;
 		int problemIndex = 0;
 
@@ -569,9 +364,10 @@ public class Prosody {
 				}
 			}
 		}
-		if (useAllText) {
 
+		if (useAllText) {
 			prosodyProblems = new ArrayList<ProsodyProblem>(0);
+
 			for (int seedVolumeIndex : focusedComparisonIndexes) {
 
 				int seedStartSymbolIndex = -1;
@@ -640,158 +436,6 @@ public class Prosody {
 		textEndSymbolIndex = temp;
 	}
 
-//	private void loadFromDatabase() {
-//		String driver = "com.mysql.jdbc.Driver";
-//
-//		try {
-//			Class.forName(driver).newInstance();
-//		} catch (InstantiationException e2) {
-//			// TODO Auto-generated catch block
-//			e2.printStackTrace();
-//		} catch (IllegalAccessException e2) {
-//			// TODO Auto-generated catch block
-//			e2.printStackTrace();
-//		} catch (ClassNotFoundException e2) {
-//			// TODO Auto-generated catch block
-//			e2.printStackTrace();
-//		}
-//
-//		String url = "jdbc:mysql://" + machine + ":" + port + "/" + dbInstance;
-//
-//		System.out.println("creating connection for " + url);
-//
-//		try {
-//			Connection connection = DriverManager.getConnection(url, username, password);
-//
-//			//
-//			// get list of all tables
-//			//
-//
-//			java.sql.DatabaseMetaData md = connection.getMetaData();
-//			ResultSet rs = md.getTables(null, null, "%", null);
-//			while (rs.next()) {
-//				String tableName = rs.getString(3);
-//
-//				System.out.println("tableName = " + tableName);
-//			}
-//
-//			// int numTables = tableNames.size();
-//			// System.out.println("numTables = " + numTables);
-//			//
-//			// if (true)
-//			// for (int i = 0; i < numTables; i++) {
-//			// String tableName = tableNames.elementAt(i);
-//			// System.out.println(tableName);
-//			//
-//			// }
-//
-//			int numTables = toUseVolumeNames.length;
-//			String[] featurePatterns = new String[numFeatures];
-//
-//			for (int i = 0; i < numTables; i++) {
-//
-//				String lastUniquePhraseID = "";
-//
-//				String tableName = toUseVolumeNames[i];
-//
-//				System.out.println("processing  " + tableName);
-//
-//				String query;
-//				query = "SELECT *  FROM " + tableName;
-//
-//				Statement statement = connection.createStatement();
-//				ResultSet resultSet = statement.executeQuery(query);
-//				ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-//
-//				int numColumns = resultSetMetaData.getColumnCount();
-//				// System.out.println("numColumns = " + numColumns);
-//				while (resultSet.next()) {
-//
-//					int tei_section_id = -1;
-//					if (hasSectionId) {
-//						tei_section_id = resultSet.getInt("tei_section_id");
-//					}
-//					int sentence_id = resultSet.getInt("sentence_id");
-//					int phrase_id = resultSet.getInt("phrase_id");
-//					String word = resultSet.getString("word");
-//					String part_of_speech = resultSet.getString("part_of_speech");
-//					String accent = resultSet.getString("accent");
-//					String phoneme = resultSet.getString("phoneme");
-//					String stress = resultSet.getString("stress");
-//					String tone = resultSet.getString("tone");
-//					int break_index = resultSet.getInt("break_index");
-//					// int phoneme_id = resultSet.getInt("phoneme_id");
-//					// int word_id = resultSet.getInt("word_id");
-//					// int pos_id = resultSet.getInt("pos_id");
-//
-//					String string = "";
-//
-//					string += tableName + "\t";
-//					string += tei_section_id + "\t";
-//					string += sentence_id + "\t";
-//					string += phrase_id + "\t";
-//					string += word + "\t";
-//					string += part_of_speech + "\t";
-//					string += accent + "\t";
-//					string += phoneme + "\t";
-//					string += stress + "\t";
-//					string += tone + "\t";
-//					string += break_index;
-//					// string += phoneme_id + "\t";
-//					// string += word_id + "\t";
-//					// string += pos_id;
-//
-//					dbStrings[stringIndex++] = string;
-//
-//					String uniquePhraseID = /* tei_chapter_id + tei_section_id + */"" + tei_section_id + ":" + sentence_id + ":" + phrase_id;
-//
-//					if (!uniquePhraseID.equals(lastUniquePhraseID)) {
-//						numPhrases++;
-//						lastUniquePhraseID = uniquePhraseID;
-//					}
-//					numPhonemes++;
-//
-//					// String combinedPattern = null;
-//					// combinedPattern = part_of_speech + ":" + accent + ":" + stress + ":" + tone + ":" + phrase_id + ":" + break_index;
-//
-//					featurePatterns[0] = part_of_speech;
-//					featurePatterns[1] = accent;
-//					featurePatterns[2] = stress;
-//					featurePatterns[3] = tone;
-//					featurePatterns[4] = Integer.toString(phrase_id);
-//					featurePatterns[5] = Integer.toString(break_index);
-//
-//					for (int f = 0; f < numFeatures; f++) {
-//						if (!symbolToIndex[f].containsKey(featurePatterns[f])) {
-//							symbolToIndex[f].put(featurePatterns[f], numSymbols++);
-//						}
-//					}
-//
-////						if (false) {
-////							System.out.print(tableName);
-////							for (int j = 0; j < numFeatures; j++) {
-////								int symbol = symbolToIndex[j].get(featurePatterns[j]);
-////								System.out.print("\t" + symbol);
-////							}
-////							System.out.println("\t" + word);
-////						}
-//
-//					for (int j = 0; j < numFeatures; j++) {
-//						int symbol = symbolToIndex[j].get(featurePatterns[j]);
-//						symbols[symbolIndex++] = symbol;
-//					}
-//				}
-//
-//				textEndSymbolIndex[textIndex] = symbolIndex;
-//
-//				textIndex++;
-//
-//				statement.close();
-//			}
-//		} catch (Exception e) {
-//			System.out.println(e);
-//		}
-//	}
 
 	int nextProblemIndex = 0;
 
@@ -987,6 +631,8 @@ public class Prosody {
 }
 
 class ProsodyProblem implements Serializable {
+
+	private static final long serialVersionUID = 516261951424506571L;
 
 	public boolean complete;
 	int overallIndex;
