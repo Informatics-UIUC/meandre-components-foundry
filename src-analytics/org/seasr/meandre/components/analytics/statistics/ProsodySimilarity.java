@@ -117,9 +117,9 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 
 	@ComponentProperty(
 	        name = "comparison_range",
-	        description = "The zero-based, comma-separated, indices of the documents that should be compared with all " +
-	        		"other documents. For example, using '0' means that only the first document will " +
-	        		"be compared with all others. Using '0,2' means that the first and third document " +
+	        description = "The comma-separated set of indices of the documents that should be compared with all " +
+	        		"other documents. For example, using '1' means that only the first document will " +
+	        		"be compared with all others. Using '1,3' means that the first and third document " +
 	        		"submitted will be compared with all others. Using 'all' means that everything will " +
 	        		"be compared with everything else.",
 	        defaultValue = "all"
@@ -249,7 +249,7 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 		if (!cmpRange.equalsIgnoreCase("all")) {
 			String[] indexes = cmpRange.split(",");
 			for (String index : indexes)
-				_focusedComparisonIndexes.add(Integer.parseInt(index.trim()));
+				_focusedComparisonIndexes.add(Integer.parseInt(index.trim()) - 1); // convert to zero-based
 		}
 
 		_maxPhonemesPerVol = Integer.parseInt(getPropertyOrDieTrying(PROP_MAX_PHONEMES_PER_VOL, ccp));
