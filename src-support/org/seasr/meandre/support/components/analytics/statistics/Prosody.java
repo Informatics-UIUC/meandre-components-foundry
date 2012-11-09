@@ -260,7 +260,7 @@ public class Prosody {
 
 	public void computeSimilarities() {
 
-		featureWeights = new int[] { part_of_speech_weight, accent_weight, stress_weight, tone_weight, phrase_id_weight, break_index_weight };
+		featureWeights = new int[] { part_of_speech_weight, accent_weight, stress_weight, tone_weight, phrase_id_weight, break_index_weight, phoneme_id_weight };
 
 
 		reportStats();
