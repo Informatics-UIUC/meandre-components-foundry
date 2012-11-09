@@ -149,8 +149,10 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
+    protected static String XPATH_TEI_HEADER = "/TEI/teiHeader";
 
     protected XPathExpression _xpathExpression;
+    protected XPathExpression _xpathTEIHeader;
     protected LSSerializer _serializer;
     protected LSOutput _output;
     protected QName _qName;
@@ -210,6 +212,11 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
             xpath.setNamespaceContext(namespaceContext);
         _xpathExpression = xpath.compile(xpathExpression);
 
+        XPath teiHeaderXPath = new net.sf.saxon.xpath.XPathFactoryImpl().newXPath();
+        if (namespaceContext != null)
+        	xpath.setNamespaceContext(namespaceContext);
+        _xpathTEIHeader = teiHeaderXPath.compile(XPATH_TEI_HEADER);
+
         DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
         DOMImplementationLS lsImpl = (DOMImplementationLS)registry.getDOMImplementation("LS");
         _output = lsImpl.createLSOutput();
@@ -223,7 +230,20 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
         Object result = _xpathExpression.evaluate(doc, _qName);
 
         if (result == null || (result instanceof NodeList && ((NodeList)result).getLength() == 0)) {
-            outputError("The XPath expression did not return any results.", Level.WARNING);
+        	Object teiHeader = _xpathTEIHeader.evaluate(doc, _qName);
+        	String error = "The XPath expression did not return any results.\nTEI header of failing document:\n";
+        	if (teiHeader == null)
+        		error = "Could not retrieve TEI Header information from failing document!";
+        	else {
+                StringWriter writer = new StringWriter();
+                _output.setCharacterStream(writer);
+                if (_serializer.write((Node)teiHeader, _output))
+                    error = writer.toString();
+                else
+                	error = "Could not serialize TEI Header information for failing document";
+        	}
+
+            outputError(error, Level.WARNING);
             return;
         }
 
