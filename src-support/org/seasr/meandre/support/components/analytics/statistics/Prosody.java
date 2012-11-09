@@ -29,6 +29,7 @@ public class Prosody {
 	int tone_weight = 1;
 	int phrase_id_weight = 1;
 	int break_index_weight = 1;
+	int phoneme_id_weight = 0;
 
 	/* Internal variables */
 	public static final String DOC_NAME 	  = "doc_name";
@@ -56,7 +57,7 @@ public class Prosody {
 	ProsodyProblemSolver[] problemSolvers = null;
 
 	int maxNumPhonemes = (int) 20e6;
-	int numFeatures = 6;
+	int numFeatures = 7;
 	int maxNumSymbols = maxNumPhonemes * numFeatures;
 	int maxNumTexts = (int) 1e3;
 	int windowSizeInFeatures = -1;
@@ -192,6 +193,14 @@ public class Prosody {
 		this.break_index_weight = break_index_weight;
 	}
 
+	public int getPhonemeIdWeight() {
+		return phoneme_id_weight;
+	}
+
+	public void setPhonemeIdWeight(int phoneme_id_weight) {
+		this.phoneme_id_weight = phoneme_id_weight;
+	}
+
 	public List<KeyValuePair<SimpleTuplePeer, Strings[]>> getOutput() {
 		return output;
 	}
@@ -216,6 +225,7 @@ public class Prosody {
 			String stress = tuple.getValue(STRESS);
 			String tone = tuple.getValue(TONE);
 			String break_index = tuple.getValue(BREAK_INDEX);
+			String phoneme_id = tuple.getValue(PHONEME);
 
 			String uniquePhraseId = String.format("%s:%s:%s:%s", doc_name, tei_section_id, sentence_id, phrase_id);
 			if (!uniquePhraseId.equals(lastUniquePhraseId)) {
@@ -230,6 +240,8 @@ public class Prosody {
 			featurePatterns[3] = tone;
 			featurePatterns[4] = phrase_id;
 			featurePatterns[5] = break_index;
+			featurePatterns[6] = phoneme_id;
+
 
 			for (int f = 0; f < numFeatures; f++)
 				if (!symbolToIndex[f].containsKey(featurePatterns[f]))

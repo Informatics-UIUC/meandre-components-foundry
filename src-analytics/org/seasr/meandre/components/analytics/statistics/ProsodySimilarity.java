@@ -213,6 +213,14 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
     )
 	protected static final String PROP_BREAKINDEX_WEIGHT = "breakIndex_weight";
 
+	@ComponentProperty(
+	        name = "phonemeId_weight",
+	        description = "Weight for phoneme id (set to 0 to ignore this feature)",
+	        defaultValue = "0"
+    )
+	protected static final String PROP_PHONEMEID_WEIGHT = "phonemeId_weight";
+
+
 	//--------------------------------------------------------------------------------------------
 
 
@@ -232,6 +240,7 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 	protected int _toneWeight;
 	protected int _phraseIdWeight;
 	protected int _breakIdxWeight;
+	protected int _phonemeIdWeight;
 
 	protected boolean _useSampling;
 	protected int _numRounds;
@@ -262,6 +271,7 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 		_toneWeight = Integer.parseInt(getPropertyOrDieTrying(PROP_TONE_WEIGHT, ccp));
 		_phraseIdWeight = Integer.parseInt(getPropertyOrDieTrying(PROP_PHRASEID_WEIGHT, ccp));
 		_breakIdxWeight = Integer.parseInt(getPropertyOrDieTrying(PROP_BREAKINDEX_WEIGHT, ccp));
+		_phonemeIdWeight = Integer.parseInt(getPropertyOrDieTrying(PROP_PHONEMEID_WEIGHT, ccp));
 		_numRounds = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_ROUNDS, ccp));
 		_useSampling = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_USE_SAMPLING, ccp));
 
@@ -337,6 +347,7 @@ public class ProsodySimilarity extends AbstractStreamingExecutableComponent {
 		_prosody.setToneWeight(_toneWeight);
 		_prosody.setPhraseIdWeight(_phraseIdWeight);
 		_prosody.setBreakIndexWeight(_breakIdxWeight);
+		_prosody.setPhonemeIdWeight(_phonemeIdWeight);
 		_prosody.setUseSampling(_useSampling);
 	}
 }
