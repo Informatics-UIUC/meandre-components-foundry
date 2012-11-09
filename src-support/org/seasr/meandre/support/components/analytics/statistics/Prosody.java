@@ -61,7 +61,7 @@ public class Prosody {
 	int maxNumTexts = (int) 1e3;
 	int windowSizeInFeatures = -1;
 
-	int[] featureWeights = new int[] { part_of_speech_weight, accent_weight, stress_weight, tone_weight, phrase_id_weight, break_index_weight };
+	int[] featureWeights = null;
 
 	@SuppressWarnings("unchecked")
 	HashMap<String, Integer>[] symbolToIndex = new HashMap[numFeatures];
@@ -247,6 +247,10 @@ public class Prosody {
 	}
 
 	public void computeSimilarities() {
+
+		featureWeights = new int[] { part_of_speech_weight, accent_weight, stress_weight, tone_weight, phrase_id_weight, break_index_weight };
+
+
 		reportStats();
 
 		numTexts = textIndex;
