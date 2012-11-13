@@ -88,7 +88,7 @@ import de.schlichtherle.io.FileOutputStream;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "_OUTPUT_, mallet, topic model, state",
+        tags = "#OUTPUT, mallet, topic model, state",
         description = "This component saves the state resulting from running topic modeling" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )
