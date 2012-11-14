@@ -187,6 +187,8 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
 
         _parent.mkdirs();
 
+        console.finer("Setting output folder to: " + _parent);
+
         _isStreaming = false;
     }
 
@@ -201,8 +203,7 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
 			writer.write(html);
 			writer.close();
 
-			if (_doCleanup)
-				_tmpFiles.add(tmpFile);
+			_tmpFiles.add(tmpFile);
 
     		_htmlDocs.add(String.format("%s%s", _frameRefURL, tmpFile.getName()));
     	} else {
@@ -213,10 +214,11 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    	for (File tmpFile : _tmpFiles) {
-    		console.finer("Removing file: " + tmpFile);
-    		FileUtils.deleteFileOrDirectory(tmpFile);
-    	}
+    	if (_doCleanup)
+	    	for (File tmpFile : _tmpFiles) {
+	    		console.finer("Removing file: " + tmpFile);
+	    		FileUtils.deleteFileOrDirectory(tmpFile);
+	    	}
 
     	_tmpFiles.clear();
     	_tmpFiles = null;
