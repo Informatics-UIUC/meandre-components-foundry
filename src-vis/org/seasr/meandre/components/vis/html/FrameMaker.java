@@ -213,8 +213,10 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    	for (File tmpFile : _tmpFiles)
+    	for (File tmpFile : _tmpFiles) {
+    		console.finer("Removing file: " + tmpFile);
     		FileUtils.deleteFileOrDirectory(tmpFile);
+    	}
 
     	_tmpFiles.clear();
     	_tmpFiles = null;
