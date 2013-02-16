@@ -93,8 +93,8 @@ import com.swabunga.spell.event.StringWordTokenizer;
 @Component(
         creator = "Boris Capitanu",
         description = "Performs spell checking on the input and optionally replaces misspelled words " +
-            		  "with the top ranked suggestion. The component also produces a list of the misspellings " +
-            		  "in the document and a set of transformation rules.",
+                      "with the top ranked suggestion. The component also produces a list of the misspellings " +
+                      "in the document and a set of transformation rules.",
         name = "Spell Check",
         tags = "#TRANSFORM, dictionary, word, spell check",
         firingPolicy = FiringPolicy.any,
@@ -164,7 +164,7 @@ public class SpellCheck extends AbstractExecutableComponent {
     @ComponentOutput(
             name = "misspellings_with_counts",
             description = "The token counts of the misspelled words/tokens. " +
-            		"This output will be generated only if the property 'output_misspellings_with_counts' is set to 'true'." +
+                    "This output will be generated only if the property 'output_misspellings_with_counts' is set to 'true'." +
                     "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
     )
     protected static final String OUT_MISSPELLINGS_WITH_COUNTS = "misspellings_with_counts";
@@ -202,8 +202,8 @@ public class SpellCheck extends AbstractExecutableComponent {
     @ComponentProperty(
             name = "levenshtein_distance",
             description = "The Levenshtein distance is a metric for measuring the amount of difference between two sequences;" +
-            		"The value of this property should expressed as a percentage that will depend on the length of the misspelled word. " +
-            		"Lower percentages are more restrictive in matching.",
+                    "The value of this property should expressed as a percentage that will depend on the length of the misspelled word. " +
+                    "Lower percentages are more restrictive in matching.",
             defaultValue = "0.33"
     )
     protected static final String PROP_LEVENSHTEIN_DISTANCE = "levenshtein_distance";
@@ -239,9 +239,9 @@ public class SpellCheck extends AbstractExecutableComponent {
     @ComponentProperty(
             name = "output_misspellings_with_counts",
             description = "Output misspellings with counts? (output will be in token count " +
-            		"format describing the misspelled word and the count for how many times it " +
-            		"was found in the input text. The output will be pushed to the '" +
-            		OUT_MISSPELLINGS_WITH_COUNTS + "' port",
+                    "format describing the misspelled word and the count for how many times it " +
+                    "was found in the input text. The output will be pushed to the '" +
+                    OUT_MISSPELLINGS_WITH_COUNTS + "' port",
             defaultValue = "false"
     )
     protected static final String PROP_OUTPUT_MISSPELLINGS_WITH_COUNTS = "output_misspellings_with_counts";
@@ -295,10 +295,10 @@ public class SpellCheck extends AbstractExecutableComponent {
                 _spellDictionary = getDictionary(in_dictionary);
                 _spellChecker = new SpellChecker(_spellDictionary);
                 Configuration configuration = _spellChecker.getConfiguration();
-				configuration.setBoolean(Configuration.SPELL_IGNOREUPPERCASE, _ignoreUppercase);
-				configuration.setBoolean(Configuration.SPELL_IGNOREMIXEDCASE, _ignoreMixedCase);
-				configuration.setBoolean(Configuration.SPELL_IGNOREINTERNETADDRESSES, _ignoreInternetAddr);
-				configuration.setBoolean(Configuration.SPELL_IGNOREDIGITWORDS, _ignoreDigitWords);
+                configuration.setBoolean(Configuration.SPELL_IGNOREUPPERCASE, _ignoreUppercase);
+                configuration.setBoolean(Configuration.SPELL_IGNOREMIXEDCASE, _ignoreMixedCase);
+                configuration.setBoolean(Configuration.SPELL_IGNOREINTERNETADDRESSES, _ignoreInternetAddr);
+                configuration.setBoolean(Configuration.SPELL_IGNOREDIGITWORDS, _ignoreDigitWords);
             }
         }
 
@@ -341,18 +341,18 @@ public class SpellCheck extends AbstractExecutableComponent {
                 console.info(String.format("Number of unique corrected words: %d", countCorrectedWords));
 
                 SimpleTuplePeer outPeer = new SimpleTuplePeer(new String[] { "countTotalWords", "countMisspelledWords", "countCorrectedWords" });
-        	    StringsArray.Builder tuplesBuilder = StringsArray.newBuilder();
-        	    String[] fieldValues = new String[] {
-        	    		Integer.toString(_countTotalWords),
-        	    		Integer.toString(_countMisspelledWords),
-        	    		Integer.toString(countCorrectedWords)
-        	    };
-    	        SimpleTuple tuple = outPeer.createTuple();
-    	        tuple.setValues(fieldValues);
-    	        tuplesBuilder.addValue(tuple.convert());
+                StringsArray.Builder tuplesBuilder = StringsArray.newBuilder();
+                String[] fieldValues = new String[] {
+                        Integer.toString(_countTotalWords),
+                        Integer.toString(_countMisspelledWords),
+                        Integer.toString(countCorrectedWords)
+                };
+                SimpleTuple tuple = outPeer.createTuple();
+                tuple.setValues(fieldValues);
+                tuplesBuilder.addValue(tuple.convert());
 
-    	        cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
-    		    cc.pushDataComponentToOutput(OUT_TUPLES, tuplesBuilder.build());
+                cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
+                cc.pushDataComponentToOutput(OUT_TUPLES, tuplesBuilder.build());
             }
         }
     }
@@ -529,8 +529,13 @@ public class SpellCheck extends AbstractExecutableComponent {
         componentContext.pushDataComponentToOutput(OUT_REPLACEMENTS, BasicDataTypesTools.mapToStringMap(getReplacementsMap(replacements)));
         componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.mapToIntegerMap(correctedTokenCounts, false));
 
-        if (_outputMisspellingsWithCounts)
-            componentContext.pushDataComponentToOutput(OUT_MISSPELLINGS_WITH_COUNTS, BasicDataTypesTools.mapToIntegerMap(listener.getMisspellingCounts(), true));
+        if (_outputMisspellingsWithCounts) {
+            Map<String, Integer> misspellingCounts = listener.getMisspellingCounts();
+            Set<String> tokens = new HashSet<String>(misspellingCounts.keySet());
+            for (String token : tokens)
+                misspellingCounts.put(token, tokenCounts.get(token));
+            componentContext.pushDataComponentToOutput(OUT_MISSPELLINGS_WITH_COUNTS, BasicDataTypesTools.mapToIntegerMap(misspellingCounts, true));
+        }
     }
 
     private Map<String,String[]> getReplacementsMap(Map<String,Set<String>> map) {
@@ -563,7 +568,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         }
 
         public SuggestionListener(boolean doCorrection, Logger logger) {
-        	this(doCorrection, null, logger);
+            this(doCorrection, null, logger);
         }
 
         public SuggestionListener(boolean doCorrection, Float levenshteinDistance, Logger logger) {
@@ -584,18 +589,18 @@ public class SpellCheck extends AbstractExecutableComponent {
             _countSpellingErrors++;
 
             String invalidWord = event.getInvalidWord();
-			if (_logger != null) _logger.finer("Misspelling: " + invalidWord);
+            if (_logger != null) _logger.finer("Misspelling: " + invalidWord);
 
-			if (_trackMisspellingCounts) {
-			    Integer oldCount = _misspellingCounts.get(invalidWord);
-			    if (oldCount == null) oldCount = 0;
-			    _misspellingCounts.put(invalidWord, oldCount + 1);
-			}
+            if (_trackMisspellingCounts) {
+                Integer oldCount = _misspellingCounts.get(invalidWord);
+                if (oldCount == null) oldCount = 0;
+                _misspellingCounts.put(invalidWord, oldCount + 1);
+            }
 
             int nSuggestions = event.getSuggestions().size();
             Set<String> suggestions = nSuggestions > 0 ? new LinkedHashSet<String>(nSuggestions) : new LinkedHashSet<String>();
             for (Object suggestion : event.getSuggestions())
-            	suggestions.add(suggestion.toString());
+                suggestions.add(suggestion.toString());
 
             suggestions = getFilteredSuggestions(invalidWord, suggestions);
 
@@ -608,13 +613,13 @@ public class SpellCheck extends AbstractExecutableComponent {
             }
 
             if (_levenshteinDistance != null) {
-            	Iterator<String> it = suggestions.iterator();
-            	while (it.hasNext()) {
-            		String suggestion = it.next();
-            		int score = LevenshteinDistance.computeLevenshteinDistance(invalidWord, suggestion);
-            		if (score > _levenshteinDistance * invalidWord.length())
-            			it.remove();
-            	}
+                Iterator<String> it = suggestions.iterator();
+                while (it.hasNext()) {
+                    String suggestion = it.next();
+                    int score = LevenshteinDistance.computeLevenshteinDistance(invalidWord, suggestion);
+                    if (score > _levenshteinDistance * invalidWord.length())
+                        it.remove();
+                }
             }
 
             if (_logger != null && (_logger.getLevel() == Level.FINER || _logger.getLevel() == Level.ALL)) {
@@ -649,7 +654,7 @@ public class SpellCheck extends AbstractExecutableComponent {
         }
 
         protected Set<String> getFilteredSuggestions(String invalidWord, Set<String> suggestions) {
-        	return suggestions;
+            return suggestions;
         }
 
         protected Strings getUncorrectedMisspellings() {
