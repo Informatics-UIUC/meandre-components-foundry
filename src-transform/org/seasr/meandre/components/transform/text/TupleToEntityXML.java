@@ -158,12 +158,22 @@ public class TupleToEntityXML extends AbstractStreamingExecutableComponent {
 
 	private static String encoding;
 
+	@ComponentProperty(
+            description = "Comparison to reduce meaningless data. Set the value of N "+
+            "to remove data when length of date * N >= length of sentence.",
+            name = "number",
+            defaultValue = "3"
+    )
+    protected static final String PROP_COLUMNS = "number";
+	//--------------------------------------------------------------------------------------------
+	
+	protected int _number;
 
-    //--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 	    super.initializeCallBack(ccp);
+	    _number = Integer.parseInt(getPropertyOrDieTrying(PROP_COLUMNS, ccp));
 
 		encoding = ccp.getProperty(PROP_ENCODING);
 
@@ -190,7 +200,7 @@ public class TupleToEntityXML extends AbstractStreamingExecutableComponent {
         int TYPE_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TYPE_FIELD);
         int TEXT_IDX        = tuplePeer.getIndexForFieldName(OpenNLPNamedEntity.TEXT_FIELD);
 
-		console.fine(tuplePeer.toString());
+		console.finer(tuplePeer.toString());
 
 		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
 		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
@@ -209,21 +219,30 @@ public class TupleToEntityXML extends AbstractStreamingExecutableComponent {
 			String[] s = BasicDataTypesTools.stringsToStringArray(ss);
 			int index = Integer.parseInt(s[SENTENCE_ID_IDX]);
 			String type = s[TYPE_IDX];
+
 			if(_entities.indexOf(type) != -1) {
 				String sentence = sm.getKey(index);
 				String value = s[TEXT_IDX];
-				Element elSentence =
-					createSentenceNode(doc_out, sentence, docId, docTitle);
-
-				Element elEntity = doc_out.getElementById(type + ":" + value);
-				if (elEntity == null) {
-					elEntity = doc_out.createElement(type);
-	                elEntity.setAttribute("value", value);
-	                elEntity.setAttribute("id", type+":"+value);
-	                elEntity.setIdAttribute("id", true);
-	                root.appendChild(elEntity);
-	            }
-	            elEntity.appendChild(elSentence);
+				
+				//do some cleaning for data that is not meaningful
+		        if (value.length()*_number >= sentence.length()) {
+		        	console.fine("Date: "+value+"\tSentence: "+sentence);
+		        }
+		        else { //add the data point
+				
+					Element elSentence =
+						createSentenceNode(doc_out, sentence, docId, docTitle);
+	
+					Element elEntity = doc_out.getElementById(type + ":" + value);
+					if (elEntity == null) {
+						elEntity = doc_out.createElement(type);
+		                elEntity.setAttribute("value", value);
+		                elEntity.setAttribute("id", type+":"+value);
+		                elEntity.setIdAttribute("id", true);
+		                root.appendChild(elEntity);
+		            }
+		            elEntity.appendChild(elSentence);
+		        }
 			}
 		}
 
