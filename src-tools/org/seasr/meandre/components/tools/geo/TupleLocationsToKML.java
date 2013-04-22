@@ -91,7 +91,7 @@ import de.micromata.opengis.kml.v_2_2_0.Placemark;
         rights = Licenses.UofINCSA,
         tags = "#TRANSFORM, tuple, locations, geocoding, kml, map",
         description = "This component geocodes the names of locations (placemarks) specified " +
-        		"in the tuples and creates a KML structure with contextual details about each placemark." ,
+                "in the tuples and creates a KML structure with contextual details about each placemark." ,
         dependency = { "protobuf-java-2.2.0.jar", "activation-1.1.jar", "JavaAPIforKml-2.2.0-SNAPSHOT.jar",
                        "jaxb-api-2.2.jar", "jaxb-impl-2.2.jar", "jaxb-xjc-2.2.jar", "stax-api-1.0.1.jar" }
 )
@@ -169,13 +169,6 @@ public class TupleLocationsToKML extends AbstractStreamingExecutableComponent {
     )
     protected static final String PROP_INDENT = "indent";
 
-    @ComponentProperty(
-            defaultValue = "yFUeASDV34FRJWiaM8pxF0eJ7d2MizbUNVB2K6in0Ybwji5YB0D4ZODR2y3LqQ--",
-            description = "This property sets the Yahoo API ID to be used for creating the geocoding request.",
-            name = Names.PROP_YAHOO_API_KEY
-    )
-    protected static final String PROP_YAHOO_KEY = Names.PROP_YAHOO_API_KEY;
-
     //--------------------------------------------------------------------------------------------
 
 
@@ -202,8 +195,6 @@ public class TupleLocationsToKML extends AbstractStreamingExecutableComponent {
         _outputFormat = new OutputFormat();
         _outputFormat.setPreserveSpace(false);
         _outputFormat.setIndenting(Boolean.parseBoolean(getPropertyOrDieTrying(PROP_INDENT, ccp)));
-
-        GeoLocation.setAPIKey(getPropertyOrDieTrying(PROP_YAHOO_KEY, ccp));
 
         initializeKml();
 
@@ -239,7 +230,7 @@ public class TupleLocationsToKML extends AbstractStreamingExecutableComponent {
             String dump = inPeer.toString();
             throw new ComponentExecutionException(String.format(
                     "The tuple is missing a required attribute. Required: %s, %s, %s%nActual attributes: %s",
-            		OpenNLPNamedEntity.SENTENCE_ID_FIELD, _locAttr, OpenNLPNamedEntity.TEXT_START_FIELD, dump));
+                    OpenNLPNamedEntity.SENTENCE_ID_FIELD, _locAttr, OpenNLPNamedEntity.TEXT_START_FIELD, dump));
         }
 
         SimpleTuple tuple = inPeer.createTuple();

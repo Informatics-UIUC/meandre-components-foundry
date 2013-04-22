@@ -51,7 +51,6 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.DataTypeParser;
@@ -97,37 +96,28 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
             description = "Output latitude" +
                 "<br>TYPE: java.util.Vector<java.lang.String>"
     )
-	protected static final String OUT_LATITUDE = Names.PORT_LATITUDE_VECTOR;
+    protected static final String OUT_LATITUDE = Names.PORT_LATITUDE_VECTOR;
 
     @ComponentOutput(
             name = Names.PORT_LONGITUDE_VECTOR,
             description = "Output longitude" +
                 "<br>TYPE: java.util.Vector<java.lang.String>"
     )
-	protected static final String OUT_LONGITUDE = Names.PORT_LONGITUDE_VECTOR;
+    protected static final String OUT_LONGITUDE = Names.PORT_LONGITUDE_VECTOR;
 
     @ComponentOutput(
             name = Names.PORT_LOCATION_VECTOR,
             description = "Output location." +
                 "<br>TYPE: java.util.Vector<java.lang.String>"
     )
-	protected static final String OUT_LOCATION = Names.PORT_LOCATION_VECTOR;
+    protected static final String OUT_LOCATION = Names.PORT_LOCATION_VECTOR;
 
     @ComponentOutput(
             name = Names.PORT_CONTEXT_VECTOR,
             description = "Output context" +
                 "<br>TYPE: java.util.Vector<java.lang.String>"
     )
-	protected static final String OUT_CONTEXT = Names.PORT_CONTEXT_VECTOR;
-
-    //------------------------------ PROPERTIES --------------------------------------------------
-
-    @ComponentProperty(
-            defaultValue = "yFUeASDV34FRJWiaM8pxF0eJ7d2MizbUNVB2K6in0Ybwji5YB0D4ZODR2y3LqQ--",
-            description = "This property sets the Yahoo API ID. The default value is applicable to all applications.",
-            name = Names.PROP_YAHOO_API_KEY
-    )
-    protected static final String PROP_YAHOO_KEY = Names.PROP_YAHOO_API_KEY;
+    protected static final String OUT_CONTEXT = Names.PORT_CONTEXT_VECTOR;
 
     //--------------------------------------------------------------------------------------------
 
@@ -144,7 +134,6 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        GeoLocation.setAPIKey(getPropertyOrDieTrying(PROP_YAHOO_KEY, ccp));
     }
 
     @Override
@@ -153,10 +142,10 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
 
         MapData mapData = extractMapDataFromDocument(doc);
 
-		cc.pushDataComponentToOutput(OUT_LATITUDE, mapData.lat_vector);
-		cc.pushDataComponentToOutput(OUT_LONGITUDE, mapData.lon_vector);
-		cc.pushDataComponentToOutput(OUT_LOCATION, mapData.location_vector);
-		cc.pushDataComponentToOutput(OUT_CONTEXT, mapData.context_vector);
+        cc.pushDataComponentToOutput(OUT_LATITUDE, mapData.lat_vector);
+        cc.pushDataComponentToOutput(OUT_LONGITUDE, mapData.lon_vector);
+        cc.pushDataComponentToOutput(OUT_LOCATION, mapData.location_vector);
+        cc.pushDataComponentToOutput(OUT_CONTEXT, mapData.context_vector);
     }
 
     @Override
@@ -191,58 +180,58 @@ public class GoogleMapGenerator	extends AbstractExecutableComponent {
             // start of the refactored code
             //
             try {
-            	GeoLocation[] geo = GeoLocation.geocode(aLoc);
-            	if (geo != null) {
-            		lat.add(Double.toString(geo[0].getLatitude()));
-            		lon.add(Double.toString(geo[0].getLongitude()));
-            	}
+                GeoLocation[] geo = GeoLocation.geocode(aLoc);
+                if (geo != null) {
+                    lat.add(Double.toString(geo[0].getLatitude()));
+                    lon.add(Double.toString(geo[0].getLongitude()));
+                }
             }
             catch(java.io.IOException e) {
-            	console.info("unable to find location " + aLoc);
-            	continue;
+                console.info("unable to find location " + aLoc);
+                continue;
             }
 
             StringBuffer sbHtml = new StringBuffer();
             int nr = 0;
 
-		    NodeList sentenceNodes = elEntity.getElementsByTagName("sentence");
-		    for (int idx = 0, idxMax = sentenceNodes.getLength(); idx < idxMax; idx++) {
-		        Element elSentence = (Element)sentenceNodes.item(idx);
-		        String docTitle = elSentence.getAttribute("docTitle");
-		        String theSentence = elSentence.getTextContent();
+            NodeList sentenceNodes = elEntity.getElementsByTagName("sentence");
+            for (int idx = 0, idxMax = sentenceNodes.getLength(); idx < idxMax; idx++) {
+                Element elSentence = (Element)sentenceNodes.item(idx);
+                String docTitle = elSentence.getAttribute("docTitle");
+                String theSentence = elSentence.getTextContent();
 
-		        theSentence = theSentence.replaceAll("\t|\r|\n", " ");
-		        aLoc = aLoc.replaceAll("\t|\r|\n", " ");
+                theSentence = theSentence.replaceAll("\t|\r|\n", " ");
+                aLoc = aLoc.replaceAll("\t|\r|\n", " ");
 
-		        //look for location only with word boundary and eliminate mismatching
-		        p = Pattern.compile("\\b"+aLoc+"\\b", Pattern.CASE_INSENSITIVE);
-		        m = p.matcher(theSentence);
+                //look for location only with word boundary and eliminate mismatching
+                p = Pattern.compile("\\b"+aLoc+"\\b", Pattern.CASE_INSENSITIVE);
+                m = p.matcher(theSentence);
 
-		        boolean isLocAvailable = true;
+                boolean isLocAvailable = true;
 
-		        if(m.find())
-		        	theSentence = m.replaceAll("<font color='red'>"+aLoc+"</font>");
-		        else {
-		        	p = Pattern.compile("\\b"+aLoc, Pattern.CASE_INSENSITIVE);
-				    m = p.matcher(theSentence);
-				    if(m.find())
-				    	theSentence = m.replaceAll("<font color='red'>"+aLoc+"</font>");
-				    else
-				    	isLocAvailable = false;
-		        }
+                if(m.find())
+                    theSentence = m.replaceAll("<font color='red'>"+aLoc+"</font>");
+                else {
+                    p = Pattern.compile("\\b"+aLoc, Pattern.CASE_INSENSITIVE);
+                    m = p.matcher(theSentence);
+                    if(m.find())
+                        theSentence = m.replaceAll("<font color='red'>"+aLoc+"</font>");
+                    else
+                        isLocAvailable = false;
+                }
 
-		        if (!isLocAvailable) {
-		            console.warning("Could not find the position of the date in the sentence! This should not happen!");
-		            console.warning("   sentence: '" + theSentence + "'");
-		            console.warning("   date: '" + aLoc + "'");
-		        }
+                if (!isLocAvailable) {
+                    console.warning("Could not find the position of the date in the sentence! This should not happen!");
+                    console.warning("   sentence: '" + theSentence + "'");
+                    console.warning("   date: '" + aLoc + "'");
+                }
 
                 sbHtml.append("<div onclick='toggleVisibility(this)' style='position:relative' align='left'><b>Sentence ").append(++nr);
                 if (docTitle != null && docTitle.length() > 0)
                     sbHtml.append(" from '" + StringEscapeUtils.escapeHtml(docTitle) + "'");
                 sbHtml.append("</b><span style='display: ' align='left'><table><tr><td>").append(theSentence.replaceAll("\"", "&quot;")).append("</td></tr></table></span></div>");
-		    }
-		    String sentence = sbHtml.toString();
+            }
+            String sentence = sbHtml.toString();
 
             location.add(aLoc+"("+nr+")");
             context.add(sentence);

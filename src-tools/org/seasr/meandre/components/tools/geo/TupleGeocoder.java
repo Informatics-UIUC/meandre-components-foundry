@@ -55,7 +55,6 @@ import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
@@ -75,7 +74,7 @@ import org.seasr.meandre.support.generic.gis.GeoLocation;
         rights = Licenses.UofINCSA,
         tags = "#TRANSFORM, tuple, locations, geocoding",
         description = "This component adds two fields to the incoming tuples containing " +
-        		"the geocoded coordinates of the names of locations (placemarks) specified in the tuples." ,
+                "the geocoded coordinates of the names of locations (placemarks) specified in the tuples." ,
         dependency = { "protobuf-java-2.2.0.jar" }
 )
 public class TupleGeocoder extends AbstractExecutableComponent {
@@ -84,12 +83,6 @@ public class TupleGeocoder extends AbstractExecutableComponent {
     protected static final String LONGITUDE_FIELD = "lon";
 
     //------------------------------ INPUTS ------------------------------------------------------
-
-    @ComponentInput(
-            name = "yahoo_api_key",
-            description = "The Yahoo API ID to be used for creating the geocoding request."
-    )
-    protected static final String IN_YAHOO_KEY = "yahoo_api_key";
 
     @ComponentInput(
             name = Names.PORT_TUPLES,
@@ -133,7 +126,7 @@ public class TupleGeocoder extends AbstractExecutableComponent {
 
     @ComponentProperty(
             description = "Remove tuples specifying unknown locations? " +
-            		"If this is set to false and a location cannot be geocoded, the values for the latitude and longitude fields will be empty.",
+                    "If this is set to false and a location cannot be geocoded, the values for the latitude and longitude fields will be empty.",
             name = "remove_unknown",
             defaultValue = "true"
     )
@@ -177,9 +170,6 @@ public class TupleGeocoder extends AbstractExecutableComponent {
 
         if (inPeer.getIndexForFieldName(_locField) < 0)
             throw new ComponentExecutionException("Incoming tuples do not have a field named: '" + _locField + "'");
-
-        String yahooKey = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_YAHOO_KEY))[0];
-        GeoLocation.setAPIKey(yahooKey);
 
         SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[] { LATITUDE_FIELD, LONGITUDE_FIELD });
         StringsArray.Builder outTuples = StringsArray.newBuilder();

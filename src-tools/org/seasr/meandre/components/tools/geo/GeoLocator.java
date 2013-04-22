@@ -53,20 +53,19 @@ import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
-import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.gis.GeoLocation;
 
 @Component(
-		name = "Geo Locator",
-		creator = "Boris Capitanu",
-		baseURL = "meandre://seasr.org/components/foundry/",
-		firingPolicy = FiringPolicy.all,
-		mode = Mode.compute,
-		rights = Licenses.UofINCSA,
-		tags = "#TRANSFORM, tuple, group",
-		description = "This component resolves names of locations into latitude/longitude coordinates" ,
-		dependency = {"protobuf-java-2.2.0.jar"}
+        name = "Geo Locator",
+        creator = "Boris Capitanu",
+        baseURL = "meandre://seasr.org/components/foundry/",
+        firingPolicy = FiringPolicy.all,
+        mode = Mode.compute,
+        rights = Licenses.UofINCSA,
+        tags = "#TRANSFORM, tuple, group",
+        description = "This component resolves names of locations into latitude/longitude coordinates" ,
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class GeoLocator extends AbstractExecutableComponent {
 
@@ -112,13 +111,6 @@ public class GeoLocator extends AbstractExecutableComponent {
     )
     protected static final String PROP_RETURN_ONE_COORDINATE = "return_one_coordinate";
 
-    @ComponentProperty(
-            defaultValue = "yFUeASDV34FRJWiaM8pxF0eJ7d2MizbUNVB2K6in0Ybwji5YB0D4ZODR2y3LqQ--",
-            description = "This property sets the Yahoo API ID to be used for creating the geocoding request.",
-            name = Names.PROP_YAHOO_API_KEY
-    )
-    protected static final String PROP_YAHOO_KEY = Names.PROP_YAHOO_API_KEY;
-
     //--------------------------------------------------------------------------------------------
 
 
@@ -127,36 +119,35 @@ public class GeoLocator extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-	@Override
-	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		_returnOneValue = Boolean.parseBoolean(ccp.getProperty(PROP_RETURN_ONE_COORDINATE));
-		GeoLocation.setAPIKey(getPropertyOrDieTrying(PROP_YAHOO_KEY, ccp));
-	}
+    @Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        _returnOneValue = Boolean.parseBoolean(ccp.getProperty(PROP_RETURN_ONE_COORDINATE));
+    }
 
-	@Override
-	public void executeCallBack(ComponentContext cc) throws Exception {
-		String placeName = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_PLACE_NAME))[0];
-		GeoLocation[] locations = GeoLocation.geocode(placeName);
+    @Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
+        String placeName = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_PLACE_NAME))[0];
+        GeoLocation[] locations = GeoLocation.geocode(placeName);
 
-		if (locations.length == 0) {
-		    console.warning(String.format("The location '%s' could not be geocoded - ignoring it...", placeName));
-		    return;
-		}
+        if (locations.length == 0) {
+            console.warning(String.format("The location '%s' could not be geocoded - ignoring it...", placeName));
+            return;
+        }
 
-		for (GeoLocation location : locations) {
-		    String latitude = Double.toString(location.getLatitude());
-		    String longitude = Double.toString(location.getLongitude());
+        for (GeoLocation location : locations) {
+            String latitude = Double.toString(location.getLatitude());
+            String longitude = Double.toString(location.getLongitude());
 
-		    componentContext.pushDataComponentToOutput(OUT_LATITUDE, BasicDataTypesTools.stringToStrings(latitude));
-		    componentContext.pushDataComponentToOutput(OUT_LONGITUDE, BasicDataTypesTools.stringToStrings(longitude));
-		    componentContext.pushDataComponentToOutput(OUT_PLACE_NAME, BasicDataTypesTools.stringToStrings(placeName));
+            componentContext.pushDataComponentToOutput(OUT_LATITUDE, BasicDataTypesTools.stringToStrings(latitude));
+            componentContext.pushDataComponentToOutput(OUT_LONGITUDE, BasicDataTypesTools.stringToStrings(longitude));
+            componentContext.pushDataComponentToOutput(OUT_PLACE_NAME, BasicDataTypesTools.stringToStrings(placeName));
 
-		    if (_returnOneValue) break;
-		}
-	}
+            if (_returnOneValue) break;
+        }
+    }
 
-	@Override
-	public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-		GeoLocation.disposeCache();
-	}
+    @Override
+    public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
+        GeoLocation.disposeCache();
+    }
 }
