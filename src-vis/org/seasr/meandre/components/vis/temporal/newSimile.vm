@@ -193,13 +193,5 @@
     </div>
 
     <div id="my-timeline" class="timeline-default" style="$timelineCSS"></div>
-
-          <h2>Credits</h2>
-          <p>This software was originally sponsored by
-              <a href="http://mellon.org/">The Andrew W. Mellon Foundation</a>
-              as part of the <a href="http://simile.mit.edu/">SIMILE project</a>.
-              Its original author is <a href="http://davidhuynh.net/">David Fran&ccedil;ois Huynh</a>.
-              Now it is being maintained and developed by many members of this open-source community.
-          </p>
   </body>
 </html>
