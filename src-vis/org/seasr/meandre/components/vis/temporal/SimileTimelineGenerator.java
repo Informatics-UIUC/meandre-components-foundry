@@ -164,6 +164,13 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     protected static final String PROP_INLINE_SIMILE_XML = "inline_simile_xml";
 
     @ComponentProperty(
+            name = "timeline_css",
+            description = "CSS for timeline div",
+            defaultValue = "height: 550px; border: 1px solid #aaa"
+    )
+    protected static final String PROP_TIMELINE_CSS = "timeline_css";
+
+    @ComponentProperty(
             description = "Location where to write out the generated Simile file(s). " +
                     "Note: The folder will be created if it does not exist; also, if the " +
                     "folder is relative, it will be considered as relative to the published_resources folder.",
@@ -184,10 +191,10 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
     protected static final String SIMILE_API_PATH = "simile-timeline-api";   // this path is assumed to be appended to the published_resources location
     protected static final String SIMILE_JS = "timeline-api.js";
 
-	protected static final String simileVelocityTemplate =
-	    "org/seasr/meandre/components/vis/temporal/newSimile.vm";
-	//protected static final String simileVelocityTemplate =
-	//    "org/seasr/meandre/components/vis/temporal/SimileTimelineGenerator.vm";
+    protected static final String simileVelocityTemplate =
+        "org/seasr/meandre/components/vis/temporal/newSimile.vm";
+    //protected static final String simileVelocityTemplate =
+    //    "org/seasr/meandre/components/vis/temporal/SimileTimelineGenerator.vm";
     /** Store the minimum value of year */
     private int minYear;
 
@@ -212,6 +219,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         saveOutputToFile = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SAVE_OUTPUT_TO_FILE, ccp));
         inlineSimileXml = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_INLINE_SIMILE_XML, ccp));
         String timelineAPI = getPropertyOrDieTrying(PROP_TIMELINE_API_URL, true, false, ccp);
+        String timelineCSS = getPropertyOrDieTrying(PROP_TIMELINE_CSS, true, false, ccp);
 
         _context = VelocityTemplateService.getInstance().getNewContext();
         _context.put("ccp", ccp);
@@ -235,6 +243,7 @@ public class SimileTimelineGenerator extends AbstractExecutableComponent {
         console.fine("Using Simile Timeline API from: " + timelineAPI);
         _context.put("simileTimelineAPI", timelineAPI);
         _context.put("inlineSimileXml", inlineSimileXml);
+        _context.put("timelineCSS", timelineCSS);
 
         _simileRefURL = getPropertyOrDieTrying(PROP_REF_URL, true, false, ccp);
         if (_simileRefURL.length() > 0 && !_simileRefURL.endsWith("/"))

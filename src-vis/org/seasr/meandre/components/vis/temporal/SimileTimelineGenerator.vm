@@ -2,144 +2,144 @@
 <head>
     <script src="$simileTimelineAPI" type="text/javascript"></script>
     <script type="text/javascript">
-	    function submit() {
-	     var select_list_field = document.getElementById('year');
-	     var select_list_selected_index = select_list_field.selectedIndex;
-	     var year = select_list_field.options[select_list_selected_index].text;
+        function submit() {
+         var select_list_field = document.getElementById('year');
+         var select_list_selected_index = select_list_field.selectedIndex;
+         var year = select_list_field.options[select_list_selected_index].text;
 
-	     var select_list_field = document.getElementById('month');
-	     var month = select_list_field.selectedIndex+1;
+         var select_list_field = document.getElementById('month');
+         var month = select_list_field.selectedIndex+1;
 
-	     var select_list_field = document.getElementById('day');
-	     var select_list_selected_index = select_list_field.selectedIndex;
-	     var day = select_list_field.options[select_list_selected_index].text;
+         var select_list_field = document.getElementById('day');
+         var select_list_selected_index = select_list_field.selectedIndex;
+         var day = select_list_field.options[select_list_selected_index].text;
 
-	     var str = "Date(" + year +"," + month +"," + day +")";
-	     tl.getBand(0).setCenterVisibleDate(Timeline.DateTime.parseGregorianDateTime(eval('new ' + str)));
-	    }
-
-        function toggleVisibility(me){
-	        var child = me.childNodes.item(1);
-	        if (child.style.display == 'none')
-	            child.style.display = '';
-	        else
-	        	child.style.display='';
+         var str = "Date(" + year +"," + month +"," + day +")";
+         tl.getBand(0).setCenterVisibleDate(Timeline.DateTime.parseGregorianDateTime(eval('new ' + str)));
         }
 
-		function getViewportWidth() {
-			var viewportwidth;
- 			var viewportheight;
+        function toggleVisibility(me){
+            var child = me.childNodes.item(1);
+            if (child.style.display == 'none')
+                child.style.display = '';
+            else
+                child.style.display='';
+        }
 
- 			if (typeof window.innerWidth != 'undefined') {
-      				viewportwidth = window.innerWidth,
-      				viewportheight = window.innerHeight
- 			} else
-			if (typeof document.documentElement != 'undefined'
-     		    && typeof document.documentElement.clientWidth !='undefined' &&
-				document.documentElement.clientWidth != 0) {
-       				viewportwidth = document.documentElement.clientWidth,
-       				viewportheight = document.documentElement.clientHeight
- 			} else {
- 					viewportwidth = document.getElementsByTagName('body')[0].clientWidth,
-       				viewportheight = document.getElementsByTagName('body')[0].clientHeight
- 			}
-			return viewportwidth;
-		}
+        function getViewportWidth() {
+            var viewportwidth;
+             var viewportheight;
+
+             if (typeof window.innerWidth != 'undefined') {
+                      viewportwidth = window.innerWidth,
+                      viewportheight = window.innerHeight
+             } else
+            if (typeof document.documentElement != 'undefined'
+                 && typeof document.documentElement.clientWidth !='undefined' &&
+                document.documentElement.clientWidth != 0) {
+                       viewportwidth = document.documentElement.clientWidth,
+                       viewportheight = document.documentElement.clientHeight
+             } else {
+                     viewportwidth = document.getElementsByTagName('body')[0].clientWidth,
+                       viewportheight = document.getElementsByTagName('body')[0].clientHeight
+             }
+            return viewportwidth;
+        }
 
         var tl;
 
-		var pixels = parseInt(getViewportWidth()/$interval);
+        var pixels = parseInt(getViewportWidth()/$interval);
 
         var selection;
 
         function onLoad(view) {
 
-        	var band0Unit;
-			var band1Unit;
-			var band2Unit;
+            var band0Unit;
+            var band1Unit;
+            var band2Unit;
 
-			var fday = document.getElementById("fday");
-			var fmonth = document.getElementById("fmonth");
-			var fyear = document.getElementById("fyear");
+            var fday = document.getElementById("fday");
+            var fmonth = document.getElementById("fmonth");
+            var fyear = document.getElementById("fyear");
 
             fday.setAttribute("color", "");
             fmonth.setAttribute("color", "");
             fyear.setAttribute("color", "");
 
-			var color = "red";
+            var color = "red";
 
             switch (view) {
-    			 case 'DAY':
-    	    		band0Unit = Timeline.DateTime.DAY;
-    	    		band1Unit = Timeline.DateTime.MONTH;
-    	    		band2Unit = Timeline.DateTime.YEAR;
+                 case 'DAY':
+                    band0Unit = Timeline.DateTime.DAY;
+                    band1Unit = Timeline.DateTime.MONTH;
+                    band2Unit = Timeline.DateTime.YEAR;
 
-    				fday.setAttribute("color", color);
-    				selection = "DAY";
-    			    break;
+                    fday.setAttribute("color", color);
+                    selection = "DAY";
+                    break;
 
-    			 case 'MONTH':
-    	    		band0Unit = Timeline.DateTime.MONTH;
-    	    		band1Unit = Timeline.DateTime.YEAR;
-    	    		band2Unit = Timeline.DateTime.DECADE;
+                 case 'MONTH':
+                    band0Unit = Timeline.DateTime.MONTH;
+                    band1Unit = Timeline.DateTime.YEAR;
+                    band2Unit = Timeline.DateTime.DECADE;
 
-    				fmonth.setAttribute("color",color);
-    				selection = "MONTH";
-    				break;
+                    fmonth.setAttribute("color",color);
+                    selection = "MONTH";
+                    break;
 
                 case 'YEAR':
-    	   			band0Unit = Timeline.DateTime.YEAR;
-    	    		band1Unit = Timeline.DateTime.DECADE;
-    				band2Unit = Timeline.DateTime.CENTURY;
+                       band0Unit = Timeline.DateTime.YEAR;
+                    band1Unit = Timeline.DateTime.DECADE;
+                    band2Unit = Timeline.DateTime.CENTURY;
 
-    				fyear.setAttribute("color",color);
-    				selection = "YEAR";
-    		        break;
-			}
+                    fyear.setAttribute("color",color);
+                    selection = "YEAR";
+                    break;
+            }
 
-	        var eventSource = new Timeline.DefaultEventSource();
+            var eventSource = new Timeline.DefaultEventSource();
 
-	        var theme = Timeline.ClassicTheme.create();
-	        theme.event.bubble.width = 600;
-	        theme.event.bubble.height = 500;
+            var theme = Timeline.ClassicTheme.create();
+            theme.event.bubble.width = 600;
+            theme.event.bubble.height = 500;
 
-	        var bandInfos = [
-		        Timeline.createBandInfo({
-		            eventSource:    eventSource,
-		            date:           "Jan 01 $minYear 00:00:00 GMT",
-		            width:          "70%",
-		            intervalUnit:   band0Unit,
-		            intervalPixels: 100,
-		            theme:          theme
-		        }),
-		        Timeline.createBandInfo({
-		            showEventText:   false,
-		            trackHeight:     0.5,
-		            trackGap:        0.2,
-		            eventSource:    eventSource,
-		            date:           "Jan 01 $minYear 00:00:00 GMT",
-		            width:          "20%",
-		            intervalUnit:   band1Unit,
-		            intervalPixels: 200
-		        }),
-		        Timeline.createBandInfo({
-		            showEventText:   false,
-		            trackHeight:     0.5,
-		            trackGap:        0.2,
-		            eventSource:    eventSource,
-		            date:           "Jan 01 $minYear 00:00:00 GMT",
-		            width:          "10%",
-		            intervalUnit:   band2Unit,
-		            intervalPixels: pixels
-		        })
-	        ];
+            var bandInfos = [
+                Timeline.createBandInfo({
+                    eventSource:    eventSource,
+                    date:           "Jan 01 $minYear 00:00:00 GMT",
+                    width:          "70%",
+                    intervalUnit:   band0Unit,
+                    intervalPixels: 100,
+                    theme:          theme
+                }),
+                Timeline.createBandInfo({
+                    showEventText:   false,
+                    trackHeight:     0.5,
+                    trackGap:        0.2,
+                    eventSource:    eventSource,
+                    date:           "Jan 01 $minYear 00:00:00 GMT",
+                    width:          "20%",
+                    intervalUnit:   band1Unit,
+                    intervalPixels: 200
+                }),
+                Timeline.createBandInfo({
+                    showEventText:   false,
+                    trackHeight:     0.5,
+                    trackGap:        0.2,
+                    eventSource:    eventSource,
+                    date:           "Jan 01 $minYear 00:00:00 GMT",
+                    width:          "10%",
+                    intervalUnit:   band2Unit,
+                    intervalPixels: pixels
+                })
+            ];
 
-	        bandInfos[1].syncWith = 0;
-	        bandInfos[1].highlight = true;
-	        bandInfos[1].eventPainter.setLayout(bandInfos[0].eventPainter.getLayout(1));
-	        bandInfos[2].syncWith = 0;
-	        bandInfos[2].highlight = true;
-	        bandInfos[2].eventPainter.setLayout(bandInfos[0].eventPainter.getLayout(1));
+            bandInfos[1].syncWith = 0;
+            bandInfos[1].highlight = true;
+            bandInfos[1].eventPainter.setLayout(bandInfos[0].eventPainter.getLayout(1));
+            bandInfos[2].syncWith = 0;
+            bandInfos[2].highlight = true;
+            bandInfos[2].eventPainter.setLayout(bandInfos[0].eventPainter.getLayout(1));
 
             tl = Timeline.create(document.getElementById("my-timeline"), bandInfos);
 
@@ -150,8 +150,8 @@
             Timeline.loadXML("$simileXmlUrl", function(xml, url) {
                eventSource.loadXML(xml, url);
             });
-	        #end
-	    }
+            #end
+        }
 
         var resizeTimerID = null;
         function onResize() {
@@ -161,7 +161,7 @@
                    tl.layout();
                }, 500);
                pixels = parseInt(getViewportWidth()/$interval);
-           	   onLoad(selection);
+                  onLoad(selection);
            }
 
         }
@@ -174,54 +174,54 @@
         style="position:absolute;width:0;height:0;border:0"></iframe>
     #end
 
-	<div align="right"> <table cellspacing="5"><tr>
-		<td onclick="onLoad('DAY');"><font id="fday" color=""> DAY</font></td>
-	 	<td onclick="onLoad('MONTH');"> <font id="fmonth"  color="">MONTH</font></td>
-	 	<td onclick="onLoad('YEAR');"> <font id="fyear" color="">YEAR</font></td>
-	 	</td></table>
-	</div>
+    <div align="right"> <table cellspacing="5"><tr>
+        <td onclick="onLoad('DAY');"><font id="fday" color=""> DAY</font></td>
+         <td onclick="onLoad('MONTH');"> <font id="fmonth"  color="">MONTH</font></td>
+         <td onclick="onLoad('YEAR');"> <font id="fyear" color="">YEAR</font></td>
+         </td></table>
+    </div>
 
-	<div id="my-timeline" style="height: 450px; border: 1px solid #aaa"></div>
+    <div id="my-timeline" style="$timelineCSS"></div>
 
-	<br>
+    <br>
 
-	<div>
-		<select id="month">
-			<option selected="yes">January</option>
-			<option>February</option>
-			<option>March</option>
-			<option>April</option>
-			<option>May</option>
-			<option>June</option>
-			<option>July</option>
-			<option>August</option>
-			<option>September</option>
-			<option>October</option>
-			<option>November</option>
-			<option>December</option>
-		</select>
+    <div>
+        <select id="month">
+            <option selected="yes">January</option>
+            <option>February</option>
+            <option>March</option>
+            <option>April</option>
+            <option>May</option>
+            <option>June</option>
+            <option>July</option>
+            <option>August</option>
+            <option>September</option>
+            <option>October</option>
+            <option>November</option>
+            <option>December</option>
+        </select>
 
-		<label>/</label>
+        <label>/</label>
 
-		<select id="day">
-			<option selected="yes">1</option>
-			#foreach ($i in [2..31])
+        <select id="day">
+            <option selected="yes">1</option>
+            #foreach ($i in [2..31])
             <option>$i</option>
-			#end
-		</select>
+            #end
+        </select>
 
-		<label>/</label>
+        <label>/</label>
 
-		<select id="year">
-			#foreach ($item in $items)
+        <select id="year">
+            #foreach ($item in $items)
             <option>$item</option>
-			#end
-		</select>
+            #end
+        </select>
 
-		<label>(mm/dd/yyyy)</label>
+        <label>(mm/dd/yyyy)</label>
 
-		<button onClick="submit()">Select</button>
+        <button onClick="submit()">Select</button>
 
-	</div>
+    </div>
 </body>
 </html>
