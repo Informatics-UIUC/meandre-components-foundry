@@ -56,7 +56,7 @@ import org.seasr.meandre.support.generic.io.JARInstaller.InstallStatus;
  * @author Boris Capitanu
  *
  * NOTE: If a component extending this class is used in a flow for the Zotero environment do not forget to
- *       set the 'd3_api_url' property to http://d3js.org/d3.v2.js
+ *       set the 'd3_api_url' property to http://d3js.org/d3.v3.min.js
  */
 public abstract class AbstractD3Component extends VelocityTemplateToHTML {
 

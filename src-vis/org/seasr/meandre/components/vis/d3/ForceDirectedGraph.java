@@ -28,7 +28,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         rights = Licenses.UofINCSA,
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.7-dep.jar", "d3-v2.10.1.jar" },
+        dependency = { "velocity-1.7-dep.jar", "d3-v3.1.10.jar" },
         resources  = { "ForceDirectedGraph.vm" }
 )
 public class ForceDirectedGraph extends AbstractD3Component {
@@ -95,7 +95,7 @@ public class ForceDirectedGraph extends AbstractD3Component {
 
     @ComponentProperty(
             description = "The text offset from the center of the node, specified as x,y. " +
-            		"Example: 7,3 will offset the text 7 pixels to the right and 3 pixels down from center.",
+                    "Example: 7,3 will offset the text 7 pixels to the right and 3 pixels down from center.",
             name = "text_offset",
             defaultValue = "7,3"
     )
@@ -110,7 +110,7 @@ public class ForceDirectedGraph extends AbstractD3Component {
 
     @ComponentProperty(
             description = "Which attribute from the data should be used to display in the tooltip for each node? " +
-            		"Example valid values: 'name', 'type', 'group' (no quotes)",
+                    "Example valid values: 'name', 'type', 'group' (no quotes)",
             name = "tooltip_attribute",
             defaultValue = "type"
     )

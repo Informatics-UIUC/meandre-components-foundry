@@ -25,7 +25,14 @@
     scale.range([fontMin, fontMax]);
 
     d3.layout.cloud().size([width, height])
-        .words(data.words.map(function (d, i) { return { 'text': d, 'size': scale(data.counts[i]) }; }))
+        .words(data.words.map(function (d, i) {
+            var count = data.counts[i];
+            return {
+                'text': d #if( $showCounts ) + " " + count #end,
+                'size': scale(count),
+                'count': count
+            };
+        }))
         .rotate(function() { return ~~(Math.random() * 2) * rotation; })
         .fontSize(function(d) { return d.size; })
         #if( $fontName )
@@ -42,17 +49,23 @@
           .attr("transform", "translate(" + width/2 + "," + height/2 + ")")
         .selectAll("text")
           .data(words)
-        .enter().append("text")
-          .style("font-size", function(d) { return d.size + "px"; })
-          #if( $fontName )
-          .style("font-family", function(d) { return d.font; })
-          #end
-          .attr("text-anchor", "middle")
-          .attr("transform", function(d) {
-            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-          })
-          .style("fill", function(d) { return fill(d.text.toLowerCase()); })
-          .text(function(d) { return d.text; });
+        .enter()
+            .append("text")
+              .style("font-size", function(d) { return d.size + "px"; })
+              #if( $fontName )
+              .style("font-family", function(d) { return d.font; })
+              #end
+              .attr("text-anchor", "middle")
+              .attr("transform", function(d) {
+                return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+              })
+              .style("fill", function(d) { return fill(d.text.toLowerCase()); })
+              .text(function(d) { return d.text; })
+              #if( $showToolTip )
+              .append("title")
+                .text(function(d) { return d.text + "\n" + d.count; })
+              #end
+              ;
     }
 </script>
 </body>

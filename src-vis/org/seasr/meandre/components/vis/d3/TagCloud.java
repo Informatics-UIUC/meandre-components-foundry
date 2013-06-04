@@ -70,13 +70,13 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         "'rotation=90' means all words are horizontal or vertical. "+
         "References: D3: Data-Driven Documents, Michael Bostock, Vadim Ogievetsky, Jeffrey Heer, "+
         "IEEE Trans. Visualization & Comp. Graphics (Proc. InfoVis), 2011. " +
-		"D3 tag cloud code from http://github.com/jasondavies/d3-cloud.",
+        "D3 tag cloud code from http://github.com/jasondavies/d3-cloud.",
         name = "Tag Cloud",
         tags = "#VIS, visualization, d3, tag cloud",
         rights = Licenses.UofINCSA,
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.7-dep.jar", "d3-v2.10.1.jar", "d3.layout.cloud.jar" },
+        dependency = { "velocity-1.7-dep.jar", "d3-v3.1.10.jar", "d3.layout.cloud.jar" },
         resources  = { "TagCloud.vm" }
 )
 public class TagCloud extends AbstractD3CloudLayoutComponent {
@@ -155,10 +155,10 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
     @ComponentProperty(
             defaultValue = "linear",
             description = "The scale to use, one of:<br><ul>" +
-            		"<li>linear</li>" +
-            		"<li>log</li>" +
-            		"<li>sqrt</li>" +
-            		"</ul>",
+                    "<li>linear</li>" +
+                    "<li>log</li>" +
+                    "<li>sqrt</li>" +
+                    "</ul>",
             name = "scale"
     )
     protected static final String PROP_SCALE = "scale";
@@ -166,14 +166,29 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
     @ComponentProperty(
             defaultValue = "category20",
             description = "Color palette to use:<br><ul>" +
-            		"<li>category10 - ten categorical colors: <font color='#1f77b4'>#1f77b4</font> <font color='#ff7f0e'>#ff7f0e</font> <font color='#2ca02c'>#2ca02c</font> <font color='#d62728'>#d62728</font> <font color='#9467bd'>#9467bd</font> <font color='#8c564b'>#8c564b</font> <font color='#e377c2'>#e377c2</font> <font color='#7f7f7f'>#7f7f7f</font> <font color='#bcbd22'>#bcbd22</font> <font color='#17becf'>#17becf</font></li>" +
-            		"<li>category20 - twenty categorical colors: <font color='#1f77b4'>#1f77b4</font> <font color='#aec7e8'>#aec7e8</font> <font color='#ff7f0e'>#ff7f0e</font> <font color='#ffbb78'>#ffbb78</font> <font color='#2ca02c'>#2ca02c</font> <font color='#98df8a'>#98df8a</font> <font color='#d62728'>#d62728</font> <font color='#ff9896'>#ff9896</font> <font color='#9467bd'>#9467bd</font> <font color='#c5b0d5'>#c5b0d5</font> <font color='#8c564b'>#8c564b</font> <font color='#c49c94'>#c49c94</font> <font color='#e377c2'>#e377c2</font> <font color='#f7b6d2'>#f7b6d2</font> <font color='#7f7f7f'>#7f7f7f</font> <font color='#c7c7c7'>#c7c7c7</font> <font color='#bcbd22'>#bcbd22</font> <font color='#dbdb8d'>#dbdb8d</font> <font color='#17becf'>#17becf</font> <font color='#9edae5'>#9edae5</font></li>" +
-            		"<li>category20b - twenty categorical colors: <font color='#393b79'>#393b79</font> <font color='#5254a3'>#5254a3</font> <font color='#6b6ecf'>#6b6ecf</font> <font color='#9c9ede'>#9c9ede</font> <font color='#637939'>#637939</font> <font color='#8ca252'>#8ca252</font> <font color='#b5cf6b'>#b5cf6b</font> <font color='#cedb9c'>#cedb9c</font> <font color='#8c6d31'>#8c6d31</font> <font color='#bd9e39'>#bd9e39</font> <font color='#e7ba52'>#e7ba52</font> <font color='#e7cb94'>#e7cb94</font> <font color='#843c39'>#843c39</font> <font color='#ad494a'>#ad494a</font> <font color='#d6616b'>#d6616b</font> <font color='#e7969c'>#e7969c</font> <font color='#7b4173'>#7b4173</font> <font color='#a55194'>#a55194</font> <font color='#ce6dbd'>#ce6dbd</font> <font color='#de9ed6'>#de9ed6</font></li>" +
-            		"<li>category20c - twenty categorical colors: <font color='#3182bd'>#3182bd</font> <font color='#6baed6'>#6baed6</font> <font color='#9ecae1'>#9ecae1</font> <font color='#c6dbef'>#c6dbef</font> <font color='#e6550d'>#e6550d</font> <font color='#fd8d3c'>#fd8d3c</font> <font color='#fdae6b'>#fdae6b</font> <font color='#fdd0a2'>#fdd0a2</font> <font color='#31a354'>#31a354</font> <font color='#74c476'>#74c476</font> <font color='#a1d99b'>#a1d99b</font> <font color='#c7e9c0'>#c7e9c0</font> <font color='#756bb1'>#756bb1</font> <font color='#9e9ac8'>#9e9ac8</font> <font color='#bcbddc'>#bcbddc</font> <font color='#dadaeb'>#dadaeb</font> <font color='#636363'>#636363</font> <font color='#969696'>#969696</font> <font color='#bdbdbd'>#bdbdbd</font> <font color='#d9d9d9'>#d9d9d9</font></li>" +
-            		"</ul>",
+                    "<li>category10 - ten categorical colors: <font color='#1f77b4'>#1f77b4</font> <font color='#ff7f0e'>#ff7f0e</font> <font color='#2ca02c'>#2ca02c</font> <font color='#d62728'>#d62728</font> <font color='#9467bd'>#9467bd</font> <font color='#8c564b'>#8c564b</font> <font color='#e377c2'>#e377c2</font> <font color='#7f7f7f'>#7f7f7f</font> <font color='#bcbd22'>#bcbd22</font> <font color='#17becf'>#17becf</font></li>" +
+                    "<li>category20 - twenty categorical colors: <font color='#1f77b4'>#1f77b4</font> <font color='#aec7e8'>#aec7e8</font> <font color='#ff7f0e'>#ff7f0e</font> <font color='#ffbb78'>#ffbb78</font> <font color='#2ca02c'>#2ca02c</font> <font color='#98df8a'>#98df8a</font> <font color='#d62728'>#d62728</font> <font color='#ff9896'>#ff9896</font> <font color='#9467bd'>#9467bd</font> <font color='#c5b0d5'>#c5b0d5</font> <font color='#8c564b'>#8c564b</font> <font color='#c49c94'>#c49c94</font> <font color='#e377c2'>#e377c2</font> <font color='#f7b6d2'>#f7b6d2</font> <font color='#7f7f7f'>#7f7f7f</font> <font color='#c7c7c7'>#c7c7c7</font> <font color='#bcbd22'>#bcbd22</font> <font color='#dbdb8d'>#dbdb8d</font> <font color='#17becf'>#17becf</font> <font color='#9edae5'>#9edae5</font></li>" +
+                    "<li>category20b - twenty categorical colors: <font color='#393b79'>#393b79</font> <font color='#5254a3'>#5254a3</font> <font color='#6b6ecf'>#6b6ecf</font> <font color='#9c9ede'>#9c9ede</font> <font color='#637939'>#637939</font> <font color='#8ca252'>#8ca252</font> <font color='#b5cf6b'>#b5cf6b</font> <font color='#cedb9c'>#cedb9c</font> <font color='#8c6d31'>#8c6d31</font> <font color='#bd9e39'>#bd9e39</font> <font color='#e7ba52'>#e7ba52</font> <font color='#e7cb94'>#e7cb94</font> <font color='#843c39'>#843c39</font> <font color='#ad494a'>#ad494a</font> <font color='#d6616b'>#d6616b</font> <font color='#e7969c'>#e7969c</font> <font color='#7b4173'>#7b4173</font> <font color='#a55194'>#a55194</font> <font color='#ce6dbd'>#ce6dbd</font> <font color='#de9ed6'>#de9ed6</font></li>" +
+                    "<li>category20c - twenty categorical colors: <font color='#3182bd'>#3182bd</font> <font color='#6baed6'>#6baed6</font> <font color='#9ecae1'>#9ecae1</font> <font color='#c6dbef'>#c6dbef</font> <font color='#e6550d'>#e6550d</font> <font color='#fd8d3c'>#fd8d3c</font> <font color='#fdae6b'>#fdae6b</font> <font color='#fdd0a2'>#fdd0a2</font> <font color='#31a354'>#31a354</font> <font color='#74c476'>#74c476</font> <font color='#a1d99b'>#a1d99b</font> <font color='#c7e9c0'>#c7e9c0</font> <font color='#756bb1'>#756bb1</font> <font color='#9e9ac8'>#9e9ac8</font> <font color='#bcbddc'>#bcbddc</font> <font color='#dadaeb'>#dadaeb</font> <font color='#636363'>#636363</font> <font color='#969696'>#969696</font> <font color='#bdbdbd'>#bdbdbd</font> <font color='#d9d9d9'>#d9d9d9</font></li>" +
+                    "</ul>",
             name = "color_palette"
     )
     protected static final String PROP_COLOR_PALETTE = "color_palette";
+
+    @ComponentProperty(
+            defaultValue = "false",
+            description = "Should counts be included in the tokens from the tag cloud?",
+            name = "show_counts"
+    )
+    protected static final String PROP_SHOW_COUNTS = "show_counts";
+
+    @ComponentProperty(
+            defaultValue = "true",
+            description = "Should a tooltip containing the word and the count be shown upon hovering a token in the tag cloud?",
+            name = "show_tooltip"
+    )
+    protected static final String PROP_SHOW_TOOLTIP = "show_tooltip";
+
 
     //--------------------------------------------------------------------------------------------
 
@@ -188,6 +203,8 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
         context.put("fontMax", getPropertyOrDieTrying(PROP_FONT_MAX_SIZE, ccp));
         context.put("scale", getPropertyOrDieTrying(PROP_SCALE, ccp));
         context.put("colorPalette", getPropertyOrDieTrying(PROP_COLOR_PALETTE, ccp));
+        context.put("showCounts", Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SHOW_COUNTS, ccp)));
+        context.put("showToolTip", Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SHOW_TOOLTIP, ccp)));
 
         String fontName = getPropertyOrDieTrying(PROP_FONT_NAME, true, false, ccp);
         if (fontName.length() == 0) fontName = null;
