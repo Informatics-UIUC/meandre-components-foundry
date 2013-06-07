@@ -68,7 +68,7 @@
 
           #if( $drawText )
           node.append("text")
-              .text(function(d) { return d.name; })
+              .text(function(d) { return d.nodeName; })
               .attr("x", $textOffsetX)
               .attr("y", $textOffsetY);
           #end
