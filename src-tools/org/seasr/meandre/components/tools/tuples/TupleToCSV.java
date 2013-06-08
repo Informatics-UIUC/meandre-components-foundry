@@ -67,141 +67,141 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  */
 
 @Component(
-		name = "Tuple To CSV",
-		creator = "Mike Haberman",
-		baseURL = "meandre://seasr.org/components/foundry/",
-		firingPolicy = FiringPolicy.all,
-		mode = Mode.compute,
-		rights = Licenses.UofINCSA,
-		tags = "#TRANSFORM, tuple, tools, text, filter",
-		description = "This component writes the incoming set of tuples to CSV String" ,
-		dependency = {"protobuf-java-2.2.0.jar"}
+        name = "Tuple To CSV",
+        creator = "Mike Haberman",
+        baseURL = "meandre://seasr.org/components/foundry/",
+        firingPolicy = FiringPolicy.all,
+        mode = Mode.compute,
+        rights = Licenses.UofINCSA,
+        tags = "#TRANSFORM, tuple, tools, text, filter",
+        description = "This component writes the incoming set of tuples to CSV String" ,
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TupleToCSV extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
-	@ComponentInput(
-			name = Names.PORT_TUPLES,
-			description = "The set of tuples" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
-	)
-	protected static final String IN_TUPLES = Names.PORT_TUPLES;
+    @ComponentInput(
+            name = Names.PORT_TUPLES,
+            description = "The set of tuples" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+    )
+    protected static final String IN_TUPLES = Names.PORT_TUPLES;
 
-	@ComponentInput(
-			name = Names.PORT_META_TUPLE,
-			description = "The meta data for tuples" +
+    @ComponentInput(
+            name = Names.PORT_META_TUPLE,
+            description = "The meta data for tuples" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
+    )
+    protected static final String IN_META_TUPLE = Names.PORT_META_TUPLE;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
-	@ComponentOutput(
-			name = Names.PORT_TUPLES,
-			description = "The set of tuples (same as input)" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
-	)
-	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+    @ComponentOutput(
+            name = Names.PORT_TUPLES,
+            description = "The set of tuples (same as input)" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+    )
+    protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
-	@ComponentOutput(
-			name = Names.PORT_META_TUPLE,
-			description = "The meta data for the tuples (same as input)" +
+    @ComponentOutput(
+            name = Names.PORT_META_TUPLE,
+            description = "The meta data for the tuples (same as input)" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
+    )
+    protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
-	@ComponentOutput(
-			name = Names.PORT_TEXT,
-			description = "The CSV string" +
+    @ComponentOutput(
+            name = Names.PORT_TEXT,
+            description = "The CSV string" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String OUT_TEXT = Names.PORT_TEXT;
+    )
+    protected static final String OUT_TEXT = Names.PORT_TEXT;
 
-	//----------------------------- PROPERTIES ---------------------------------------------------
+    //----------------------------- PROPERTIES ---------------------------------------------------
 
-	@ComponentProperty(
-			name = Names.PROP_SEPARATOR,
-			description = "The delimiter to use to separate the data columns",
-		    defaultValue = ","
-	)
-	protected static final String PROP_SEPARATOR = Names.PROP_SEPARATOR;
+    @ComponentProperty(
+            name = Names.PROP_SEPARATOR,
+            description = "The delimiter to use to separate the data columns",
+            defaultValue = ","
+    )
+    protected static final String PROP_SEPARATOR = Names.PROP_SEPARATOR;
 
-	@ComponentProperty(
-			name = Names.PROP_HEADER,
-			description = "Should the header be added? ",
-		    defaultValue = "true"
-	)
-	protected static final String PROP_HEADER = Names.PROP_HEADER;
+    @ComponentProperty(
+            name = Names.PROP_HEADER,
+            description = "Should the header be added? ",
+            defaultValue = "true"
+    )
+    protected static final String PROP_HEADER = Names.PROP_HEADER;
 
     //--------------------------------------------------------------------------------------------
 
 
-	protected String _separator;
-	protected boolean _addHeader;
+    protected String _separator;
+    protected boolean _addHeader;
 
 
     //--------------------------------------------------------------------------------------------
 
-	@Override
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
-	    _addHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, ccp));
-	}
+        _separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
+        _addHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, ccp));
+    }
 
-	@Override
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
-		SimpleTuple tuple = tuplePeer.createTuple();
+        Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+        SimpleTuplePeer tuplePeer = new SimpleTuplePeer(inputMeta);
+        SimpleTuple tuple = tuplePeer.createTuple();
 
-		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
-		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
+        StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+        Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-		StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-		int size = tuplePeer.size();;
+        int size = tuplePeer.size();;
 
-		//
-		// write out the field names as the first row
-		//
-		if ( _addHeader ) {
-			for (int i = 0; i < size; i++) {
-				sb.append(tuplePeer.getFieldNameForIndex(i));
-				if (i + 1 < size) {
-					sb.append(_separator);
-				}
-			}
-			sb.append("\n");
-		}
+        //
+        // write out the field names as the first row
+        //
+        if ( _addHeader ) {
+            for (int i = 0; i < size; i++) {
+                sb.append(tuplePeer.getFieldNameForIndex(i));
+                if (i + 1 < size) {
+                    sb.append(_separator);
+                }
+            }
+            sb.append("\n");
+        }
 
-		for (int i = 0; i < in.length; i++) {
+        for (int i = 0; i < in.length; i++) {
 
-			tuple.setValues(in[i]);
+            tuple.setValues(in[i]);
 
-			for (int j = 0; j < size; j++) {
-				String value = tuple.getValue(j);
+            for (int j = 0; j < size; j++) {
+                String value = tuple.getValue(j);
 
-				// make sure the value doesn't contain the separator or else we're in trouble
-				while (value.contains(_separator))
-				    value = value.replace(_separator, "");
+                // make sure the value doesn't contain the separator or else we're in trouble
+                while (value.contains(_separator))
+                    value = value.replace(_separator, "");
 
-				//TODO what to do if value="" at this point?
+                //TODO what to do if value="" at this point?
 
                 sb.append(value);
-				if (j + 1 < size) {
-					sb.append(_separator);
-				}
-			}
-			sb.append("\n");
-		}
+                if (j + 1 < size) {
+                    sb.append(_separator);
+                }
+            }
+            sb.append("\n");
+        }
 
-		Strings safe = BasicDataTypesTools.stringToStrings(sb.toString());
+        Strings safe = BasicDataTypesTools.stringToStrings(sb.toString());
 
-		cc.pushDataComponentToOutput(OUT_TEXT,   safe);
-		cc.pushDataComponentToOutput(OUT_TUPLES,     input);
-		cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
-	}
+        cc.pushDataComponentToOutput(OUT_TEXT,   safe);
+        cc.pushDataComponentToOutput(OUT_TUPLES,     input);
+        cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
+    }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
