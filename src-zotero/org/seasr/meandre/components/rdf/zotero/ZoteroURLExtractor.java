@@ -60,7 +60,6 @@ import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
-import org.seasr.meandre.support.generic.io.ModelUtils;
 import org.seasr.meandre.support.generic.zotero.ZoteroUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -76,43 +75,48 @@ import com.hp.hpl.jena.rdf.model.Model;
  */
 
 @Component(
-		creator = "Xavier Llora",
-		description = "Extract the urls for each of the entry of a Zotero RDF",
-		name = "Zotero URL Extractor",
-		tags = "#TRANSFORM, zotero, url",
-		rights = Licenses.UofINCSA,
-		mode = Mode.compute,
-		firingPolicy = FiringPolicy.all,
-		baseURL = "meandre://seasr.org/components/foundry/",
-		dependency = {"protobuf-java-2.2.0.jar"}
+        creator = "Boris Capitanu",
+        description = "Extract the URLs for each of the entries of a Zotero RDF",
+        name = "Zotero URL Extractor",
+        tags = "#TRANSFORM, zotero, url",
+        rights = Licenses.UofINCSA,
+        mode = Mode.compute,
+        firingPolicy = FiringPolicy.all,
+        baseURL = "meandre://seasr.org/components/foundry/",
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ZoteroURLExtractor extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
-	@ComponentInput(
-	        name = Names.PORT_REQUEST_DATA,
-			description = "A mapping between request parameters and their values" +
-    			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap" +
-    			"<br>TYPE: java.util.Map<java.lang.String, java.lang.String[]>"
-	)
-	protected static final String IN_REQUEST = Names.PORT_REQUEST_DATA;
+    @ComponentInput(
+            name = "rdf",
+            description = "The Zotero RDF data " +
+                "<br>TYPE: com.hp.hpl.jena.rdf.model.Model" +
+                "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.Bytes" +
+                "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.Strings" +
+                "<br>TYPE: byte[]" +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: java.net.URL" +
+                "<br>TYPE: java.net.URI"
+    )
+    protected static final String IN_RDF = "rdf";
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
-	@ComponentOutput(
-	        name = Names.PORT_LOCATION,
-			description = "Item location" +
-			    "<br>TYPE: java.lang.String"
-	)
-	protected static final String OUT_ITEM_LOCATION = Names.PORT_LOCATION;
-
-	@ComponentOutput(
-	        name = Names.PORT_TEXT,
-			description = "Item title" +
+    @ComponentOutput(
+            name = Names.PORT_LOCATION,
+            description = "Item location" +
                 "<br>TYPE: java.lang.String"
-	)
-	protected static final String OUT_ITEM_TITLE = Names.PORT_TEXT;
+    )
+    protected static final String OUT_ITEM_LOCATION = Names.PORT_LOCATION;
+
+    @ComponentOutput(
+            name = Names.PORT_TEXT,
+            description = "Item title" +
+                "<br>TYPE: java.lang.String"
+    )
+    protected static final String OUT_ITEM_TITLE = Names.PORT_TEXT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -132,65 +136,49 @@ public class ZoteroURLExtractor extends AbstractStreamingExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-	@Override
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    super.initializeCallBack(ccp);
+        super.initializeCallBack(ccp);
 
-	    bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
-	}
+        bWrapped = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
+    }
 
-	@Override
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		Map<String, String[]> map = DataTypeParser.parseAsStringStringArrayMap(cc.getDataComponentFromInput(IN_REQUEST));
-		if (!map.containsKey("zoterordf")) {
-			outputError("Zotero RDF data not found in request!", Level.SEVERE);
-			return;
-		}
-
-        String[] zoteroRdfs = map.get("zoterordf");
+        Model model = DataTypeParser.parseAsModel(cc.getDataComponentFromInput(IN_RDF));
 
         if (bWrapped) pushInitiator();
 
-		if (zoteroRdfs != null) {
-		    itemCount = 0;
+        itemCount = 0;
+        Map<String, String> mapURLs;
 
-		    for (String rdf : zoteroRdfs) {
-		        int count = 0;
-		        Map<String, String> mapURLs;
+        try {
+            mapURLs = ZoteroUtils.extractURLs(model);
+        }
+        catch (Exception e) {
+            outputError("Error in data format", e, Level.WARNING);
+            if (bWrapped) pushTerminator();
+            return;
+        }
 
-		        try {
-		            Model model = ModelUtils.getModel(rdf, "meandre://specialUri");
-		            mapURLs = ZoteroUtils.extractURLs(model);
-		            count = mapURLs.size();
-		            itemCount += count;
-		        }
-		        catch (Exception e) {
-		            outputError("Error in data format", e, Level.WARNING);
-		            break;
-		        }
+        itemCount += mapURLs.size();
 
-		        if (count == 0)
-		            continue;
+        for (Entry<String, String> item : mapURLs.entrySet()) {
+            String sURI = item.getKey().replaceAll(" ", "%20");
+            String sTitle = item.getValue();
+            console.fine("[ uri = '" + sURI + "' title = '" + sTitle + "' ]");
 
-		        for (Entry<String, String> item : mapURLs.entrySet()) {
-		            String sURI = item.getKey().replaceAll(" ", "%20");
-		            String sTitle = item.getValue();
-		            console.fine("[ uri = '" + sURI + "' title = '" + sTitle + "' ]");
+            cc.pushDataComponentToOutput(OUT_ITEM_LOCATION, sURI);
+            cc.pushDataComponentToOutput(OUT_ITEM_TITLE, sTitle);
+        }
 
-		            cc.pushDataComponentToOutput(OUT_ITEM_LOCATION, sURI);
-		            cc.pushDataComponentToOutput(OUT_ITEM_TITLE, sTitle);
-		        }
-		    }
+        console.fine("Pushed out a total of " + itemCount + " URLs extracted from the Zotero input");
 
-		    console.fine("Pushed out a total of " + itemCount + " URLs extracted from the Zotero input");
+        if (itemCount == 0)
+            outputError("Your items contained no URL information. Check to see that the URL attribute contains a valid url.", Level.WARNING);
 
-		    if (itemCount == 0)
-	            outputError("Your items contained no URL information. Check to see that the URL attribute contains a valid url.", Level.WARNING);
-		} else
-		    outputError("Cannot find Zotero request information in the input data", Level.WARNING);
-
-		if (bWrapped) pushTerminator();
-	}
+        if (bWrapped) pushTerminator();
+    }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

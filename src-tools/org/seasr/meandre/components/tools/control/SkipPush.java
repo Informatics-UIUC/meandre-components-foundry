@@ -40,11 +40,10 @@
  * WITH THE SOFTWARE.
  */
 
-package org.seasr.meandre.components.rdf.zotero;
+package org.seasr.meandre.components.tools.control;
 
-import java.util.List;
-import java.util.Vector;
-import java.util.logging.Level;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -54,57 +53,63 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.support.generic.zotero.ZoteroUtils;
-
-import com.hp.hpl.jena.rdf.model.Model;
 
 /**
- *  This class extracts the list of authors per entry from a Zotero RDF
- *
- * @author Xavier Llor&agrave;
  * @author Boris Capitanu
  */
 
 @Component(
-        creator = "Xavier Llor&agrave",
-        description = "Extract the authors for each entry of a Zotero RDF",
-        name = "Zotero Author Extractor",
-        tags = "#TRANSFORM, zotero, author, information extraction",
-        rights = Licenses.UofINCSA,
+        name = "Skip Push",
+        creator = "Boris Capitanu",
+        baseURL = "meandre://seasr.org/components/foundry/",
+        firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
-        firingPolicy = FiringPolicy.all,
-        baseURL = "meandre://seasr.org/components/foundry/"
+        rights = Licenses.UofINCSA,
+        tags = "#TRANSFORM, sentence, text, convert",
+        description = "This component takes an object and decides whether to forward it on or discard " +
+                "it based on which of the 'skip' or 'push' triggers gets triggered.",
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class ZoteroAuthorExtractor extends AbstractExecutableComponent {
+public class SkipPush extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            name = "rdf",
-            description = "The Zotero RDF data " +
-                "<br>TYPE: com.hp.hpl.jena.rdf.model.Model" +
-                "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.Bytes" +
-                "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.Strings" +
-                "<br>TYPE: byte[]" +
-                "<br>TYPE: java.lang.String" +
-                "<br>TYPE: java.net.URL" +
-                "<br>TYPE: java.net.URI"
+            name = Names.PORT_OBJECT,
+            description = "The object" +
+                "<br>TYPE: java.lang.Object"
     )
-    protected static final String IN_RDF = "rdf";
+    protected static final String IN_OBJECT = Names.PORT_OBJECT;
+
+
+    @ComponentInput(
+            name = "skip_trigger",
+            description = "The skip trigger" +
+                "<br>TYPE: java.lang.Object"
+    )
+    protected static final String IN_SKIP_TRIGGER = "skip_trigger";
+
+
+    @ComponentInput(
+            name = "push_trigger",
+            description = "The push trigger" +
+                "<br>TYPE: java.lang.Object"
+    )
+    protected static final String IN_PUSH_TRIGGER = "push_trigger";
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            name = Names.PORT_AUTHOR_LIST,
-            description = "A list of vectors containing the names of the authors. There is one vector for" +
-                          "Zotero entry" +
-                          "<br>TYPE: java.util.List<java.util.Vector<java.lang.String>>"
+            name = Names.PORT_OBJECT,
+            description = "The object"
     )
-    protected static final String OUT_AUTHOR_LIST = Names.PORT_AUTHOR_LIST;
+    protected static final String OUT_OBJECT = Names.PORT_OBJECT;
 
+    //--------------------------------------------------------------------------------------------
+
+    Queue<Integer> skipList = new LinkedList<Integer>();
 
     //--------------------------------------------------------------------------------------------
 
@@ -114,25 +119,23 @@ public class ZoteroAuthorExtractor extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Model model = DataTypeParser.parseAsModel(cc.getDataComponentFromInput(IN_RDF));
-        List<Vector<String>> authorList = ZoteroUtils.extractAuthors(model);
+        componentInputCache.storeIfAvailable(cc, IN_OBJECT);
 
-        if (console.isLoggable(Level.FINE)) {
-            for (Vector<String> authors : authorList) {
-                for (String author : authors)
-                    console.fine("author: " + author);
-            }
+        if (cc.isInputAvailable(IN_PUSH_TRIGGER))
+            skipList.offer(1);
+
+        if (cc.isInputAvailable(IN_SKIP_TRIGGER))
+            skipList.offer(0);
+
+        while (componentInputCache.peek(IN_OBJECT) != null && !skipList.isEmpty()) {
+            Object input = componentInputCache.retrieveNext(IN_OBJECT);
+            if (skipList.remove() == 1)
+                cc.pushDataComponentToOutput(OUT_OBJECT, input);
         }
-
-        if (authorList.isEmpty()) {
-            outputError("No authors found for the items selected", Level.WARNING);
-            return;
-        }
-
-        cc.pushDataComponentToOutput(OUT_AUTHOR_LIST, authorList);
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
+
 }
