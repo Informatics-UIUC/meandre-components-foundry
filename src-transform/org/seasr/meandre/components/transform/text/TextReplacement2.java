@@ -61,8 +61,8 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 //
-// FORMAT:  newText = {old1, old2, old3}; newText2 = {old4,old5}; newText3=old6"
-// newValue = {oldValueA, oldValueB} OR newValue=oldValue
+// FORMAT:  newText={old1,old2,old3};newText2={old4,old5};newText3=old6
+// newValue={oldValueA,oldValueB} OR newValue=oldValue
 //
 // lines are separated with ';'
 // {} are optional
