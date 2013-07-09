@@ -144,7 +144,7 @@ public class TextReplacement2 extends AbstractExecutableComponent {
         String rules = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_MAP_DATA))[0];
         String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
 
-        text = applyRules(rules, text);
+        text = applyRules(rules, text, _ignoreCase);
 
         cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
     }
@@ -155,7 +155,7 @@ public class TextReplacement2 extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-    protected String applyRules(String rules, String text) throws Exception {
+    protected String applyRules(String rules, String text, boolean ignoreCase) throws Exception {
         Map<String,String> replacementRules = parseReplacementRules(rules);
         for (Map.Entry<String, String> entry : replacementRules.entrySet()) {
             String oldText = entry.getKey();
@@ -164,7 +164,7 @@ public class TextReplacement2 extends AbstractExecutableComponent {
             oldText = Pattern.quote(oldText);  // escape any regexp-specific characters
             oldText = "\\b" + oldText + "\\b";
 
-            if (_ignoreCase)
+            if (ignoreCase)
                 oldText = "(?i)" + oldText;
 
             text = text.replaceAll(oldText, newText);
