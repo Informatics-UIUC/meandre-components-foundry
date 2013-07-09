@@ -141,10 +141,10 @@ public class TextReplacement2 extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        String inRules = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_MAP_DATA))[0];
+        String rules = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_MAP_DATA))[0];
         String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
 
-        text = applyRules(inRules, text);
+        text = applyRules(rules, text);
 
         cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
     }
