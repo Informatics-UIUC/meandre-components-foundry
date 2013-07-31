@@ -167,12 +167,12 @@ public class TextReplacement extends AbstractExecutableComponent {
 	        dictionary = tmp;
 	    }
 
-	    /*
+	    
 			for (String key : dictionary.keySet()) {
 				String v = dictionary.get(key);
-				console.info(key + "-->" + v);
+				console.finest("mapping " + key + " --> " + v);
 			}
-	     */
+	     
 
 
 		String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
@@ -269,7 +269,7 @@ public class TextReplacement extends AbstractExecutableComponent {
 	            // this is a reverse map
 	            // e.g. the KEY is the value, the value is the key
 	            map.put(value, key);
-	            //console.info("mapping " + value + " to " + key);
+	            console.finest("mapping " + value + " --> " + key);
 	        }
 	    }
 	    return map;
