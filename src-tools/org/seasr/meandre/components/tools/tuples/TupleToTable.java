@@ -123,11 +123,11 @@ public class TupleToTable extends AbstractExecutableComponent {
     protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
     @ComponentOutput(
-            name = Names.PROP_TABLE,
+            name = Names.PORT_TABLE,
             description = "Output Table object." +
             "<br>TYPE: org.seasr.datatypes.table.MutableTable"
     )
-    protected static final String OUT_TABLE = Names.PROP_TABLE;
+    protected static final String OUT_TABLE = Names.PORT_TABLE;
 
     //----------------------------- PROPERTIES ---------------------------------------------------
 
