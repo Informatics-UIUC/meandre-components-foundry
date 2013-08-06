@@ -72,9 +72,9 @@ import org.seasr.meandre.support.generic.io.IOUtils;
         description = "Arranges multiple HTML documents into a single web page from "+
         "all HTML documents that are part of a stream. Two layouts currently exist. "+
         "1) FrameMaker.vm fits all frames in the browser window and adjusts size of " +
-            "each frame using the number of columns provided."+
-        "2) iFrameViewer.vm allows the frame size to be set as pixels for column for each HTML document "+
-            "and thus allows as much scrolling as needed",
+            "each frame using the number of columns provided. "+
+        "2) iFrameViewer.vm allows the frame size to be set as pixels for a column for each HTML document "+
+            "and thus allows as much scrolling as needed.",
         name = "Frame Maker",
         tags = "html, frames",
         rights = Licenses.UofINCSA,
@@ -112,9 +112,9 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
     @ComponentProperty(
             description = "The template name. Two templates have been created." +
             "1) FrameMaker.vm fits all frames in the browser window and adjusts size of " +
-            "each frame."+
+            "each frame. "+
             "2) iFrameViewer.vm allows the frame size to be set "+
-            "and thus allows as much scrolling as needed",
+            "and thus allows as much scrolling as needed.",
             name = Names.PROP_TEMPLATE,
             defaultValue = "org/seasr/meandre/components/vis/html/FrameMaker.vm"
     )
@@ -131,7 +131,7 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
     protected static final String PROP_COLUMNS = "columns";
 
     @ComponentProperty(
-            description = "Location where to write out the HTML files for each frame. " +
+            description = "Location to write out the HTML files for each frame. " +
             		"Note: The folder will be created if it does not exist; also, if the " +
             		"folder is relative, it will be considered as relative to the published_resources folder.",
             name = "output_folder",
