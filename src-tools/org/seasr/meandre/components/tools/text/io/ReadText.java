@@ -78,49 +78,49 @@ import org.seasr.meandre.support.generic.io.StreamUtils;
  */
 
 @Component(
-		name = "Read Text",
-		creator = "Boris Capitanu",
-		baseURL = "meandre://seasr.org/components/foundry/",
-		firingPolicy = FiringPolicy.all,
-		mode = Mode.compute,
-		rights = Licenses.UofINCSA,
-		tags = "#INPUT, semantic, io, read, text",
-		description = "This component reads text from a local or remote location. The text location is specified " +
-				      "in the input. The component outputs the text " +
-				      "read. A property controls the behavior of the component in " +
-				      "the event of an IO error, allowing it to ignore the error and continue, or " +
-				      "throw an exception, forcing the finalization of the flow execution.",
-		dependency = {"protobuf-java-2.2.0.jar"}
+        name = "Read Text",
+        creator = "Boris Capitanu",
+        baseURL = "meandre://seasr.org/components/foundry/",
+        firingPolicy = FiringPolicy.all,
+        mode = Mode.compute,
+        rights = Licenses.UofINCSA,
+        tags = "#INPUT, semantic, io, read, text",
+        description = "This component reads text from a local or remote location. The text location is specified " +
+                      "in the input. The component outputs the text " +
+                      "read. A property controls the behavior of the component in " +
+                      "the event of an IO error, allowing it to ignore the error and continue, or " +
+                      "throw an exception, forcing the finalization of the flow execution.",
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ReadText extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
-	@ComponentInput(
-			name = Names.PORT_LOCATION,
-			description = "The URL or file name containing the text to read" +
+    @ComponentInput(
+            name = Names.PORT_LOCATION,
+            description = "The URL or file name containing the text to read" +
                 "<br>TYPE: java.net.URI" +
                 "<br>TYPE: java.net.URL" +
                 "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String IN_LOCATION = Names.PORT_LOCATION;
+    )
+    protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
-	@ComponentOutput(
-			name = Names.PORT_LOCATION,
-			description = "The location that the text was read from" +
+    @ComponentOutput(
+            name = Names.PORT_LOCATION,
+            description = "The location that the text was read from" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
+    )
+    protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
-	@ComponentOutput(
-			name = Names.PORT_TEXT,
-			description = "The text read" +
+    @ComponentOutput(
+            name = Names.PORT_TEXT,
+            description = "The text read" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String OUT_TEXT = Names.PORT_TEXT;
+    )
+    protected static final String OUT_TEXT = Names.PORT_TEXT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -170,7 +170,7 @@ public class ReadText extends AbstractExecutableComponent {
     )
     protected static final String PROP_RETRY_DELAY = "retry_delay";
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
     protected int connectionTimeout;
     protected int readTimeout;
@@ -234,7 +234,8 @@ public class ReadText extends AbstractExecutableComponent {
                     console.warning(String.format("Attempt %d: Server returned HTTP %d error for %s", retryCount, respCode, connection.getURL()));
                     if (!retryHttpCodes.contains(respCode) || retryCount == maxAttempts)
                         throw e;
-                }
+                } else
+                    throw e;
             }
             finally {
                 if (connection instanceof HttpURLConnection)
