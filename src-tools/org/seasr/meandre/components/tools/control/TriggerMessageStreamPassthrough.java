@@ -124,7 +124,7 @@ public class TriggerMessageStreamPassthrough extends AbstractExecutableComponent
 
     @ComponentProperty (
             description = "Specifies which port name is the one for which stream forwarding will be enabled " +
-                    "(one of '" + IN_OBJECT+ "' or '" + IN_TRIGGER + "'",
+                    "(one of '" + IN_OBJECT+ "' or '" + IN_TRIGGER + "')",
             name = "passthrough_port",
             defaultValue = IN_OBJECT
     )
@@ -132,7 +132,7 @@ public class TriggerMessageStreamPassthrough extends AbstractExecutableComponent
 
     @ComponentProperty (
             description = "Specifies the name(s) of the output port(s) on which the stream delimiter should be forwarded (comma separated) " +
-                    "(possible values: '" + OUT_OBJECT+ "' and '" + OUT_TRIGGER + "'",
+                    "(possible values: '" + OUT_OBJECT+ "' and '" + OUT_TRIGGER + "')",
             name = "output_stream_port",
             defaultValue = OUT_OBJECT
     )
