@@ -85,19 +85,19 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 */
 
 @Component(
-		name = "Tuple Labeler",
-		creator = "Mike Haberman",
-		baseURL = "meandre://seasr.org/components/foundry/",
-		firingPolicy = FiringPolicy.all,
-		mode = Mode.compute,
-		rights = Licenses.UofINCSA,
-		tags = "#TRANSFORM, tuple",
-		description = "This component takes in two different sets of tuples. " +
-    		"The first set is used to build a key-value map.  The key field is specified as well as the value field. " +
-    		"The second set of tuples is then labelled using the map built from the first set.  A value from the " +
-    		"tuple is used (as the key into the map) to get the label (the value returned from the map) " +
-    		"This label is appended to the incoming tuple are returned as a new tuple set",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+        name = "Tuple Labeler",
+        creator = "Mike Haberman",
+        baseURL = "meandre://seasr.org/components/foundry/",
+        firingPolicy = FiringPolicy.all,
+        mode = Mode.compute,
+        rights = Licenses.UofINCSA,
+        tags = "#TRANSFORM, tuple",
+        description = "This component takes in two different sets of tuples. " +
+            "The first set is used to build a key-value map.  The key field is specified as well as the value field. " +
+            "The second set of tuples is then labelled using the map built from the first set.  A value from the " +
+            "tuple is used (as the key into the map) to get the label (the value returned from the map) " +
+            "This label is appended to the incoming tuple are returned as a new tuple set",
+        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
 )
 public class TupleLabeler extends AbstractExecutableComponent {
 
@@ -173,125 +173,127 @@ public class TupleLabeler extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-	//
-	// this is the set of tuples to be treated like a hashmap
-	//
-	String hashKeyFieldName   = "token";
-	String hashValueFieldName = "concept";
-	String keyFieldName       = hashKeyFieldName;
+    //
+    // this is the set of tuples to be treated like a hashmap
+    //
+    String hashKeyFieldName   = "token";
+    String hashValueFieldName = "concept";
+    String keyFieldName       = hashKeyFieldName;
 
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
-	@Override
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-		String k = ccp.getProperty(PROP_FIELDNAME_HASH_KEY);
-		String v = ccp.getProperty(PROP_FIELDNAME_HASH_VALUE);
+        String k = ccp.getProperty(PROP_FIELDNAME_HASH_KEY);
+        String v = ccp.getProperty(PROP_FIELDNAME_HASH_VALUE);
+        String f = ccp.getProperty(PROP_FIELDNAME_KEY);
 
-		if (k == null || k.trim().length() == 0) {
-			throw new ComponentExecutionException("invalid property value " + PROP_FIELDNAME_HASH_KEY);
-		}
-		if (v == null || v.trim().length() == 0) {
-			throw new ComponentExecutionException("invalid property value " + PROP_FIELDNAME_HASH_VALUE);
-		}
+        if (k == null || k.trim().length() == 0) {
+            throw new ComponentExecutionException("invalid property value " + PROP_FIELDNAME_HASH_KEY);
+        }
+        if (v == null || v.trim().length() == 0) {
+            throw new ComponentExecutionException("invalid property value " + PROP_FIELDNAME_HASH_VALUE);
+        }
 
-		this.hashKeyFieldName   = k;
-		this.hashValueFieldName = v;
-	}
+        this.hashKeyFieldName   = k;
+        this.hashValueFieldName = v;
+        this.keyFieldName = f;
+    }
 
-	@Override
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		//
-		// Process the concept Map data
-		//
+        //
+        // Process the concept Map data
+        //
 
-		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_CONCEPT_META_TUPLE);
-		SimpleTuplePeer inPeer = new SimpleTuplePeer(inputMeta);
+        Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_CONCEPT_META_TUPLE);
+        SimpleTuplePeer inPeer = new SimpleTuplePeer(inputMeta);
 
-		StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_CONCEPT_TUPLES);
-		Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
+        StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_CONCEPT_TUPLES);
+        Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-		SimpleTuple tuple = inPeer.createTuple();
+        SimpleTuple tuple = inPeer.createTuple();
 
-		//
-		// convert the list of concept tokens to a map for easy access
-		//
+        //
+        // convert the list of concept tokens to a map for easy access
+        //
 
-		int KEY_IDX   = inPeer.getIndexForFieldName(hashKeyFieldName);    // key
-		int VALUE_IDX = inPeer.getIndexForFieldName(hashValueFieldName);  // value
+        int KEY_IDX   = inPeer.getIndexForFieldName(hashKeyFieldName);    // key
+        int VALUE_IDX = inPeer.getIndexForFieldName(hashValueFieldName);  // value
 
-		if (KEY_IDX == -1) {
-			throw new ComponentExecutionException("hash tuple has no field named " + hashKeyFieldName);
-		}
-		if (VALUE_IDX == -1) {
-			throw new ComponentExecutionException("has tuple have no field named " + hashValueFieldName);
-		}
+        if (KEY_IDX == -1) {
+            throw new ComponentExecutionException("hash tuple has no field named " + hashKeyFieldName);
+        }
+        if (VALUE_IDX == -1) {
+            throw new ComponentExecutionException("has tuple have no field named " + hashValueFieldName);
+        }
 
-		Map<String,String> wordToConceptMap = new HashMap<String,String>();
-		for (int i = 0; i < in.length; i++) {
+        Map<String,String> wordToConceptMap = new HashMap<String,String>();
+        for (int i = 0; i < in.length; i++) {
 
-			tuple.setValues(in[i]);
-			String key   = tuple.getValue(KEY_IDX);
-			String value = tuple.getValue(VALUE_IDX);
+            tuple.setValues(in[i]);
+            String key   = tuple.getValue(KEY_IDX);
+            String value = tuple.getValue(VALUE_IDX);
 
-			wordToConceptMap.put(normalize(key), value);
-		}
+            wordToConceptMap.put(normalize(key), value);
+        }
 
-		//
-		// Process the tuple data
-		//
-		inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
-		inPeer = new SimpleTuplePeer(inputMeta);
-		SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[]{hashValueFieldName});
+        //
+        // Process the tuple data
+        //
+        inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
+        inPeer = new SimpleTuplePeer(inputMeta);
+        SimpleTuplePeer outPeer = new SimpleTuplePeer(inPeer, new String[]{hashValueFieldName});
 
-		input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
-		in = BasicDataTypesTools.stringsArrayToJavaArray(input);
+        input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+        in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-		tuple = inPeer.createTuple();
+        tuple = inPeer.createTuple();
 
-		KEY_IDX = inPeer.getIndexForFieldName(keyFieldName);
-		if (KEY_IDX == -1) {
-			throw new ComponentExecutionException("tuple has no field named " + keyFieldName);
-		}
+        KEY_IDX = inPeer.getIndexForFieldName(keyFieldName);
+        if (KEY_IDX == -1) {
+            throw new ComponentExecutionException("tuple has no field named " + keyFieldName);
+        }
 
-		console.info("output peer " + outPeer.toString());
+        console.info("output peer " + outPeer.toString());
 
-		VALUE_IDX = outPeer.getIndexForFieldName(hashValueFieldName);
-		// assert VALUE_IDX != -1, since we just added it
+        VALUE_IDX = outPeer.getIndexForFieldName(hashValueFieldName);
+        // assert VALUE_IDX != -1, since we just added it
 
 
-		List<Strings> output = new ArrayList<Strings>();
-		SimpleTuple outTuple = outPeer.createTuple();
-		for (int i = 0; i < in.length; i++) {
-			tuple.setValues(in[i]);
-			String key = tuple.getValue(KEY_IDX);
-			String concept = wordToConceptMap.get(normalize(key));
+        List<Strings> output = new ArrayList<Strings>();
+        SimpleTuple outTuple = outPeer.createTuple();
+        for (int i = 0; i < in.length; i++) {
+            tuple.setValues(in[i]);
+            String key = tuple.getValue(KEY_IDX);
+            String concept = wordToConceptMap.get(normalize(key));
 
-			if (concept != null) {
-				outTuple.setValue(tuple);
-				outTuple.setValue(VALUE_IDX, concept);
-				output.add(outTuple.convert());
-			}
-		}
+            if (concept != null) {
+                outTuple.setValue(tuple);
+                outTuple.setValue(VALUE_IDX, concept);
+                output.add(outTuple.convert());
+            }
+        }
 
-		//
-		// push the whole collection, protocol safe
-		//
-	    Strings[] results = new Strings[output.size()];
-		output.toArray(results);
-		StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
-		cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
+        //
+        // push the whole collection, protocol safe
+        //
+        Strings[] results = new Strings[output.size()];
+        output.toArray(results);
+        StringsArray outputSafe = BasicDataTypesTools.javaArrayToStringsArray(results);
+        cc.pushDataComponentToOutput(OUT_TUPLES, outputSafe);
 
-	    //
-		// metaData for this tuple producer
-		//
-	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
+        //
+        // metaData for this tuple producer
+        //
+        cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
 
-	    // TODO ???
-	    // convenice output: strings[] unique set of keys
-	    // vis could use these as labels
-	    //
-	}
+        // TODO ???
+        // convenice output: strings[] unique set of keys
+        // vis could use these as labels
+        //
+    }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
