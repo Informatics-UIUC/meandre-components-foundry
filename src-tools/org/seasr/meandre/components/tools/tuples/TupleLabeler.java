@@ -226,7 +226,7 @@ public class TupleLabeler extends AbstractExecutableComponent {
             throw new ComponentExecutionException("hash tuple has no field named " + hashKeyFieldName);
         }
         if (VALUE_IDX == -1) {
-            throw new ComponentExecutionException("has tuple have no field named " + hashValueFieldName);
+            throw new ComponentExecutionException("hash tuple has no field named " + hashValueFieldName);
         }
 
         Map<String,String> wordToConceptMap = new HashMap<String,String>();
@@ -256,7 +256,7 @@ public class TupleLabeler extends AbstractExecutableComponent {
             throw new ComponentExecutionException("tuple has no field named " + keyFieldName);
         }
 
-        console.info("output peer " + outPeer.toString());
+        console.fine("output tuple labels: " + outPeer.toString());
 
         VALUE_IDX = outPeer.getIndexForFieldName(hashValueFieldName);
         // assert VALUE_IDX != -1, since we just added it
