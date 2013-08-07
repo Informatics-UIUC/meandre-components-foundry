@@ -50,6 +50,7 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
 import org.seasr.datatypes.core.Names;
@@ -79,7 +80,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 )
 public class TriggerMessageStreamPassthrough extends AbstractExecutableComponent {
 
-	//------------------------------ INPUTS ------------------------------------------------------
+    //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
             name = Names.PORT_OBJECT,
@@ -97,14 +98,14 @@ public class TriggerMessageStreamPassthrough extends AbstractExecutableComponent
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
-	@ComponentOutput(
-	        name = Names.PORT_OBJECT,
-	        description = "The Object that has been saved." +
+    @ComponentOutput(
+            name = Names.PORT_OBJECT,
+            description = "The Object that has been saved." +
                           "<br>TYPE: java.lang.Object"
-	)
-	protected static final String OUT_OBJECT = Names.PORT_OBJECT;
+    )
+    protected static final String OUT_OBJECT = Names.PORT_OBJECT;
 
-	@ComponentOutput(
+    @ComponentOutput(
             name = Names.PORT_TRIGGER,
             description = "Trigger indicating that the message is to be output." +
                           "<br>TYPE: java.lang.Object"
@@ -121,10 +122,28 @@ public class TriggerMessageStreamPassthrough extends AbstractExecutableComponent
     )
     protected static final String PROP_RESET = "reset_on_push";
 
+    @ComponentProperty (
+            description = "Specifies which port name is the one for which stream forwarding will be enabled " +
+                    "(one of '" + IN_OBJECT+ "' or '" + IN_TRIGGER + "'",
+            name = "passthrough_port",
+            defaultValue = IN_OBJECT
+    )
+    protected static final String PROP_PASSTHROUGH_PORT = "passthrough_port";
+
+    @ComponentProperty (
+            description = "Specifies the name(s) of the output port(s) on which the stream delimiter should be forwarded (comma separated) " +
+                    "(possible values: '" + OUT_OBJECT+ "' and '" + OUT_TRIGGER + "'",
+            name = "output_stream_port",
+            defaultValue = OUT_OBJECT
+    )
+    protected static final String PROP_OUTPUT_STREAM_PORT = "output_stream_port";
+
     //--------------------------------------------------------------------------------------------
 
 
     protected boolean _reset;
+    protected String _passthroughPort;
+    protected String[] _outputStreamPortNames;
 
 
     //--------------------------------------------------------------------------------------------
@@ -132,33 +151,43 @@ public class TriggerMessageStreamPassthrough extends AbstractExecutableComponent
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _reset = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_RESET, ccp));
-	}
+        _passthroughPort = getPropertyOrDieTrying(PROP_PASSTHROUGH_PORT, ccp);
+        _outputStreamPortNames = getPropertyOrDieTrying(PROP_OUTPUT_STREAM_PORT, ccp).replaceAll("\\s", "").split(",");
+    }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         componentInputCache.storeIfAvailable(cc, IN_TRIGGER);
         componentInputCache.storeIfAvailable(cc, IN_OBJECT);
 
-	    while (componentInputCache.hasDataAll(new String[] { IN_TRIGGER, IN_OBJECT })) {
+        while (componentInputCache.hasDataAll(new String[] { IN_TRIGGER, IN_OBJECT })) {
             Object object = componentInputCache.peek(IN_OBJECT);
             if (object instanceof StreamDelimiter) {
-                cc.pushDataComponentToOutput(OUT_OBJECT, object);
+                if (_passthroughPort.equalsIgnoreCase(IN_OBJECT))
+                    forwardStreamDelimiter((StreamDelimiter) object);
+                else
+                    console.warning(String.format("Stream delimiters should not arrive on port '%s' - ignoring it...", IN_OBJECT));
+
                 componentInputCache.retrieveNext(IN_OBJECT);
                 continue;
             }
 
-	        Object trigger = componentInputCache.retrieveNext(IN_TRIGGER);
-	        if (trigger instanceof StreamDelimiter) {
-                console.warning(String.format("Stream delimiters should not arrive on port '%s' - ignoring it...", IN_TRIGGER));
+            Object trigger = componentInputCache.retrieveNext(IN_TRIGGER);
+            if (trigger instanceof StreamDelimiter) {
+                if (_passthroughPort.equalsIgnoreCase(IN_TRIGGER))
+                    forwardStreamDelimiter((StreamDelimiter) trigger);
+                else
+                    console.warning(String.format("Stream delimiters should not arrive on port '%s' - ignoring it...", IN_TRIGGER));
+
                 continue;
             }
 
-	        cc.pushDataComponentToOutput(OUT_OBJECT, object);
-	        cc.pushDataComponentToOutput(OUT_TRIGGER, trigger);
+            cc.pushDataComponentToOutput(OUT_OBJECT, object);
+            cc.pushDataComponentToOutput(OUT_TRIGGER, trigger);
 
-	        if (_reset)
+            if (_reset)
                 componentInputCache.retrieveNext(IN_OBJECT);
-	    }
+        }
     }
 
     @Override
@@ -175,5 +204,12 @@ public class TriggerMessageStreamPassthrough extends AbstractExecutableComponent
     @Override
     public void handleStreamTerminators() throws Exception {
         executeCallBack(componentContext);
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    private void forwardStreamDelimiter(StreamDelimiter sd) throws ComponentContextException {
+        for (String outputPortName : _outputStreamPortNames)
+            componentContext.pushDataComponentToOutput(outputPortName, sd);
     }
 }
