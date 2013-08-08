@@ -42,8 +42,9 @@
 
 package org.seasr.meandre.components.transform.text;
 
-import java.util.Hashtable;
-import java.util.StringTokenizer;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
@@ -52,11 +53,18 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.supercsv.cellprocessor.ParseInt;
+import org.supercsv.cellprocessor.constraint.NotNull;
+import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
+import org.supercsv.cellprocessor.constraint.Unique;
+import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.io.CsvMapReader;
+import org.supercsv.io.ICsvMapReader;
+import org.supercsv.prefs.CsvPreference;
 
 /**
  *
@@ -67,19 +75,19 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 @Component(
         creator = "Boris Capitanu",
         description = "Converts CSV text to token counts structure.",
-        name = "CSV Text To Token Counts",
+        name = "CSV To Token Counts",
         tags = "#TRANSFORM, CSV, text, token count",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = {"protobuf-java-2.2.0.jar"}
+        dependency = { "protobuf-java-2.2.0.jar", "super-csv-2.1.0.jar" }
 )
-public class CSVTextToTokenCounts extends AbstractExecutableComponent{
+public class CSVToTokenCounts extends AbstractExecutableComponent{
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
             name = Names.PORT_TEXT,
-            description = "The text to be converted" +
+            description = "The CSV token count data" +
                 "<br>TYPE: java.lang.String" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
                 "<br>TYPE: byte[]" +
@@ -90,28 +98,29 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
-	@ComponentOutput(
-			name = Names.PORT_TOKEN_COUNTS,
-			description = "The token counts" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
-	)
-	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+    @ComponentOutput(
+            name = Names.PORT_TOKEN_COUNTS,
+            description = "The token counts" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
+    )
+    protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
     //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
             name = Names.PROP_HEADER,
-            description = "Does the input contain a header?",
+            description = "Does the CSV input contain a header?",
             defaultValue = "true"
     )
     protected static final String PROP_HEADER = Names.PROP_HEADER;
 
     @ComponentProperty(
-            name = "tokenSeparator",
-            description = "The token to use to separate the field values. Use \\t if the separator is the tab character.",
-            defaultValue = ","
+            name = "enable_constraint_checking",
+            description = "Should checks be made against the CSV data to ensure that tokens " +
+                    "are unique and counts are integers and not null? There is a performance penalty when turning this on.",
+            defaultValue = "false"
     )
-    protected static final String PROP_TOKEN_SEPARATOR = "tokenSeparator";
+    protected static final String PROP_CONSTRAINT_CHECK = "enable_constraint_checking";
 
     @ComponentProperty(
             name = "token_pos",
@@ -128,62 +137,87 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
     protected static final String PROP_COUNT_POS = "count_pos";
 
     @ComponentProperty(
+            name = "column_count",
+            description = "The number of columns in the CSV data (required if the CSV data has no header)",
+            defaultValue = ""
+    )
+    protected static final String PROP_COLUMN_COUNT = "column_count";
+
+    @ComponentProperty(
             name = Names.PROP_ORDERED,
             description = "Should the resulting token counts be ordered?",
             defaultValue = "true"
     )
     protected static final String PROP_ORDERED = Names.PROP_ORDERED;
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
 
-    private boolean bHeader, bOrdered;
-    private String separator;
-    private int tokenPos, countPos;
+    protected boolean _hasHeader, _ordered, _enableValidation;
+    protected int _tokenPos, _countPos;
+    protected Integer _columnCount;
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        bHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, true, true, ccp));
-        bOrdered = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, true, true, ccp));
-        separator = getPropertyOrDieTrying(PROP_TOKEN_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
-        tokenPos = Integer.parseInt(getPropertyOrDieTrying(PROP_TOKEN_POS, ccp));
-        countPos = Integer.parseInt(getPropertyOrDieTrying(PROP_COUNT_POS, ccp));
+        _hasHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, ccp));
+        _ordered = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, ccp));
+        if (!_hasHeader)
+            _columnCount = Integer.parseInt(getPropertyOrDieTrying(PROP_COLUMN_COUNT, ccp));
+        _enableValidation = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_CONSTRAINT_CHECK, ccp));
+        _tokenPos = Integer.parseInt(getPropertyOrDieTrying(PROP_TOKEN_POS, ccp));
+        _countPos = Integer.parseInt(getPropertyOrDieTrying(PROP_COUNT_POS, ccp));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>();
+        final Map<String,Integer> tokenCountMap = new HashMap<String,Integer>();
+        final String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
 
-    	for (String text : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))) {
-    	    boolean skippedHeader = false;
+        final StringReader csvData = new StringReader(text);
+        ICsvMapReader csvReader = null;
+        try {
+            csvReader = new CsvMapReader(csvData, CsvPreference.EXCEL_PREFERENCE);
 
-    	    StringTokenizer st = new StringTokenizer(text, "\n");  // tokenize each line
-    	    while (st.hasMoreTokens()) {
-    	        if (bHeader && !skippedHeader) {
-    	            st.nextToken();
-    	            skippedHeader = true;
-    	            continue;
-    	        }
+            // the header columns are used as the keys to the Map
+            String[] header;
+            if (_hasHeader) {
+                header = csvReader.getHeader(true);
+                _columnCount = header.length;
 
-    	        String line = st.nextToken();
-                String[] tokens = line.split(separator);
-    	        if (tokens.length < (Math.max(tokenPos, countPos) + 1))
-    	            throw new ComponentExecutionException(String.format("CSV line: '%s' does not contain enough values", line));
+                // setting header to ignore all columns except the ones containing the token and count
+                for (int i = 0; i < _columnCount; i++)
+                    if (i != _tokenPos && i != _countPos)
+                        header[i] = null;
+            } else {
+                header = new String[_columnCount];
+                header[_tokenPos] = "token";
+                header[_countPos] = "count";
+            }
 
-    	        String token = tokens[tokenPos];
-    	        int count = Integer.parseInt(tokens[countPos]);
+            final CellProcessor[] processors = new CellProcessor[_columnCount];
+            if (_enableValidation)
+                processors[_tokenPos] = new StrNotNullOrEmpty(new Unique());
 
-    	        if (htCounts.containsKey(token))
-    	            console.warning(String.format("Token '%s' occurs more than once in the dataset - replacing previous count...", token));
+            // enable processor to convert counts from string to integer
+            processors[_countPos] = new NotNull(new ParseInt());
 
-    	        htCounts.put(token, count);
-    	    }
+            Map<String, Object> tokenCountEntry;
+            while ((tokenCountEntry = csvReader.read(header, processors)) != null) {
+                String token = tokenCountEntry.get(header[_tokenPos]).toString();
+                Integer count = (Integer) tokenCountEntry.get(header[_countPos]);
+
+                tokenCountMap.put(token, count);
+            }
+        }
+        finally {
+            if (csvReader != null)
+                csvReader.close();
         }
 
-    	cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts, bOrdered));
+        cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(tokenCountMap, _ordered));
     }
 
     @Override

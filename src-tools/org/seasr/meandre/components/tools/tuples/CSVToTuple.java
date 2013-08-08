@@ -42,9 +42,8 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.StringReader;
+import java.util.Map;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -61,6 +60,11 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+import org.supercsv.cellprocessor.constraint.NotNull;
+import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.io.CsvMapReader;
+import org.supercsv.io.ICsvMapReader;
+import org.supercsv.prefs.CsvPreference;
 
 /**
  *
@@ -70,16 +74,16 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
  */
 
 @Component(
-		name = "CSV To Tuple",
-		creator = "Mike Haberman",
-		baseURL = "meandre://seasr.org/components/foundry/",
-		firingPolicy = FiringPolicy.all,
-		mode = Mode.compute,
-		rights = Licenses.UofINCSA,
-		tags = "#TRANSFORM, tools, text, tuple, csv",
-		description = "This component converts a csv string into tuples.  Each line of the incoming text is a new tuple. " +
-				"It does not handle missing values." ,
-		dependency = {"protobuf-java-2.2.0.jar"}
+        name = "CSV To Tuple",
+        creator = "Boris Capitanu",
+        baseURL = "meandre://seasr.org/components/foundry/",
+        firingPolicy = FiringPolicy.all,
+        mode = Mode.compute,
+        rights = Licenses.UofINCSA,
+        tags = "#TRANSFORM, tools, text, tuple, csv",
+        description = "This component converts CSV data to tuples. Each row in the CSV represents a new tuple. " +
+                "It does not allow missing (null) values in the CSV data." ,
+        dependency = { "protobuf-java-2.2.0.jar", "super-csv-2.1.0.jar" }
 )
 public class CSVToTuple extends AbstractExecutableComponent {
 
@@ -112,102 +116,86 @@ public class CSVToTuple extends AbstractExecutableComponent {
     )
     protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
-	//----------------------------- PROPERTIES ---------------------------------------------------
+    //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
-            description = "The column names/labels to be used (comma separated). " +
-            		"The values set here override the labels read from the data header. " +
-            		"If this property is not set (empty) then the column names will be read from the data header (the first line of the data).",
+            description = "The column names/labels to be used (comma separated - do not use a comma as part of the field name). " +
+                    "The values set here override the labels read from the data header (if a data header exists). " +
+                    "The labels are required if the CSV data has no header! The number of labels needs to match the number of columns in the CSV data.",
             name = "labels",
             defaultValue = ""
     )
     protected static final String PROP_LABELS = "labels";
 
     @ComponentProperty(
-            description = "The delimiter used to separate the data into columns",
-            name = Names.PROP_SEPARATOR,
-            defaultValue = ","
-    )
-    protected static final String PROP_DELIMITER = Names.PROP_SEPARATOR;
-
-    @ComponentProperty(
-            description = "Does the data contain data labels? This row of labels will be skipped if the value of the property 'labels' is not empty",
+            description = "Does the CSV data contain a header? The header labels from the CSV will be replaced " +
+                    "with the values from the 'labels' property if the value of that property is not empty",
             name = Names.PROP_HEADER,
             defaultValue = "true"
     )
     protected static final String PROP_HEADER = Names.PROP_HEADER;
 
-   	//--------------------------------------------------------------------------------------------
+       //--------------------------------------------------------------------------------------------
 
 
-    protected String _separator;
     protected String[] _fieldNames = null;
     protected boolean _hasHeader = false;
 
 
     //--------------------------------------------------------------------------------------------
 
-	@Override
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    _separator = getPropertyOrDieTrying(PROP_DELIMITER, false, true, ccp).replaceAll("\\\\t", "\t");
-	    _hasHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, ccp));
+        _hasHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, ccp));
+        String labels = getPropertyOrDieTrying(PROP_LABELS, true, !_hasHeader, ccp);
+        if (labels.length() > 0)
+            _fieldNames = labels.split(",");
+    }
 
-	    String labels = getPropertyOrDieTrying(PROP_LABELS, true, false, ccp);
-	    if (labels.length() > 0)
-	        _fieldNames = labels.split(",");
-	}
-
-	@Override
+    @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-	    String data = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
-	    BufferedReader reader = new BufferedReader(new StringReader(data));
-	    String line;
+        String text = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))[0];
 
-        SimpleTuplePeer outPeer = null;
-        if (_fieldNames != null) {
-            outPeer = new SimpleTuplePeer(_fieldNames);
-            // skip the header if exists
-            if (_hasHeader) readNextLineSkipComments(reader);
-        } else {
-            // Read the column names from the first line of the data
-            line = readNextLineSkipComments(reader);
-            String[] fieldNames = line.split(_separator);
-            outPeer = new SimpleTuplePeer(fieldNames);
+        final StringReader csvData = new StringReader(text);
+        ICsvMapReader csvReader = null;
+        try {
+            csvReader = new CsvMapReader(csvData, CsvPreference.EXCEL_PREFERENCE);
+
+            // the header columns are used as the keys to the Map
+            String[] header;
+            if (_hasHeader) {
+                header = csvReader.getHeader(true);
+                if (_fieldNames != null)
+                    header = _fieldNames;
+            } else
+                header = _fieldNames;
+
+            final CellProcessor[] processors = new CellProcessor[header.length];
+            for (int i = 0; i < header.length; i++)
+                processors[i] = new NotNull();  // do not allow null values in the CSV data  (TODO: we may have to revisit this decision)
+
+            SimpleTuplePeer outPeer = new SimpleTuplePeer(header);
+            StringsArray.Builder tuplesBuilder = StringsArray.newBuilder();
+
+            Map<String, Object> csvEntry;
+            while ((csvEntry = csvReader.read(header, processors)) != null) {
+                SimpleTuple tuple = outPeer.createTuple();
+                for (Map.Entry<String, Object> entry : csvEntry.entrySet())
+                    tuple.setValue(entry.getKey(), entry.getValue().toString());
+
+                tuplesBuilder.addValue(tuple.convert());
+            }
+
+            cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
+            cc.pushDataComponentToOutput(OUT_TUPLES, tuplesBuilder.build());
         }
-
-	    StringsArray.Builder tuplesBuilder = StringsArray.newBuilder();
-	    while ((line = reader.readLine()) != null) {
-	        // skip commented or empty lines
-            if (line.startsWith("#") || line.trim().length() == 0)
-                continue;
-
-	        String[] fieldValues = line.split(_separator, outPeer.size());
-	        SimpleTuple tuple = outPeer.createTuple();
-	        tuple.setValues(fieldValues);
-	        tuplesBuilder.addValue(tuple.convert());
-	    }
-
-	    cc.pushDataComponentToOutput(OUT_META_TUPLE, outPeer.convert());
-	    cc.pushDataComponentToOutput(OUT_TUPLES, tuplesBuilder.build());
-	}
-
+        finally {
+            if (csvReader != null)
+                csvReader.close();
+        }
+    }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
-
-    //--------------------------------------------------------------------------------------------
-
-    protected String readNextLineSkipComments(BufferedReader reader) throws IOException {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            // skip commented or empty lines
-            if (line.startsWith("#") || line.trim().length() == 0)
-                continue;
-
-            break;
-        }
-
-        return line;
     }
 }

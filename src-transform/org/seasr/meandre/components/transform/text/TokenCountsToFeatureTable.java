@@ -51,6 +51,7 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
@@ -109,6 +110,15 @@ public class TokenCountsToFeatureTable extends AbstractStreamingExecutableCompon
     )
     protected static final String OUT_TABLE = Names.PROP_TABLE;
 
+    //------------------------------ PROPERTIES --------------------------------------------------
+
+    @ComponentProperty(
+            description = "The name of the table column holding the class label information",
+            name = "class_column_label",
+            defaultValue = "_class_"
+    )
+    protected static final String PROP_CLASS_COLUMN_LABEL = "class_column_label";
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -116,6 +126,7 @@ public class TokenCountsToFeatureTable extends AbstractStreamingExecutableCompon
     private boolean _isStreaming;
     private MutableTable _table;
     private Map<String, Integer> _tokenColumnMap;
+    private String _classColumnLabel;
 
 
     //--------------------------------------------------------------------------------------------
@@ -124,6 +135,7 @@ public class TokenCountsToFeatureTable extends AbstractStreamingExecutableCompon
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
 
+        _classColumnLabel = getPropertyOrDieTrying(PROP_CLASS_COLUMN_LABEL, ccp);
         _isStreaming = false;
     }
 
@@ -179,7 +191,7 @@ public class TokenCountsToFeatureTable extends AbstractStreamingExecutableCompon
         _isStreaming = true;
         _table = (MutableTable) TABLE_FACTORY.createTable();
         Column labelCol = TABLE_FACTORY.createColumn(ColumnTypes.STRING);
-        labelCol.setLabel("label");
+        labelCol.setLabel(_classColumnLabel);
         _table.addColumn(labelCol);
         _tokenColumnMap = new HashMap<String, Integer>();
     }

@@ -42,6 +42,10 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -58,6 +62,9 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+import org.supercsv.io.CsvMapWriter;
+import org.supercsv.io.ICsvMapWriter;
+import org.supercsv.prefs.CsvPreference;
 
 /**
  *
@@ -68,14 +75,14 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 
 @Component(
         name = "Tuple To CSV",
-        creator = "Mike Haberman",
+        creator = "Boris Capitanu",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "#TRANSFORM, tuple, tools, text, filter",
         description = "This component writes the incoming set of tuples to CSV String" ,
-        dependency = {"protobuf-java-2.2.0.jar"}
+        dependency = { "protobuf-java-2.2.0.jar", "super-csv-2.1.0.jar" }
 )
 public class TupleToCSV extends AbstractExecutableComponent {
 
@@ -113,7 +120,7 @@ public class TupleToCSV extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_TEXT,
-            description = "The CSV string" +
+            description = "The CSV data" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
@@ -121,15 +128,8 @@ public class TupleToCSV extends AbstractExecutableComponent {
     //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
-            name = Names.PROP_SEPARATOR,
-            description = "The delimiter to use to separate the data columns",
-            defaultValue = ","
-    )
-    protected static final String PROP_SEPARATOR = Names.PROP_SEPARATOR;
-
-    @ComponentProperty(
             name = Names.PROP_HEADER,
-            description = "Should the header be added? ",
+            description = "Should the header be added to the CSV output? ",
             defaultValue = "true"
     )
     protected static final String PROP_HEADER = Names.PROP_HEADER;
@@ -137,7 +137,6 @@ public class TupleToCSV extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    protected String _separator;
     protected boolean _addHeader;
 
 
@@ -145,7 +144,6 @@ public class TupleToCSV extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
         _addHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, ccp));
     }
 
@@ -158,48 +156,37 @@ public class TupleToCSV extends AbstractExecutableComponent {
         StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
         Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-        StringBuilder sb = new StringBuilder();
-
         int size = tuplePeer.size();;
 
-        //
-        // write out the field names as the first row
-        //
-        if ( _addHeader ) {
-            for (int i = 0; i < size; i++) {
-                sb.append(tuplePeer.getFieldNameForIndex(i));
-                if (i + 1 < size) {
-                    sb.append(_separator);
-                }
+        StringWriter csvData = new StringWriter();
+        ICsvMapWriter csvWriter = null;
+        try {
+            csvWriter = new CsvMapWriter(csvData, CsvPreference.EXCEL_PREFERENCE);
+
+            String[] header = new String[size];
+            for (int i = 0; i < size; i++)
+                header[i] = tuplePeer.getFieldNameForIndex(i);
+
+            if (_addHeader)
+                csvWriter.writeHeader(header);
+
+            for (int i = 0; i < in.length; i++) {
+                tuple.setValues(in[i]);
+
+                Map<String, Object> csvEntry = new HashMap<String, Object>();
+                for (int j = 0; j < size; j++)
+                    csvEntry.put(header[j], tuple.getValue(j));
+
+                csvWriter.write(csvEntry, header);
             }
-            sb.append("\n");
+        }
+        finally {
+            if (csvWriter != null)
+                csvWriter.close();
         }
 
-        for (int i = 0; i < in.length; i++) {
-
-            tuple.setValues(in[i]);
-
-            for (int j = 0; j < size; j++) {
-                String value = tuple.getValue(j);
-
-                // make sure the value doesn't contain the separator or else we're in trouble
-                while (value.contains(_separator))
-                    value = value.replace(_separator, "");
-
-                //TODO what to do if value="" at this point?
-
-                sb.append(value);
-                if (j + 1 < size) {
-                    sb.append(_separator);
-                }
-            }
-            sb.append("\n");
-        }
-
-        Strings safe = BasicDataTypesTools.stringToStrings(sb.toString());
-
-        cc.pushDataComponentToOutput(OUT_TEXT,   safe);
-        cc.pushDataComponentToOutput(OUT_TUPLES,     input);
+        cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(csvData.toString()));
+        cc.pushDataComponentToOutput(OUT_TUPLES, input);
         cc.pushDataComponentToOutput(OUT_META_TUPLE, inputMeta);
     }
 

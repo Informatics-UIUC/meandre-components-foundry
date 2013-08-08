@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.transform.text;
 
+import java.io.StringWriter;
 import java.util.Map;
 
 import org.meandre.annotations.Component;
@@ -57,6 +58,12 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.supercsv.cellprocessor.constraint.NotNull;
+import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
+import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.io.CsvBeanWriter;
+import org.supercsv.io.ICsvBeanWriter;
+import org.supercsv.prefs.CsvPreference;
 
 /**
  * @author Boris Capitanu
@@ -71,7 +78,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         rights = Licenses.UofINCSA,
         tags = "#TRANSFORM, token count, text, convert, csv",
         description = "This component converts token counts to CSV." ,
-        dependency = {"protobuf-java-2.2.0.jar"}
+        dependency = { "protobuf-java-2.2.0.jar", "super-csv-2.1.0.jar" }
 )
 public class TokenCountsToCSV extends AbstractExecutableComponent {
 
@@ -97,45 +104,24 @@ public class TokenCountsToCSV extends AbstractExecutableComponent {
     //----------------------------- PROPERTIES ------------------------------
 
     @ComponentProperty(
-            name = Names.PROP_SEPARATOR,
-            description = "The delimiter to use to separate the data columns",
-            defaultValue = ","
-    )
-    protected static final String PROP_SEPARATOR = Names.PROP_SEPARATOR;
-
-    @ComponentProperty(
             name = Names.PROP_HEADER,
             description = "The header to use (leave empty if you don't want a header). <br>" +
-                    "Use comma to separate the header names. Example: tokens,counts <br>" +
-                    "The comma will be replaced with the actual separator defined in the " + PROP_SEPARATOR + " property",
+                    "Use comma to separate the header names. Example: tokens,counts",
             defaultValue = "tokens,counts"
     )
     protected static final String PROP_HEADER = Names.PROP_HEADER;
 
-    @ComponentProperty(
-            name = "delimiter_replacement",
-            description = "If the token contains a delimiter (separator), what should the delimiter be replaced with? <br>" +
-                    "If not replaced or escaped the delimiter will cause the CSV to be malformed.",
-            defaultValue = "\\\\,"
-    )
-    protected static final String PROP_DELIM_REPLACE = "delimiter_replacement";
-
-
     //--------------------------------------------------------------------------------------------
 
 
-    private String _separator;
-    private String _header;
-    private String _delimReplacement;
+    private String[] _header;
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
-        _header = getPropertyOrDieTrying(PROP_HEADER, true, false, ccp).replaceAll(",", _separator);
-        _delimReplacement = getPropertyOrDieTrying(PROP_DELIM_REPLACE, false, true, ccp);
+        _header = getPropertyOrDieTrying(PROP_HEADER, true, false, ccp).split(",");
     }
 
     @Override
@@ -143,24 +129,66 @@ public class TokenCountsToCSV extends AbstractExecutableComponent {
         Object input = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
         Map<String, Integer> tokenCountsMap = DataTypeParser.parseAsStringIntegerMap(input);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(_header).append("\n");
+        StringWriter csvData = new StringWriter();
+        ICsvBeanWriter csvWriter = null;
+        try {
+            csvWriter = new CsvBeanWriter(csvData, CsvPreference.EXCEL_PREFERENCE);
 
-        for (Map.Entry<String, Integer> entry : tokenCountsMap.entrySet()) {
-            String token = entry.getKey();
-            Integer count = entry.getValue();
+            // the header elements are used to map the bean values to each column (names must match)
+            final String[] beanFieldMapping = new String[] { "token", "count" };
+            final CellProcessor[] processors = getProcessors();
 
-            if (token.contains(_separator))
-                token = token.replaceAll(_separator, _delimReplacement);
+            if (_header.length > 0)
+                // write the header
+                csvWriter.writeHeader(_header);
 
-            sb.append(token).append(_separator).append(count).append("\n");
+            for (Map.Entry<String, Integer> entry : tokenCountsMap.entrySet()) {
+                String token = entry.getKey();
+                Integer count = entry.getValue();
+
+                // write the token counts
+                csvWriter.write(new TokenCountBean(token, count), beanFieldMapping, processors);
+            }
+        }
+        finally {
+            if (csvWriter != null)
+                csvWriter.close();
         }
 
-        cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(sb.toString()));
+        cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(csvData.toString()));
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
+    //--------------------------------------------------------------------------------------------
+
+    private static CellProcessor[] getProcessors() {
+
+        final CellProcessor[] processors = new CellProcessor[] {
+                new StrNotNullOrEmpty(), // token
+                new NotNull()            // count
+        };
+
+        return processors;
+    }
+
+    public static class TokenCountBean {
+        private final String _token;
+        private final Integer _count;
+
+        public TokenCountBean(String token, Integer count) {
+            _token = token;
+            _count = count;
+        }
+
+        public String getToken() {
+            return _token;
+        }
+
+        public Integer getCount() {
+            return _count;
+        }
+    }
 }
