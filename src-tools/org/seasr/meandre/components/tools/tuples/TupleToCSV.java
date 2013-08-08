@@ -43,8 +43,6 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -62,8 +60,8 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
-import org.supercsv.io.CsvMapWriter;
-import org.supercsv.io.ICsvMapWriter;
+import org.supercsv.io.CsvListWriter;
+import org.supercsv.io.ICsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
 /**
@@ -159,9 +157,9 @@ public class TupleToCSV extends AbstractExecutableComponent {
         int size = tuplePeer.size();;
 
         StringWriter csvData = new StringWriter();
-        ICsvMapWriter csvWriter = null;
+        ICsvListWriter csvWriter = null;
         try {
-            csvWriter = new CsvMapWriter(csvData, CsvPreference.EXCEL_PREFERENCE);
+            csvWriter = new CsvListWriter(csvData, CsvPreference.EXCEL_PREFERENCE);
 
             String[] header = new String[size];
             for (int i = 0; i < size; i++)
@@ -170,14 +168,14 @@ public class TupleToCSV extends AbstractExecutableComponent {
             if (_addHeader)
                 csvWriter.writeHeader(header);
 
+            Object[] rowData = new Object[size];
             for (int i = 0; i < in.length; i++) {
                 tuple.setValues(in[i]);
 
-                Map<String, Object> csvEntry = new HashMap<String, Object>();
                 for (int j = 0; j < size; j++)
-                    csvEntry.put(header[j], tuple.getValue(j));
+                    rowData[j] = tuple.getValue(j);
 
-                csvWriter.write(csvEntry, header);
+                csvWriter.write(rowData);
             }
         }
         finally {

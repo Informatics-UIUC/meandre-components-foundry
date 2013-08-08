@@ -59,6 +59,7 @@ import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.datamining.table.Column;
 import org.seasr.datatypes.datamining.table.ColumnTypes;
+import org.seasr.datatypes.datamining.table.ExampleTable;
 import org.seasr.datatypes.datamining.table.MutableTable;
 import org.seasr.datatypes.datamining.table.TableFactory;
 import org.seasr.datatypes.datamining.table.sparse.SparseTableFactory;
@@ -101,12 +102,20 @@ public class TokenCountsToFeatureTable extends AbstractStreamingExecutableCompon
     )
     protected static final String IN_LABEL = "label";
 
+    @ComponentInput(
+            name = "id",
+            description = "The id to associate with this entry in the Feature Table. The id column will not be added as an input feature." +
+                "<br>TYPE: java.lang.String" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
+    )
+    protected static final String IN_ID = "id";
+
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
             name = Names.PROP_TABLE,
             description = "The feature table." +
-                "<br>TYPE: org.seasr.datatypes.table.MutableTable"
+                "<br>TYPE: org.seasr.datatypes.table.ExampleTable"
     )
     protected static final String OUT_TABLE = Names.PROP_TABLE;
 
@@ -115,18 +124,20 @@ public class TokenCountsToFeatureTable extends AbstractStreamingExecutableCompon
     @ComponentProperty(
             description = "The name of the table column holding the class label information",
             name = "class_column_label",
-            defaultValue = "_class_"
+            defaultValue = "_class"
     )
     protected static final String PROP_CLASS_COLUMN_LABEL = "class_column_label";
 
     //--------------------------------------------------------------------------------------------
 
 
-    private static final TableFactory TABLE_FACTORY = new SparseTableFactory();
-    private boolean _isStreaming;
-    private MutableTable _table;
-    private Map<String, Integer> _tokenColumnMap;
-    private String _classColumnLabel;
+    protected static final TableFactory TABLE_FACTORY = new SparseTableFactory();
+    protected static final String LABEL_ID = "_id";
+
+    protected boolean _isStreaming;
+    protected MutableTable _table;
+    protected Map<String, Integer> _tokenColumnMap;
+    protected String _classColumnLabel;
 
 
     //--------------------------------------------------------------------------------------------
@@ -145,12 +156,15 @@ public class TokenCountsToFeatureTable extends AbstractStreamingExecutableCompon
             throw new ComponentExecutionException("Start stream marker not received!");
 
         String label = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LABEL))[0];
+        String id = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_ID))[0];
+
         Object inTokenCounts = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
         Map<String, Integer> tokenCounts = DataTypeParser.parseAsStringIntegerMap(inTokenCounts);
 
         int row = _table.getNumRows();
         _table.addRows(1);
         _table.setString(label, row, 0);  // the label/class always goes in column 0
+        _table.setString(id, row, 1);     // the id goes in column 1  (by convention)
 
         for (Entry<String, Integer> entry : tokenCounts.entrySet()) {
             String token = entry.getKey();
@@ -190,9 +204,17 @@ public class TokenCountsToFeatureTable extends AbstractStreamingExecutableCompon
 
         _isStreaming = true;
         _table = (MutableTable) TABLE_FACTORY.createTable();
+
+        // create the label/class column
         Column labelCol = TABLE_FACTORY.createColumn(ColumnTypes.STRING);
         labelCol.setLabel(_classColumnLabel);
         _table.addColumn(labelCol);
+
+        // create the id column
+        Column idCol = TABLE_FACTORY.createColumn(ColumnTypes.STRING);
+        idCol.setLabel(LABEL_ID);
+        _table.addColumn(idCol);
+
         _tokenColumnMap = new HashMap<String, Integer>();
     }
 
@@ -201,8 +223,18 @@ public class TokenCountsToFeatureTable extends AbstractStreamingExecutableCompon
         if (!_isStreaming)
             console.severe("Stream error - received end stream marker without start stream!");
 
-        console.fine(String.format("The resulting table has %,d row(s) and %,d column(s)", _table.getNumRows(), _table.getNumColumns()));
-        componentContext.pushDataComponentToOutput(OUT_TABLE, _table);
+        ExampleTable featureTable = _table.toExampleTable();
+        int numCols = featureTable.getNumColumns();
+        int[] inputFeatures = new int[numCols - 2];  // two of the columns are not input features: label/class and id
+        for (int i = 0; i < numCols-2; i++)
+            inputFeatures[i] = i + 2;
+        int[] outputFeatures = new int[] { 0 };  // label/class is always in column 0
+        featureTable.setInputFeatures(inputFeatures);
+        featureTable.setOutputFeatures(outputFeatures);
+
+        console.fine(String.format("The resulting table has %,d row(s) and %,d column(s) with %,d input features and %,d output features",
+                featureTable.getNumRows(), featureTable.getNumColumns(), inputFeatures.length, outputFeatures.length));
+        componentContext.pushDataComponentToOutput(OUT_TABLE, featureTable);
 
         _isStreaming = false;
         _table = null;

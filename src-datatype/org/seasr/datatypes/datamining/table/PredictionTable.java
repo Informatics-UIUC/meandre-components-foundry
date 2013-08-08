@@ -66,7 +66,7 @@ public interface PredictionTable extends ExampleTable {
    static final long serialVersionUID = -3140627186936758135L;
 
    /** Appended to the end of prediction column labels. */
-   static public final String PREDICTION_COLUMN_APPEND_TEXT = " Predictions";
+   static public final String PREDICTION_COLUMN_APPEND_TEXT = "_predictions";
 
    //~ Methods *****************************************************************
 

@@ -40,10 +40,9 @@
  *
  */
 
-package org.seasr.meandre.components.transform.text;
+package org.seasr.meandre.components.transform.table;
 
 import java.io.StringWriter;
-import java.util.Map;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -55,14 +54,11 @@ import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
+import org.seasr.datatypes.datamining.table.Table;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.supercsv.cellprocessor.constraint.NotNull;
-import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
-import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.io.CsvBeanWriter;
-import org.supercsv.io.ICsvBeanWriter;
+import org.supercsv.io.CsvListWriter;
+import org.supercsv.io.ICsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
 /**
@@ -70,84 +66,87 @@ import org.supercsv.prefs.CsvPreference;
  */
 
 @Component(
-        name = "Token Counts To CSV",
+        name = "Table To CSV",
         creator = "Boris Capitanu",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "#TRANSFORM, token count, text, convert, csv",
-        description = "This component converts token counts to CSV." ,
+        tags = "#TRANSFORM, table, convert, csv",
+        description = "This component converts a Table to CSV." ,
         dependency = { "protobuf-java-2.2.0.jar", "super-csv-2.1.0.jar" }
 )
-public class TokenCountsToCSV extends AbstractExecutableComponent {
+public class TableToCSV extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            name = Names.PORT_TOKEN_COUNTS,
-            description = "The token counts" +
-                "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
+            name = Names.PORT_TABLE,
+            description = "The table" +
+                    "<br>TYPE: org.seasr.datatypes.table.Table"
     )
-    protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+    protected static final String IN_TABLE = Names.PORT_TABLE;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
             name = Names.PORT_TEXT,
-            description = "The CSV representation of the token counts" +
+            description = "The CSV representation of the table" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 
-    //------------------------------ PROPERTIES --------------------------------------------------
+    //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
             name = Names.PROP_HEADER,
-            description = "The header to use (leave empty if you don't want a header). <br>" +
-                    "Use comma to separate the header names. Example: tokens,counts",
-            defaultValue = "tokens,counts"
+            description = "Should the header be added to the CSV output? ",
+            defaultValue = "true"
     )
     protected static final String PROP_HEADER = Names.PROP_HEADER;
 
     //--------------------------------------------------------------------------------------------
 
 
-    private String[] _header;
+    protected boolean _addHeader;
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _header = getPropertyOrDieTrying(PROP_HEADER, true, false, ccp).split(",");
+        _addHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, ccp));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Object input = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
-        Map<String, Integer> tokenCountsMap = DataTypeParser.parseAsStringIntegerMap(input);
+        Table table = (Table) cc.getDataComponentFromInput(IN_TABLE);
+
+        int numRows = table.getNumRows();
+        int numCols = table.getNumColumns();
 
         StringWriter csvData = new StringWriter();
-        ICsvBeanWriter csvWriter = null;
+        ICsvListWriter csvWriter = null;
         try {
-            csvWriter = new CsvBeanWriter(csvData, CsvPreference.EXCEL_PREFERENCE);
+            csvWriter = new CsvListWriter(csvData, CsvPreference.EXCEL_PREFERENCE);
 
-            // the header elements are used to map the bean values to each column (names must match)
-            final String[] beanFieldMapping = new String[] { "token", "count" };
-            final CellProcessor[] processors = getProcessors();
+            String[] header = new String[numCols];
+            for (int i = 0; i < numCols; i++) {
+                String columnLabel = table.getColumnLabel(i);
+                if (columnLabel == null)
+                    columnLabel = String.format("Col_%d", i + 1);
+                header[i] = columnLabel;
+            }
 
-            if (_header.length > 0)
-                // write the header
-                csvWriter.writeHeader(_header);
+            if (_addHeader)
+                csvWriter.writeHeader(header);
 
-            for (Map.Entry<String, Integer> entry : tokenCountsMap.entrySet()) {
-                String token = entry.getKey();
-                Integer count = entry.getValue();
+            Object[] rowData = new Object[numCols];
+            for (int row = 0; row < numRows; row++) {
+                for (int col = 0; col < numCols; col++)
+                    rowData[col] = table.getObject(row, col);
 
-                // write the token counts
-                csvWriter.write(new TokenCountBean(token, count), beanFieldMapping, processors);
+                csvWriter.write(rowData);
             }
         }
         finally {
@@ -160,35 +159,6 @@ public class TokenCountsToCSV extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    }
 
-    //--------------------------------------------------------------------------------------------
-
-    private static CellProcessor[] getProcessors() {
-
-        final CellProcessor[] processors = new CellProcessor[] {
-                new StrNotNullOrEmpty(), // token
-                new NotNull()            // count
-        };
-
-        return processors;
-    }
-
-    public static class TokenCountBean {
-        private final String _token;
-        private final Integer _count;
-
-        public TokenCountBean(String token, Integer count) {
-            _token = token;
-            _count = count;
-        }
-
-        public String getToken() {
-            return _token;
-        }
-
-        public Integer getCount() {
-            return _count;
-        }
     }
 }

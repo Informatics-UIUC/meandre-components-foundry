@@ -52,6 +52,7 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.datamining.table.ColumnTypes;
 import org.seasr.datatypes.datamining.table.Table;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
@@ -75,20 +76,20 @@ public class TableToJSON extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------
 
     @ComponentInput(
-            name = "table",
+            name = Names.PORT_TABLE,
             description = "The table" +
             "<br>TYPE: org.seasr.datatypes.table.Table"
     )
-    protected static final String IN_TABLE = "table";
+    protected static final String IN_TABLE = Names.PORT_TABLE;
 
     //------------------------------ OUTPUTS ------------------------------
 
     @ComponentOutput(
-            name = "json",
+            name = Names.PORT_JSON,
             description = "text output as JSON" +
             "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String OUT_JSON = "json";
+    protected static final String OUT_JSON = Names.PORT_JSON;
 
     //--------------------------------------------------------------------
 
@@ -98,67 +99,90 @@ public class TableToJSON extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+        Table table = (Table) cc.getDataComponentFromInput(IN_TABLE);
 
-        Table mytable = (Table)cc.getDataComponentFromInput(IN_TABLE);
+        int numRows = table.getNumRows();
+        int numCols = table.getNumColumns();
 
-        int numRows = mytable.getNumRows();
-        int numCols = mytable.getNumColumns();
+        int[] columnTypes = new int[numCols];
+        String[] columnLabels = new String[numCols];
+
+        for (int col = 0; col < numCols; col++) {
+            columnTypes[col] = table.getColumnType(col);
+            String columnLabel = table.getColumnLabel(col);
+            if (columnLabel == null)
+                columnLabel = String.format("Col_%d", col + 1);
+            columnLabels[col] = columnLabel;
+        }
+
         JSONArray jsonData = new JSONArray();
-        for (int i=0; i < numRows; i++) {
+        for (int row = 0; row < numRows; row++) {
             JSONObject jsonRow = new JSONObject();
-            for (int j=0; j< numCols; j++){
-                int type = mytable.getColumnType(j);
-                if (i==0)
-                    console.finest("col = "+j+" type = "+type);
-                //TODO: test all the data types
-                switch (type) {
+
+            for (int col = 0; col < numCols; col++) {
+                switch (columnTypes[col]) {
                     case ColumnTypes.INTEGER:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getInt(i,j));
+                        jsonRow.put(columnLabels[col], table.getInt(row,col));
                         break;
+
                     case ColumnTypes.FLOAT:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getFloat(i,j));
+                        jsonRow.put(columnLabels[col], table.getFloat(row,col));
                         break;
+
                     case ColumnTypes.DOUBLE:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getDouble(i,j));
+                        jsonRow.put(columnLabels[col], table.getDouble(row,col));
                         break;
+
                     case ColumnTypes.SHORT:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getShort(i,j));
+                        jsonRow.put(columnLabels[col], table.getShort(row,col));
                         break;
+
                     case ColumnTypes.LONG:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getLong(i,j));
+                        jsonRow.put(columnLabels[col], table.getLong(row,col));
                         break;
+
                     case ColumnTypes.STRING:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getString(i,j));
+                        jsonRow.put(columnLabels[col], table.getString(row,col));
                         break;
+
                     case ColumnTypes.CHAR_ARRAY:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getChars(i,j));
+                        jsonRow.put(columnLabels[col], table.getChars(row,col));
                         break;
+
                     case ColumnTypes.BYTE_ARRAY:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getBytes(i,j));// cannot display
+                        jsonRow.put(columnLabels[col], table.getBytes(row,col)); // cannot display
                         break;
+
                     case ColumnTypes.BOOLEAN:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getBoolean(i,j));
+                        jsonRow.put(columnLabels[col], table.getBoolean(row,col));
                         break;
+
                     case ColumnTypes.OBJECT:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getObject(i,j));
+                        jsonRow.put(columnLabels[col], table.getObject(row,col));
                         break;
+
                     case ColumnTypes.BYTE:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getByte(i,j));
+                        jsonRow.put(columnLabels[col], table.getByte(row,col));
                         break;
+
                     case ColumnTypes.CHAR:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getChar(i,j));
+                        jsonRow.put(columnLabels[col], table.getChar(row,col));
                         break;
+
                     case ColumnTypes.NOMINAL:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getString(i,j));
-                    case ColumnTypes.UNSPECIFIED:
-                        jsonRow.put(mytable.getColumnLabel(j), mytable.getObject(i,j));
+                        jsonRow.put(columnLabels[col], table.getString(row,col));
+                        break;
+
+                    default:
+                        jsonRow.put(columnLabels[col], table.getObject(row,col));
                         break;
                 }
             }
+
             jsonData.put(jsonRow);
         }
 
-        cc.pushDataComponentToOutput(OUT_JSON,BasicDataTypesTools.stringToStrings(jsonData.toString(4)));
+        cc.pushDataComponentToOutput(OUT_JSON, BasicDataTypesTools.stringToStrings(jsonData.toString(4)));
     }
 
     @Override
