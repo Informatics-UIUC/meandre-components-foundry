@@ -90,6 +90,8 @@
         #end
         </tbody>
     </table>
+    #else
+    <p>Empty tuple structure - no tuples.</p>
     #end
 </body>
 </html>
