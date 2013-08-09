@@ -51,6 +51,7 @@ import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
@@ -198,7 +199,7 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 
 			datePattern = Pattern.compile("(\\d{3,4})"); //look for year with 3 or 4 digits
 			dateMatcher = datePattern.matcher(aDate);
-			if(dateMatcher.find()) { //look for year
+			if (dateMatcher.find()) { //look for year
 	            StringBuffer sbHtml = new StringBuffer();
 	            int nr = 0;
 
@@ -213,33 +214,35 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 			        theSentence.trim();
 			        
 			        //look for date only with word boundary and eliminate mismatching
-			        Pattern p = Pattern.compile("\\b"+aDate+"\\b", Pattern.CASE_INSENSITIVE);
+			        Pattern p = Pattern.compile("\\b"+Pattern.quote(aDate)+"\\b", Pattern.CASE_INSENSITIVE);
 			        Matcher m = p.matcher(theSentence);
 
-			        boolean isDateAvailable = true;
-
-			        if(m.find())
-			        	theSentence = m.replaceAll("<font color='red'>"+aDate+"</font>");
-			        else {
-			        	p = Pattern.compile("\\b"+aDate, Pattern.CASE_INSENSITIVE);
+			        if (m.find())
+			        	theSentence = m.replaceAll("<font color='red'>"+Matcher.quoteReplacement(aDate)+"</font>");
+			        else { //look for date by relaxing word boundary at the end eliminate mismatching
+			        	p = Pattern.compile("\\b"+Pattern.quote(aDate), Pattern.CASE_INSENSITIVE);
 					    m = p.matcher(theSentence);
-					    if(m.find())
-					    	theSentence = m.replaceAll("<font color='red'>"+aDate+"</font>");
-					    else
-					    	isDateAvailable = false;
-			        }
-
-			        if (!isDateAvailable) {
-			            console.warning("Could not find the position of the date in the sentence! This should not happen!");
-			            console.warning("   sentence: '" + theSentence + "'");
-			            console.warning("   date: '" + aDate + "'");
+					    if (m.find())
+					    	theSentence = m.replaceAll("<font color='red'>"+Matcher.quoteReplacement(aDate)+"</font>");
+					    else {
+					    	p = Pattern.compile("(?:^|\\s)"+Pattern.quote(aDate)+"(?:\\s|$)", Pattern.CASE_INSENSITIVE);
+						    m = p.matcher(theSentence);
+						    if(m.find())
+						      theSentence = m.replaceAll(" <font color='red'>"+Matcher.quoteReplacement(aDate)+"</font> ");
+						    else {
+					    	  console.warning("Could not find the position of the date in the sentence! This should not happen!");
+				              console.warning("   sentence: '" + theSentence + "'");
+				              console.warning("   date: '" + aDate + "'");
+						    }
+					    }
 			        }
 
                     sbHtml.append("<div onclick='toggleVisibility(this)' style='position:relative' align='left'><b>Sentence ").append(++nr);
                     if (docTitle != null && docTitle.length() > 0)
                         sbHtml.append(" from '" + StringEscapeUtils.escapeHtml(docTitle) + "'");
                     sbHtml.append("</b><span style='display: ' align='left'><table><tr><td>").append(theSentence).append("</td></tr></table></span></div>");
-			    }
+			    
+			        }
 
 			    String sentence = sbHtml.toString();
 
