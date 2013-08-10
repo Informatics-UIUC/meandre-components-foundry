@@ -133,7 +133,7 @@ public class TableToCSV extends AbstractExecutableComponent {
             String[] header = new String[numCols];
             for (int i = 0; i < numCols; i++) {
                 String columnLabel = table.getColumnLabel(i);
-                if (columnLabel == null)
+                if (columnLabel == null || columnLabel.isEmpty())
                     columnLabel = String.format("Col_%d", i + 1);
                 header[i] = columnLabel;
             }

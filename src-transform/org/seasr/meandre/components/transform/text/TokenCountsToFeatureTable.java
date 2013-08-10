@@ -132,7 +132,12 @@ public class TokenCountsToFeatureTable extends AbstractStreamingExecutableCompon
 
 
     protected static final TableFactory TABLE_FACTORY = new SparseTableFactory();
-    protected static final String LABEL_ID = "_id";
+    protected static final String LABEL_ID = "_id";  // Note: By convention the ID will be stored in column 1
+
+    // Note: By convention the ID is stored in column 1 while the label (possibly empty for unlabeled data) in column 0
+    //       You can't change the values below because the order in which the columns get created in code matters!
+    protected static final int LABEL_COL_IDX = 0;
+    protected static final int ID_COL_IDX = 1;
 
     protected boolean _isStreaming;
     protected MutableTable _table;
@@ -163,8 +168,8 @@ public class TokenCountsToFeatureTable extends AbstractStreamingExecutableCompon
 
         int row = _table.getNumRows();
         _table.addRows(1);
-        _table.setString(label, row, 0);  // the label/class always goes in column 0
-        _table.setString(id, row, 1);     // the id goes in column 1  (by convention)
+        _table.setString(label, row, LABEL_COL_IDX);  // the label/class always goes in column 0
+        _table.setString(id, row, ID_COL_IDX);        // the id goes in column 1  (by convention)
 
         for (Entry<String, Integer> entry : tokenCounts.entrySet()) {
             String token = entry.getKey();

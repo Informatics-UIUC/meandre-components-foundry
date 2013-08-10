@@ -109,7 +109,7 @@ public class CSVToTokenCounts extends AbstractExecutableComponent{
 
     @ComponentProperty(
             name = Names.PROP_HEADER,
-            description = "Does the CSV input contain a header?",
+            description = "Does the CSV data contain a header?",
             defaultValue = "true"
     )
     protected static final String PROP_HEADER = Names.PROP_HEADER;
