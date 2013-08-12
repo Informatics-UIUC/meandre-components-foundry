@@ -44,8 +44,6 @@ package org.seasr.meandre.components.tools.control;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
@@ -57,6 +55,7 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.seasr.meandre.support.generic.io.Serializer;
 
 /**
  * <p>Title: Fork Times Five</p>
@@ -290,16 +289,16 @@ public class ForkX5 extends AbstractExecutableComponent {
         Object obj = null;
         // Write the object out to a byte array
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream(bos);
-        out.writeObject(dat);
-        out.flush();
-        out.close();
+        try {
+            Serializer.serializeObject(dat, bos, false);
+        }
+        finally {
+            bos.close();
+        }
 
-        // Make an input stream from the byte array and read
-        // a copy of the object back in.
-        ObjectInputStream in = new ObjectInputStream(
-                new ByteArrayInputStream(bos.toByteArray()));
-        obj = in.readObject();
+        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+        obj = Serializer.deserializeObject(bis);
+
         return obj;
     }
 
@@ -313,7 +312,7 @@ public class ForkX5 extends AbstractExecutableComponent {
      * @throws Exception Reflection exception.
      */
     @SuppressWarnings("unchecked")
-	Object copyViaConstructor(Object dat) throws Exception{
+    Object copyViaConstructor(Object dat) throws Exception{
         Object obj = null;
         Class cls = dat.getClass();
         Class[] clses = new Class[] {cls};
@@ -334,7 +333,7 @@ public class ForkX5 extends AbstractExecutableComponent {
      * @throws Exception Reflection exception.
      */
     @SuppressWarnings("unchecked")
-	Object copyViaCustomMethod(Object dat, String meth) throws Exception {
+    Object copyViaCustomMethod(Object dat, String meth) throws Exception {
         Object obj = null;
         if (meth == null || meth.length() == 0) {
             throw new RuntimeException(
