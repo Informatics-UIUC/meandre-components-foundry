@@ -47,8 +47,8 @@ import java.io.PrintStream;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
+import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
@@ -76,7 +76,7 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 
 	@ComponentProperty(
 			name = Names.PROP_SEPARATOR,
-			description = "Used to separate field values",
+			description = "Used to separate field values. To use a tab character, input '\\t'",
 			defaultValue = ","
 	)
 	protected static final String PROP_TEXT_SEPARATOR = Names.PROP_SEPARATOR;
@@ -105,6 +105,15 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 	)
 	protected static final String PROP_COUNT = Names.PROP_COUNT;
 
+	@ComponentProperty(
+			name = "encoding",
+			description = "The name of the character encoding of the text (see " +
+					"java.nio.charset.Charset). Currently only used in " +
+					"the Token Counts to Text component.",
+		    defaultValue = "UTF-8"
+	)
+	protected static final String PROP_ENCODING = "encoding";
+
 	//--------------------------------------------------------------------------------------------
 
 
@@ -123,6 +132,8 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 	/** The printing separator */
 	String textSep;
 
+	/** The character set of the text */
+	String encoding;
 
 	//--------------------------------------------------------------------------------------------
 
@@ -136,6 +147,8 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 
 		this.textSep = getPropertyOrDieTrying(PROP_TEXT_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
 		this.sHeader = this.sHeader.replaceAll(",", this.textSep);
+		
+		this.encoding = getPropertyOrDieTrying(PROP_ENCODING, false, true, ccp);
 	}
 
 	@Override
@@ -173,9 +186,9 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 			ps.println(sHeader);
 		for ( int i=0, iMax=im.getKeyCount() ; i<iMax ; i++ ) {
 			String sToken = im.getKey(i);
-			ps.print(sToken+textSep);
+			ps.print(sToken);
 			for ( int iCounts:im.getValue(i).getValueList() )
-				ps.println(" "+iCounts);
+				ps.println(textSep+iCounts);
 		}
 		ps.println();
 	}
@@ -216,9 +229,9 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 		if ( count<0 ) count = im.getKeyCount()-offset;
 		for ( count-- ; count>=0 ; offset++, count-- ) {
 			String sToken = im.getKey(offset);
-			ps.print(sToken+textSep);
+			ps.print(sToken);
 			for ( int iCounts:im.getValue(offset).getValueList() )
-				ps.print(iCounts);
+				ps.print(textSep+iCounts);
 			ps.println();
 		}
 		ps.println();
@@ -240,9 +253,9 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 		if ( count<0 ) count = dm.getKeyCount()-offset;
 		for ( count-- ; count>=0 ; offset++, count-- ) {
 			String sToken = dm.getKey(offset);
-			ps.print(sToken+textSep);
+			ps.print(sToken);
 			for ( Double dValues:dm.getValue(offset).getValueList() )
-				ps.print(dValues+textSep);
+				ps.print(textSep+dValues);
 			ps.println();
 		}
 		ps.println();
