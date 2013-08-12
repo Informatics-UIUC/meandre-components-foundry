@@ -65,12 +65,12 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
 @Component(
         creator = "Boris Capitanu",
         description = "This components uses the D3 library to generate a tag cloud. "+
-        "In the properties setting, you can also indicate the rotation for the text, "+
-        "for instance, 'rotation=0' means all words are horizontal; "+
-        "'rotation=90' means all words are horizontal or vertical. "+
-        "References: D3: Data-Driven Documents, Michael Bostock, Vadim Ogievetsky, Jeffrey Heer, "+
-        "IEEE Trans. Visualization & Comp. Graphics (Proc. InfoVis), 2011. " +
-        "D3 tag cloud code from http://github.com/jasondavies/d3-cloud.",
+            "In the properties setting, you can also indicate the rotation for the text, "+
+            "for instance, 'rotation=0' means all words are horizontal; "+
+            "'rotation=90' means all words are horizontal or vertical. "+
+            "References: D3: Data-Driven Documents, Michael Bostock, Vadim Ogievetsky, Jeffrey Heer, "+
+            "IEEE Trans. Visualization & Comp. Graphics (Proc. InfoVis), 2011. " +
+            "D3 tag cloud code from http://github.com/jasondavies/d3-cloud.",
         name = "Tag Cloud",
         tags = "#VIS, visualization, d3, tag cloud",
         rights = Licenses.UofINCSA,
@@ -184,10 +184,22 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
 
     @ComponentProperty(
             defaultValue = "true",
+            description = "If negative values are encountered for a count, should we turn them into positive numbers by using absolute value?",
+            name = "force_positive"
+    )
+    protected static final String PROP_FORCE_POSITIVE = "force_positive";
+
+    @ComponentProperty(
+            defaultValue = "true",
             description = "Should a tooltip containing the word and the count be shown upon hovering a token in the tag cloud?",
             name = "show_tooltip"
     )
     protected static final String PROP_SHOW_TOOLTIP = "show_tooltip";
+
+    //--------------------------------------------------------------------------------------------
+
+
+    protected boolean _forcePositive;
 
 
     //--------------------------------------------------------------------------------------------
@@ -195,6 +207,8 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
+
+        _forcePositive = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_FORCE_POSITIVE, ccp));
 
         context.put("title", getPropertyOrDieTrying(PROP_TITLE, ccp));
         context.put("width", getPropertyOrDieTrying(PROP_WIDTH, ccp));
@@ -222,6 +236,9 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
         for (Map.Entry<String, Integer> entry : tokenCounts.entrySet()) {
             String word = entry.getKey();
             Integer count = entry.getValue();
+
+            if (_forcePositive)
+                count = Math.abs(count);
 
             words.put(word);
             counts.put(count);

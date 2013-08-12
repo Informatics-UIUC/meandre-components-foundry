@@ -111,11 +111,11 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            name = Names.PORT_TOKEN_COUNTS,
+            name = "int_likelihood_scores",
             description = "Resulting analysis of dunning loglikelihood (rounded to integer values)." +
                 "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.IntegersMap"
     )
-    protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+    protected static final String OUT_INT_LIKELIHOOD_SCORES = "int_likelihood_scores";
 
     @ComponentOutput(
             name = Names.PORT_TOKEN_DOUBLE_VALUES,
@@ -125,11 +125,11 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
     protected static final String OUT_TOKEN_DOUBLES = Names.PORT_TOKEN_DOUBLE_VALUES;
 
     @ComponentOutput(
-            name = Names.PORT_TOKEN_DOUBLE_VALUES+"_2",
+            name = "stat_significance_score",
             description = "Statistical significance of analysis results." +
                 "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
     )
-    protected static final String OUT_TOKEN_SIGNIFICANCE = Names.PORT_TOKEN_DOUBLE_VALUES+"_2";
+    protected static final String OUT_STAT_SIGNIFICANCE_SCORE = "stat_significance_score";
 
     //----------------------------- PROPERTIES ---------------------------------------------------
 
@@ -220,9 +220,9 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 //		for (ReverseScoredString key : results.keySet()) {
 //		}
 
-        cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
+        cc.pushDataComponentToOutput(OUT_INT_LIKELIHOOD_SCORES, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
         cc.pushDataComponentToOutput(OUT_TOKEN_DOUBLES, BasicDataTypesTools.mapToDoubleMap(outputMapDoubles, false));
-        cc.pushDataComponentToOutput(OUT_TOKEN_SIGNIFICANCE, BasicDataTypesTools.mapToDoubleMap(significanceMapDoubles, false));
+        cc.pushDataComponentToOutput(OUT_STAT_SIGNIFICANCE_SCORE, BasicDataTypesTools.mapToDoubleMap(significanceMapDoubles, false));
     }
 
     @Override
