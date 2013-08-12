@@ -113,10 +113,18 @@ public class TokenCountsToCSV extends AbstractExecutableComponent {
     )
     protected static final String PROP_HEADER = Names.PROP_HEADER;
 
+    @ComponentProperty(
+            name = Names.PROP_ORDERED,
+            description = "Preserve ordering inherent in the given token counts?",
+            defaultValue = "false"
+    )
+    protected static final String PROP_ORDERED = Names.PROP_ORDERED;
+
     //--------------------------------------------------------------------------------------------
 
 
-    private String[] _header;
+    protected String[] _header;
+    protected boolean _ordered;
 
 
     //--------------------------------------------------------------------------------------------
@@ -124,12 +132,13 @@ public class TokenCountsToCSV extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         _header = getPropertyOrDieTrying(PROP_HEADER, true, false, ccp).split(",");
+        _ordered = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, ccp));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Object input = cc.getDataComponentFromInput(IN_TOKEN_COUNTS);
-        Map<String, Integer> tokenCountsMap = DataTypeParser.parseAsStringIntegerMap(input);
+        Map<String, Integer> tokenCountsMap = DataTypeParser.parseAsStringIntegerMap(input, _ordered);
 
         StringWriter csvData = new StringWriter();
         ICsvBeanWriter csvWriter = null;
