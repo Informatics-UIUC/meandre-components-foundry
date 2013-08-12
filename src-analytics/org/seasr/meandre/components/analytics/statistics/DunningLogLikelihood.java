@@ -153,7 +153,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
             name = "cutoff",
             description = "Tokens with frequency less than this number in both reference and analysis " +
                     "data will be ignored.",
-            defaultValue = "true"
+            defaultValue = "0"
     )
     protected static final String PROP_CUTOFF = "cutoff";
 
