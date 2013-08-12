@@ -69,19 +69,19 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 //
 
 @Component(
-		name = "Google Docs Downloader",
-		creator = "Surya Kallumadi",
-		baseURL = "meandre://seasr.org/components/foundry/",
-		firingPolicy = FiringPolicy.all,
-		mode = Mode.compute,
-		rights = Licenses.UofINCSA,
-		tags = "#INPUT, google, google doc, download",
-		description = "This component extracts data from a Google Docs directory and creates a local copy of the directory",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "activation-1.1.jar","gdata-client-1.0.jar","gdata-client-meta-1.0.jar","gdata-core-1.0.jar","gdata-docs-3.0.jar","gdata-docs-meta-3.0.jar","gdata-media-1.0.jar","guava-r09.jar","jsr305.jar","mail.jar"}
+        name = "Google Docs Downloader",
+        creator = "Surya Kallumadi",
+        baseURL = "meandre://seasr.org/components/foundry/",
+        firingPolicy = FiringPolicy.all,
+        mode = Mode.compute,
+        rights = Licenses.UofINCSA,
+        tags = "#INPUT, google, google doc, download",
+        description = "This component extracts data from a Google Docs directory and creates a local copy of the directory",
+        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "activation-1.1.jar","gdata-client-1.0.jar","gdata-client-meta-1.0.jar","gdata-core-1.0.jar","gdata-docs-3.0.jar","gdata-docs-meta-3.0.jar","gdata-media-1.0.jar","guava-14.0.1.jar","jsr305.jar","mail.jar"}
 )
 public class GDocsDirDownloader extends AbstractExecutableComponent {
 
-	//------------------------------ PROPERTIES --------------------------------------------------
+    //------------------------------ PROPERTIES --------------------------------------------------
 
     @ComponentProperty(
             name = "GMailId",
@@ -118,26 +118,26 @@ public class GDocsDirDownloader extends AbstractExecutableComponent {
     )
     protected static final String PROP_PATH = "target_folder";
 
-	//------------------------------ OUTPUTS -----------------------------------------------------
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
-	@ComponentOutput(
-			name = Names.PORT_LOCATION,
-			description = "Location of Lists definition file" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
-	)
-	protected static final String OUT_LOCATION = Names.PORT_LOCATION;
+    @ComponentOutput(
+            name = Names.PORT_LOCATION,
+            description = "Location of Lists definition file" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+    )
+    protected static final String OUT_LOCATION = Names.PORT_LOCATION;
 
-	//--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
 
   //String userGMailId >> PROP_GMAILID,String password >> PROP_PASSWORD,String DirName >> PROP_DIR,String ListFileName >> PROP_LISTS,String TargetDir >> PROP_PATH
 
-	GDocDownloadWrapper GdocHelper;
+    GDocDownloadWrapper GdocHelper;
 
-	protected String userGMailId;
-	protected String password;
-	protected String DirName;
-	protected String ListFileName;
-	protected String TargetDir;
+    protected String userGMailId;
+    protected String password;
+    protected String DirName;
+    protected String ListFileName;
+    protected String TargetDir;
 
 
 
@@ -146,32 +146,32 @@ public class GDocsDirDownloader extends AbstractExecutableComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception
     {
 
-    	userGMailId = ccp.getProperty(PROP_GMAILID);
-    	password = ccp.getProperty(PROP_PASSWORD);
-    	DirName = ccp.getProperty(PROP_DIR);
-    	ListFileName = ccp.getProperty(PROP_LISTS);
-    	TargetDir = ccp.getProperty(PROP_PATH);
-    	GdocHelper = new GDocDownloadWrapper();
-	}
+        userGMailId = ccp.getProperty(PROP_GMAILID);
+        password = ccp.getProperty(PROP_PASSWORD);
+        DirName = ccp.getProperty(PROP_DIR);
+        ListFileName = ccp.getProperty(PROP_LISTS);
+        TargetDir = ccp.getProperty(PROP_PATH);
+        GdocHelper = new GDocDownloadWrapper();
+    }
 
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception
     {
 
-    	String ListFileLocation=GDocDownloadWrapper.DownloadGDocDir(userGMailId,password,DirName,ListFileName,TargetDir);
-    	console.info("List File available at --- "+ListFileLocation);
-    	cc.pushDataComponentToOutput(OUT_LOCATION,ListFileLocation);
+        String ListFileLocation=GDocDownloadWrapper.DownloadGDocDir(userGMailId,password,DirName,ListFileName,TargetDir);
+        console.info("List File available at --- "+ListFileLocation);
+        cc.pushDataComponentToOutput(OUT_LOCATION,ListFileLocation);
     }
 
     @Override
 
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
 
-    	userGMailId = null;
-    	password = null;
-    	DirName = null;
-    	ListFileName = null;
-    	TargetDir = null;
+        userGMailId = null;
+        password = null;
+        DirName = null;
+        ListFileName = null;
+        TargetDir = null;
     }
 }

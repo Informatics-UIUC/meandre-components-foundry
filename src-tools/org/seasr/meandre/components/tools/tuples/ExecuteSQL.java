@@ -80,7 +80,7 @@ import com.jolbox.bonecp.BoneCP;
         tags = "#ANALYTICS, tools, database, sql",
         description = "This component executes SQL statements passed in the input",
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
-                       "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
+                       "guava-14.0.1.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
 )
 public class ExecuteSQL extends AbstractExecutableComponent {
 
@@ -158,13 +158,13 @@ public class ExecuteSQL extends AbstractExecutableComponent {
                 List<String> stmts = new ArrayList<String>();
                 String sqlStatements = DataTypeParser.parseAsString(input)[0];
                 for (String sql : sqlStatements.split("\n")) {
-                	sql = sql.trim();
-                	if (sql.startsWith("--") || sql.length() == 0)
-                		continue;
-                	if (sql.endsWith(";"))
-                		stmts.add(sql);
-                	else
-                		console.warning(String.format("Ignoring malformed SQL statement '%s'", sql));
+                    sql = sql.trim();
+                    if (sql.startsWith("--") || sql.length() == 0)
+                        continue;
+                    if (sql.endsWith(";"))
+                        stmts.add(sql);
+                    else
+                        console.warning(String.format("Ignoring malformed SQL statement '%s'", sql));
                 }
 
                 if (stmts.isEmpty()) continue;

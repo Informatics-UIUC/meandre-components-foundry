@@ -80,7 +80,7 @@ import com.jolbox.bonecp.BoneCP;
  * @author Mike Haberman
  * see http://jolbox.com/ for connection pool
  * RUNTIME: depends on:
- * guava-r09.jar   (google collections)
+ * guava-14.0.1.jar   (google collections)
  * slf4j-api-1.6.1.jar, slf4j-log4j12-1.6.1.jar (connection pooling logging)
  *
  * @author Boris Capitanu
@@ -88,16 +88,16 @@ import com.jolbox.bonecp.BoneCP;
  */
 
 @Component(
-		name = "SQL To Tuple",
-		creator = "Mike Haberman",
-		baseURL = "meandre://seasr.org/components/foundry/",
-		firingPolicy = FiringPolicy.any,
-		mode = Mode.compute,
-		rights = Licenses.UofINCSA,
-		tags = "#INPUT, tuple, tools, database, db",
-		description = "This component reads a mysql database",
-		dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
-				       "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
+        name = "SQL To Tuple",
+        creator = "Mike Haberman",
+        baseURL = "meandre://seasr.org/components/foundry/",
+        firingPolicy = FiringPolicy.any,
+        mode = Mode.compute,
+        rights = Licenses.UofINCSA,
+        tags = "#INPUT, tuple, tools, database, db",
+        description = "This component reads a mysql database",
+        dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
+                       "guava-14.0.1.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
 )
 public class SQLToTuple extends AbstractExecutableComponent {
 
@@ -116,21 +116,21 @@ public class SQLToTuple extends AbstractExecutableComponent {
     )
     protected static final String IN_QUERY = Names.PORT_QUERY;
 
-	//------------------------------ OUTPUTS -----------------------------------------------------
+    //------------------------------ OUTPUTS -----------------------------------------------------
 
-	@ComponentOutput(
-			name = Names.PORT_TUPLES,
-			description = "tuples (based on the SQL)" +
-			    "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
-	)
-	protected static final String OUT_TUPLES = Names.PORT_TUPLES;
+    @ComponentOutput(
+            name = Names.PORT_TUPLES,
+            description = "tuples (based on the SQL)" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsArray"
+    )
+    protected static final String OUT_TUPLES = Names.PORT_TUPLES;
 
-	@ComponentOutput(
-			name = Names.PORT_META_TUPLE,
-			description = "meta data for the tuple (column names from select!)" +
+    @ComponentOutput(
+            name = Names.PORT_META_TUPLE,
+            description = "meta data for the tuple (column names from select!)" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-	)
-	protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
+    )
+    protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;
 
     //--------------------------------------------------------------------------------------------
 
@@ -140,13 +140,13 @@ public class SQLToTuple extends AbstractExecutableComponent {
 
     //--------------------------------------------------------------------------------------------
 
-	@Override
+    @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	}
+    }
 
-	@Override
-	public void executeCallBack(ComponentContext cc) throws Exception {
-	    componentInputCache.storeIfAvailable(cc, IN_QUERY);
+    @Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
+        componentInputCache.storeIfAvailable(cc, IN_QUERY);
 
         if (cc.isInputAvailable(IN_DB_CONN_POOL)) {
             Object in_conn_pool = cc.getDataComponentFromInput(IN_DB_CONN_POOL);
@@ -159,9 +159,9 @@ public class SQLToTuple extends AbstractExecutableComponent {
                 console.warning("Stream delimiters should not arrive on port '" + IN_DB_CONN_POOL + "'. Ignoring...");
         }
 
-	    if (connectionPool == null || !componentInputCache.hasData(IN_QUERY))
-	        // Not ready to process
-	        return;
+        if (connectionPool == null || !componentInputCache.hasData(IN_QUERY))
+            // Not ready to process
+            return;
 
         Object input;
         while ((input = componentInputCache.retrieveNext(IN_QUERY)) != null) {
@@ -175,7 +175,7 @@ public class SQLToTuple extends AbstractExecutableComponent {
             String query = DataTypeParser.parseAsString(input)[0];
             processQuery(query);
         }
-	}
+    }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {

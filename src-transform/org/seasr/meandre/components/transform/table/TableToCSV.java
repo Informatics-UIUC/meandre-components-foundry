@@ -57,6 +57,8 @@ import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.datamining.table.Table;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.supercsv.encoder.CsvEncoder;
+import org.supercsv.encoder.DefaultCsvEncoder;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.io.ICsvListWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -128,7 +130,11 @@ public class TableToCSV extends AbstractExecutableComponent {
         StringWriter csvData = new StringWriter();
         ICsvListWriter csvWriter = null;
         try {
-            csvWriter = new CsvListWriter(csvData, CsvPreference.EXCEL_PREFERENCE);
+            final CsvEncoder csvEncoder = new DefaultCsvEncoder();
+            final CsvPreference csvPreference =
+                    new CsvPreference.Builder(CsvPreference.EXCEL_PREFERENCE)
+                            .useEncoder(csvEncoder).build();
+            csvWriter = new CsvListWriter(csvData, csvPreference);
 
             String[] header = new String[numCols];
             for (int i = 0; i < numCols; i++) {

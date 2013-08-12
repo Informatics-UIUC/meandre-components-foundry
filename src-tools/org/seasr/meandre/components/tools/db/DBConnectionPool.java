@@ -77,7 +77,7 @@ import com.jolbox.bonecp.BoneCPConfig;
         tags = "#INPUT, tools, database, db",
         description = "This component persists (serializes) the input into a database",
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
-                       "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
+                       "guava-14.0.1.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
 )
 public class DBConnectionPool extends AbstractExecutableComponent {
 
@@ -133,11 +133,11 @@ public class DBConnectionPool extends AbstractExecutableComponent {
     @ComponentProperty(
             name = "partition_count",
             description = "In order to reduce lock contention and thus improve performance, " +
-            		"each incoming connection request picks off a connection from a pool that has thread-affinity, " +
-            		"i.e. pool[threadId % partition_count]. The higher this number, the better your performance " +
-            		"will be for the case when you have plenty of short-lived threads. Beyond a certain threshold, " +
-            		"maintenence of these pools will start to have a negative effect on performance (and only for " +
-            		"the case when connections on a partition start running out)",
+                    "each incoming connection request picks off a connection from a pool that has thread-affinity, " +
+                    "i.e. pool[threadId % partition_count]. The higher this number, the better your performance " +
+                    "will be for the case when you have plenty of short-lived threads. Beyond a certain threshold, " +
+                    "maintenence of these pools will start to have a negative effect on performance (and only for " +
+                    "the case when connections on a partition start running out)",
             defaultValue = "2"
     )
     protected static final String PROP_PARTITION_COUNT = "partition_count";
@@ -152,9 +152,9 @@ public class DBConnectionPool extends AbstractExecutableComponent {
     @ComponentProperty(
             name = "max_conn_per_partition",
             description = "The number of connections to create per partition. Setting this to 5 with 3 partitions " +
-            		"means you will have 15 unique connections to the database. Note that BoneCP will not create " +
-            		"all these connections in one go but rather start off with minConnectionsPerPartition and " +
-            		"gradually increase connections as required",
+                    "means you will have 15 unique connections to the database. Note that BoneCP will not create " +
+                    "all these connections in one go but rather start off with minConnectionsPerPartition and " +
+                    "gradually increase connections as required",
             defaultValue = "10"
     )
     protected static final String PROP_MAX_CONN_PER_PART = "max_conn_per_partition";

@@ -61,6 +61,8 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.supercsv.cellprocessor.FmtNumber;
 import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.encoder.CsvEncoder;
+import org.supercsv.encoder.DefaultCsvEncoder;
 import org.supercsv.io.CsvMapWriter;
 import org.supercsv.io.ICsvMapWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -149,7 +151,12 @@ public class DocumentTopicsToCSV extends AbstractExecutableComponent {
         StringWriter csvData = new StringWriter();
         ICsvMapWriter csvWriter = null;
         try {
-            csvWriter = new CsvMapWriter(csvData, CsvPreference.EXCEL_PREFERENCE);
+            final CsvEncoder csvEncoder = new DefaultCsvEncoder();
+            final CsvPreference csvPreference =
+                    new CsvPreference.Builder(CsvPreference.EXCEL_PREFERENCE)
+                            .useEncoder(csvEncoder).build();
+            csvWriter = new CsvMapWriter(csvData, csvPreference);
+
             int columnCount = numTopics + 2;  // + "doc_id" + "doc_name"
 
             String[] header = new String[columnCount];

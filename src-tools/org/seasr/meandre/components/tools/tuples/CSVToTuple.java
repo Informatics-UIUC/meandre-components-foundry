@@ -62,6 +62,8 @@ import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.encoder.CsvEncoder;
+import org.supercsv.encoder.DefaultCsvEncoder;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvMapReader;
 import org.supercsv.prefs.CsvPreference;
@@ -159,7 +161,11 @@ public class CSVToTuple extends AbstractExecutableComponent {
         final StringReader csvData = new StringReader(text);
         ICsvMapReader csvReader = null;
         try {
-            csvReader = new CsvMapReader(csvData, CsvPreference.EXCEL_PREFERENCE);
+            final CsvEncoder csvEncoder = new DefaultCsvEncoder();
+            final CsvPreference csvPreference =
+                    new CsvPreference.Builder(CsvPreference.EXCEL_PREFERENCE)
+                            .useEncoder(csvEncoder).build();
+            csvReader = new CsvMapReader(csvData, csvPreference);
 
             // the header columns are used as the keys to the Map
             String[] header;

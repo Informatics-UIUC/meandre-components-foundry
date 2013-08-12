@@ -43,6 +43,8 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -60,6 +62,10 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
+import org.supercsv.cellprocessor.Optional;
+import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.encoder.CsvEncoder;
+import org.supercsv.encoder.DefaultCsvEncoder;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.io.ICsvListWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -159,23 +165,32 @@ public class TupleToCSV extends AbstractExecutableComponent {
         StringWriter csvData = new StringWriter();
         ICsvListWriter csvWriter = null;
         try {
-            csvWriter = new CsvListWriter(csvData, CsvPreference.EXCEL_PREFERENCE);
+            final CsvEncoder csvEncoder = new DefaultCsvEncoder();
+            final CsvPreference csvPreference =
+                    new CsvPreference.Builder(CsvPreference.EXCEL_PREFERENCE)
+                            .useEncoder(csvEncoder).build();
+            csvWriter = new CsvListWriter(csvData, csvPreference);
 
             String[] header = new String[size];
-            for (int i = 0; i < size; i++)
+            CellProcessor[] processors = new CellProcessor[size];
+
+            for (int i = 0; i < size; i++) {
                 header[i] = tuplePeer.getFieldNameForIndex(i);
+                processors[i] = new Optional();
+            }
 
             if (_addHeader)
                 csvWriter.writeHeader(header);
 
-            Object[] rowData = new Object[size];
+            List<String> rowData = new ArrayList<String>(size);
             for (int i = 0; i < in.length; i++) {
                 tuple.setValues(in[i]);
+                rowData.clear();
 
                 for (int j = 0; j < size; j++)
-                    rowData[j] = tuple.getValue(j);
+                    rowData.add(tuple.getValue(j));
 
-                csvWriter.write(rowData);
+                csvWriter.write(rowData, processors);
             }
         }
         finally {

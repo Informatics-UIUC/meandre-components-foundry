@@ -61,6 +61,8 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
 import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.encoder.CsvEncoder;
+import org.supercsv.encoder.DefaultCsvEncoder;
 import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -132,7 +134,11 @@ public class TokenCountsToCSV extends AbstractExecutableComponent {
         StringWriter csvData = new StringWriter();
         ICsvBeanWriter csvWriter = null;
         try {
-            csvWriter = new CsvBeanWriter(csvData, CsvPreference.EXCEL_PREFERENCE);
+            final CsvEncoder csvEncoder = new DefaultCsvEncoder();
+            final CsvPreference csvPreference =
+                    new CsvPreference.Builder(CsvPreference.EXCEL_PREFERENCE)
+                            .useEncoder(csvEncoder).build();
+            csvWriter = new CsvBeanWriter(csvData, csvPreference);
 
             // the header elements are used to map the bean values to each column (names must match)
             final String[] beanFieldMapping = new String[] { "token", "count" };

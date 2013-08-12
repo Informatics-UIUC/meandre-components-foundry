@@ -92,7 +92,7 @@ import com.jolbox.bonecp.BoneCP;
         tags = "#TRANSFORM, tuple, tools, database, db",
         description = "This component writes tuples to a db table",
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
-                       "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
+                       "guava-14.0.1.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
 )
 public class TupleToSQL extends AbstractStreamingExecutableComponent {
 
@@ -140,8 +140,8 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
 
     @ComponentProperty(
             description = "The column definitions (example: name VARCHAR(30) NOT NULL, birthday DATETIME, isRetired BOOLEAN). " +
-            		"Note: The names of the columns must match the meta tuple field names, but order is arbitrary. " +
-            		"You can also specify just a subset of the tuple's fields, so that only those fields are saved in the database.",
+                    "Note: The names of the columns must match the meta tuple field names, but order is arbitrary. " +
+                    "You can also specify just a subset of the tuple's fields, so that only those fields are saved in the database.",
             name = "column_definitions",
             defaultValue = ""
     )
@@ -149,7 +149,7 @@ public class TupleToSQL extends AbstractStreamingExecutableComponent {
 
     @ComponentProperty(
             description = "Any table options usually specified after the column definitions " +
-            		"(example: ENGINE=InnoDB DEFAULT CHARACTER SET utf8)",
+                    "(example: ENGINE=InnoDB DEFAULT CHARACTER SET utf8)",
             name = "table_options",
             defaultValue = ""
     )

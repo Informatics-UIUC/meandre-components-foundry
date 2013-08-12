@@ -85,7 +85,7 @@ import com.jolbox.bonecp.BoneCP;
         tags = "#INPUT, tools, database, db, persist, serialize",
         description = "This component retrieves persisted data from a database",
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
-                       "guava-r09.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
+                       "guava-14.0.1.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
 )
 public class RetrieveFromDB extends AbstractStreamingExecutableComponent {
 
@@ -197,8 +197,8 @@ public class RetrieveFromDB extends AbstractStreamingExecutableComponent {
                         int portCount = rs.getInt("port_count");
                         if (portCount != _portCount) {
                             outputError(String.format("This component cannot be used to retrieve data for id '%s'! " +
-                            		"Reason: port number mismatch! (should be: %d, actual: %d) - " +
-                            		"Use a component with a matching number of output ports!", input, _portCount, portCount), Level.SEVERE);
+                                    "Reason: port number mismatch! (should be: %d, actual: %d) - " +
+                                    "Use a component with a matching number of output ports!", input, _portCount, portCount), Level.SEVERE);
                             continue;
                         }
                         String tableName = rs.getString("table_name");
