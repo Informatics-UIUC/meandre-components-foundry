@@ -54,8 +54,11 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.seasr.datatypes.core.BasicDataTypes.Bytes;
 import org.seasr.datatypes.core.BasicDataTypes.BytesMap;
+import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
+import org.seasr.datatypes.core.BasicDataTypes.FloatsMap;
 import org.seasr.datatypes.core.BasicDataTypes.Integers;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
+import org.seasr.datatypes.core.BasicDataTypes.LongsMap;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
@@ -68,7 +71,9 @@ import com.hp.hpl.jena.rdf.model.Model;
 
 /**
  * @author Boris Capitanu
+ * @author Ian Wood
  */
+
 public abstract class DataTypeParser {
     /**
      * Attempts to convert the given data to a String array
@@ -117,39 +122,39 @@ public abstract class DataTypeParser {
      * @throws UnsupportedDataTypeException
      */
     public static Integer[] parseAsInteger(Object data) throws UnsupportedDataTypeException {
-    	Integer[] value;
+        Integer[] value;
 
-    	if (data == null)
-    		value = null;
+        if (data == null)
+            value = null;
 
-    	else
+        else
 
-    	if (data instanceof Integer)
-    		value = new Integer[] { (Integer)data };
+        if (data instanceof Integer)
+            value = new Integer[] { (Integer)data };
 
-    	else
+        else
 
-    	if (data instanceof Integers)
-    		value = BasicDataTypesTools.integersToIntegerArray((Integers)data);
+        if (data instanceof Integers)
+            value = BasicDataTypesTools.integersToIntegerArray((Integers)data);
 
-    	else
+        else
 
-    	if (data instanceof String)
-    		value = new Integer[] { Integer.parseInt((String)data) };
+        if (data instanceof String)
+            value = new Integer[] { Integer.parseInt((String)data) };
 
-    	else
+        else
 
-    	if (data instanceof Strings) {
-    	    String[] strings = parseAsString(data);
-    		value = new Integer[strings.length];
-    		for (int i = 0, len = strings.length; i < len; i++)
-    		    value[i] = Integer.parseInt(strings[i]);
-    	}
+        if (data instanceof Strings) {
+            String[] strings = parseAsString(data);
+            value = new Integer[strings.length];
+            for (int i = 0, len = strings.length; i < len; i++)
+                value[i] = Integer.parseInt(strings[i]);
+        }
 
-    	else
-    		throw new UnsupportedDataTypeException(data.getClass().getName());
+        else
+            throw new UnsupportedDataTypeException(data.getClass().getName());
 
-    	return value;
+        return value;
     }
 
     /**
@@ -211,6 +216,39 @@ public abstract class DataTypeParser {
     }
 
     /**
+     * Attempts to convert the given data to a Map<String, Number>
+     *
+     * @param data The data
+     * @return The Map<String, Number>
+     * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, Number> parseAsStringNumberMap(Object data) throws UnsupportedDataTypeException {
+        Map<String, Number> map;
+
+        if (data == null)
+            map = null;
+
+        else
+
+        if (data instanceof IntegersMap || data instanceof LongsMap || data instanceof FloatsMap || data instanceof DoublesMap)
+            map = BasicDataTypesTools.NumberMapToMap(data);
+
+        else
+
+        if (data instanceof Map) {
+            map = (Map<String, Number>)data;
+            if (!(map.values().iterator().next() instanceof Number))
+                throw new UnsupportedDataTypeException("The given map is not in the correct format! - Numbers expected!");
+        }
+
+        else
+            throw new UnsupportedDataTypeException(data.getClass().getName());
+
+        return map;
+    }
+
+    /**
      * Attempts to convert the given data to a Map<String, Integer>
      *
      * @param data The data
@@ -252,7 +290,40 @@ public abstract class DataTypeParser {
      * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
      */
     public static Map<String, Integer> parseAsStringIntegerMap(Object data) throws UnsupportedDataTypeException {
-    	return parseAsStringIntegerMap(data, false);
+        return parseAsStringIntegerMap(data, false);
+    }
+
+    /**
+     * Attempts to convert the given data to a Map<String, Double>
+     *
+     * @param data The data
+     * @return The Map<String, Double>
+     * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, Double> parseAsStringDoulbeMap(Object data) throws UnsupportedDataTypeException {
+        Map<String, Double> map;
+
+        if (data == null)
+            map = null;
+
+        else
+
+        if (data instanceof DoublesMap)
+            map = BasicDataTypesTools.DoubleMapToMap((DoublesMap)data);
+
+        else
+
+        if (data instanceof Map) {
+            map = (Map<String, Double>)data;
+            if (!(map.values().iterator().next() instanceof Double))
+                throw new UnsupportedDataTypeException("The given map is not in the correct format!");
+        }
+
+        else
+            throw new UnsupportedDataTypeException(data.getClass().getName());
+
+        return map;
     }
 
     /**
