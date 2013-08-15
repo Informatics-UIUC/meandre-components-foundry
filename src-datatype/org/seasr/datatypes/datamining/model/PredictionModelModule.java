@@ -1,36 +1,36 @@
 /**
  * University of Illinois/NCSA
  * Open Source License
- * 
- * Copyright (c) 2008, Board of Trustees-University of Illinois.  
+ *
+ * Copyright (c) 2008, Board of Trustees-University of Illinois.
  * All rights reserved.
- * 
- * Developed by: 
- * 
+ *
+ * Developed by:
+ *
  * Automated Learning Group
  * National Center for Supercomputing Applications
  * http://www.seasr.org
- * 
- *  
+ *
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal with the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
+ * furnished to do so, subject to the following conditions:
+ *
  *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimers. 
- * 
+ *    this list of conditions and the following disclaimers.
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimers in the 
- *    documentation and/or other materials provided with the distribution. 
- * 
+ *    this list of conditions and the following disclaimers in the
+ *    documentation and/or other materials provided with the distribution.
+ *
  *  * Neither the names of Automated Learning Group, The National Center for
  *    Supercomputing Applications, or University of Illinois, nor the names of
  *    its contributors may be used to endorse or promote products derived from
- *    this Software without specific prior written permission. 
- * 
+ *    this Software without specific prior written permission.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -38,9 +38,16 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * WITH THE SOFTWARE.
- */ 
+ */
 
 package org.seasr.datatypes.datamining.model;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 import org.seasr.datatypes.datamining.table.Column;
 import org.seasr.datatypes.datamining.table.ColumnTypes;
@@ -50,13 +57,6 @@ import org.seasr.datatypes.datamining.table.ReversibleTransformation;
 import org.seasr.datatypes.datamining.table.Table;
 import org.seasr.datatypes.datamining.table.TableFactory;
 import org.seasr.datatypes.datamining.table.Transformation;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
 
 
 /**
@@ -487,13 +487,13 @@ public abstract class PredictionModelModule implements java.io.Serializable {
                   predok = false;
                } else {
 
-                  // for each input feature
+                  // for each predicted feature
                   for (int i = 0; i < curPredFeat.length; i++) {
                      String lbl = pt.getColumnLabel(curPredFeat[i]);
 
                      if (
                          !lbl.equals(outputColumnLabels[i] +
-                                        PredictionTable.PREDICTION_COLUMN_APPEND_TEXT)) {
+                                        PredictionTable.PREDICTION_COLUMN_LABEL_SUFFIX)) {
                         predok = false;
                      }
 
@@ -572,13 +572,13 @@ public abstract class PredictionModelModule implements java.io.Serializable {
                   predok = false;
                } else {
 
-                  // for each input feature
+                  // for each predicted feature
                   for (int i = 0; i < curPredFeat.length; i++) {
                      String lbl = pt.getColumnLabel(curPredFeat[i]);
 
                      if (
                          !lbl.equals(outputColumnLabels[i] +
-                                        PredictionTable.PREDICTION_COLUMN_APPEND_TEXT)) {
+                                        PredictionTable.PREDICTION_COLUMN_LABEL_SUFFIX)) {
                         predok = false;
                      }
 

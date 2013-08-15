@@ -116,9 +116,10 @@ public class SparsePredictionTable extends SparseSubsetTable
                 //Column col = ttt.getColumn(outputColumns[i2]);
                 //col = ColumnUtilities.createColumn(col.getType(), col.getNumRows());
                 this.addColumn(ttt.getColumnType(outputColumns[i2]));
-                StringBuffer newLabel = new StringBuffer(ttt.getColumnLabel(outputColumns[i2]));
-                newLabel.append(PREDICTION_COLUMN_APPEND_TEXT);
-                this.setColumnLabel(newLabel.toString(), i);
+                String outputLabel = ttt.getColumnLabel(outputColumns[i2]);
+                if (outputLabel == null) outputLabel = "";
+                String predColLabel = outputLabel + PredictionTable.PREDICTION_COLUMN_LABEL_SUFFIX;
+                this.setColumnLabel(predColLabel, i);
                 //newColumns[i] = col;
                 predictionSet[i2] = i;
             }

@@ -141,10 +141,10 @@ public class PredictionTableImpl extends ExampleTableImpl
             ColumnUtilities.createColumn(ttt.getColumnType(outputColumns[i2]),
                                          columns[outputColumns[i2]]
                                             .getNumRows());
-         StringBuffer newLabel =
-            new StringBuffer(ttt.getColumnLabel(outputColumns[i2]));
-         newLabel.append(PREDICTION_COLUMN_APPEND_TEXT);
-         col.setLabel(newLabel.toString());
+         String outputLabel = ttt.getColumnLabel(outputColumns[i2]);
+         if (outputLabel == null) outputLabel = "";
+         String predColLabel = outputLabel + PredictionTable.PREDICTION_COLUMN_LABEL_SUFFIX;
+         col.setLabel(predColLabel);
          newColumns[i] = col;
          predictionSet[i2] = i;
       }
