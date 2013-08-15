@@ -244,4 +244,9 @@ public abstract class AbstractColumn implements Column {
     */
    public void setLabel(String labl) { label = labl; }
 
+   @Override
+   public String toString() {
+       return getLabel();
+   }
+
 } // end class AbstractColumn
