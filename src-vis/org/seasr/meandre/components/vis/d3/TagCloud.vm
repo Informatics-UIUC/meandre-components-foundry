@@ -29,8 +29,7 @@
             var count = data.counts[i];
             return {
                 'text': d #if( $showCounts ) + " " + count #end,
-                'size': scale(count),
-                'count': count
+                'size': scale(count)
             };
         }))
         .rotate(function() { return ~~(Math.random() * 2) * rotation; })
@@ -63,7 +62,7 @@
               .text(function(d) { return d.text; })
               #if( $showToolTip )
               .append("title")
-                .text(function(d) { return d.text + "\n" + d.count; })
+                .text(function(d) { return d.text + "\n" + data.counts[i]; })
               #end
               ;
     }
