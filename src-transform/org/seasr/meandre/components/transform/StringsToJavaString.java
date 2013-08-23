@@ -43,16 +43,17 @@
 package org.seasr.meandre.components.transform;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 
@@ -93,18 +94,43 @@ public class StringsToJavaString extends AbstractExecutableComponent {
     )
     protected static final String OUT_JAVA_STRING = Names.PORT_JAVA_STRING;
 
+    //----------------------------- PROPERTIES ---------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_SEPARATOR,
+            description = "If there are multiple strings packed in the Google Strings structure, how should they be combined? " +
+                    "The separator is used to create a single Java String where the values in " +
+                    "the Google structure are added, separated by the separator.",
+            defaultValue = "\\n"
+    )
+    protected static final String PROP_SEPARATOR = Names.PROP_SEPARATOR;
+
+    //--------------------------------------------------------------------------------------------
+
+
+    protected String _separator;
+
+
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+        String separator = getPropertyOrDieTrying(PROP_SEPARATOR, false, true, ccp);
+        _separator = separator.replaceAll("\\\\t", "\t").replaceAll("\\\\n", "\n").replaceAll("\\\\r", "\r");
+        console.fine(String.format("Separator set to '%s' (surrounding single quotes added for readability)", _separator));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         String[] sa = BasicDataTypesTools.stringsToStringArray((Strings)cc.getDataComponentFromInput(IN_TEXT));
-        if (sa.length > 1)
-            console.warning("Detected multiple packed strings in the Google structure. Only the first one is returned...");
-        cc.pushDataComponentToOutput(OUT_JAVA_STRING, sa[0]);
+        StringBuilder sb = new StringBuilder();
+        for (String s : sa)
+            sb.append(_separator).append(s);
+
+        String text = (sb.length() > 0) ? sb.substring(_separator.length()) : "";
+        console.fine(String.format("text (quotes added for readability): '%s'", text));
+
+        cc.pushDataComponentToOutput(OUT_JAVA_STRING, text);
     }
 
     @Override
