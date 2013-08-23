@@ -62,7 +62,7 @@
               .text(function(d) { return d.text; })
               #if( $showToolTip )
               .append("title")
-                .text(function(d) { return d.text + "\n" + data.counts[i]; })
+                .text(function(d, i) { return d.text + "\n" + data.counts[i]; })
               #end
               ;
     }
