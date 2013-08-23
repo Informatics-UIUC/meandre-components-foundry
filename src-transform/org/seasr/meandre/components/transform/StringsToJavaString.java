@@ -58,10 +58,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 
 /**
- * This component transforms a token count into a map.
- *
  * @author Boris Capitanu
- *
  */
 @Component(
         name = "Strings To Java String",
