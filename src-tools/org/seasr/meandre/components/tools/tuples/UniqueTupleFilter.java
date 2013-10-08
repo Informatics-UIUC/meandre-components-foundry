@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.tools.tuples;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -123,7 +124,9 @@ public class UniqueTupleFilter extends AbstractExecutableComponent {
     //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
-            description = "The attribute used to determine the uniqueness of tuples",
+            description = "The attribute(s) used to determine the uniqueness of tuples "
+            		+ "(separate multiple attributes by commas). When multiple attributes are specified "
+            		+ "uniqueness is ascertained for all the specified attributes together. Example: token,count",
             name = "attribute",
             defaultValue = ""
     )
@@ -139,33 +142,40 @@ public class UniqueTupleFilter extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    protected String _attributeName;
+    protected String[] _uniqueAttributeNames;
     protected boolean _perStream;
     protected boolean _isStreaming = false;
 
-    protected Set<String> _uniqueSet = new HashSet<String>();
+    protected Set<Tuple> _uniqueSet = new HashSet<Tuple>();
 
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        _attributeName = getPropertyOrDieTrying(PROP_ATTRIBUTE, ccp);
+        _uniqueAttributeNames = getPropertyOrDieTrying(PROP_ATTRIBUTE, ccp).split(",");
         _perStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_PER_STREAM, ccp));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         if (!_isStreaming && _perStream)
-            _uniqueSet = new HashSet<String>();
+            _uniqueSet = new HashSet<Tuple>();
 
         Strings inMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
         SimpleTuplePeer inPeer  = new SimpleTuplePeer(inMeta);
 
-        int FIELD_IDX = inPeer.getIndexForFieldName(_attributeName);
-        if (FIELD_IDX == -1) {
-            String dump = inPeer.toString();
-            throw new ComponentExecutionException(String.format("The tuples have no attribute named '%s'%nAttributes: %s", _attributeName, dump));
+        int uniqueAttributeCount = _uniqueAttributeNames.length;
+
+		int[] FIELD_IDX = new int[uniqueAttributeCount];
+        for (int i = 0; i < uniqueAttributeCount; i++) {
+        	String attributeName = _uniqueAttributeNames[i].trim();
+	        int index = inPeer.getIndexForFieldName(attributeName);
+	        if (index == -1) {
+	            String dump = inPeer.toString();
+	            throw new ComponentExecutionException(String.format("The tuples have no attribute named '%s'%nAttributes: %s", attributeName, dump));
+	        } else
+	        	FIELD_IDX[i] = index;
         }
 
         Strings[] inTuples = BasicDataTypesTools.stringsArrayToJavaArray((StringsArray) cc.getDataComponentFromInput(IN_TUPLES));
@@ -177,10 +187,16 @@ public class UniqueTupleFilter extends AbstractExecutableComponent {
         for (Strings inTuple : inTuples) {
             tuple.setValues(inTuple);
 
-            String key = tuple.getValue(FIELD_IDX);
-            if (!_uniqueSet.contains(key)) {
+            String[] values = new String[uniqueAttributeCount];
+            for (int i = 0; i < uniqueAttributeCount; i++) {
+            	String value = tuple.getValue(FIELD_IDX[i]);
+            	values[i] = value;
+            }
+            Tuple uniqueValuesTuple = new Tuple(values);
+
+            if (!_uniqueSet.contains(uniqueValuesTuple)) {
                 uniqueTuplesBuilder.addValue(inTuple);
-                _uniqueSet.add(key);
+                _uniqueSet.add(uniqueValuesTuple);
             }
             else
                 duplicateTuplesBuilder.addValue(inTuple);
@@ -205,7 +221,7 @@ public class UniqueTupleFilter extends AbstractExecutableComponent {
         super.handleStreamInitiators();
 
         if (_perStream)
-            _uniqueSet = new HashSet<String>();
+            _uniqueSet = new HashSet<Tuple>();
 
         _isStreaming = true;
     }
@@ -215,5 +231,49 @@ public class UniqueTupleFilter extends AbstractExecutableComponent {
         super.handleStreamTerminators();
 
         _isStreaming = false;
+    }
+
+    //--------------------------------------------------------------------------------------------
+
+    private static class Tuple {
+    	private final String[] _tuples;
+
+    	public Tuple(String[] tuples) {
+    		_tuples = tuples;
+    	}
+
+    	public String[] getTuples() {
+    		return _tuples;
+    	}
+
+    	@Override
+    	public boolean equals(Object other) {
+    		if (other == this) return true;
+    		if (other == null || other.getClass() != getClass()) return false;
+
+    		Tuple t = (Tuple) other;
+    		String[] otherTuples = t.getTuples();
+			if (otherTuples.length != _tuples.length) return false;
+
+    		for (int i = 0, iMax = _tuples.length; i < iMax; i++)
+    			if (!otherTuples[i].equals(_tuples[i]))
+    				return false;
+
+    		return true;
+    	}
+
+    	@Override
+    	public int hashCode() {
+    		return Arrays.hashCode(_tuples);
+    	}
+
+    	@Override
+    	public String toString() {
+    		StringBuilder sb = new StringBuilder();
+    		for (String t : _tuples)
+    			sb.append(",").append(t);
+
+    		return sb.length() > 0 ? sb.substring(1) : "";
+    	}
     }
 }
