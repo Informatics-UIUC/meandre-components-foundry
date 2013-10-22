@@ -43,6 +43,7 @@
 package org.seasr.meandre.components.transform.xml;
 
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -51,6 +52,7 @@ import java.util.logging.Level;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 
 import org.meandre.annotations.Component;
@@ -166,7 +168,13 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
         super.initializeCallBack(ccp);
 
         String qName = getPropertyOrDieTrying(PROP_QNAME, ccp).toUpperCase();
-        _qName = new QName("http://www.w3.org/1999/XSL/Transform", qName);
+        try {
+        	Field qNameField = XPathConstants.class.getField(qName);
+        	_qName = (QName) qNameField.get(null);
+        }
+        catch (NoSuchFieldException e) {
+        	throw new ComponentContextException("Invalid qName property value: " + qName, e);
+        }
 
         _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
 
