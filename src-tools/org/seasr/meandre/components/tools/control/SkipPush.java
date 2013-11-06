@@ -138,4 +138,15 @@ public class SkipPush extends AbstractExecutableComponent {
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
     }
 
+    //--------------------------------------------------------------------------------------------
+
+    @Override
+    public void handleStreamInitiators() throws Exception {
+    	executeCallBack(componentContext);
+    }
+
+    @Override
+    public void handleStreamTerminators() throws Exception {
+    	executeCallBack(componentContext);
+    }
 }
