@@ -146,8 +146,8 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 
 			console.finest("aDate: '" + aDate + "'");
 			String origDate = aDate;
-	        aDate = aDate.replaceAll("[^a-zA-Z0-9\\., ]"," "); //remove all invalid chars
-	        aDate = aDate.replaceAll("\t|\r|\n", " ");
+	        aDate = aDate.replaceAll("[^a-zA-Z0-9\\., ]"," "); //replace all invalid chars with space
+	        aDate = aDate.replaceAll("\\s+", " ");
 	        aDate.trim();
 
 			//standardize date
@@ -209,8 +209,8 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
 			        String docTitle = elSentence.getAttribute("docTitle");
 			        String theSentence = elSentence.getTextContent();
 
-			        theSentence = theSentence.replaceAll(origDate, aDate); //replace date changes in the sentence
-			        theSentence = theSentence.replaceAll("\t|\r|\n", " ");
+			        theSentence = theSentence.replace(origDate, aDate); //replace date changes in the sentence
+			        theSentence = theSentence.replaceAll("\\s+", " ");
 			        theSentence.trim();
 			        
 			        //look for date only with word boundary and eliminate mismatching
@@ -240,9 +240,8 @@ public class EntityXMLToSimileXML extends AbstractExecutableComponent {
                     sbHtml.append("<div onclick='toggleVisibility(this)' style='position:relative' align='left'><b>Sentence ").append(++nr);
                     if (docTitle != null && docTitle.length() > 0)
                         sbHtml.append(" from '" + StringEscapeUtils.escapeHtml(docTitle) + "'");
-                    sbHtml.append("</b><span style='display: ' align='left'><table><tr><td>").append(theSentence).append("</td></tr></table></span></div>");
-			    
-			        }
+                    sbHtml.append("</b><span style='display: ' align='left'><table><tr><td>").append(theSentence).append("</td></tr></table></span></div>");			    
+			    }
 
 			    String sentence = sbHtml.toString();
 
