@@ -87,7 +87,7 @@ import org.seasr.meandre.support.generic.io.HttpUtils;
 		tags = "#INPUT, tuple, google, search, text",
 		description = "This component performs a Google search by accessing the Google search API."+
 		              "The search term is an input and the search results are output as tuples.",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class GoogleSearchToTuple extends AbstractExecutableComponent {
 

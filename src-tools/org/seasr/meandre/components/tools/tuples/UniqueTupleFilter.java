@@ -78,7 +78,7 @@ import org.seasr.meandre.support.components.tuples.UniqueTupleValues;
         tags = "#TRANSFORM, tuple, filter",
         description = "This component pushes unique tuples (uniqueness based on the value of an attribute) " +
         		      "on the 'unique_tuples' port and the duplicate tuples on the 'duplicate_tuples' port" ,
-        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class UniqueTupleFilter extends AbstractExecutableComponent {
 

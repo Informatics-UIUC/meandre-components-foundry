@@ -75,7 +75,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		rights = Licenses.UofINCSA, 
 		tags = "#ANALYTICS, tuple, tools, text, pearson", 
 		description = "This component takes the incoming set of tuples and compares each word to every other word based on Pearson's analysis", 
-		dependency = {"trove-2.0.3.jar", "protobuf-java-2.2.0.jar" })
+		dependency = {"protobuf-java-2.2.0.jar" })
 		
 		public class TuplePearsonAnalysis extends AbstractStreamingExecutableComponent {
 

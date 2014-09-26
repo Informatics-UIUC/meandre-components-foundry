@@ -97,7 +97,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
             "The second set of tuples is then labelled using the map built from the first set.  A value from the " +
             "tuple is used (as the key into the map) to get the label (the value returned from the map) " +
             "This label is appended to the incoming tuple are returned as a new tuple set",
-        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TupleLabeler extends AbstractExecutableComponent {
 

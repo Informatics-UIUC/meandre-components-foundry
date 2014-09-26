@@ -73,7 +73,7 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         rights = Licenses.UofINCSA,
         tags = "#TRANSFORM, tuple",
         description = "This component splits an aggregate tuple into individual tuples" ,
-        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TupleSplitter extends AbstractStreamingExecutableComponent {
 

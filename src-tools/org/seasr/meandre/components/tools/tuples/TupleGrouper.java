@@ -81,7 +81,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		rights = Licenses.UofINCSA,
 		tags = "#TRANSFORM, tuple, group",
 		description = "This component groups (frequency counts) consecutive tuples based on window size " ,
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TupleGrouper extends AbstractExecutableComponent {
 

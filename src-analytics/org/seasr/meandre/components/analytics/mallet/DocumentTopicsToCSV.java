@@ -85,7 +85,7 @@ import cc.mallet.types.IDSorter;
         tags = "#TRANSFORM, mallet, topic model, csv",
         description = "This component outputs a CSV document containing the topic information, and for each processed document " +
                 "the set of topics and topic probabilities" ,
-        dependency = { "protobuf-java-2.2.0.jar", "trove-2.0.3.jar", "super-csv-2.1.0.jar" }
+        dependency = { "protobuf-java-2.2.0.jar", "super-csv-2.1.0.jar" }
 )
 public class DocumentTopicsToCSV extends AbstractExecutableComponent {
 

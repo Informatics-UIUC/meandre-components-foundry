@@ -48,17 +48,17 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.components.tuples.SimpleTuple;
 import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
@@ -80,7 +80,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		rights = Licenses.UofINCSA,
 		tags = "#TRANSFORM, tuple, tools, text, filter",
 		description = "This component reads a text resources via file or http (assumes no authentication required)",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class UrlToTuple extends AbstractExecutableComponent {
 

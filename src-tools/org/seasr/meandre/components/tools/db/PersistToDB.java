@@ -85,7 +85,7 @@ import de.schlichtherle.io.FileOutputStream;
         tags = "#OUTPUT, tools, database, db, persist, serialize",
         description = "This component persists (serializes) the input into a database",
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
-                       "guava-14.0.1.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
+                       "guava-14.0.1.jar" }
 )
 public class PersistToDB extends AbstractStreamingExecutableComponent {
 

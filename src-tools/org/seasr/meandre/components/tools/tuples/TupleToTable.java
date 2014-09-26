@@ -43,19 +43,17 @@
 package org.seasr.meandre.components.tools.tuples;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
-import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.datamining.table.Column;
 import org.seasr.datatypes.datamining.table.ColumnTypes;
 import org.seasr.datatypes.datamining.table.MutableTable;
@@ -79,7 +77,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         rights = Licenses.UofINCSA,
         tags = "#TRANSFORM, tuple, table",
         description = "This component writes the incoming set of tuples to a Table." ,
-        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TupleToTable extends AbstractExecutableComponent {
 

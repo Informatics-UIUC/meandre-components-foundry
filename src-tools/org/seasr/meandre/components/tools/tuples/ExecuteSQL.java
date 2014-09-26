@@ -80,7 +80,7 @@ import com.jolbox.bonecp.BoneCP;
         tags = "#ANALYTICS, tools, database, sql",
         description = "This component executes SQL statements passed in the input",
         dependency = { "protobuf-java-2.2.0.jar", "sqlite-jdbc-3.7.2.jar",
-                       "guava-14.0.1.jar", "slf4j-api-1.6.1.jar", "slf4j-log4j12-1.6.1.jar" }
+                       "guava-14.0.1.jar" }
 )
 public class ExecuteSQL extends AbstractExecutableComponent {
 

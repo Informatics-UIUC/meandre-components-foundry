@@ -87,7 +87,7 @@ import org.seasr.meandre.support.generic.io.PathUtils;
         		"it looks it up in the cache file and if an attribute is found in cache it is associated with " +
         		"the tuple, otherwise, if a cache miss occurred the tuple is pushed out on the 'tuple_not_cached' " +
         		"port for processing by other means." ,
-        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class AttributeCacheLookup extends AbstractExecutableComponent {
 

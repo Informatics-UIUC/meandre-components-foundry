@@ -87,7 +87,7 @@ import org.seasr.meandre.support.generic.io.StreamUtils;
 		rights = Licenses.UofINCSA,
 		tags = "#ANALYTICS, semantic, text, nlp, information extraction, entity, entity extraction",
 		description = "This component performs named entity tagging using GATE's Stand Alone Gazetteer facilities",
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar", "StandAloneGaz.jar"}
+		dependency = {"protobuf-java-2.2.0.jar", "StandAloneGaz.jar"}
 )
 public class NLPURIGazetteerAdv extends AbstractExecutableComponent {
 

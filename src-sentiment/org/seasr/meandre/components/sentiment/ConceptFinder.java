@@ -81,7 +81,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         tags = "#ANALYTICS, sentiment, concept",
         description = "This component connects to the SynNet service and computes the best concept " +
         		      "for the input token based on the defined concept rules" ,
-        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ConceptFinder extends AbstractExecutableComponent {
 

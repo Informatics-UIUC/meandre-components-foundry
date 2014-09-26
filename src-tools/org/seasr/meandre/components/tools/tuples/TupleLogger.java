@@ -80,7 +80,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
 		rights = Licenses.UofINCSA,
 		tags = "#OUTPUT, tuple, tools, text, filter",
 		description = "This component prints the incoming set of tuples to the console (level info) " ,
-		dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TupleLogger extends AbstractExecutableComponent {
 

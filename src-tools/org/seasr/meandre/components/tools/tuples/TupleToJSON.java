@@ -74,7 +74,7 @@ import org.seasr.meandre.support.components.tuples.SimpleTuplePeer;
         rights = Licenses.UofINCSA,
         tags = "#TRANSFORM, tuple, json",
         description = "This component converts the rows of a tuple into an array of JSON objects that are keyed on the tuple column labels" ,
-        dependency = {"trove-2.0.3.jar","protobuf-java-2.2.0.jar"}
+        dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TupleToJSON extends AbstractExecutableComponent {
 

@@ -92,7 +92,7 @@ import de.micromata.opengis.kml.v_2_2_0.Placemark;
         tags = "#TRANSFORM, tuple, locations, geocoding, kml, map",
         description = "This component geocodes the names of locations (placemarks) specified " +
                 "in the tuples and creates a KML structure with contextual details about each placemark." ,
-        dependency = { "protobuf-java-2.2.0.jar", "activation-1.1.jar", "JavaAPIforKml-2.2.0-SNAPSHOT.jar",
+        dependency = { "protobuf-java-2.2.0.jar", "activation-1.1.1.jar", "JavaAPIforKml-2.2.0-SNAPSHOT.jar",
                        "jaxb-api-2.2.jar", "jaxb-impl-2.2.jar", "jaxb-xjc-2.2.jar", "stax-api-1.0.1.jar" }
 )
 public class TupleLocationsToKML extends AbstractStreamingExecutableComponent {
