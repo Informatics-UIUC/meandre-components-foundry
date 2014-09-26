@@ -33,11 +33,11 @@ import edu.illinois.ncsa.cline.properties.ClineProperties;
 		tags = "#INPUT, text, solr, mongo",
 		description = "This component loads documents from Cline Center repostiory.",
 		dependency = {"protobuf-java-2.2.0.jar",
-				"c3p0-0.9.2.1.jar","httpcore-4.3.2.jar","org.dom4j.dom4j-1.6.1.jar","commons-io-2.3.jar",
-				"httpmime-4.3.5.jar","slf4j-api-1.7.6.jar","core.jar","log4j-1.2.17.jar",
-				"solr-solrj-4.9.0.jar","dom4j-1.6.1.jar","mchange-commons-java-0.2.3.4.jar",
+				"c3p0-0.9.2.1.jar","httpcore-4.3.2.jar",
+				"httpmime-4.3.5.jar","core.jar",
+				"solr-solrj-4.9.0.jar","mchange-commons-java-0.2.3.4.jar",
 				"trove4j-3.0.3.jar","gson-2.2.4.jar","mongo-java-driver-2.12.1.jar",
-				"wstx-asl-3.2.7.jar","httpclient-4.3.5.jar","noggit-0.5.jar","zookeeper-3.4.6.jar"}
+				"httpclient-4.3.5.jar","noggit-0.5.jar","zookeeper-3.4.6.jar"}
 		)
 
 public class ClineGetDoc extends AbstractStreamingExecutableComponent {
