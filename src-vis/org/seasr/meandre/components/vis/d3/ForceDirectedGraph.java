@@ -28,7 +28,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         rights = Licenses.UofINCSA,
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.7-dep.jar", "d3-v3.1.10.jar" },
+        dependency = { "velocity-1.7-dep.jar", "d3-v3.4.11.jar" },
         resources  = { "ForceDirectedGraph.vm" }
 )
 public class ForceDirectedGraph extends AbstractD3Component {

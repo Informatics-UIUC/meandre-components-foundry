@@ -76,7 +76,8 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         rights = Licenses.UofINCSA,
         firingPolicy = FiringPolicy.all,
         baseURL = "meandre://seasr.org/components/foundry/",
-        dependency = { "velocity-1.7-dep.jar", "d3-v3.1.10.jar", "d3.layout.cloud.jar" },
+        dependency = { "velocity-1.7-dep.jar", "d3-v3.4.11.jar", "d3.layout.cloud.jar" },
+        // Note: d3.layout.cloud is the version with overflow added from: https://github.com/john-guerra/d3-cloud
         resources  = { "TagCloud.vm" }
 )
 public class TagCloud extends AbstractD3CloudLayoutComponent {
@@ -195,6 +196,13 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
             name = "show_tooltip"
     )
     protected static final String PROP_SHOW_TOOLTIP = "show_tooltip";
+    
+    @ComponentProperty(
+            defaultValue = "false",
+            description = "Enable the overflow logic that draws partial words in case they don't fully fit?",
+            name = "enable_overflow"
+    )
+    protected static final String PROP_ENABLE_OVERFLOW = "enable_overflow";
 
     //--------------------------------------------------------------------------------------------
 
@@ -219,6 +227,7 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
         context.put("colorPalette", getPropertyOrDieTrying(PROP_COLOR_PALETTE, ccp));
         context.put("showCounts", Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SHOW_COUNTS, ccp)));
         context.put("showToolTip", Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SHOW_TOOLTIP, ccp)));
+        context.put("overflow", Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ENABLE_OVERFLOW, ccp)));
 
         String fontName = getPropertyOrDieTrying(PROP_FONT_NAME, true, false, ccp);
         if (fontName.length() == 0) fontName = null;

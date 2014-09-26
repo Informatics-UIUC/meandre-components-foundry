@@ -32,6 +32,9 @@
                 'size': scale(count)
             };
         }))
+        #if( $overflow )
+        .overflow(true)
+        #end
         .rotate(function() { return ~~(Math.random() * 2) * rotation; })
         .fontSize(function(d) { return d.size; })
         #if( $fontName )
@@ -41,6 +44,8 @@
         .start();
 
     function draw(words) {
+      if (words.length < data.words.length)
+        console.log("Warning: Could only fit " + words.length + " words in the given space, out of " + data.words.length + " total words");
       d3.select("body").append("svg")
           .attr("width", width)
           .attr("height", height)
@@ -62,7 +67,11 @@
               .text(function(d) { return d.text; })
               #if( $showToolTip )
               .append("title")
-                .text(function(d, i) { return d.text + "\n" + data.counts[i]; })
+                .text(function(d, i) { 
+                    var idx = data.words.indexOf(d.text);
+                    var count = data.counts[idx];
+                    return d.text + "\n" + count; 
+                })
               #end
               ;
     }
