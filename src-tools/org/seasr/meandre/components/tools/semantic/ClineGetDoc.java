@@ -117,6 +117,7 @@ public class ClineGetDoc extends AbstractStreamingExecutableComponent {
 		if (_wrapStream) {
 		    StreamDelimiter sd = new StreamInitiator(streamId);
 		    cc.pushDataComponentToOutput(OUT_TEXT, sd);
+		    cc.pushDataComponentToOutput(OUT_ID, sd);
 		}
 		
 		// Issue a simple SOLR query, get an iterator to iterate over the documents, retrieve
@@ -131,6 +132,7 @@ public class ClineGetDoc extends AbstractStreamingExecutableComponent {
 		if (_wrapStream) {
 		    StreamDelimiter sd = new StreamTerminator(streamId);
 		    cc.pushDataComponentToOutput(OUT_TEXT, sd);
+		    cc.pushDataComponentToOutput(OUT_ID, sd);
 		}
 	}	
 
