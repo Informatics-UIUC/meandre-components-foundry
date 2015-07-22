@@ -70,7 +70,7 @@ public class TuplePartitioner extends AbstractStreamingExecutableComponent {
     //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
-            description = "The number desired output partitions [partition size calculated as Math.ceil(input_length/num_partitions)]",
+            description = "The number desired output partitions [partition size calculated as Math.round(input_length/num_partitions)]",
             name = "num_partitions",
             defaultValue = ""
     )

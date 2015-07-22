@@ -79,8 +79,8 @@ public class TupleRandomSample extends AbstractExecutableComponent {
     
     @ComponentProperty(
             name = Names.PROP_SEED,
-            description = "The random seed value",
-            defaultValue = "23"
+            description = "The random seed value (can be empty)",
+            defaultValue = ""
     )
     protected static final String PROP_RANDOM_SEED = Names.PROP_SEED;
 
@@ -96,9 +96,14 @@ public class TupleRandomSample extends AbstractExecutableComponent {
     @Override
 	public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     	_sampleSize = Integer.parseInt(getPropertyOrDieTrying(PROP_SAMPLE_SIZE, ccp));
-    	long randomSeed = Long.parseLong(getPropertyOrDieTrying(PROP_RANDOM_SEED, ccp));
+    	String sRandomSeed = getPropertyOrDieTrying(PROP_RANDOM_SEED, true, false, ccp);
+		Long randomSeed = sRandomSeed.isEmpty() ? null : Long.parseLong(sRandomSeed);
+		
     	_random = ThreadLocalRandom.current();
-    	_random.setSeed(randomSeed);
+    	if (randomSeed != null) {
+    		console.fine("Using random seed value: " + randomSeed);
+    		_random.setSeed(randomSeed);
+    	}
 	}
 
 	@Override
@@ -112,7 +117,7 @@ public class TupleRandomSample extends AbstractExecutableComponent {
         if (size > _sampleSize) {
         	StringsArray.Builder tuplesBuilder = StringsArray.newBuilder();
         	for (int i = 0; i < _sampleSize; i++) {
-        		int pos = i + _random.nextInt(size - i);
+        		int pos = _random.nextInt(i, size-i);
         		tuplesBuilder.addValue(input.getValue(pos));
         	}
         	output = tuplesBuilder.build();
