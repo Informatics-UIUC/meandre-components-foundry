@@ -104,7 +104,7 @@ public class TupleSplitter extends AbstractStreamingExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_META_TUPLE,
-            description = "meta data for the tuples (same as input, concept)" +
+            description = "meta data for the tuples (same as input)" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_META_TUPLE = Names.PORT_META_TUPLE;

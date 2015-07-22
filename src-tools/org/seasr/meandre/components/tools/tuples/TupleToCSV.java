@@ -160,7 +160,7 @@ public class TupleToCSV extends AbstractExecutableComponent {
         StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
         Strings[] in = BasicDataTypesTools.stringsArrayToJavaArray(input);
 
-        int size = tuplePeer.size();;
+        int size = tuplePeer.size();
 
         StringWriter csvData = new StringWriter();
         ICsvListWriter csvWriter = null;
