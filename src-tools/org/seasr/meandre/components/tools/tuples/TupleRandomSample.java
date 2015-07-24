@@ -1,5 +1,6 @@
 package org.seasr.meandre.components.tools.tuples;
 
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.meandre.annotations.Component;
@@ -110,6 +111,7 @@ public class TupleRandomSample extends AbstractExecutableComponent {
 	public void executeCallBack(ComponentContext cc) throws Exception {
 		Strings inputMeta = (Strings) cc.getDataComponentFromInput(IN_META_TUPLE);
         StringsArray input = (StringsArray) cc.getDataComponentFromInput(IN_TUPLES);
+        List<Strings> tuples = input.getValueList();
         StringsArray output = input;
        
         int size = input.getValueCount();
@@ -117,8 +119,9 @@ public class TupleRandomSample extends AbstractExecutableComponent {
         if (size > _sampleSize) {
         	StringsArray.Builder tuplesBuilder = StringsArray.newBuilder();
         	for (int i = 0; i < _sampleSize; i++) {
-        		int pos = _random.nextInt(i, size-i);
-        		tuplesBuilder.addValue(input.getValue(pos));
+        		int pos = _random.nextInt(i, size);
+        		tuplesBuilder.addValue(tuples.get(pos));
+        		tuples.set(pos, tuples.get(i));
         	}
         	output = tuplesBuilder.build();
         }
